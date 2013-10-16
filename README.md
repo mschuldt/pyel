@@ -6,42 +6,46 @@ The goal is to translate a usable subset of python to emacs-lisp. The generated 
 Pyel is full of bugs and unimplemented (or incomplete) features, so don't get too excited (yet).
 
 Unimplemented features include:
- first class functions
- try/except
- lots of primitive type methods
- list/tuple/dict comprehensions
- yield
- class variables
- .
- .
- .
+ first class functions    <br>
+ try/except   <br>
+ lots of primitive type methods   <br>
+ list/tuple/dict comprehensions   <br>
+ yield   <br>
+ class variables   <br>
+ other random stuff
  
 It's not all bad though. See the examples for some of what it can do already.
 It is quite usable, if you know what it can't do and what e-lisp functions to call from it.
 
 # Usage
-
+```cl
 (pyel "python code string")
+```
 returns unevaled e-lisp with supporting function added to `pyel-function-definitions
-
+```cl
 (pyel-load "filename.py")
+```
 translate filename.py, saving the e-lisp in filename.py.el, byte compiling and loading it
 
+```cl
 M-x ipyel
+```cl
  ielm style mode that converts python to e-lisp and evaluates it interactively
 
+```cl
 M-x pyel-mode
+```
 displays the translated python side-by-side in a split buffer
  (still buggy, best to avoid for now)
 
 # Examples
 
+## assignment
 ```python
 a = b
 
 a,b = b,a
 ```
-
 
 ```cl
 (stq a b)
@@ -52,12 +56,13 @@ a,b = b,a
   (setq b __2__))
 ```
 
-
+## primitive types
 ```python
 a = [1,2,3]
 b = (1,2,3)
 c = {1:'one', 2:'two', 3:'two'}
 ```
+
 ```cl
 (setq a (list 1 2 3))
 (setq b (vector 1 2 3))
@@ -68,14 +73,14 @@ c = {1:'one', 2:'two', 3:'two'}
 	  __h__))
 ```
 
-
+## attribute access / method call
 ```python
 a.b
 a.b.c
 a.b.c()
 a.b.c(1,3)
-a.b.c.d(x.y(), e.f.h())```
-
+a.b.c.d(x.y(), e.f.h())
+```
 
 ```cl
 (oref a b)
@@ -84,30 +89,32 @@ a.b.c.d(x.y(), e.f.h())```
 (c (oref a b) 1 3)
 (d (oref (oref a b) c) (y x) (h (oref e f)))
 ```
-
+## translation of function names
 
 ```python
 num = input('num: ')
 map(lambda x: expt(x,2), range(number_to_string(num)))
 ```
+
 ```cl
 (setq num (read-string "num: "))
 (mapcar (lambda (x) (expt x 2)) (py-range (string-to-number num)))
 ```
-
+## for loops
 
 ```python
 m = []
 for i in range(5):
     m.append(i)
 ```
+
 ```cl
 (setq m (list))
 (loop for i in (py-range 5)
       do (pyel-append-method m i))
 ```
 
-
+## calling macros from python
 ```python
 if a():
     save_excursion(
@@ -115,6 +122,7 @@ if a():
         p = point()
         message(format(\"I'm at point %s\",p)))
 ```
+
 ```cl
 (if (a)
     (progn
@@ -123,7 +131,7 @@ if a():
 		      (message (format "I'm at point %s" p)))))
 ```
 
-
+## functions
 ```python
 def reverse_list(s):
   'reverse S by side-effect'
@@ -134,6 +142,7 @@ def reverse_list(s):
       start += 1
       end -= 1
 ```
+
 ```cl
 (defun reverse-list (s)
   "reverse S by side-effect"
@@ -149,18 +158,19 @@ def reverse_list(s):
       (setq end (pyel-- end 1)))))
 ```
 
-
+### default and variable argumentsx
 ```python
 def argsdemo(a,b=2,*c):
     return a + b + reduce(lambda a,b: a +b, c)
 ```
+
 ```cl
 (defun argsdemo (a &optional b &rest c)
   (setq b (or b 2))
   (pyel-+ (pyel-+ a b) (reduce (lambda (a b) (pyel-+ a b)) c)))
 ```
 
-
+### break and continue
 ```python
 def break_continue_demo():
     a = 0
@@ -188,13 +198,14 @@ def break_continue_demo():
 	  (print a))))))
 ```
 
-
+### return
 ```python
 def ret_demo1():
     a()
     return b()
     c()
 ```
+
 ```cl
 (defun ret-demo1 nil
   (catch '__return__
@@ -209,13 +220,14 @@ def ret_demo2():
     a()
     return b()
 ```
+
 ```cl
 (defun ret-demo2 nil
   (a)
   (b))
 ```
 
-
+## classes
 ```python
 class rlist():
     def __init__(self, first, rest):
@@ -241,6 +253,7 @@ class rlist():
 lst = rlist(1, rlist(2, rlist(3, rlist(4,None))))
 last = lst[lst.len()-1]
 ```
+
 ```cl
 (defclass rlist
   nil
