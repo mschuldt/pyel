@@ -5,7 +5,7 @@ The goal is to translate a usable subset of python to emacs-lisp. The generated 
 # Warning
 Pyel is full of bugs and unimplemented (or incomplete) features, so don't get too excited (yet).
 
-Unimplemented features include:
+Unimplemented features include: <br>
  first class functions    <br>
  try/except   <br>
  lots of primitive type methods   <br>
@@ -29,7 +29,7 @@ translate filename.py, saving the e-lisp in filename.py.el, byte compiling and l
 
 ```cl
 M-x ipyel
-```cl
+```
  ielm style mode that converts python to e-lisp and evaluates it interactively
 
 ```cl
@@ -158,7 +158,7 @@ def reverse_list(s):
       (setq end (pyel-- end 1)))))
 ```
 
-### default and variable argumentsx
+### default and variable arguments
 ```python
 def argsdemo(a,b=2,*c):
     return a + b + reduce(lambda a,b: a +b, c)
