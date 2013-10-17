@@ -38,6 +38,10 @@ nil for no error
 (defvar pyel-error-string "PYEL ERROR"
   "string returned by `pyel' when it failed to transform")
 
+(defun pyel-py-ast-file-name ()
+  "return the full file name of py-ast.el"
+  (file-path-concat pyel-directory "py-ast.py"))
+
 (defun pyel (python &optional py-ast-only &optional include-defuns)
   "translate PYTHON into Emacs Lisp.
 PYTHON is a string.
@@ -64,7 +68,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
     (with-temp-buffer
       ;;    (find-file file)
       ;;    (erase-buffer)
-      (insert-file "~/programming/pyel/py-ast.py")
+      (insert-file (pyel-py-ast-file-name))
       (goto-char (point-max))
       (insert "\n")
       (setq line (line-number-at-pos))
@@ -342,6 +346,10 @@ value."
                                       () ,@el-ast)) nil)
       (message "Tests copied to kill ring"))))
 
+(defvar pyel-directory ""
+  "Path to pyel files. must include py-ast.py, pyel.el etc")
+
+
 (defvar pyel-type-test-funcs '((string stringp)
                                (number numberp)
                                (integer integerp)
@@ -440,13 +448,16 @@ not contribute to the output code")
         ;;(pyel-method-transforms nil)
         ;;(pyel-func-transforms nil)
         (pyel-marker-counter 0)
-        (known-types ((number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)))))
+        (known-types ((number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)))))
 
 
 (defvar pyel-marker-counter 0)
@@ -532,14 +543,16 @@ not contribute to the output code")
   (setq known-types '((number object ) (number string)))
 
 ;;prevents error: "Wrong type argument: listp, string"
-(setq known-types '((number list vector string object)
-                    (number list vector string object)
-                    (number list vector string object)
-                    (number list vector string object)
-                    (number list vector string object)
-                    (number list vector string object)
-                    (number list vector string object)))
-
+(setq known-types '((number list vector string object hash)
+                    (number list vector string object hash)
+                    (number list vector string object hash)
+                    (number list vector string object hash)
+                    (number list vector string object hash)
+                    (number list vector string object hash)
+                    (number list vector string object hash)                 
+                    (number list vector string object hash)
+                    (number list vector string object hash)
+                    (number list vector string object hash)))
  
   (defun pyel-get-possible-types (&rest args)
     "return a list in the form (arg types).
@@ -910,6 +923,17 @@ not contribute to the output code")
 if was called as (transform '(template-name args))
 NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
   (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
+
+(defun file-path-concat (&rest dirs)
+  "concatenate strings representing file paths
+prevents multiple/none '/' seporating file names"
+  (let* ((first (strip-end (car dirs) "/"))
+         (last (strip-start (car (last dirs)) "/"))
+         (dirs (append (list first)
+                       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/")) 
+                               (cdr (butlast dirs)))
+                       (list last))))
+    (mapconcat 'identity dirs "/")))
 
 (require 'transformer)
 (require 'pyel-transforms)

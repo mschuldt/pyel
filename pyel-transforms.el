@@ -213,54 +213,54 @@
 
 
 ;; (def-transform compare pyel ()
-    ;;   (lambda (left ops comparators)
-    ;;     ;;what if comparators has multiple items?
-    ;;     `(,(read (car ops)) ,(transform left) ,(transform (car comparators)))))
-  
-  
-  (def-transform compare pyel ()
-    (lambda (left ops comparators)
-      ;;what if comparators has multiple items?
-      (call-transform (read (car ops))
-                      ;;,(transform left) ,(transform (car comparators)))))
-                      ;;(transform left) (transform (car comparators)))))
-                      left (car comparators))))
-  
-  (pyel-create-py-func == (l r)
-                       (number number) -> (= l r)
-                       (string string) -> (string= l r)
-;;                       (object _) -> (--eq-- l r)
-         
-                       (_ _) -> (equal l r))
-  
-  (pyel-create-py-func > (l r)
-                       (number number) -> (> l r)
-                       (string string) -> `(and (not (string< l r)) (not (string= l r)))
-                       (object _) -> (__gt__ l r))
-                       ;;TODO: other py types?
-  ;;::Q does `string<' behave like < for strings in python?
-  (pyel-create-py-func < (l r)
-                       (number number) -> (< l r)
-                       (string string) -> (string< l r)
-                       (object _) -> (__lt__ l r))
-                       ;;TODO: other py types?
-  
-  (pyel-create-py-func >= (l r)
-                       (number number) -> (>= l r)
-                       (string string) -> (not (string< l r))
-                       (object _) -> (__ge__ l r))
-  
-  (pyel-create-py-func <= (l r)
-                       (number number) -> (<= l r)
-                       (string string) -> (or (string< l r) (string= l r))
-                       (object _) -> (__le__ l r))
-  
-  (pyel-create-py-func != (l r)
-                       (number number) -> (not (= l r))
-                       (string string) -> (not (string= l r))
-                       (object _) -> (__ne__ l r)
-                       (_ _) -> (not (equal l r)))
-  ;
+;;   (lambda (left ops comparators)
+;;     ;;what if comparators has multiple items?
+;;     `(,(read (car ops)) ,(transform left) ,(transform (car comparators)))))
+
+
+(def-transform compare pyel ()
+  (lambda (left ops comparators)
+    ;;what if comparators has multiple items?
+    (call-transform (read (car ops))
+                    ;;,(transform left) ,(transform (car comparators)))))
+                    ;;(transform left) (transform (car comparators)))))
+                    left (car comparators))))
+
+(pyel-create-py-func == (l r)
+                     (number number) -> (= l r)
+                     (string string) -> (string= l r)
+                     ;;                       (object _) -> (--eq-- l r)
+                     
+                     (_ _) -> (equal l r))
+
+(pyel-create-py-func > (l r)
+                     (number number) -> (> l r)
+                     (string string) -> `(and (not (string< l r)) (not (string= l r)))
+                     (object _) -> (__gt__ l r))
+;;TODO: other py types?
+;;::Q does `string<' behave like < for strings in python?
+(pyel-create-py-func < (l r)
+                     (number number) -> (< l r)
+                     (string string) -> (string< l r)
+                     (object _) -> (__lt__ l r))
+;;TODO: other py types?
+
+(pyel-create-py-func >= (l r)
+                     (number number) -> (>= l r)
+                     (string string) -> (not (string< l r))
+                     (object _) -> (__ge__ l r))
+
+(pyel-create-py-func <= (l r)
+                     (number number) -> (<= l r)
+                     (string string) -> (or (string< l r) (string= l r))
+                     (object _) -> (__le__ l r))
+
+(pyel-create-py-func != (l r)
+                     (number number) -> (not (= l r))
+                     (string string) -> (not (string= l r))
+                     (object _) -> (__ne__ l r)
+                     (_ _) -> (not (equal l r)))
+                                        ;
 
 (def-transform if pyel ()
   (lambda (test body orelse)

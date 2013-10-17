@@ -158,6 +158,10 @@ main
   (defvar pyel-error-string "PYEL ERROR"
     "string returned by `pyel' when it failed to transform")
   
+  (defun pyel-py-ast-file-name ()
+    "return the full file name of py-ast.el"
+    (file-path-concat pyel-directory "py-ast.py"))
+  
   (defun pyel (python &optional py-ast-only &optional include-defuns)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
@@ -184,7 +188,7 @@ main
       (with-temp-buffer
         ;;    (find-file file)
         ;;    (erase-buffer)
-        (insert-file "~/programming/pyel/py-ast.py")
+        (insert-file (pyel-py-ast-file-name))
         (goto-char (point-max))
         (insert "\n")
         (setq line (line-number-at-pos))
@@ -472,6 +476,11 @@ create tests
 
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
+  
+  (defvar pyel-directory ""
+    "Path to pyel files. must include py-ast.py, pyel.el etc")
+  
+  
   (defvar pyel-type-test-funcs '((string stringp)
                                  (number numberp)
                                  (integer integerp)
@@ -570,13 +579,16 @@ create tests
           ;;(pyel-method-transforms nil)
           ;;(pyel-func-transforms nil)
           (pyel-marker-counter 0)
-          (known-types ((number list vector string object)
-                        (number list vector string object)
-                        (number list vector string object)
-                        (number list vector string object)
-                        (number list vector string object)
-                        (number list vector string object)
-                        (number list vector string object)))))
+          (known-types ((number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)
+                        (number list vector string object hash)))))
   
   
   (defvar pyel-marker-counter 0)
@@ -676,14 +688,16 @@ This will have to be removed after the code is generated
     (setq known-types '((number object ) (number string)))
   
   ;;prevents error: "Wrong type argument: listp, string"
-  (setq known-types '((number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)
-                      (number list vector string object)))
-  
+  (setq known-types '((number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)                 
+                      (number list vector string object hash)
+                      (number list vector string object hash)
+                      (number list vector string object hash)))
    
     (defun pyel-get-possible-types (&rest args)
       "return a list in the form (arg types).
@@ -1115,6 +1129,7 @@ hand written
 					      (_ string)
 					      (string _) -> (pyel-mul-num-str l r))))))
 #+END_SRC
+
 
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -2414,10 +2429,10 @@ assert b == 1")
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   
   
-    ;; (def-transform compare pyel ()
-    ;;   (lambda (left ops comparators)
-    ;;     ;;what if comparators has multiple items?
-    ;;     `(,(read (car ops)) ,(transform left) ,(transform (car comparators)))))
+  ;; (def-transform compare pyel ()
+  ;;   (lambda (left ops comparators)
+  ;;     ;;what if comparators has multiple items?
+  ;;     `(,(read (car ops)) ,(transform left) ,(transform (car comparators)))))
   
   
   (def-transform compare pyel ()
@@ -2431,21 +2446,21 @@ assert b == 1")
   (pyel-create-py-func == (l r)
                        (number number) -> (= l r)
                        (string string) -> (string= l r)
-;;                       (object _) -> (--eq-- l r)
-         
+                       ;;                       (object _) -> (--eq-- l r)
+                       
                        (_ _) -> (equal l r))
   
   (pyel-create-py-func > (l r)
                        (number number) -> (> l r)
                        (string string) -> `(and (not (string< l r)) (not (string= l r)))
                        (object _) -> (__gt__ l r))
-                       ;;TODO: other py types?
+  ;;TODO: other py types?
   ;;::Q does `string<' behave like < for strings in python?
   (pyel-create-py-func < (l r)
                        (number number) -> (< l r)
                        (string string) -> (string< l r)
                        (object _) -> (__lt__ l r))
-                       ;;TODO: other py types?
+  ;;TODO: other py types?
   
   (pyel-create-py-func >= (l r)
                        (number number) -> (>= l r)
@@ -2462,7 +2477,7 @@ assert b == 1")
                        (string string) -> (not (string= l r))
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
-  ;
+                                          ;
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -5377,7 +5392,6 @@ assert a == 8")
 #+END_SRC
 
 
-
 * transform template
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -5399,8 +5413,22 @@ assert a == 8")
 #+END_SRC
 
 * ---------------------
+* misc
+#+Begin_SRC emacs-lisp :tangle pyel.el
+(defun file-path-concat (&rest dirs)
+  "concatenate strings representing file paths
+prevents multiple/none '/' seporating file names"
+  (let* ((first (strip-end (car dirs) "/"))
+	 (last (strip-start (car (last dirs)) "/"))
+	 (dirs (append (list first)
+		       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/")) 
+			       (cdr (butlast dirs)))
+		       (list last))))
+    (mapconcat 'identity dirs "/")))
+#+END_SRC
+
 * EOF
-TODO: print end for each file 
+
 ** main
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (require 'transformer)
