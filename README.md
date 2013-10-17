@@ -17,7 +17,15 @@ Unimplemented features include: <br>
 It's not all bad though. See the examples for some of what it can do already.
 It is quite usable, if you know what it can't do and what e-lisp functions to call from it.
 
+# Setup
+In your configuration file:
+```cl
+(setq pyel-directory "path/to/pyel/directory")
+(require 'pyel)
+```
 # Usage
+
+
 ```cl
 (pyel "python code string")
 ```
@@ -48,7 +56,7 @@ a,b = b,a
 ```
 
 ```cl
-(stq a b)
+(setq a b)
 
 (let ((__1__ b)
       (__2__ a))
