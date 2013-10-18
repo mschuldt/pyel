@@ -1,12 +1,10 @@
 
-;;this is a tangled file. DO NOT HAND EDIT
-
 (defvar pyel-pp--macro-names nil
   "list of all macro names that the preprocessor recognizes
           Do not modify this directory. use <TODO: define> to create new definitions")
 
 
-;;macros that don't need to be defined
+;;macros that don't need to be specially defined 
 (setq pyel-pp--macro-names '("save_excursion"
                              "save_window_excursion"
                              "cond"
@@ -48,8 +46,6 @@ TODO: not all macro translations will work when  declared this way."
           (replace-match (format "while %s%s:"
                                  pyel-py-macro-prefix
                                  (match-string 1))))))))
-
-
 
 
 (defun pyel-create-new-marker ()
@@ -116,5 +112,6 @@ TODO: not all macro translations will work when  declared this way."
                       (read (_to- name))
                       (pyel-buffer-to-string :ast-only))
                 pyel-marked-ast-pieces))))))
+
 
 (provide 'pyel-preprocessor)
