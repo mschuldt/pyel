@@ -217,6 +217,12 @@ def Break():
 def Continue():
     return "(continue)"
 
+def ExceptHandler(type, name, body):
+    return l_str(["except-handler", type or 'nil', name or 'nil', l_str(body)])
+
+def TryExcept(body, handlers, orelse):
+    return l_str(["try", l_str(body), l_str(handlers), l_str(orelse)])
+
 
 
 #py-ast.py ends here

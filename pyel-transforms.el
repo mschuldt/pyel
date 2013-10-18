@@ -785,6 +785,19 @@
      (for (setq continue-for t)))
     '(throw '__continue__ nil)))
 
+(def-transform except-handler pyel (type name body)
+  ;;TODO: name?
+  (lambda (type name body)
+    `(,(or (transform type) 'error)
+      ,@(mapcar 'transform body))))
+
+(def-transform try pyel (body handlers orelse)
+  ;;TODO: orelse
+  (lambda (body handlers orelse)
+    `(condition-case nil
+         ,@(mapcar 'transform body)
+       ,@(mapcar 'transform handlers))))
+
 ;;
 
 (provide 'pyel-transforms)

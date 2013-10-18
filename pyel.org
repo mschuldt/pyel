@@ -1153,7 +1153,7 @@ hand written
 #+END_SRC
 
 * python preprocessor
-TODO: separate into it own file 
+the preprocessor is no longer tangled
 
 (lambda (a b) (print a))
 lambda((a,b)
@@ -1174,132 +1174,10 @@ preprocessor expand separately
   in py-ast replace with variable that matches some regex and contains that id
   in pyel expanstion match names, when match found, transform ast from hash table
 
-#+Begin_SRC emacs-lisp :tangle pyel-preprocessor.el
-  ;;this is a tangled file. DO NOT HAND EDIT
-  
-  (defvar pyel-pp--macro-names nil
-    "list of all macro names that the preprocessor recognizes
-            Do not modify this directory. use <TODO: define> to create new definitions")
-  
-  
-  ;;macros that don't need to be defined
-  (setq pyel-pp--macro-names '("save_excursion"
-                               "save_window_excursion"
-                               "cond"
-                               "lambda"))
-  
-  (defun pyel-declare-macro (name)
-    "Declare NAME as a macro
-  TODO: not all macro translations will work when  declared this way."
-    (unless (stringp name)
-      (setq name (symbol-name name)))
-    (push name pyel-pp--macro-names))
-  
-  
-  (defvar pyel-py-macro-prefix "__pyel__macro__"
-    "prepend this to e-lisp macro call in python before generating ast")
-  
-  
-  ;;TODO:
-  (defun pyel-reprocess (&optional filename output)
-    "pre-process FILENAME, or the current buffer if nil
-            write to OUTPUT, if nil write to buffer *pyel-pp-out*")
-  
-  ;;TODO:
-  (defun pyel-generate-built-in-macro-name-list ()
-    "Find and add names of built in macros to `pyel-pp--macro-names'"
-    )
-  
-  (defun pyel-preprocess-buffer ()
-    (interactive)
-    (cl-flet ((create-regex (name)
-                            (format "\\(%s\\)[ \t\n]*("
-                                    (replace-regexp-in-string "-" "_" name))))
-      (let (re)
-        (dolist (name pyel-pp--macro-names)      
-          ;;TODO group these names together to minimize transverses
-          (setq re (create-regex name))
-          (goto-char 1)
-          (while (re-search-forward re nil :no-error)
-            (replace-match (format "while %s%s:"
-                                   pyel-py-macro-prefix
-                                   (match-string 1))))))))
-  
-  
-  
-  
-  (defun pyel-create-new-marker ()
-    (format "__pyel_marker_%d__" (incf pyel-marker-counter)))
-  
-  (defvar pyel-marked-ast-pieces nil
-    ;;used to share code between the preprocessor and the transforms
-    "a-list of marked ast pieces
-    element form: (marker . ast)")
-  
-  
-  (defun pyel-preprocess-buffer2 () ;;recursive function
-    (interactive)
-    (cl-flet ((create-regex (name)
-                            (format "\\(%s\\)[ \t\n]*("
-                                    (replace-regexp-in-string "-" "_" name))))
-      (let (re marker p code line-start line-end done name)
-        (dolist (name pyel-pp--macro-names)
-          ;;TODO group these names together to minimize transverses
-          (setq re (create-regex name))
-          (goto-char 1)
-          (while (re-search-forward re nil :no-error)
-            (setq marker (pyel-create-new-marker)
-                  line-start (line-number-at-pos))
-            (replace-match marker)
-            (insert "(")
-            (backward-char) ;;cursor on (
-            (setq p (point))
-            (python-nav-forward-sexp)
-            (setq line-end (line-number-at-pos))
-            (push (list marker name (buffer-substring-no-properties p (point)))
-                  code)
-            (delete-region p (point))
-            (dotimes (n (- line-end line-start))
-              ;;Q any problems with random newlines?
-              (insert "\n"))))
-        ;;now transform the code pieces
-        (dolist (c code)
-          (setq marker (first c)
-                name (second c)
-                c (third c))
-          
-          (with-temp-buffer
-            ;;        (find-file "/tmp/pp.py")
-            (insert c)
-            (backward-delete-char 1) ;;delete the last ')'
-            (goto-char (point-min))
-            (delete-char 1) ;;delete the first '('
-            (untabify (point-min) (point-max))
-            ;;delete leading spaces until at least one line is without any
-            (setq done nil)
-            (while (not done)
-              (goto-char 1)
-              (end-of-line) ;;the first already has whitespace removed
-              (if (not (re-search-forward "^[^ \n]" nil :noerror))
-                  (progn
-                    (goto-char 1) (end-of-line)
-                    (while (re-search-forward "^ " nil :noerror)
-                      (replace-match "")
-                      (end-of-line)))
-                (setq done t)))
-                                          ;           (save-buffer)
-            (push (list (read marker)
-                        (read (_to- name))
-                        (pyel-buffer-to-string :ast-only))
-                  pyel-marked-ast-pieces))))))
-  
-  (provide 'pyel-preprocessor)
-#+END_SRC  
 * transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 (make-transform-table 'pyel)
 #+END_SRC
-
 ** tests
 * python ast
 This is for all non template specific code.
@@ -1383,7 +1261,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
 #+END_SRC
 
-* --------------------
+* ---------------------
 * assign
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -5391,6 +5269,111 @@ assert a == 8")
 ;;
 #+END_SRC
 
+* exception handler
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (def-transform except-handler pyel (type name body)
+    ;;TODO: name?
+    (lambda (type name body)
+      `(,(or (transform type) 'error)
+        ,@(mapcar 'transform body))))
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def ExceptHandler(type, name, body):
+      return l_str(["except-handler", type or 'nil', name or 'nil', l_str(body)])
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+* try except
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (def-transform try pyel (body handlers orelse)
+    ;;TODO: orelse
+    (lambda (body handlers orelse)
+      `(condition-case nil
+           ,@(mapcar 'transform body)
+         ,@(mapcar 'transform handlers))))
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def TryExcept(body, handlers, orelse):
+      return l_str(["try", l_str(body), l_str(handlers), l_str(orelse)])
+#+END_SRC
+** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+** tests
+(pyel-create-tests 'try
+"x = ''
+try:
+ 1 / 0
+ x = 'yes'
+except:
+ x = 'no'
+assert x == 'no'"
+		      
+"try:
+ _a()
+except:
+ try:
+  _x()
+ except:
+  _b()"
+)
+
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (ert-deftest pyel-try-full-transform nil
+    (should
+     (equal
+      (pyel "x = ''\ntry:\n 1 / 0\n x = 'yes'\nexcept:\n x = 'no'\nassert x == 'no'")
+      '(progn
+         (setq x "")
+         (condition-case nil
+             (pyel-/ 1 0)
+           (setq x "yes")
+           (error
+            (setq x "no")))
+         (assert
+          (pyel-== x "no")
+          t nil))))
+    (should
+     (equal
+      (pyel "try:\n _a()\nexcept:\n try:\n  _x()\n except:\n  _b()")
+      '(condition-case nil
+           (-a)
+         (error
+          (condition-case nil
+              (-x)
+            (error
+             (-b))))))))
+  (ert-deftest pyel-try-py-ast nil
+    (should
+     (equal
+      (py-ast "x = ''\ntry:\n 1 / 0\n x = 'yes'\nexcept:\n x = 'no'\nassert x == 'no'")
+      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='')), TryExcept(body=[Expr(value=BinOp(left=Num(n=1), op=Div(), right=Num(n=0))), Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='yes'))], handlers=[ExceptHandler(type=None, name=None, body=[Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='no'))])], orelse=[]), Assert(test=Compare(left=Name(id='x', ctx=Load()), ops=[Eq()], comparators=[Str(s='no')]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "try:\n _a()\nexcept:\n try:\n  _x()\n except:\n  _b()")
+      "Module(body=[TryExcept(body=[Expr(value=Call(func=Name(id='_a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], handlers=[ExceptHandler(type=None, name=None, body=[TryExcept(body=[Expr(value=Call(func=Name(id='_x', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], handlers=[ExceptHandler(type=None, name=None, body=[Expr(value=Call(func=Name(id='_b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])], orelse=[])])], orelse=[])])\n")))
+  (ert-deftest pyel-try-el-ast nil
+    (should
+     (string=
+      (pyel "x = ''\ntry:\n 1 / 0\n x = 'yes'\nexcept:\n x = 'no'\nassert x == 'no'" t)
+      "(assign  ((name  \"x\" 'store)) (str \"\"))\n(try ((bin-op  (num 1) / (num 0)) (assign  ((name  \"x\" 'store)) (str \"yes\"))) ((except-handler nil nil ((assign  ((name  \"x\" 'store)) (str \"no\"))))) ())\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((str \"no\"))) nil)\n"))
+    (should
+     (string=
+      (pyel "try:\n _a()\nexcept:\n try:\n  _x()\n except:\n  _b()" t)
+      "(try ((call  (name  \"_a\" 'load) nil nil nil nil)) ((except-handler nil nil ((try ((call  (name  \"_x\" 'load) nil nil nil nil)) ((except-handler nil nil ((call  (name  \"_b\" 'load) nil nil nil nil)))) ())))) ())\n")))
+  
+#+END_SRC
 
 * transform template
 ** transform
