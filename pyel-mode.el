@@ -1,4 +1,4 @@
-;; This file contains all the code from the fb hackathon  (except for ipyel.el)
+;; This file contains some the code from the fb hackathon - the rest has now been merged into pyel.org
 ;;
 ;;
 
@@ -454,29 +454,10 @@ WARNING: will create file named FILE.el, overwriting without warning"
 ;;TODO: pyel-method-transform needs to handle methods with same names and different number of arguments => name mangling - how to handle *args ?
 
 
-(pyel-method-transform remove (obj x)
-		       (list _) ->  (let ((i (list-index x obj)))
-				      (if i
-					  (setq $obj (append (subseq obj 0 i)
-							     (subseq obj (1+ i))))
-					(error "ValueError: list.remove(x): x not in list")))
-		       (object _) -> (remove obj x))
-
 ;;insert
-(pyel-method-transform insert (obj i x)
-		       (list _) -> (let () (setq $obj (append (subseq obj 0 i)
-						      (list x)
-						      (subseq obj i))))
-		       (object _) -> (insert obj i x))
-
-
 
 
 ;;append
-(pyel-method-transform extend(obj thing)
-                  (list _) -> (setq $obj (append obj thing))
-                  (_ _)    -> (append obj thing))
-
 
 ;(pyel "'string'.count('i')")
 ;(pyel-count-method "string" "i")
@@ -484,26 +465,13 @@ WARNING: will create file named FILE.el, overwriting without warning"
 ;;(mpp pyel-defined-functions)
 
 
-
 ;;count
-(pyel-method-transform count (obj elem)
-		  (string _) -> (count-str-matches obj elem)
-                  (list _) -> (count-elems-list obj elem)
-		  (vector _) -> (count-elems-list obj elem)
-                  (object _)  -> (count thing))
 
 ;;Index
 ;(pyel "a = ('a','b','c')
 ;assert a.index('b') == 1
 ;assert 'string'.index('in') == 3
 ;")
-
-(pyel-method-transform index (obj elem)
-                  (list _) -> (list-index elem obj)
-		  (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
-		  (vector _) -> (vector-index elem obj)
-
-                  (object _)    -> (__index__ obj thing)) ;;?
 
 
 
@@ -512,253 +480,15 @@ WARNING: will create file named FILE.el, overwriting without warning"
 ;(pyel "not a
 ;-x" )
  
-(def-transform unary-op pyel ()
-      (lambda (op operand)
-        (call-transform op operand)))
-
-(pyel-create-py-func not (x)
-                    (object) -> (__not__ x) ;;?
-		    (_) -> (not x))
-(pyel-create-py-func usub (x)
-		     (number) -> (- x)
-		     (object) -> (__usub__ x) ;;?
-		    )
-
 
 ;(pyel "a in b
 ;a not in b")
 
-;;a not in b
-;; function:  	is_not(a, b)  (in the operator module)
-(pyel-create-py-func not-in (l r)
-                       (_ list) -> (not (member l r))
-		       (_ vector) -> (not (vector-member l r))
-		       (_ object) -> (--not-in-- r l) ;;?
-		       )
-
-
-;;a in b
-;; function:  	is_(a, b)
-(pyel-create-py-func in (l r)
-		     (_ list) -> (member l r)
-		     (_ vector) -> (vector-member l r)
-		     (_ object) -> (--in-- r l);;?
-		     )
-
 
 ;;TODO: option a in b to return bool like python for the element like e-lisp
 
-(defun vector-member (elt vector)
-  "Return non-nil if ELT is an element of VECTOR.  Comparison done with `equal'."
-  (let ((i 0)
-	(len (length vector))
-	found)
-    (while (and (not found)
-		(< i len))
-      (if (equal (elt vector i) elt)
-	  (setq found t)
-	(setq i (1+ i))))
-    found))
 
 
-(defun list-index (elem list)
-  "return the index of ELEM in LIST"
-  (let ((m (member elem list)))
-    (when m
-      (- (length list) (length m)))))
 
 
-(defun vector-index (elem vector)
-  "return the index of ELEM in VECTOR"
-  (let ((i 0)
-	(len (length vector))
-	found)
-
-    (while (and (< i len)
-		(not found))
-      (if (equal (aref vector i) elem)
-	  (setq found i)
-	(setq i (1+ i))))
-    found))
-
-
-(defun count-str-matches (string substr)
-  "count number of occurrences of SUBSTR in STRING"
-  (with-temp-buffer
-    (insert string)
-    (goto-char 1)
-    (how-many substr)))
-
-(defun count-elems-list (list elem)
-  "return how many times ELEM occurs in LIST"
-  (let ((c 0))
-    (dolist (x list)
-      (if (equal x elem)
-	  (setq c (1+ c))))
-    c))
-	   
-(defun count-elems-vector (vector elem)
-  "return how many times ELEM occurs in VECTOR"
-  (let ((c 0)
-	(i 0)
-	(len (length vector)))
-    (while (< i len)
-      (if (equal (aref vector i) elem)
-	  (setq c (1+ c)))
-      (setq i (1+ i)))
-    c))
-
-
-;;modified:
-(defun pyel-do-call-transform (possible-types args type-switch)
-  "This is responsible for  producing a call to NAME in the most
-      efficient way possible with the known types"
-  (let* ((possible-types (let ((ret nil)
-                               arg)
-                           ;;get entries in form (arg . type)
-                           (dolist (p-t possible-types)
-                             (setq arg (car p-t))
-                             (dolist (type (cdr p-t))
-                               (push (cons arg type) ret)))
-                           ret))
-         (c 0)
-         (new-args (loop for a in args
-                         collect (intern (format "__%s__" (symbol-name a)))))
-         ;;list of symbols to replace
-         ;;format: (symbol replace)
-         (let-vars (append (mapcar* (lambda (a b) (list a b))
-                                     args new-args)
-                            ))
-	 ;;the __x__ type replacements interfere with the (\, x) type replacements
-	 ;;so they must be seporated and done one at a time
-	 (arg-replacements1 let-vars)
-	 (arg-replacements2 (mapcar (lambda (x)
-                                             (list  (intern (format "$%s" x)) (list '\, x)))
-                                           args))
-	 (arg-replacements (append arg-replacements1 arg-replacements2))
-
-	 (current-replace-list nil)
-         ;; (arg-replacements (append let-vars
-         ;;                           (mapcar (lambda (x)
-         ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
-         ;;                                   args)))
-                  
-         (ts ) ;;??
-         (valid nil) ;;list of valid arg--types
-         (found nil)
-         (lets nil)
-         var value type all-good var-vals len)
-    ;;        (print "possible types = ")
-    ;;        (print possible-types)
-    
-    
-    ;;collect all the arg-type--code pairs that are valid possibilities,
-    ;;that is, members of possible-types.
-    ;;This essentially throws out all the arg types that have been ruled out.
-    (dolist (t-s (pyel-expand-type-switch-2 args type-switch))
-      (if (equal (car t-s) 'and)
-          (progn (setq all-good t
-                       found nil)
-                 (dolist  (x (cadr t-s)) ;;for each 'and' member type-switch
-                   (dolist (pos-type possible-types) ;;for each arg type
-                     (if (and (equal (eval (car x)) (car pos-type)) 
-                              (equal (cadr x) (cdr pos-type)))
-                         (setq found t)))
-                   (setq all-good (if (and all-good found) t nil)))
-                 (when all-good
-                   (push t-s valid)))
-        ;;else
-        (if (eq (car t-s) t) ;;when all types are _
-            (push t-s valid)
-          ;;otherwise check if the type is one of the valid types
-          
-          
-          (dolist(pos-type possible-types)
-            (when (and (equal (eval (caar t-s)) (car pos-type))
-                       (equal (cadar t-s) (cdr pos-type)))
-              (push t-s valid))))));;TODO: break if found?
-    
-    
-    
-    ;;generate code to call NAME
-    ;;if there is 2 posible types, use IF. For more use COND
-    (setq len (length valid))
-    
-    (flet ((replace (code replacements)
-                    (let ((ret nil)
-                          found)
-                      
-                      (dolist (c code)
-                        (setq found nil)
-                        (dolist (r replacements)
-                          (if (consp c)
-                              (setq c (replace c replacements))
-                            (if (and (equal c (car r))
-                                     (not found))
-                                (progn (push (cadr r) ret)
-                                       (setq found t)))))
-                        (unless found
-                          (push c ret)))
-                      (reverse ret)))
-
-           (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
-           (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
-           ;;(get-replacement (arg) ;;returns arg replacement
-           ;;                 (cadr (assoc arg arg-replacements)))
-           (get-replacement (arg) ;;returns arg replacement
-                            (cadr (assoc arg current-replace-list)))
-
-	   ;;bug fix maybe...
-	   (get-replacement-OLD (arg) ;;returns arg replacement
-				(cadr (assoc arg arg-replacements)))
-
-	   ;;replaces the vars, one type at a time
-	   (replace-vars (code)
-			 (let* ((current-replace-list arg-replacements1)
-				(code (replace code arg-replacements1))
-				(current-replace-list arg-replacements2))
-			   (replace code arg-replacements2)))
-	    
-           (gen-cond-clause (t-s--c) ;;Type-Switch--Code
-                            (if (equal (car t-s--c) 'and)
-                                `((and ,@(mapcar '(lambda (x)
-                                                    ;;TODO: test
-                                                    `(,(type-tester (cadr x))
-                                                      ,(get-replacement-OLD
-                                                        (car x))))
-                                                 (cadr t-s--c)))
-				  ,(replace-vars (caddr t-s--c)))
-				     
-                              ;;TODO
-                              (if (equal (car t-s--c) t) ;;all types where _
-                                  `(t ,(replace-vars (cadr t-s--c)))
-                                `((,(type-tester (cadar t-s--c))
-                                   ,(get-replacement-OLD (caar t-s--c)))
-                                  ,(replace-vars (cadr t-s--c))
-                                  ))))
-           
-           (gen-varlist ()
-                          (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
-                                  let-vars)
-                          ))
-      
-      (cond ((<= len 0) "ERROR: no valid type")
-            ((= len 1)
-             (if (eq (caar valid) 'and)
-                 ;;; (eval (caddar valid))
-                 (caddar valid)
-               ;;;(eval  (cadar valid))
-               (cadar valid)
-               ))
-            ;;?TODO: are there possible problems with evaluating the arguments
-            ;;       multiple times? Maybe they should be put in a list
-            (t (let* ((clauses (mapcar 'gen-cond-clause valid))
-                      (clauses (if (eq (caar clauses) t)
-                                   clauses
-                                 (cons
-                                  '(t (error "invalid type, expected <TODO>"))
-                                  clauses)))
-                      (varlist (gen-varlist)))
-                 `(backquote (let ,varlist
-                               (cond ,@(reverse clauses))))))))))
 

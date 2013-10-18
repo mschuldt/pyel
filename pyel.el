@@ -788,7 +788,7 @@ not contribute to the output code")
 
 (defun pyel-do-call-transform (possible-types args type-switch)
   "This is responsible for  producing a call to NAME in the most
-        efficient way possible with the known types"
+      efficient way possible with the known types"
   (let* ((possible-types (let ((ret nil)
                                arg)
                            ;;get entries in form (arg . type)
@@ -803,13 +803,22 @@ not contribute to the output code")
          ;;list of symbols to replace
          ;;format: (symbol replace)
          (let-vars (append (mapcar* (lambda (a b) (list a b))
-                                    args new-args)
-                           ))
-         (arg-replacements (append let-vars
-                                   (mapcar (lambda (x)
+                                     args new-args)
+                            ))
+         ;;the __x__ type replacements interfere with the (\, x) type replacements
+         ;;so they must be seporated and done one at a time
+         (arg-replacements1 let-vars)
+         (arg-replacements2 (mapcar (lambda (x)
                                              (list  (intern (format "$%s" x)) (list '\, x)))
-                                           args)))
-         
+                                           args))
+         (arg-replacements (append arg-replacements1 arg-replacements2))
+
+         (current-replace-list nil)
+         ;; (arg-replacements (append let-vars
+         ;;                           (mapcar (lambda (x)
+         ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
+         ;;                                   args)))
+                  
          (ts ) ;;??
          (valid nil) ;;list of valid arg--types
          (found nil)
@@ -851,8 +860,7 @@ not contribute to the output code")
     ;;if there is 2 posible types, use IF. For more use COND
     (setq len (length valid))
     
-    (flet (
-           (replace (code replacements)
+    (flet ((replace (code replacements)
                     (let ((ret nil)
                           found)
                       
@@ -868,41 +876,54 @@ not contribute to the output code")
                         (unless found
                           (push c ret)))
                       (reverse ret)))
-           
+
            (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
            (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
+           ;;(get-replacement (arg) ;;returns arg replacement
+           ;;                 (cadr (assoc arg arg-replacements)))
            (get-replacement (arg) ;;returns arg replacement
-                            (cadr (assoc arg arg-replacements)))
-           
+                            (cadr (assoc arg current-replace-list)))
+
+           ;;bug fix maybe...
+           (get-replacement-OLD (arg) ;;returns arg replacement
+                                (cadr (assoc arg arg-replacements)))
+
+           ;;replaces the vars, one type at a time
+           (replace-vars (code)
+                         (let* ((current-replace-list arg-replacements1)
+                                (code (replace code arg-replacements1))
+                                (current-replace-list arg-replacements2))
+                           (replace code arg-replacements2)))
+            
            (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                             (if (equal (car t-s--c) 'and)
                                 `((and ,@(mapcar '(lambda (x)
                                                     ;;TODO: test
                                                     `(,(type-tester (cadr x))
-                                                      ,(get-replacement
+                                                      ,(get-replacement-OLD
                                                         (car x))))
                                                  (cadr t-s--c)))
-                                  ,(replace (caddr t-s--c) arg-replacements))
-                              
+                                  ,(replace-vars (caddr t-s--c)))
+                                     
                               ;;TODO
                               (if (equal (car t-s--c) t) ;;all types where _
-                                  `(t ,(replace (cadr t-s--c) arg-replacements))
+                                  `(t ,(replace-vars (cadr t-s--c)))
                                 `((,(type-tester (cadar t-s--c))
-                                   ,(get-replacement (caar  t-s--c)))
-                                  ,(replace (cadr t-s--c) arg-replacements)
+                                   ,(get-replacement-OLD (caar t-s--c)))
+                                  ,(replace-vars (cadr t-s--c))
                                   ))))
            
            (gen-varlist ()
-                        (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
-                                let-vars)
-                        ))
+                          (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
+                                  let-vars)
+                          ))
       
       (cond ((<= len 0) "ERROR: no valid type")
             ((= len 1)
              (if (eq (caar valid) 'and)
-                   ;;; (eval (caddar valid))
+                 ;;; (eval (caddar valid))
                  (caddar valid)
-                 ;;;(eval  (cadar valid))
+               ;;;(eval  (cadar valid))
                (cadar valid)
                ))
             ;;?TODO: are there possible problems with evaluating the arguments

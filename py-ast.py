@@ -187,6 +187,12 @@ def Assert(test, msg):
 
 
 
+
+
+
+
+
+
 def For(target, iter, body, orelse):
     return l_str(["for ", target, iter, ll_str(body), ll_str(orelse)])
 
@@ -222,6 +228,8 @@ def ExceptHandler(type, name, body):
 
 def TryExcept(body, handlers, orelse):
     return l_str(["try", l_str(body), l_str(handlers), l_str(orelse)])
+
+
 
 
 

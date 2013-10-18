@@ -1938,6 +1938,20 @@
 
 ;;
 
+;;
+
+;;
+
+;;
+
+;;
+
+;;
+
+;;
+
+;;
+
 (ert-deftest pyel-cond-full-transform nil
   (should
    (equal
@@ -2364,6 +2378,10 @@
    (string=
     (pyel "try:\n _a()\nexcept:\n try:\n  _x()\n except:\n  _b()" t)
     "(try ((call  (name  \"_a\" 'load) nil nil nil nil)) ((except-handler nil nil ((try ((call  (name  \"_x\" 'load) nil nil nil nil)) ((except-handler nil nil ((call  (name  \"_b\" 'load) nil nil nil nil)))) ())))) ())\n")))
+
+;;
+
+;;
 
 ;;
 

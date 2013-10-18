@@ -936,7 +936,7 @@ This will have to be removed after the code is generated
   
   (defun pyel-do-call-transform (possible-types args type-switch)
     "This is responsible for  producing a call to NAME in the most
-          efficient way possible with the known types"
+        efficient way possible with the known types"
     (let* ((possible-types (let ((ret nil)
                                  arg)
                              ;;get entries in form (arg . type)
@@ -951,13 +951,22 @@ This will have to be removed after the code is generated
            ;;list of symbols to replace
            ;;format: (symbol replace)
            (let-vars (append (mapcar* (lambda (a b) (list a b))
-                                      args new-args)
-                             ))
-           (arg-replacements (append let-vars
-                                     (mapcar (lambda (x)
+                                       args new-args)
+                              ))
+           ;;the __x__ type replacements interfere with the (\, x) type replacements
+           ;;so they must be seporated and done one at a time
+           (arg-replacements1 let-vars)
+           (arg-replacements2 (mapcar (lambda (x)
                                                (list  (intern (format "$%s" x)) (list '\, x)))
-                                             args)))
-           
+                                             args))
+           (arg-replacements (append arg-replacements1 arg-replacements2))
+  
+           (current-replace-list nil)
+           ;; (arg-replacements (append let-vars
+           ;;                           (mapcar (lambda (x)
+           ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
+           ;;                                   args)))
+                    
            (ts ) ;;??
            (valid nil) ;;list of valid arg--types
            (found nil)
@@ -999,8 +1008,7 @@ This will have to be removed after the code is generated
       ;;if there is 2 posible types, use IF. For more use COND
       (setq len (length valid))
       
-      (flet (
-             (replace (code replacements)
+      (flet ((replace (code replacements)
                       (let ((ret nil)
                             found)
                         
@@ -1016,41 +1024,54 @@ This will have to be removed after the code is generated
                           (unless found
                             (push c ret)))
                         (reverse ret)))
-             
+  
              (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
              (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
+             ;;(get-replacement (arg) ;;returns arg replacement
+             ;;                 (cadr (assoc arg arg-replacements)))
              (get-replacement (arg) ;;returns arg replacement
-                              (cadr (assoc arg arg-replacements)))
-             
+                              (cadr (assoc arg current-replace-list)))
+  
+             ;;bug fix maybe...
+             (get-replacement-OLD (arg) ;;returns arg replacement
+                                  (cadr (assoc arg arg-replacements)))
+  
+             ;;replaces the vars, one type at a time
+             (replace-vars (code)
+                           (let* ((current-replace-list arg-replacements1)
+                                  (code (replace code arg-replacements1))
+                                  (current-replace-list arg-replacements2))
+                             (replace code arg-replacements2)))
+              
              (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                               (if (equal (car t-s--c) 'and)
                                   `((and ,@(mapcar '(lambda (x)
                                                       ;;TODO: test
                                                       `(,(type-tester (cadr x))
-                                                        ,(get-replacement
+                                                        ,(get-replacement-OLD
                                                           (car x))))
                                                    (cadr t-s--c)))
-                                    ,(replace (caddr t-s--c) arg-replacements))
-                                
+                                    ,(replace-vars (caddr t-s--c)))
+                                       
                                 ;;TODO
                                 (if (equal (car t-s--c) t) ;;all types where _
-                                    `(t ,(replace (cadr t-s--c) arg-replacements))
+                                    `(t ,(replace-vars (cadr t-s--c)))
                                   `((,(type-tester (cadar t-s--c))
-                                     ,(get-replacement (caar  t-s--c)))
-                                    ,(replace (cadr t-s--c) arg-replacements)
+                                     ,(get-replacement-OLD (caar t-s--c)))
+                                    ,(replace-vars (cadr t-s--c))
                                     ))))
              
              (gen-varlist ()
-                          (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
-                                  let-vars)
-                          ))
+                            (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
+                                    let-vars)
+                            ))
         
         (cond ((<= len 0) "ERROR: no valid type")
               ((= len 1)
                (if (eq (caar valid) 'and)
-                     ;;; (eval (caddar valid))
+                   ;;; (eval (caddar valid))
                    (caddar valid)
-                   ;;;(eval  (cadar valid))
+                 ;;;(eval  (cadar valid))
                  (cadar valid)
                  ))
               ;;?TODO: are there possible problems with evaluating the arguments
@@ -3052,7 +3073,7 @@ else:
                            )))
 #+END_SRC
 
-* function
+* function def
 includes 'arg' transformation
 ** python ast expansion example
 "def a(b,c):
@@ -4439,6 +4460,7 @@ Example:
 #+END_SRC
 
 * function transforms
+TODO: tests!
 ** len
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4587,6 +4609,196 @@ assert len(a) == 2"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 (pyel-translate-function-name 'input 'read-string)
+#+END_SRC
+
+** transform template
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+;;
+#+END_SRC
+*** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+* method transforms
+TODO: tests!
+** append
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-method-transform extend(obj thing)
+                  (list _) -> (setq $obj (append obj thing))
+                  (_ _)    -> (append obj thing))
+#+END_SRC
+*** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+*** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+** insert
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-method-transform insert (obj i x)
+		       (list _) -> (let () (setq $obj (append (subseq obj 0 i)
+							      (list x)
+							      (subseq obj i))))
+		       (object _) -> (insert obj i x))
+#+END_SRC
+*** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+** index
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform index (obj elem)
+                    (list _) -> (list-index elem obj)
+                    (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
+                    (vector _) -> (vector-index elem obj)
+  
+                    (object _)    -> (__index__ obj thing)) ;;?
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun list-index (elem list)
+    "return the index of ELEM in LIST"
+    (let ((m (member elem list)))
+      (when m
+        (- (length list) (length m)))))
+  
+  
+  
+  (defun vector-index (elem vector)
+   "return the index of ELEM in VECTOR"
+   (let ((i 0)
+         (len (length vector))
+         found)
+  
+      (while (and (< i len)
+              (not found))
+       (if (equal (aref vector i) elem)
+        (setq found i)
+        (setq i (1+ i))))
+    found))
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+** remove
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-method-transform remove (obj x)
+		       (list _) ->  (let ((i (list-index x obj)))
+				      (if i
+					  (setq $obj (append (subseq obj 0 i)
+							     (subseq obj (1+ i))))
+					(error "ValueError: list.remove(x): x not in list")))
+		       (object _) -> (remove obj x))
+#+END_SRC
+*** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+** count
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform count (obj elem)
+                    (string _) -> (count-str-matches obj elem)
+                    (list _) -> (count-elems-list obj elem)
+                    (vector _) -> (count-elems-vector obj elem)
+                    (object _)  -> (count thing));;
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun count-str-matches (string substr)
+    "count number of occurrences of SUBSTR in STRING"
+    (with-temp-buffer
+      (insert string)
+      (goto-char 1)
+      (how-many substr)))
+  
+  (defun count-elems-list (list elem)
+    "return how many times ELEM occurs in LIST"
+    (let ((c 0))
+      (dolist (x list)
+        (if (equal x elem)
+            (setq c (1+ c))))
+      c))
+  
+  (defun count-elems-vector (vector elem)
+    "return how many times ELEM occurs in VECTOR"
+    (let ((c 0)
+          (i 0)
+          (len (length vector)))
+      (while (< i len)
+        (if (equal (aref vector i) elem)
+            (setq c (1+ c)))
+        (setq i (1+ i)))
+      c))
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+** transform template
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+;;
+#+END_SRC
+*** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
 #+END_SRC
 
 * macro transforms
@@ -5319,7 +5531,7 @@ try:
 except:
  x = 'no'
 assert x == 'no'"
-		      
+
 "try:
  _a()
 except:
@@ -5373,6 +5585,80 @@ except:
       (pyel "try:\n _a()\nexcept:\n try:\n  _x()\n except:\n  _b()" t)
       "(try ((call  (name  \"_a\" 'load) nil nil nil nil)) ((except-handler nil nil ((try ((call  (name  \"_x\" 'load) nil nil nil nil)) ((except-handler nil nil ((call  (name  \"_b\" 'load) nil nil nil nil)))) ())))) ())\n")))
   
+#+END_SRC
+
+* unary op, not, usub
+TODO: tests!
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (def-transform unary-op pyel ()
+    (lambda (op operand)
+      (call-transform op operand)))
+  
+  (pyel-create-py-func not (x)
+                       (object) -> (--not-- x) ;;?
+                       (_) -> (not x))
+  
+  (pyel-create-py-func usub (x)
+                       (number) -> (- x)
+                       (object) -> (--usub-- x) ;;?
+                       )
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+* in, not in
+TODO: tests!
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  ;;a not in b
+  ;; function:    is_not(a, b)  (in the operator module)
+  (pyel-create-py-func not-in (l r)
+                       (_ list) -> (not (member l r))
+                       (_ vector) -> (not (vector-member l r))
+                       (_ object) -> (--not-in-- r l) ;;?
+                       )
+  
+  
+  ;;a in b
+  ;; function:    is_(a, b)
+  (pyel-create-py-func in (l r)
+                       (_ list) -> (member l r)
+                       (_ vector) -> (vector-member l r)
+                       (_ object) -> (--in-- r l);;?
+                       )
+#+END_SRC
+** python el lib
+#+Begin_SRC python :tangle py-lib.el
+  (defun vector-member (elt vector)
+   "Return non-nil if ELT is an element of VECTOR.  Comparison done with `equal'."
+   (let ((i 0)
+         (len (length vector))
+         found)
+    (while (and (not found)
+            (< i len))
+     (if (equal (elt vector i) elt)
+      (setq found t)
+      (setq i (1+ i))))
+    found))
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
 #+END_SRC
 
 * transform template

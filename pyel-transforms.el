@@ -706,6 +706,41 @@
 
 ;;
 
+(pyel-method-transform extend(obj thing)
+                  (list _) -> (setq $obj (append obj thing))
+                  (_ _)    -> (append obj thing))
+
+(pyel-method-transform insert (obj i x)
+                       (list _) -> (let () (setq $obj (append (subseq obj 0 i)
+                                                              (list x)
+                                                              (subseq obj i))))
+                       (object _) -> (insert obj i x))
+
+(pyel-method-transform index (obj elem)
+                  (list _) -> (list-index elem obj)
+                  (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
+                  (vector _) -> (vector-index elem obj)
+
+                  (object _)    -> (__index__ obj thing)) ;;?
+
+(pyel-method-transform remove (obj x)
+                       (list _) ->  (let ((i (list-index x obj)))
+                                      (if i
+                                          (setq $obj (append (subseq obj 0 i)
+                                                             (subseq obj (1+ i))))
+                                        (error "ValueError: list.remove(x): x not in list")))
+                       (object _) -> (remove obj x))
+
+(pyel-method-transform count (obj elem)
+                  (string _) -> (count-str-matches obj elem)
+                  (list _) -> (count-elems-list obj elem)
+                  (vector _) -> (count-elems-vector obj elem)
+                  (object _)  -> (count thing));;
+
+;;
+
+;;
+
 (def-transform for pyel ()
   (lambda (target iter body orelse)
     (pyel-for target iter body orelse)))
@@ -797,6 +832,36 @@
     `(condition-case nil
          ,@(mapcar 'transform body)
        ,@(mapcar 'transform handlers))))
+
+(def-transform unary-op pyel ()
+  (lambda (op operand)
+    (call-transform op operand)))
+
+(pyel-create-py-func not (x)
+                     (object) -> (--not-- x) ;;?
+                     (_) -> (not x))
+
+(pyel-create-py-func usub (x)
+                     (number) -> (- x)
+                     (object) -> (--usub-- x) ;;?
+                     )
+
+;;a not in b
+;; function:    is_not(a, b)  (in the operator module)
+(pyel-create-py-func not-in (l r)
+                     (_ list) -> (not (member l r))
+                     (_ vector) -> (not (vector-member l r))
+                     (_ object) -> (--not-in-- r l) ;;?
+                     )
+
+
+;;a in b
+;; function:    is_(a, b)
+(pyel-create-py-func in (l r)
+                     (_ list) -> (member l r)
+                     (_ vector) -> (vector-member l r)
+                     (_ object) -> (--in-- r l);;?
+                     )
 
 ;;
 
