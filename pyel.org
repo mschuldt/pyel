@@ -123,7 +123,7 @@ header
 #+END_SRC
 
 ** main
-#+Begin_SRC emacs-lisp :tangle pyel.el
+ #+Begin_SRC emacs-lisp :tangle pyel.el
 ;; This is a tangled file  -- DO NOT HAND-EDIT -- 
 ;;PYEL -> translate PYthon to Emacs Lisp
 #+END_SRC  
@@ -1151,7 +1151,24 @@ hand written
 					      (string _) -> (pyel-mul-num-str l r))))))
 #+END_SRC
 
+** translation messages 
+#+Begin_SRC emacs-lisp :tangle pyel.el
+(defvar pyel-translation-messages nil
+  "collects messages during pyel translations")
 
+(defvar pyel-message-formats '((error "ERROR: %s")
+			       (warn "WARNING: %s")
+			       (recommend "RECOMMENDATION: %s"))
+  "alist of message type and their format strings")
+
+(defun pyel-notify (type msg)
+  "add MSG to `pyel-translation-messages', TYPE specifies the format string
+in `pyel-message-formats'"
+  (push (format (or (cadr (assoc type pyel-message-formats))
+		    (format "[%s]: %%s" (upcase (symbol-name type))))
+		msg) pyel-translation-messages))
+
+#+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 (ert-deftest pyel-do-splices ()
@@ -6092,9 +6109,12 @@ assert x[9] == '9'
 This will help notify the user when some syntax has not been implemented
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(def-transform unimplemented pyel (name)
-  (lambda (name)
-    (format "ERROR: '%s' has not been implemented" name)))
+  
+  (def-transform unimplemented pyel (name)
+    (lambda (name)
+      (pyel-notify-error "Set comprehensions have not been implemented")
+      pyel-error-string))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
