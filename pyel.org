@@ -5712,6 +5712,8 @@ TODO: tests!
 #+END_SRC
 
 * comprehensions
+DOC: generator expressions are translated to list comprehensions
+
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform comprehension pyel (target iter ifs)
@@ -5758,12 +5760,14 @@ TODO: tests!
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
+  def comprehension(target, iter, ifs):
+      return l_str(["comprehension", target, iter, l_str(ifs)])
+      
   def ListComp(elt, generators):
       return l_str(["list-comp", elt, l_str(generators)])
   
-  def comprehension(target, iter, ifs):
-      return l_str(["comprehension", target, iter, l_str(ifs)])
-  
+  def GeneratorExp(elt, generators):
+      return l_str(["list-comp", elt, l_str(generators)])    
 #+END_SRC
 ** python el lib
 #+Begin_SRC python :tangle py-lib.el
