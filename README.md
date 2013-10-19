@@ -2,17 +2,17 @@ pyel translates .py files to .el files
 
 The goal is to translate a usable subset of python to emacs-lisp. The generated code should be fast enough to make it practical for developing large extensions, even if this limits what can be translated.
 
-# Warning
-Pyel is full of bugs and unimplemented (or incomplete) features, so don't get too excited (yet).
+# Status
+Pyel is in development. It is full of bugs and unimplemented (or incomplete) features, so don't get too excited (yet).
 
 Unimplemented features include: <br>
- first class functions    <br>
- try/except   <br>
- lots of built-in type methods   <br>
- list/tuple/dict comprehensions   <br>
- yield   <br>
- class variables   <br>
- other random stuff
+ - first class functions    <br>
+ - lots of built-in type methods   <br>
+ - yield   <br>
+ - class variables   <br>
+ - **kwargs <br> <br>
+ - variable unpacking <br>
+ - other random stuff
  
 It's not all bad though. See the examples for some of what it can do already.
 It is quite usable, if you know what it can't do and what e-lisp functions to call from it.
