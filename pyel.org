@@ -2825,7 +2825,7 @@ else:
       "(call  (attribute  (name  \"aa\" 'load) \"b\" 'load) ((num 1) (call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((num 1) (num 2) (num 3)) nil nil nil)) nil nil nil)\n")))
 #+END_SRC
 
-* while
+* while loop
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   
@@ -4988,7 +4988,7 @@ assert x == ['y', 'y', 'x', 'y', 'x']")
 ;;
 #+END_SRC
 
-* for
+* for loop
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform for pyel ()
@@ -5710,6 +5710,72 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
+
+* comprehensions
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (def-transform comprehension pyel (target iter ifs)
+    (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
+  
+  
+  (defun pyel-comprehension (target iter ifs)
+    ;;this uses the inter-transform var 'comprehension-body'
+    (assert (boundp 'comprehension-body)
+            "`comprehension-body' must be defined for this transform")
+    ;;TODO: ifs
+    `(loop for ,(using-context for-loop-target
+                               (transform target))
+           in ,(transform iter)
+           ,(if ifs
+                (list '@ 'if 
+                         (cons (if (> (length ifs) 1)
+                                   'and
+                                 '@)
+                               (mapcar 'transform ifs)))
+              pyel-nothing) 
+           do ,comprehension-body))
+  
+  
+  (def-transform list-comp pyel (elt generators)
+    (lambda (elt generators) (pyel-list-comp elt generators)))
+  
+  (defun pyel-list-comp (elt generators)
+    (let* ((list-var '__list__)
+           (comprehension-body `(setq ,list-var (cons ,(transform elt) ,list-var)))
+           (i (length generators))
+           code)
+      ;;`comprehension-body' is an inter-transform var
+      (while (> i 0)
+        (setq i (1- i))
+        ;;'comprehension-body' holds the inner code, and each transform
+        ;; is the inner code for the preceding generator in 'generators'
+        ;; (loop ... collect ...) produces a list, so no additional work is needed
+        (setq comprehension-body (transform (nth i generators))))
+      
+      `(let ((,list-var nil))
+         ,comprehension-body
+         (reverse ,list-var))))
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def ListComp(elt, generators):
+      return l_str(["list-comp", elt, l_str(generators)])
+  
+  def comprehension(target, iter, ifs):
+      return l_str(["comprehension", target, iter, l_str(ifs)])
+  
+#+END_SRC
+** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 
 * transform template
 ** transform
