@@ -10,7 +10,7 @@ Unimplemented features include: <br>
  - lots of built-in type methods   <br>
  - yield   <br>
  - class variables   <br>
- - **kwargs <br> <br>
+ - **kwargs   <br> 
  - variable unpacking <br>
  - other random stuff
  
