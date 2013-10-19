@@ -490,12 +490,17 @@ not contribute to the output code")
        (pop pyel-context)
        ret)))
 
+(defmacro remove-context (context &rest code)
+  "remove CONTEXT and translate CODE, then restore context"
+  `(let ((pyel-context (remove ',context pyel-context)))
+     ,@code))
+
 (defmacro context-switch (&rest forms)
   `(cond ,@(mapcar (lambda (x)
-                   `(,(let ((context (car x)))
-                        (if (eq context t) t
-                          `(member ',context pyel-context))) ,@(cdr x)))
-                  forms)))
+                     `(,(let ((context (car x)))
+                          (if (eq context t) t
+                            `(member ',context pyel-context))) ,@(cdr x)))
+                   forms)))
 
 
 
@@ -515,7 +520,7 @@ not contribute to the output code")
 ;; (defun context-p (context)
 ;;   (member context pyel-context))
 (defun context-p (context)
-  ;;;;TODO: the extra features that this provides is probably not being used anywere...
+    ;;;;TODO: the extra features that this provides is probably not being used anywere...
   (let ((group (get-context-group context))
         (cont pyel-context)
         (ret nil)
@@ -535,9 +540,9 @@ not contribute to the output code")
 
 
 (defun context-depth (context)
-"get the depth of CONTEXT in `pyel-context'"
-;;TODO:
-)
+  "get the depth of CONTEXT in `pyel-context'"
+  ;;TODO:
+  )
 
 ;;this is all temp for testing
   (setq known-types '((number object ) (number string)))
@@ -945,6 +950,21 @@ if was called as (transform '(template-name args))
 NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
   (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
 
+(defvar pyel-translation-messages nil
+  "collects messages during pyel translations")
+
+(defvar pyel-message-formats '((error "ERROR: %s")
+                               (warn "WARNING: %s")
+                               (recommend "RECOMMENDATION: %s"))
+  "alist of message type and their format strings")
+
+(defun pyel-notify (type msg)
+  "add MSG to `pyel-translation-messages', TYPE specifies the format string
+in `pyel-message-formats'"
+  (push (format (or (cadr (assoc type pyel-message-formats))
+                    (format "[%s]: %%s" (upcase (symbol-name type))))
+                msg) pyel-translation-messages))
+
 (defun file-path-concat (&rest dirs)
   "concatenate strings representing file paths
 prevents multiple/none '/' seporating file names"
@@ -967,3 +987,5 @@ prevents multiple/none '/' seporating file names"
 ;;pyel.el ends here
 
 (setq pyel-use-list-for-varargs t)
+;;(setq pyel-directory "path/to/pyel/directory")
+;;(require 'pyel)

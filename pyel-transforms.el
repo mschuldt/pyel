@@ -305,7 +305,8 @@
                                      ,@(mapcar '(lambda (x) `(quote ,x)) args)));;Transform these args?
             ;;normal method call
             (using-context method-call
-                           `(,(transform func) ,@(mapcar 'transform args))))
+                           `(,(transform func) ,@(remove-context method-call
+                                                                 (mapcar 'transform args)))))
         
         ;;function call
         (when (setq new-func (assoc t-func pyel-function-name-translations))
@@ -872,6 +873,72 @@
                      (_ vector) -> (vector-member l r)
                      (_ object) -> (--in-- r l);;?
                      )
+
+(def-transform comprehension pyel (target iter ifs)
+  (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
+
+
+(defun pyel-comprehension (target iter ifs)
+  ;;this uses the inter-transform var 'comprehension-body'
+  (assert (boundp 'comprehension-body)
+          "`comprehension-body' must be defined for this transform")
+  ;;TODO: ifs
+  `(loop for ,(using-context for-loop-target
+                             (transform target))
+         in ,(transform iter)
+         ,(if ifs
+              (list '@ 'if 
+                       (cons (if (> (length ifs) 1)
+                                 'and
+                               '@)
+                             (mapcar 'transform ifs)))
+            pyel-nothing) 
+         do ,comprehension-body))
+
+
+(def-transform list-comp pyel (elt generators)
+  (lambda (elt generators) (pyel-list-comp elt generators)))
+
+(defun pyel-list-comp (elt generators)
+  (let* ((list-var '__list__)
+         (comprehension-body `(setq ,list-var (cons ,(transform elt) ,list-var)))
+         (i (length generators))
+         code)
+    ;;`comprehension-body' is an inter-transform var
+    (while (> i 0)
+      (setq i (1- i))
+      ;;'comprehension-body' holds the inner code, and each transform
+      ;; is the inner code for the preceding generator in 'generators'
+      ;; (loop ... collect ...) produces a list, so no additional work is needed
+      (setq comprehension-body (transform (nth i generators))))
+    
+    `(let ((,list-var nil))
+       ,comprehension-body
+       (reverse ,list-var))))
+
+
+(def-transform dict-comp pyel (key value generators)
+  (lambda (key value generators) (pyel-dict-comp key value generators)))
+
+(defun pyel-dict-comp (key value generators)
+  (let* ((hash-var '__dict__)
+         (comprehension-body (list 'puthash (transform key)
+                                   (transform value)
+                                   hash-var))
+         (i (length generators))
+         code)
+    (while (> i 0)
+      (setq i (1- i))
+      (setq comprehension-body (transform (nth i generators))))
+    
+    `(let ((,hash-var (make-hash-table :test 'equal)))
+       ,comprehension-body
+       ,hash-var)))
+
+(def-transform unimplemented pyel (name)
+  (lambda (name)
+    (pyel-notify-error "Set comprehensions have not been implemented")
+    pyel-error-string))
 
 ;;
 

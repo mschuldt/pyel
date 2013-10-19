@@ -233,6 +233,23 @@ def TryExcept(body, handlers, orelse):
 
 
 
+def comprehension(target, iter, ifs):
+    return l_str(["comprehension", target, iter, l_str(ifs)])
+
+def GeneratorExp(elt, generators):
+    return l_str(["list-comp", elt, l_str(generators)])
+    
+def ListComp(elt, generators):
+    return l_str(["list-comp", elt, l_str(generators)])
+
+def DictComp(key, value, generators):
+    return l_str(["dict-comp", key, value, l_str(generators)])    
+
+def SetComp(elt, generators):
+    return "(unimplemented \"set comprehension\")"
+
+
+
 
 
 #py-ast.py ends here
