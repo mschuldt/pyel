@@ -632,12 +632,17 @@ This will have to be removed after the code is generated
          (pop pyel-context)
          ret)))
   
+  (defmacro remove-context (context &rest code)
+    "remove CONTEXT and translate CODE, then restore context"
+    `(let ((pyel-context (remove ',context pyel-context)))
+       ,@code))
+  
   (defmacro context-switch (&rest forms)
     `(cond ,@(mapcar (lambda (x)
-                     `(,(let ((context (car x)))
-                          (if (eq context t) t
-                            `(member ',context pyel-context))) ,@(cdr x)))
-                    forms)))
+                       `(,(let ((context (car x)))
+                            (if (eq context t) t
+                              `(member ',context pyel-context))) ,@(cdr x)))
+                     forms)))
   
   
   
@@ -657,7 +662,7 @@ This will have to be removed after the code is generated
   ;; (defun context-p (context)
   ;;   (member context pyel-context))
   (defun context-p (context)
-    ;;;;TODO: the extra features that this provides is probably not being used anywere...
+      ;;;;TODO: the extra features that this provides is probably not being used anywere...
     (let ((group (get-context-group context))
           (cont pyel-context)
           (ret nil)
@@ -677,9 +682,9 @@ This will have to be removed after the code is generated
   
   
   (defun context-depth (context)
-  "get the depth of CONTEXT in `pyel-context'"
-  ;;TODO:
-  )
+    "get the depth of CONTEXT in `pyel-context'"
+    ;;TODO:
+    )
 #+end_src
 
 ** type inference
@@ -1578,7 +1583,6 @@ assert b == 1")
          (t "Error in attribute-- invalid ctx"))
         )))
   
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -1602,7 +1606,9 @@ assert b == 1")
 "a.b.c = d.e()"
 "a.b.c = d.e.f()"
 "a.b.c = d.e.f(1,3)"
-"a.b, a.b.c = d.e.f(1,3), e.g.b")
+"a.b, a.b.c = d.e.f(1,3), e.g.b"
+"a.b(x.y,y)"
+"a.b(x.y(g.g()),y.y)")
 
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-attribute-full-transform nil
@@ -1713,7 +1719,20 @@ assert b == 1")
          (oset a b __1__)
          (oset
           (oref a b)
-          c __2__)))))
+          c __2__))))
+    (should
+     (equal
+      (pyel "a.b(x.y,y)")
+      '(b a
+          (oref x y)
+          y)))
+    (should
+     (equal
+      (pyel "a.b(x.y(g.g()),y.y)")
+      '(b a
+          (y x
+             (g g))
+          (oref y y)))))
   (ert-deftest pyel-attribute-py-ast nil
     (should
      (equal
@@ -1774,7 +1793,15 @@ assert b == 1")
     (should
      (equal
       (py-ast "a.b, a.b.c = d.e.f(1,3), e.g.b")
-      "Module(body=[Assign(targets=[Tuple(elts=[Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), Attribute(value=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), attr='c', ctx=Store())], ctx=Store())], value=Tuple(elts=[Call(func=Attribute(value=Attribute(value=Name(id='d', ctx=Load()), attr='e', ctx=Load()), attr='f', ctx=Load()), args=[Num(n=1), Num(n=3)], keywords=[], starargs=None, kwargs=None), Attribute(value=Attribute(value=Name(id='e', ctx=Load()), attr='g', ctx=Load()), attr='b', ctx=Load())], ctx=Load()))])\n")))
+      "Module(body=[Assign(targets=[Tuple(elts=[Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), Attribute(value=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), attr='c', ctx=Store())], ctx=Store())], value=Tuple(elts=[Call(func=Attribute(value=Attribute(value=Name(id='d', ctx=Load()), attr='e', ctx=Load()), attr='f', ctx=Load()), args=[Num(n=1), Num(n=3)], keywords=[], starargs=None, kwargs=None), Attribute(value=Attribute(value=Name(id='e', ctx=Load()), attr='g', ctx=Load()), attr='b', ctx=Load())], ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a.b(x.y,y)")
+      "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Attribute(value=Name(id='x', ctx=Load()), attr='y', ctx=Load()), Name(id='y', ctx=Load())], keywords=[], starargs=None, kwargs=None))])\n"))
+    (should
+     (equal
+      (py-ast "a.b(x.y(g.g()),y.y)")
+      "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Call(func=Attribute(value=Name(id='x', ctx=Load()), attr='y', ctx=Load()), args=[Call(func=Attribute(value=Name(id='g', ctx=Load()), attr='g', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None), Attribute(value=Name(id='y', ctx=Load()), attr='y', ctx=Load())], keywords=[], starargs=None, kwargs=None))])\n")))
   (ert-deftest pyel-attribute-el-ast nil
     (should
      (string=
@@ -1835,7 +1862,15 @@ assert b == 1")
     (should
      (string=
       (pyel "a.b, a.b.c = d.e.f(1,3), e.g.b" t)
-      "(assign  ((tuple  ((attribute  (name  \"a\" 'load) \"b\" 'store) (attribute  (attribute  (name  \"a\" 'load) \"b\" 'load) \"c\" 'store)) 'store)) (tuple  ((call  (attribute  (attribute  (name  \"d\" 'load) \"e\" 'load) \"f\" 'load) ((num 1) (num 3)) nil nil nil) (attribute  (attribute  (name  \"e\" 'load) \"g\" 'load) \"b\" 'load)) 'load))\n")))
+      "(assign  ((tuple  ((attribute  (name  \"a\" 'load) \"b\" 'store) (attribute  (attribute  (name  \"a\" 'load) \"b\" 'load) \"c\" 'store)) 'store)) (tuple  ((call  (attribute  (attribute  (name  \"d\" 'load) \"e\" 'load) \"f\" 'load) ((num 1) (num 3)) nil nil nil) (attribute  (attribute  (name  \"e\" 'load) \"g\" 'load) \"b\" 'load)) 'load))\n"))
+    (should
+     (string=
+      (pyel "a.b(x.y,y)" t)
+      "(call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((attribute  (name  \"x\" 'load) \"y\" 'load) (name  \"y\" 'load)) nil nil nil)\n"))
+    (should
+     (string=
+      (pyel "a.b(x.y(g.g()),y.y)" t)
+      "(call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((call  (attribute  (name  \"x\" 'load) \"y\" 'load) ((call  (attribute  (name  \"g\" 'load) \"g\" 'load) nil nil nil nil)) nil nil nil) (attribute  (name  \"y\" 'load) \"y\" 'load)) nil nil nil)\n")))
   
 #+END_SRC
 * num ok
@@ -2706,7 +2741,8 @@ else:
                                        ,@(mapcar '(lambda (x) `(quote ,x)) args)));;Transform these args?
               ;;normal method call
               (using-context method-call
-                             `(,(transform func) ,@(mapcar 'transform args))))
+                             `(,(transform func) ,@(remove-context method-call
+                                                                   (mapcar 'transform args)))))
           
           ;;function call
           (when (setq new-func (assoc t-func pyel-function-name-translations))
@@ -2722,8 +2758,6 @@ else:
             
             ;;normal function call
             `(,t-func ,@(mapcar 'transform args)))))))
-  
-  
   
 #+END_SRC
 ** python ast
