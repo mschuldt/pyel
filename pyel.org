@@ -188,7 +188,7 @@ main
       (with-temp-buffer
         ;;    (find-file file)
         ;;    (erase-buffer)
-        (insert-file (pyel-py-ast-file-name))
+        (insert-file-contents-literally (pyel-py-ast-file-name))
         (goto-char (point-max))
         (insert "\n")
         (setq line (line-number-at-pos))
@@ -215,7 +215,7 @@ main
                              (list '@ (cons '@ pyel-function-definitions)
                                       (transform (read (format "(@ %s)" py-ast))))
                            (transform (read  (format "(@ %s)" py-ast))))))
-        ;;TODO this is a temp solution for convenience
+        ;;TODO: this is a temp solution for convenience
         (mapc 'eval pyel-function-definitions) 
         ret
         ))))
