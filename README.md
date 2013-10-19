@@ -8,7 +8,7 @@ Pyel is full of bugs and unimplemented (or incomplete) features, so don't get to
 Unimplemented features include: <br>
  first class functions    <br>
  try/except   <br>
- lots of primitive type methods   <br>
+ lots of built-in type methods   <br>
  list/tuple/dict comprehensions   <br>
  yield   <br>
  class variables   <br>
@@ -64,7 +64,7 @@ a,b = b,a
   (setq b __2__))
 ```
 
-## primitive types
+## built-in types
 ```python
 a = [1,2,3]
 b = (1,2,3)
