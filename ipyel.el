@@ -318,8 +318,6 @@ simply inserts a newline."
 (defvar ipyel-wbuf)
 (defvar ipyel-pmark)
 
-(pyel "\"hi\"")
-
 (defun ipyel-eval-input (input-string)   ;;mbs
   "Evaluate the Lisp expression INPUT-STRING, and pretty-print the result."
   (setq input-string (pp-to-string (pyel input-string)))
