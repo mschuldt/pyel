@@ -5820,6 +5820,15 @@ for i in range(4):
  transposed.append([row[i] for row in matrix])
 assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 "
+
+"{x: [y*y for y in range(x)] for x in range(20)}"
+
+"x = {x: number_to_string(x) for x in range(10)}
+assert hash_table_count(x) == 10
+assert x[1] == '1'
+assert x[9] == '9'
+"
+
 )
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-list-comprehensions-full-transform nil
@@ -5957,6 +5966,58 @@ assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
                     (list 2 6 10)
                     (list 3 7 11)
                     (list 4 8 12)))
+          t nil))))
+    (should
+     (equal
+      (pyel "{x: [y*y for y in range(x)] for x in range(20)}")
+      '(let
+           ((__dict__
+             (make-hash-table :test 'equal)))
+         (loop for x in
+               (py-range 20)
+               do
+               (puthash x
+                        (let
+                            ((__list__ nil))
+                          (loop for y in
+                                (py-range x)
+                                do
+                                (setq __list__
+                                      (cons
+                                       (pyel-* y y)
+                                       __list__)))
+                          (reverse __list__))
+                        __dict__))
+         __dict__)))
+    (should
+     (equal
+      (pyel "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n")
+      '(progn
+         (setq x
+               (let
+                   ((__dict__
+                     (make-hash-table :test 'equal)))
+                 (loop for x in
+                       (py-range 10)
+                       do
+                       (puthash x
+                                (number-to-string x)
+                                __dict__))
+                 __dict__))
+         (assert
+          (pyel-==
+           (hash-table-count x)
+           10)
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index x 1)
+           "1")
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index x 9)
+           "9")
           t nil)))))
   (ert-deftest pyel-list-comprehensions-py-ast nil
     (should
@@ -5982,7 +6043,15 @@ assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
     (should
      (equal
       (py-ast "\ntransposed = []\nfor i in range(4):\n transposed.append([row[i] for row in matrix])\nassert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]\n")
-      "Module(body=[Assign(targets=[Name(id='transposed', ctx=Store())], value=List(elts=[], ctx=Load())), For(target=Name(id='i', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=4)], keywords=[], starargs=None, kwargs=None), body=[Expr(value=Call(func=Attribute(value=Name(id='transposed', ctx=Load()), attr='append', ctx=Load()), args=[ListComp(elt=Subscript(value=Name(id='row', ctx=Load()), slice=Index(value=Name(id='i', ctx=Load())), ctx=Load()), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='matrix', ctx=Load()), ifs=[])])], keywords=[], starargs=None, kwargs=None))], orelse=[]), Assert(test=Compare(left=Name(id='transposed', ctx=Load()), ops=[Eq()], comparators=[List(elts=[List(elts=[Num(n=1), Num(n=5), Num(n=9)], ctx=Load()), List(elts=[Num(n=2), Num(n=6), Num(n=10)], ctx=Load()), List(elts=[Num(n=3), Num(n=7), Num(n=11)], ctx=Load()), List(elts=[Num(n=4), Num(n=8), Num(n=12)], ctx=Load())], ctx=Load())]), msg=None)])\n")))
+      "Module(body=[Assign(targets=[Name(id='transposed', ctx=Store())], value=List(elts=[], ctx=Load())), For(target=Name(id='i', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=4)], keywords=[], starargs=None, kwargs=None), body=[Expr(value=Call(func=Attribute(value=Name(id='transposed', ctx=Load()), attr='append', ctx=Load()), args=[ListComp(elt=Subscript(value=Name(id='row', ctx=Load()), slice=Index(value=Name(id='i', ctx=Load())), ctx=Load()), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='matrix', ctx=Load()), ifs=[])])], keywords=[], starargs=None, kwargs=None))], orelse=[]), Assert(test=Compare(left=Name(id='transposed', ctx=Load()), ops=[Eq()], comparators=[List(elts=[List(elts=[Num(n=1), Num(n=5), Num(n=9)], ctx=Load()), List(elts=[Num(n=2), Num(n=6), Num(n=10)], ctx=Load()), List(elts=[Num(n=3), Num(n=7), Num(n=11)], ctx=Load()), List(elts=[Num(n=4), Num(n=8), Num(n=12)], ctx=Load())], ctx=Load())]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "{x: [y*y for y in range(x)] for x in range(20)}")
+      "Module(body=[Expr(value=DictComp(key=Name(id='x', ctx=Load()), value=ListComp(elt=BinOp(left=Name(id='y', ctx=Load()), op=Mult(), right=Name(id='y', ctx=Load())), generators=[comprehension(target=Name(id='y', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None), ifs=[])]), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=20)], keywords=[], starargs=None, kwargs=None), ifs=[])]))])\n"))
+    (should
+     (equal
+      (py-ast "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n")
+      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=DictComp(key=Name(id='x', ctx=Load()), value=Call(func=Name(id='number_to_string', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=10)], keywords=[], starargs=None, kwargs=None), ifs=[])])), Assert(test=Compare(left=Call(func=Name(id='hash_table_count', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=10)]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Str(s='1')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=9)), ctx=Load()), ops=[Eq()], comparators=[Str(s='9')]), msg=None)])\n")))
   (ert-deftest pyel-list-comprehensions-el-ast nil
     (should
      (string=
@@ -6007,7 +6076,15 @@ assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
     (should
      (string=
       (pyel "\ntransposed = []\nfor i in range(4):\n transposed.append([row[i] for row in matrix])\nassert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]\n" t)
-      "(assign  ((name  \"transposed\" 'store)) (list nil 'load))\n(for  (name  \"i\" 'store) (call  (name  \"range\" 'load) ((num 4)) nil nil nil) ((call  (attribute  (name  \"transposed\" 'load) \"append\" 'load) ((list-comp (subscript (name  \"row\" 'load) (index (name  \"i\" 'load)) 'load) ((comprehension (name  \"row\" 'store) (name  \"matrix\" 'load) ())))) nil nil nil)) nil)\n(assert  (compare  (name  \"transposed\" 'load) (\"==\") ((list ((list ((num 1) (num 5) (num 9)) 'load) (list ((num 2) (num 6) (num 10)) 'load) (list ((num 3) (num 7) (num 11)) 'load) (list ((num 4) (num 8) (num 12)) 'load)) 'load))) nil)\n")))
+      "(assign  ((name  \"transposed\" 'store)) (list nil 'load))\n(for  (name  \"i\" 'store) (call  (name  \"range\" 'load) ((num 4)) nil nil nil) ((call  (attribute  (name  \"transposed\" 'load) \"append\" 'load) ((list-comp (subscript (name  \"row\" 'load) (index (name  \"i\" 'load)) 'load) ((comprehension (name  \"row\" 'store) (name  \"matrix\" 'load) ())))) nil nil nil)) nil)\n(assert  (compare  (name  \"transposed\" 'load) (\"==\") ((list ((list ((num 1) (num 5) (num 9)) 'load) (list ((num 2) (num 6) (num 10)) 'load) (list ((num 3) (num 7) (num 11)) 'load) (list ((num 4) (num 8) (num 12)) 'load)) 'load))) nil)\n"))
+    (should
+     (string=
+      (pyel "{x: [y*y for y in range(x)] for x in range(20)}" t)
+      "(dict-comp (name  \"x\" 'load) (list-comp (bin-op  (name  \"y\" 'load) * (name  \"y\" 'load)) ((comprehension (name  \"y\" 'store) (call  (name  \"range\" 'load) ((name  \"x\" 'load)) nil nil nil) ()))) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 20)) nil nil nil) ())))\n"))
+    (should
+     (string=
+      (pyel "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n" t)
+      "(assign  ((name  \"x\" 'store)) (dict-comp (name  \"x\" 'load) (call  (name  \"number_to_string\" 'load) ((name  \"x\" 'load)) nil nil nil) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ()))))\n(assert  (compare  (call  (name  \"hash_table_count\" 'load) ((name  \"x\" 'load)) nil nil nil) (\"==\") ((num 10))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 1)) 'load) (\"==\") ((str \"1\"))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 9)) 'load) (\"==\") ((str \"9\"))) nil)\n")))
   
 #+END_SRC
 
