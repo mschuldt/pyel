@@ -1249,7 +1249,41 @@
     (pyel "def pyel_test(a,b=1,*c):\n if ab:\n  x = a+b\n y = 3\n _a_()\n z.a = 4" t)
     "(def \" pyel_test \" ((arguments  ((arg \"a\"  nil) (arg \"b\"  nil)) c nil nil nil nil ((num 1)) nil )) ((if  (name  \"ab\" 'load) ((assign  ((name  \"x\" 'store)) (bin-op  (name  \"a\" 'load) + (name  \"b\" 'load)))) nil) (assign  ((name  \"y\" 'store)) (num 3)) (call  (name  \"_a_\" 'load) nil nil nil nil) (assign  ((attribute  (name  \"z\" 'load) \"a\" 'store)) (num 4))) nil nil )\n")))
 
-;;
+(ert-deftest pyel-binop-full-transform nil
+  (should
+   (equal
+    (pyel "assert 1//2 == 0")
+    '(assert
+      (pyel-==
+       (pyel-// 1 2)
+       0)
+      t nil)))
+  (should
+   (equal
+    (pyel "assert 1/2 == 0.5")
+    '(assert
+      (pyel-==
+       (pyel-/ 1 2)
+       0.5)
+      t nil))))
+(ert-deftest pyel-binop-py-ast nil
+  (should
+   (equal
+    (py-ast "assert 1//2 == 0")
+    "Module(body=[Assert(test=Compare(left=BinOp(left=Num(n=1), op=FloorDiv(), right=Num(n=2)), ops=[Eq()], comparators=[Num(n=0)]), msg=None)])\n"))
+  (should
+   (equal
+    (py-ast "assert 1/2 == 0.5")
+    "Module(body=[Assert(test=Compare(left=BinOp(left=Num(n=1), op=Div(), right=Num(n=2)), ops=[Eq()], comparators=[Num(n=0.5)]), msg=None)])\n")))
+(ert-deftest pyel-binop-el-ast nil
+  (should
+   (string=
+    (pyel "assert 1//2 == 0" t)
+    "(assert  (compare  (bin-op  (num 1) // (num 2)) (\"==\") ((num 0))) nil)\n"))
+  (should
+   (string=
+    (pyel "assert 1/2 == 0.5" t)
+    "(assert  (compare  (bin-op  (num 1) / (num 2)) (\"==\") ((num 0.5))) nil)\n")))
 
 (ert-deftest pyel-subscript-full-transform nil
   (should

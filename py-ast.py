@@ -149,6 +149,8 @@ def Sub():
     return "-"
 def Div():
     return "/"
+def FloorDiv():
+    return "//"
 def Pow():
     return "**"
 def BitXor():

@@ -540,17 +540,27 @@
                   (_ object) -> (--sub-- l r))
 
 
-(pyel-create-py-func / (l r)
-                  (number _)
-                  (_ number) -> (/ l r)
-                  (object _)
-                  (_ object) -> (--div-- l r))
-
-
 (pyel-create-py-func ** (l r) ;;pow
                   (number number) -> (expt l r)
                   (object _)
                   (_ object) -> (--pow-- l r))
+
+
+
+(pyel-create-py-func / (l r)
+                     ;; (float _)
+                     ;; (_ float) -> (/ l r)
+                     (number _)
+                     (_ number) -> (/ (* l 1.0) r)
+                     (object _) -> (--truediv-- l r))
+;;                    (_ object) ;;?
+
+
+(pyel-create-py-func // (l r) ;;floored (normal) division 
+                     (number _)
+                     (_ number) -> (/ l r)
+                     (object _) -> (--floordiv-- l r))
+;;                    (_ object) ;;?
 
 (pyel-create-py-func ^ (l r) ;;bit xor
                   (number number) -> (logxor l r)

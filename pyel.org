@@ -3446,17 +3446,27 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                     (_ object) -> (--sub-- l r))
   
   
-  (pyel-create-py-func / (l r)
-                    (number _)
-                    (_ number) -> (/ l r)
-                    (object _)
-                    (_ object) -> (--div-- l r))
-  
-  
   (pyel-create-py-func ** (l r) ;;pow
                     (number number) -> (expt l r)
                     (object _)
                     (_ object) -> (--pow-- l r))
+  
+  
+  
+  (pyel-create-py-func / (l r)
+                       ;; (float _)
+                       ;; (_ float) -> (/ l r)
+                       (number _)
+                       (_ number) -> (/ (* l 1.0) r)
+                       (object _) -> (--truediv-- l r))
+  ;;                    (_ object) ;;?
+  
+  
+  (pyel-create-py-func // (l r) ;;floored (normal) division 
+                       (number _)
+                       (_ number) -> (/ l r)
+                       (object _) -> (--floordiv-- l r))
+  ;;                    (_ object) ;;?
   
   (pyel-create-py-func ^ (l r) ;;bit xor
                     (number number) -> (logxor l r)
@@ -3493,6 +3503,8 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       return "-"
   def Div():
       return "/"
+  def FloorDiv():
+      return "//"
   def Pow():
       return "**"
   def BitXor():
@@ -3510,9 +3522,47 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+END_SRC
 
 ** tests TODO
-(pyel-create-tests '<name>
+(pyel-create-tests 'binop
+"assert 1//2 == 0"
+"assert 1/2 == 0.5")
+
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (ert-deftest pyel-binop-full-transform nil
+    (should
+     (equal
+      (pyel "assert 1//2 == 0")
+      '(assert
+        (pyel-==
+         (pyel-// 1 2)
+         0)
+        t nil)))
+    (should
+     (equal
+      (pyel "assert 1/2 == 0.5")
+      '(assert
+        (pyel-==
+         (pyel-/ 1 2)
+         0.5)
+        t nil))))
+  (ert-deftest pyel-binop-py-ast nil
+    (should
+     (equal
+      (py-ast "assert 1//2 == 0")
+      "Module(body=[Assert(test=Compare(left=BinOp(left=Num(n=1), op=FloorDiv(), right=Num(n=2)), ops=[Eq()], comparators=[Num(n=0)]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "assert 1/2 == 0.5")
+      "Module(body=[Assert(test=Compare(left=BinOp(left=Num(n=1), op=Div(), right=Num(n=2)), ops=[Eq()], comparators=[Num(n=0.5)]), msg=None)])\n")))
+  (ert-deftest pyel-binop-el-ast nil
+    (should
+     (string=
+      (pyel "assert 1//2 == 0" t)
+      "(assert  (compare  (bin-op  (num 1) // (num 2)) (\"==\") ((num 0))) nil)\n"))
+    (should
+     (string=
+      (pyel "assert 1/2 == 0.5" t)
+      "(assert  (compare  (bin-op  (num 1) / (num 2)) (\"==\") ((num 0.5))) nil)\n")))
+  
 #+END_SRC
 
 * subscript,index,slice
