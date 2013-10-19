@@ -5757,17 +5757,44 @@ DOC: generator expressions are translated to list comprehensions
       `(let ((,list-var nil))
          ,comprehension-body
          (reverse ,list-var))))
+  
+  
+  (def-transform dict-comp pyel (key value generators)
+    (lambda (key value generators) (pyel-dict-comp key value generators)))
+  
+  (defun pyel-dict-comp (key value generators)
+    (let* ((hash-var '__dict__)
+           (comprehension-body (list 'puthash (transform key)
+                                     (transform value)
+                                     hash-var))
+           (i (length generators))
+           code)
+      (while (> i 0)
+        (setq i (1- i))
+        (setq comprehension-body (transform (nth i generators))))
+      
+      `(let ((,hash-var (make-hash-table :test 'equal)))
+         ,comprehension-body
+         ,hash-var)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def comprehension(target, iter, ifs):
       return l_str(["comprehension", target, iter, l_str(ifs)])
+  
+  def GeneratorExp(elt, generators):
+      return l_str(["list-comp", elt, l_str(generators)])
       
   def ListComp(elt, generators):
       return l_str(["list-comp", elt, l_str(generators)])
   
-  def GeneratorExp(elt, generators):
-      return l_str(["list-comp", elt, l_str(generators)])    
+  def DictComp(key, value, generators):
+      return l_str(["dict-comp", key, value, l_str(generators)])    
+  
+  def SetComp(elt, generators):
+      return "(unimplemented \"set comprehension\")"
+  
+  
 #+END_SRC
 ** python el lib
 #+Begin_SRC python :tangle py-lib.el
@@ -5984,6 +6011,30 @@ assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
   
 #+END_SRC
 
+* unimplemented
+This will help notify the user when some syntax has not been implemented
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(def-transform unimplemented pyel (name)
+  (lambda (name)
+    (format "ERROR: '%s' has not been implemented" name)))
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+
 * transform template
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -6053,7 +6104,6 @@ prevents multiple/none '/' seporating file names"
 #py-ast.py ends here
 #+END_SRC  
 
-
 * ------------------
 * transform template
 ** transform
@@ -6078,5 +6128,7 @@ prevents multiple/none '/' seporating file names"
 * .emacs config (move)
 #+Begin_SRC emacs-lisp :tangle pyel.el
 (setq pyel-use-list-for-varargs t)
+(setq pyel-directory "path/to/pyel/directory")
+(require 'pyel)
 #+END_SRC
 
