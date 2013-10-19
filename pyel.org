@@ -6259,7 +6259,7 @@ prevents multiple/none '/' seporating file names"
 * .emacs config (move)
 #+Begin_SRC emacs-lisp :tangle pyel.el
 (setq pyel-use-list-for-varargs t)
-(setq pyel-directory "path/to/pyel/directory")
-(require 'pyel)
+;;(setq pyel-directory "path/to/pyel/directory")
+;;(require 'pyel)
 #+END_SRC
 
