@@ -162,7 +162,7 @@ main
     "return the full file name of py-ast.el"
     (file-path-concat pyel-directory "py-ast.py"))
   
-  (defun pyel (python &optional py-ast-only &optional include-defuns)
+  (defun pyel (python &optional py-ast-only include-defuns)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
   If PY-AST-ONLY, return the un-evaled ast.
@@ -6189,6 +6189,30 @@ This will help notify the user when some syntax has not been implemented
 * ---------------------
 * misc
 #+Begin_SRC emacs-lisp :tangle pyel.el
+(defun char-split-string (string)
+  "split a string into its charaters"
+  (cdr (butlast (split-string string ""))))
+
+
+(defun strip-end (string &optional char)
+  "if CHAR occurs at the end of STRING, remove it"
+  (let ((split (char-split-string string))
+	(char (or char " ")))
+
+    (while (string= char (car (last split)))
+      (setq split (butlast split)))
+    (mapconcat 'identity split "")))
+
+(defun strip-start (string &optional char)
+  "if CHAR occurs at the beginning of STRING, remove all occurrences"
+  (let ((split (char-split-string string))
+	(char (or char " ")))
+    
+    (while (string= char (car split))
+      (setq split (cdr split)))
+    (mapconcat 'identity split "")))
+
+;;built-in equivalent?
 (defun file-path-concat (&rest dirs)
   "concatenate strings representing file paths
 prevents multiple/none '/' seporating file names"
@@ -6199,6 +6223,7 @@ prevents multiple/none '/' seporating file names"
 			       (cdr (butlast dirs)))
 		       (list last))))
     (mapconcat 'identity dirs "/")))
+
 #+END_SRC
 
 * EOF
