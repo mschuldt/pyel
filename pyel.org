@@ -5741,7 +5741,6 @@ assert x2 == 35"
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 (pyel-create-tests 'aug-assign
 		   "a += b"
@@ -6485,6 +6484,30 @@ assert x[9] == '9'
       "(assign  ((name  \"x\" 'store)) (dict-comp (name  \"x\" 'load) (call  (name  \"number_to_string\" 'load) ((name  \"x\" 'load)) nil nil nil) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ()))))\n(assert  (compare  (call  (name  \"hash_table_count\" 'load) ((name  \"x\" 'load)) nil nil nil) (\"==\") ((num 10))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 1)) 'load) (\"==\") ((str \"1\"))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 9)) 'load) (\"==\") ((str \"9\"))) nil)\n")))
   
 #+END_SRC
+
+* boolop, and, or
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (def-transform boolop pyel (op values)
+    (lambda (op values)
+      (cons op (mapcar 'transform values))))
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def BoolOp(op, values):
+      return l_str(["boolop", op, l_str(values)])
+  def Or():
+      return "or"
+  def And():
+      return "and"
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 
 * unimplemented
 This will help notify the user when some syntax has not been implemented
