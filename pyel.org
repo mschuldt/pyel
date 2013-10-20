@@ -2389,10 +2389,18 @@ assert b == 1")
   (def-transform compare pyel ()
     (lambda (left ops comparators)
       ;;what if comparators has multiple items?
-      (call-transform (read (car ops))
-                      ;;,(transform left) ,(transform (car comparators)))))
-                      ;;(transform left) (transform (car comparators)))))
-                      left (car comparators))))
+      (pyel-compare left ops comparators :outer)))
+  
+  ;;TODO: assign comparators to temp variables to prevent repeated evaluation
+  (defun pyel-compare (left ops comparators &optional outer)
+    ;;if outer is non-nil, then we use 'and' to combine the seporate tests
+    (if (> (length ops) 1)
+        (list (if outer 'and '@)
+              (pyel-compare left (list (car ops)) (list (car comparators)))
+              (pyel-compare (car comparators) (cdr ops) (cdr comparators)))
+      
+      (call-transform (read (car ops)) left (car comparators))))
+  
   
   (pyel-create-py-func == (l r)
                        (number number) -> (= l r)
@@ -2454,17 +2462,20 @@ assert b == 1")
         return "\"not-in\"";      
 #+END_SRC
 ** tests
-(pyel-create-tests 'compare
-		   "a=='d'"
-		   "a==b"
-		   "a>=b"
-		   "a<=b"
-		   "a<b"
-		   "a>b"
-		   "a!=b"
-		   "(a,b) == [c,d]"
-		   "[a == 1]"
-		   "((a == 1),)")
+   (pyel-create-tests 'compare
+   "a=='d'"
+   "a==b"
+   "a>=b"
+   "a<=b"
+   "a<b"
+   "a>b"
+   "a!=b"
+   "(a,b) == [c,d]"
+   "[a == 1]"
+   "((a == 1),)"
+   "a<b<c"
+   "a<=b<c<=d"
+"a.b<=b.c()<c<=3")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-compare-full-transform nil
     (should
@@ -2510,7 +2521,31 @@ assert b == 1")
      (equal
       (pyel "((a == 1),)")
       '(vector
-        (pyel-== a 1)))))
+        (pyel-== a 1))))
+    (should
+     (equal
+      (pyel "a<b<c")
+      '(and
+        (pyel-< a b)
+        (pyel-< b c))))
+    (should
+     (equal
+      (pyel "a<=b<c<=d")
+      '(and
+        (pyel-<= a b)
+        (pyel-< b c)
+        (pyel-<= c d))))
+    (should
+     (equal
+      (pyel "a.b<=b.c()<c<=3")
+      '(and
+        (pyel-<=
+         (oref a b)
+         (c b))
+        (pyel-<
+         (c b)
+         c)
+        (pyel-<= c 3)))))
   (ert-deftest pyel-compare-py-ast nil
     (should
      (equal
@@ -2551,7 +2586,19 @@ assert b == 1")
     (should
      (equal
       (py-ast "((a == 1),)")
-      "Module(body=[Expr(value=Tuple(elts=[Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)])], ctx=Load()))])\n")))
+      "Module(body=[Expr(value=Tuple(elts=[Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)])], ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a<b<c")
+      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Lt(), Lt()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a<=b<c<=d")
+      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[LtE(), Lt(), LtE()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load()), Name(id='d', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a.b<=b.c()<c<=3")
+      "Module(body=[Expr(value=Compare(left=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), ops=[LtE(), Lt(), LtE()], comparators=[Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Name(id='c', ctx=Load()), Num(n=3)]))])\n")))
   (ert-deftest pyel-compare-el-ast nil
     (should
      (string=
@@ -2592,7 +2639,19 @@ assert b == 1")
     (should
      (string=
       (pyel "((a == 1),)" t)
-      "(tuple  ((compare  (name  \"a\" 'load) (\"==\") ((num 1)))) 'load)\n")))
+      "(tuple  ((compare  (name  \"a\" 'load) (\"==\") ((num 1)))) 'load)\n"))
+    (should
+     (string=
+      (pyel "a<b<c" t)
+      "(compare  (name  \"a\" 'load) (\"<\" \"<\") ((name  \"b\" 'load) (name  \"c\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a<=b<c<=d" t)
+      "(compare  (name  \"a\" 'load) (\"<=\" \"<\" \"<=\") ((name  \"b\" 'load) (name  \"c\" 'load) (name  \"d\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a.b<=b.c()<c<=3" t)
+      "(compare  (attribute  (name  \"a\" 'load) \"b\" 'load) (\"<=\" \"<\" \"<=\") ((call  (attribute  (name  \"b\" 'load) \"c\" 'load) nil nil nil nil) (name  \"c\" 'load) (num 3)))\n")))
   
 #+END_SRC
 
