@@ -384,6 +384,49 @@ main
              (list (car form) (cadr form) (list 'quote ctx)))
             ;;TODO: attribute and other forms (if needed)
             (t form))))
+  
+  
+  (defun pyel-make-ast (type &rest args)
+    "Generate pyhon ast.
+  This is used when the ast form is needed by a transform that is manually
+   called from another transform"
+    (flet ((assert_n_args (type expect have)
+                          (assert (= expect have)
+                                  (format "pyel-make-ast -- ast type '%s'expects %s args. received %s args" type expect have)))
+           (correct_ctx (ctx)
+                        (if (symbolp ctx)
+                            (pyel-make-ast ctx)
+                          ctx))
+           (correct_to_string (name)
+                              (if (stringp name)
+                                  name
+                                (if (symbolp name)
+                                    (symbol-name name)
+                                  (error "invalid type for 'name'")))))
+      
+      ;;TODO: should have seporate functions to check
+      ;;      the validity of the ast instead of having
+      ;;      the correction functions do it
+      (case type
+        
+        (subscript ;;args: value slice ctx
+         (assert_n_args 'subscript 3 (length args))
+         
+         (let ((ctx (correct_ctx (car (last args)))))
+           (list 'subscript (car args) (cadr args) ctx)))
+        
+        (name ;;args: name ctx
+         (assert_n_args 'name 2 (length args))
+         (let* ((name (correct_to_string (car args)))
+                
+                (ctx (correct_ctx (car (last args)))))
+           
+           (list 'name name ctx)))
+        
+        (load
+         '(quote load))
+        (store
+         '(quote store)))))
 #+END_SRC
 
 create tests
@@ -1323,51 +1366,70 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
    ;;TODO: put all setq's in a single form: (setq a 1 b 2) etc
   
   (defun py-assign (targets values)
+      
+      (let ((wrap-values t)
+            unpack i)
+        ;;make sure targets and lists are both in a list form
+        ;;the 'unpack' flag is needed because it leaves no difference
+        ;;between a,b=c and a=b=c
+        (if (and (listp (car targets))
+                 (eq (caar targets) 'tuple))
+            (progn
+              
+              (if (eq (car values) 'tuple)
+                  (progn
+                    
+                    (setq values (cadr values))
+                    (setq wrap-values nil))
+                (setq unpack t) ;;targets is a tuple and values is not
+                ;;(setq values (list values))
+                )
+              
+              (setq targets (cadar targets)))
+          )
+        
+        (when wrap-values
+          (setq values (list values)))
+        
+        
+        ;;py-sssign2 does the main transforms
+        ;;TODO: check for the special case a,b=b,a and create temp variables
+        ;;TODO: check that legnth of the lists are the same
+  
+        ;;TODO: 
+        (cond (unpack
+                ;;TODO: pyel error unless: (and (> (length targets) 1)  (= (length values) 1)
+  
+              (let ((code '(@)))
+                `(let ((__value__ ,(transform (car values))))
+                   
+                ,(dotimes (i (length targets) (reverse code))
+                   ;;;TODO: will have to help the transform know what type __value__ is
+                  (push (py-assign2 (nth i targets)
+                                    
+                                    (pyel-make-ast 'subscript '__value__ i 'load))
+                        code))
+                )))
+  
+               ((= (length targets) 1)
+               ;;form: a=b
+               (py-assign2 (car targets)
+                           (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
     
-    ;;make sure targets and lists are both in a list form
-    (let ((wrap-values t))
-      (if (and (listp (car targets))
-               (eq (caar targets) 'tuple))
-          (progn
-            
-            (if (eq (car values) 'tuple)
-                (progn 
-                  (setq values (cadr values))
-                  (setq wrap-values nil))
-              ;;(setq values (list values))
-              )
-            
-            (setq targets (cadar targets))))
-      
-      (when wrap-values
-        (setq values (list values)))
-      
-      
-      ;;py-sssign2 does the main transforms
-      ;;TODO: check for the special case a,b=b,a and create temp variables
-      ;;TODO: check that legnth of the lists are the same
-      
-      (cond ((= (length targets) 1)
-             ;;form: a=b
-             (py-assign2 (car targets)
-                         (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
-  
-            ;;form: a,b = c
-            ((and (> (length targets) 1) (= (length values) 1))
-             (list '@ (py-assign2 (car (last targets)) (car values))
-                      (py-assign  (butlast targets)
-                                  (pyel-change-ctx (car (last targets)) 'load))))
-            
-            ;;form: a,b = x,y
-            (t (let* ((tmp-vars (loop for i from 1 to (length targets)
-                                      collect (intern (format "__%s__" i))))
-                      (let-vars (mapcar* (lambda (a b)
-                                           (list a (transform b)))
-                                         tmp-vars values)))
-                 `(let ,let-vars
-                    ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars))))))))
-  
-  
+              ;;form: a,b = c
+              ((and (> (length targets) 1) (= (length values) 1))
+               (list '@ (py-assign2 (car (last targets)) (car values))
+                        (py-assign  (butlast targets)
+                                    (pyel-change-ctx (car (last targets)) 'load))))
+              
+              ;;form: a,b = x,y
+              (t (let* ((tmp-vars (loop for i from 1 to (length targets)
+                                        collect (intern (format "__%s__" i))))
+                        (let-vars (mapcar* (lambda (a b)
+                                             (list a (transform b)))
+                                           tmp-vars values)))
+                   `(let ,let-vars
+                      ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars))))))))
   
   ;;DOC: tranforms must be carefull not to transform code multiple times
   
@@ -1422,10 +1484,22 @@ b = 2
 a,b= b,a
 assert a == 2
 assert b == 1"
-"a, b,e = c"
+
 "a,b = c"
-"a,b = c.a"
-"a,b = c.a()")
+"a,b,c = c.a"
+"a,b = c.a()"
+"a,b = c"
+"a,b = a.e.e()"
+"a[1:4], b[2], a.c = c"
+
+"a = b = c"
+"a = b = c.e"
+"a = b = c.e()"
+"a = b = c = 9.3"
+"a = b = c = 9.3
+assert a == b == c == 9.3"
+
+)
 
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el 
   (ert-deftest pyel-assign-full-transform nil
@@ -1494,31 +1568,106 @@ assert b == 1"
           t nil))))
     (should
      (equal
-      (pyel "a, b,e = c")
-      '(progn
-         (setq e c)
-         (setq b e)
-         (setq a b))))
+      (pyel "a,b = c")
+      '(let
+           ((__value__ c))
+         (setq a
+               (pyel-subscript-load-index __value__ 0))
+         (setq b
+               (pyel-subscript-load-index __value__ 1)))))
+    (should
+     (equal
+      (pyel "a,b,c = c.a")
+      '(let
+           ((__value__
+             (oref c a)))
+         (setq a
+               (pyel-subscript-load-index __value__ 0))
+         (setq b
+               (pyel-subscript-load-index __value__ 1))
+         (setq c
+               (pyel-subscript-load-index __value__ 2)))))
+    (should
+     (equal
+      (pyel "a,b = c.a()")
+      '(let
+           ((__value__
+             (a c)))
+         (setq a
+               (pyel-subscript-load-index __value__ 0))
+         (setq b
+               (pyel-subscript-load-index __value__ 1)))))
     (should
      (equal
       (pyel "a,b = c")
+      '(let
+           ((__value__ c))
+         (setq a
+               (pyel-subscript-load-index __value__ 0))
+         (setq b
+               (pyel-subscript-load-index __value__ 1)))))
+    (should
+     (equal
+      (pyel "a,b = a.e.e()")
+      '(let
+           ((__value__
+             (e
+              (oref a e))))
+         (setq a
+               (pyel-subscript-load-index __value__ 0))
+         (setq b
+               (pyel-subscript-load-index __value__ 1)))))
+    (should
+     (equal
+      (pyel "a[1:4], b[2], a.c = c")
+      '(let
+           ((__value__ c))
+         (pyel-subscript-store-slice a 1 4 nil
+                                     (pyel-subscript-load-index __value__ 0))
+         (pyel-subscript-store-index b 2
+                                     (pyel-subscript-load-index __value__ 1))
+         (oset a c
+               (pyel-subscript-load-index __value__ 2)))))
+    (should
+     (equal
+      (pyel "a = b = c")
       '(progn
          (setq b c)
          (setq a b))))
     (should
      (equal
-      (pyel "a,b = c.a")
+      (pyel "a = b = c.e")
       '(progn
          (setq b
-               (oref c a))
+               (oref c e))
          (setq a b))))
     (should
      (equal
-      (pyel "a,b = c.a()")
+      (pyel "a = b = c.e()")
       '(progn
          (setq b
-               (a c))
-         (setq a b)))))
+               (e c))
+         (setq a b))))
+    (should
+     (equal
+      (pyel "a = b = c = 9.3")
+      '(progn
+         (setq c 9.3)
+         (setq b c)
+         (setq a b))))
+    (should
+     (equal
+      (pyel "a = b = c = 9.3\nassert a == b == c == 9.3")
+      '(progn
+         (setq c 9.3)
+         (setq b c)
+         (setq a b)
+         (assert
+          (and
+           (pyel-== a b)
+           (pyel-== b c)
+           (pyel-== c 9.3))
+          t nil)))))
   (ert-deftest pyel-assign-py-ast nil
     (should
      (equal
@@ -1554,20 +1703,48 @@ assert b == 1"
       "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='b', ctx=Store())], value=Num(n=2)), Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Tuple(elts=[Name(id='b', ctx=Load()), Name(id='a', ctx=Load())], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Name(id='b', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)]), msg=None)])\n"))
     (should
      (equal
-      (py-ast "a, b,e = c")
-      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='e', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+      (py-ast "a,b = c")
+      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a,b,c = c.a")
+      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='a', ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a,b = c.a()")
+      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
     (should
      (equal
       (py-ast "a,b = c")
       "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
     (should
      (equal
-      (py-ast "a,b = c.a")
-      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='a', ctx=Load()))])\n"))
+      (py-ast "a,b = a.e.e()")
+      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Call(func=Attribute(value=Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
     (should
      (equal
-      (py-ast "a,b = c.a()")
-      "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n")))
+      (py-ast "a[1:4], b[2], a.c = c")
+      "Module(body=[Assign(targets=[Tuple(elts=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store()), Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), Attribute(value=Name(id='a', ctx=Load()), attr='c', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a = b = c")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a = b = c.e")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "a = b = c.e()")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
+    (should
+     (equal
+      (py-ast "a = b = c = 9.3")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], value=Num(n=9.3))])\n"))
+    (should
+     (equal
+      (py-ast "a = b = c = 9.3\nassert a == b == c == 9.3")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], value=Num(n=9.3)), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq(), Eq(), Eq()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load()), Num(n=9.3)]), msg=None)])\n")))
   (ert-deftest pyel-assign-el-ast nil
     (should
      (string=
@@ -1603,20 +1780,48 @@ assert b == 1"
       "(assign  ((name  \"a\" 'store)) (num 1))\n(assign  ((name  \"b\" 'store)) (num 2))\n(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (tuple  ((name  \"b\" 'load) (name  \"a\" 'load)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((num 2))) nil)\n(assert  (compare  (name  \"b\" 'load) (\"==\") ((num 1))) nil)\n"))
     (should
      (string=
-      (pyel "a, b,e = c" t)
-      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"e\" 'store)) 'store)) (name  \"c\" 'load))\n"))
+      (pyel "a,b = c" t)
+      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (name  \"c\" 'load))\n"))
+    (should
+     (string=
+      (pyel "a,b,c = c.a" t)
+      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) 'store)) (attribute  (name  \"c\" 'load) \"a\" 'load))\n"))
+    (should
+     (string=
+      (pyel "a,b = c.a()" t)
+      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (call  (attribute  (name  \"c\" 'load) \"a\" 'load) nil nil nil nil))\n"))
     (should
      (string=
       (pyel "a,b = c" t)
       "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (name  \"c\" 'load))\n"))
     (should
      (string=
-      (pyel "a,b = c.a" t)
-      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (attribute  (name  \"c\" 'load) \"a\" 'load))\n"))
+      (pyel "a,b = a.e.e()" t)
+      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (call  (attribute  (attribute  (name  \"a\" 'load) \"e\" 'load) \"e\" 'load) nil nil nil nil))\n"))
     (should
      (string=
-      (pyel "a,b = c.a()" t)
-      "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (call  (attribute  (name  \"c\" 'load) \"a\" 'load) nil nil nil nil))\n")))
+      (pyel "a[1:4], b[2], a.c = c" t)
+      "(assign  ((tuple  ((subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'store) (subscript (name  \"b\" 'load) (index (num 2)) 'store) (attribute  (name  \"a\" 'load) \"c\" 'store)) 'store)) (name  \"c\" 'load))\n"))
+    (should
+     (string=
+      (pyel "a = b = c" t)
+      "(assign  ((name  \"a\" 'store) (name  \"b\" 'store)) (name  \"c\" 'load))\n"))
+    (should
+     (string=
+      (pyel "a = b = c.e" t)
+      "(assign  ((name  \"a\" 'store) (name  \"b\" 'store)) (attribute  (name  \"c\" 'load) \"e\" 'load))\n"))
+    (should
+     (string=
+      (pyel "a = b = c.e()" t)
+      "(assign  ((name  \"a\" 'store) (name  \"b\" 'store)) (call  (attribute  (name  \"c\" 'load) \"e\" 'load) nil nil nil nil))\n"))
+    (should
+     (string=
+      (pyel "a = b = c = 9.3" t)
+      "(assign  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) (num 9.3))\n"))
+    (should
+     (string=
+      (pyel "a = b = c = 9.3\nassert a == b == c == 9.3" t)
+      "(assign  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) (num 9.3))\n(assert  (compare  (name  \"a\" 'load) (\"==\" \"==\" \"==\") ((name  \"b\" 'load) (name  \"c\" 'load) (num 9.3))) nil)\n")))
   
 #+END_SRC 
 * attribute
