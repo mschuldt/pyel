@@ -248,6 +248,13 @@ def DictComp(key, value, generators):
 def SetComp(elt, generators):
     return "(unimplemented \"set comprehension\")"
 
+def BoolOp(op, values):
+    return l_str(["boolop", op, l_str(values)])
+def Or():
+    return "or"
+def And():
+    return "and"
+
 
 
 

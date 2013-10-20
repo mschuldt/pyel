@@ -42,7 +42,7 @@ nil for no error
   "return the full file name of py-ast.el"
   (file-path-concat pyel-directory "py-ast.py"))
 
-(defun pyel (python &optional py-ast-only &optional include-defuns)
+(defun pyel (python &optional py-ast-only include-defuns)
   "translate PYTHON into Emacs Lisp.
 PYTHON is a string.
 If PY-AST-ONLY, return the un-evaled ast.
@@ -68,7 +68,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
     (with-temp-buffer
       ;;    (find-file file)
       ;;    (erase-buffer)
-      (insert-file (pyel-py-ast-file-name))
+      (insert-file-contents-literally (pyel-py-ast-file-name))
       (goto-char (point-max))
       (insert "\n")
       (setq line (line-number-at-pos))
@@ -95,7 +95,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
                            (list '@ (cons '@ pyel-function-definitions)
                                     (transform (read (format "(@ %s)" py-ast))))
                          (transform (read  (format "(@ %s)" py-ast))))))
-      ;;TODO this is a temp solution for convenience
+      ;;TODO: this is a temp solution for convenience
       (mapc 'eval pyel-function-definitions) 
       ret
       ))))
@@ -255,6 +255,58 @@ value."
     (intern (replace-regexp-in-string "_" "-"  (symbol-name thing))))
    ((listp thing) (mapcar '_to- thing))
    (t (error "ERROR in _to-. invalid thing"))))
+
+
+(defun pyel-change-ctx (form ctx)
+  "change ctx of form to CTX"
+  (let ((type (and (listp form) (car form))))
+    (cond ((eq type 'name)
+           (list (car form) (cadr form) (list 'quote ctx)))
+          ;;TODO: attribute and other forms (if needed)
+          (t form))))
+
+
+(defun pyel-make-ast (type &rest args)
+  "Generate pyhon ast.
+This is used when the ast form is needed by a transform that is manually
+ called from another transform"
+  (flet ((assert_n_args (type expect have)
+                        (assert (= expect have)
+                                (format "pyel-make-ast -- ast type '%s'expects %s args. received %s args" type expect have)))
+         (correct_ctx (ctx)
+                      (if (symbolp ctx)
+                          (pyel-make-ast ctx)
+                        ctx))
+         (correct_to_string (name)
+                            (if (stringp name)
+                                name
+                              (if (symbolp name)
+                                  (symbol-name name)
+                                (error "invalid type for 'name'")))))
+    
+    ;;TODO: should have seporate functions to check
+    ;;      the validity of the ast instead of having
+    ;;      the correction functions do it
+    (case type
+      
+      (subscript ;;args: value slice ctx
+       (assert_n_args 'subscript 3 (length args))
+       
+       (let ((ctx (correct_ctx (car (last args)))))
+         (list 'subscript (car args) (cadr args) ctx)))
+      
+      (name ;;args: name ctx
+       (assert_n_args 'name 2 (length args))
+       (let* ((name (correct_to_string (car args)))
+              
+              (ctx (correct_ctx (car (last args)))))
+         
+         (list 'name name ctx)))
+      
+      (load
+       '(quote load))
+      (store
+       '(quote store)))))
 
 ;; (defun pyel-create-test-here (name &rest py-code)
 ;;   (let ((shoulds nil))
@@ -965,6 +1017,30 @@ in `pyel-message-formats'"
                     (format "[%s]: %%s" (upcase (symbol-name type))))
                 msg) pyel-translation-messages))
 
+(defun char-split-string (string)
+  "split a string into its charaters"
+  (cdr (butlast (split-string string ""))))
+
+
+(defun strip-end (string &optional char)
+  "if CHAR occurs at the end of STRING, remove it"
+  (let ((split (char-split-string string))
+        (char (or char " ")))
+
+    (while (string= char (car (last split)))
+      (setq split (butlast split)))
+    (mapconcat 'identity split "")))
+
+(defun strip-start (string &optional char)
+  "if CHAR occurs at the beginning of STRING, remove all occurrences"
+  (let ((split (char-split-string string))
+        (char (or char " ")))
+    
+    (while (string= char (car split))
+      (setq split (cdr split)))
+    (mapconcat 'identity split "")))
+
+;;built-in equivalent?
 (defun file-path-concat (&rest dirs)
   "concatenate strings representing file paths
 prevents multiple/none '/' seporating file names"

@@ -9,40 +9,70 @@
  ;;TODO: put all setq's in a single form: (setq a 1 b 2) etc
 
 (defun py-assign (targets values)
-  
-  ;;make sure targets and lists are both in a list form
-  (let ((wrap-values t))
-    (if (and (listp (car targets))
-             (eq (caar targets) 'tuple))
-        (progn
-          
-          (if (eq (car values) 'tuple)
-              (progn 
-                (setq values (cadr values))
-                (setq wrap-values nil))
-            ;;(setq values (list values))
-            )
-          
-          (setq targets (cadar targets))))
     
-    (when wrap-values
-      (setq values (list values)))
-    
-    
-    ;;py-sssign2 does the main transforms
-    ;;TODO: check for the special case a,b=b,a and create temp variables
-    ;;TODO: check that legnth of the lists are the same
-    
-    (if (= (length targets) 1)
-        (py-assign2 (car targets) (car values))
-      (let* ((tmp-vars (loop for i from 1 to (length targets)
-                             collect (intern (format "__%s__" i))))
-             (let-vars (mapcar* (lambda (a b)
-                                  (list a (transform b)))
-                                tmp-vars values)))
-        `(let ,let-vars
-           ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars)))))))
+    (let ((wrap-values t)
+          unpack i)
+      ;;make sure targets and lists are both in a list form
+      ;;the 'unpack' flag is needed because it leaves no difference
+      ;;between a,b=c and a=b=c
+      (if (and (listp (car targets))
+               (eq (caar targets) 'tuple))
+          (progn
+            
+            (if (eq (car values) 'tuple)
+                (progn
+                  
+                  (setq values (cadr values))
+                  (setq wrap-values nil))
+              (setq unpack t) ;;targets is a tuple and values is not
+              ;;(setq values (list values))
+              )
+            
+            (setq targets (cadar targets)))
+        )
+      
+      (when wrap-values
+        (setq values (list values)))
+      
+      
+      ;;py-sssign2 does the main transforms
+      ;;TODO: check for the special case a,b=b,a and create temp variables
+      ;;TODO: check that legnth of the lists are the same
 
+      ;;TODO: 
+      (cond (unpack
+              ;;TODO: pyel error unless: (and (> (length targets) 1)  (= (length values) 1)
+
+            (let ((code '(@)))
+              `(let ((__value__ ,(transform (car values))))
+                 
+              ,(dotimes (i (length targets) (reverse code))
+                 ;;;TODO: will have to help the transform know what type __value__ is
+                (push (py-assign2 (nth i targets)
+                                  
+                                  (pyel-make-ast 'subscript '__value__ i 'load))
+                      code))
+              )))
+
+             ((= (length targets) 1)
+             ;;form: a=b
+             (py-assign2 (car targets)
+                         (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
+  
+            ;;form: a,b = c
+            ((and (> (length targets) 1) (= (length values) 1))
+             (list '@ (py-assign2 (car (last targets)) (car values))
+                      (py-assign  (butlast targets)
+                                  (pyel-change-ctx (car (last targets)) 'load))))
+            
+            ;;form: a,b = x,y
+            (t (let* ((tmp-vars (loop for i from 1 to (length targets)
+                                      collect (intern (format "__%s__" i))))
+                      (let-vars (mapcar* (lambda (a b)
+                                           (list a (transform b)))
+                                         tmp-vars values)))
+                 `(let ,let-vars
+                    ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars))))))))
 
 ;;DOC: tranforms must be carefull not to transform code multiple times
 
@@ -221,10 +251,18 @@
 (def-transform compare pyel ()
   (lambda (left ops comparators)
     ;;what if comparators has multiple items?
-    (call-transform (read (car ops))
-                    ;;,(transform left) ,(transform (car comparators)))))
-                    ;;(transform left) (transform (car comparators)))))
-                    left (car comparators))))
+    (pyel-compare left ops comparators :outer)))
+
+;;TODO: assign comparators to temp variables to prevent repeated evaluation
+(defun pyel-compare (left ops comparators &optional outer)
+  ;;if outer is non-nil, then we use 'and' to combine the seporate tests
+  (if (> (length ops) 1)
+      (list (if outer 'and '@)
+            (pyel-compare left (list (car ops)) (list (car comparators)))
+            (pyel-compare (car comparators) (cdr ops) (cdr comparators)))
+    
+    (call-transform (read (car ops)) left (car comparators))))
+
 
 (pyel-create-py-func == (l r)
                      (number number) -> (= l r)
@@ -934,6 +972,10 @@
     `(let ((,hash-var (make-hash-table :test 'equal)))
        ,comprehension-body
        ,hash-var)))
+
+(def-transform boolop pyel (op values)
+  (lambda (op values)
+    (cons op (mapcar 'transform values))))
 
 (def-transform unimplemented pyel (name)
   (lambda (name)

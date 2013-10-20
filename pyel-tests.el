@@ -109,6 +109,108 @@
         t nil)
        (assert
         (pyel-== b 1)
+        t nil))))
+  (should
+   (equal
+    (pyel "a,b = c")
+    '(let
+         ((__value__ c))
+       (setq a
+             (pyel-subscript-load-index __value__ 0))
+       (setq b
+             (pyel-subscript-load-index __value__ 1)))))
+  (should
+   (equal
+    (pyel "a,b,c = c.a")
+    '(let
+         ((__value__
+           (oref c a)))
+       (setq a
+             (pyel-subscript-load-index __value__ 0))
+       (setq b
+             (pyel-subscript-load-index __value__ 1))
+       (setq c
+             (pyel-subscript-load-index __value__ 2)))))
+  (should
+   (equal
+    (pyel "a,b = c.a()")
+    '(let
+         ((__value__
+           (a c)))
+       (setq a
+             (pyel-subscript-load-index __value__ 0))
+       (setq b
+             (pyel-subscript-load-index __value__ 1)))))
+  (should
+   (equal
+    (pyel "a,b = c")
+    '(let
+         ((__value__ c))
+       (setq a
+             (pyel-subscript-load-index __value__ 0))
+       (setq b
+             (pyel-subscript-load-index __value__ 1)))))
+  (should
+   (equal
+    (pyel "a,b = a.e.e()")
+    '(let
+         ((__value__
+           (e
+            (oref a e))))
+       (setq a
+             (pyel-subscript-load-index __value__ 0))
+       (setq b
+             (pyel-subscript-load-index __value__ 1)))))
+  (should
+   (equal
+    (pyel "a[1:4], b[2], a.c = c")
+    '(let
+         ((__value__ c))
+       (pyel-subscript-store-slice a 1 4 nil
+                                   (pyel-subscript-load-index __value__ 0))
+       (pyel-subscript-store-index b 2
+                                   (pyel-subscript-load-index __value__ 1))
+       (oset a c
+             (pyel-subscript-load-index __value__ 2)))))
+  (should
+   (equal
+    (pyel "a = b = c")
+    '(progn
+       (setq b c)
+       (setq a b))))
+  (should
+   (equal
+    (pyel "a = b = c.e")
+    '(progn
+       (setq b
+             (oref c e))
+       (setq a b))))
+  (should
+   (equal
+    (pyel "a = b = c.e()")
+    '(progn
+       (setq b
+             (e c))
+       (setq a b))))
+  (should
+   (equal
+    (pyel "a = b = c = 9.3")
+    '(progn
+       (setq c 9.3)
+       (setq b c)
+       (setq a b))))
+  (should
+   (equal
+    (pyel "a = b = c = 9.3\nassert a == b == c == 9.3")
+    '(progn
+       (setq c 9.3)
+       (setq b c)
+       (setq a b)
+       (assert
+        (and
+         (pyel-== a b)
+         (pyel-== b c)
+         (pyel-== c 9.3))
         t nil)))))
 (ert-deftest pyel-assign-py-ast nil
   (should
@@ -142,7 +244,51 @@
   (should
    (equal
     (py-ast "a = 1\nb = 2\na,b= b,a\nassert a == 2\nassert b == 1")
-    "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='b', ctx=Store())], value=Num(n=2)), Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Tuple(elts=[Name(id='b', ctx=Load()), Name(id='a', ctx=Load())], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Name(id='b', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)]), msg=None)])\n")))
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='b', ctx=Store())], value=Num(n=2)), Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Tuple(elts=[Name(id='b', ctx=Load()), Name(id='a', ctx=Load())], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Name(id='b', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)]), msg=None)])\n"))
+  (should
+   (equal
+    (py-ast "a,b = c")
+    "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a,b,c = c.a")
+    "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='a', ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a,b = c.a()")
+    "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
+  (should
+   (equal
+    (py-ast "a,b = c")
+    "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a,b = a.e.e()")
+    "Module(body=[Assign(targets=[Tuple(elts=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], ctx=Store())], value=Call(func=Attribute(value=Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
+  (should
+   (equal
+    (py-ast "a[1:4], b[2], a.c = c")
+    "Module(body=[Assign(targets=[Tuple(elts=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store()), Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), Attribute(value=Name(id='a', ctx=Load()), attr='c', ctx=Store())], ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a = b = c")
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Name(id='c', ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a = b = c.e")
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a = b = c.e()")
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
+  (should
+   (equal
+    (py-ast "a = b = c = 9.3")
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], value=Num(n=9.3))])\n"))
+  (should
+   (equal
+    (py-ast "a = b = c = 9.3\nassert a == b == c == 9.3")
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], value=Num(n=9.3)), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq(), Eq(), Eq()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load()), Num(n=9.3)]), msg=None)])\n")))
 (ert-deftest pyel-assign-el-ast nil
   (should
    (string=
@@ -175,7 +321,51 @@
   (should
    (string=
     (pyel "a = 1\nb = 2\na,b= b,a\nassert a == 2\nassert b == 1" t)
-    "(assign  ((name  \"a\" 'store)) (num 1))\n(assign  ((name  \"b\" 'store)) (num 2))\n(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (tuple  ((name  \"b\" 'load) (name  \"a\" 'load)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((num 2))) nil)\n(assert  (compare  (name  \"b\" 'load) (\"==\") ((num 1))) nil)\n")))
+    "(assign  ((name  \"a\" 'store)) (num 1))\n(assign  ((name  \"b\" 'store)) (num 2))\n(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (tuple  ((name  \"b\" 'load) (name  \"a\" 'load)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((num 2))) nil)\n(assert  (compare  (name  \"b\" 'load) (\"==\") ((num 1))) nil)\n"))
+  (should
+   (string=
+    (pyel "a,b = c" t)
+    "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (name  \"c\" 'load))\n"))
+  (should
+   (string=
+    (pyel "a,b,c = c.a" t)
+    "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) 'store)) (attribute  (name  \"c\" 'load) \"a\" 'load))\n"))
+  (should
+   (string=
+    (pyel "a,b = c.a()" t)
+    "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (call  (attribute  (name  \"c\" 'load) \"a\" 'load) nil nil nil nil))\n"))
+  (should
+   (string=
+    (pyel "a,b = c" t)
+    "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (name  \"c\" 'load))\n"))
+  (should
+   (string=
+    (pyel "a,b = a.e.e()" t)
+    "(assign  ((tuple  ((name  \"a\" 'store) (name  \"b\" 'store)) 'store)) (call  (attribute  (attribute  (name  \"a\" 'load) \"e\" 'load) \"e\" 'load) nil nil nil nil))\n"))
+  (should
+   (string=
+    (pyel "a[1:4], b[2], a.c = c" t)
+    "(assign  ((tuple  ((subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'store) (subscript (name  \"b\" 'load) (index (num 2)) 'store) (attribute  (name  \"a\" 'load) \"c\" 'store)) 'store)) (name  \"c\" 'load))\n"))
+  (should
+   (string=
+    (pyel "a = b = c" t)
+    "(assign  ((name  \"a\" 'store) (name  \"b\" 'store)) (name  \"c\" 'load))\n"))
+  (should
+   (string=
+    (pyel "a = b = c.e" t)
+    "(assign  ((name  \"a\" 'store) (name  \"b\" 'store)) (attribute  (name  \"c\" 'load) \"e\" 'load))\n"))
+  (should
+   (string=
+    (pyel "a = b = c.e()" t)
+    "(assign  ((name  \"a\" 'store) (name  \"b\" 'store)) (call  (attribute  (name  \"c\" 'load) \"e\" 'load) nil nil nil nil))\n"))
+  (should
+   (string=
+    (pyel "a = b = c = 9.3" t)
+    "(assign  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) (num 9.3))\n"))
+  (should
+   (string=
+    (pyel "a = b = c = 9.3\nassert a == b == c == 9.3" t)
+    "(assign  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) (num 9.3))\n(assert  (compare  (name  \"a\" 'load) (\"==\" \"==\" \"==\") ((name  \"b\" 'load) (name  \"c\" 'load) (num 9.3))) nil)\n")))
 
 (ert-deftest pyel-attribute-full-transform nil
   (should
@@ -772,7 +962,31 @@
    (equal
     (pyel "((a == 1),)")
     '(vector
-      (pyel-== a 1)))))
+      (pyel-== a 1))))
+  (should
+   (equal
+    (pyel "a<b<c")
+    '(and
+      (pyel-< a b)
+      (pyel-< b c))))
+  (should
+   (equal
+    (pyel "a<=b<c<=d")
+    '(and
+      (pyel-<= a b)
+      (pyel-< b c)
+      (pyel-<= c d))))
+  (should
+   (equal
+    (pyel "a.b<=b.c()<c<=3")
+    '(and
+      (pyel-<=
+       (oref a b)
+       (c b))
+      (pyel-<
+       (c b)
+       c)
+      (pyel-<= c 3)))))
 (ert-deftest pyel-compare-py-ast nil
   (should
    (equal
@@ -813,7 +1027,19 @@
   (should
    (equal
     (py-ast "((a == 1),)")
-    "Module(body=[Expr(value=Tuple(elts=[Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)])], ctx=Load()))])\n")))
+    "Module(body=[Expr(value=Tuple(elts=[Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)])], ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a<b<c")
+    "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Lt(), Lt()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a<=b<c<=d")
+    "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[LtE(), Lt(), LtE()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load()), Name(id='d', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a.b<=b.c()<c<=3")
+    "Module(body=[Expr(value=Compare(left=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), ops=[LtE(), Lt(), LtE()], comparators=[Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Name(id='c', ctx=Load()), Num(n=3)]))])\n")))
 (ert-deftest pyel-compare-el-ast nil
   (should
    (string=
@@ -854,7 +1080,19 @@
   (should
    (string=
     (pyel "((a == 1),)" t)
-    "(tuple  ((compare  (name  \"a\" 'load) (\"==\") ((num 1)))) 'load)\n")))
+    "(tuple  ((compare  (name  \"a\" 'load) (\"==\") ((num 1)))) 'load)\n"))
+  (should
+   (string=
+    (pyel "a<b<c" t)
+    "(compare  (name  \"a\" 'load) (\"<\" \"<\") ((name  \"b\" 'load) (name  \"c\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a<=b<c<=d" t)
+    "(compare  (name  \"a\" 'load) (\"<=\" \"<\" \"<=\") ((name  \"b\" 'load) (name  \"c\" 'load) (name  \"d\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a.b<=b.c()<c<=3" t)
+    "(compare  (attribute  (name  \"a\" 'load) \"b\" 'load) (\"<=\" \"<\" \"<=\") ((call  (attribute  (name  \"b\" 'load) \"c\" 'load) nil nil nil nil) (name  \"c\" 'load) (num 3)))\n")))
 
 (ert-deftest pyel-if-full-transform nil
   (should
@@ -2700,6 +2938,109 @@
    (string=
     (pyel "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n" t)
     "(assign  ((name  \"x\" 'store)) (dict-comp (name  \"x\" 'load) (call  (name  \"number_to_string\" 'load) ((name  \"x\" 'load)) nil nil nil) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ()))))\n(assert  (compare  (call  (name  \"hash_table_count\" 'load) ((name  \"x\" 'load)) nil nil nil) (\"==\") ((num 10))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 1)) 'load) (\"==\") ((str \"1\"))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 9)) 'load) (\"==\") ((str \"9\"))) nil)\n")))
+
+(ert-deftest pyel-boolop-full-transform nil
+  (should
+   (equal
+    (pyel "a or b")
+    '(or a b)))
+  (should
+   (equal
+    (pyel "a or b or c")
+    '(or a b c)))
+  (should
+   (equal
+    (pyel "a.c or b.c() or a[2]")
+    '(or
+      (oref a c)
+      (c b)
+      (pyel-subscript-load-index a 2))))
+  (should
+   (equal
+    (pyel "a and b")
+    '(and a b)))
+  (should
+   (equal
+    (pyel "a and b or c")
+    '(or
+      (and a b)
+      c)))
+  (should
+   (equal
+    (pyel "a[2] and b.f() or c.e")
+    '(or
+      (and
+       (pyel-subscript-load-index a 2)
+       (f b))
+      (oref c e))))
+  (should
+   (equal
+    (pyel "a.e and b[2] or c.e() and 2 ")
+    '(or
+      (and
+       (oref a e)
+       (pyel-subscript-load-index b 2))
+      (and
+       (e c)
+       2)))))
+(ert-deftest pyel-boolop-py-ast nil
+  (should
+   (equal
+    (py-ast "a or b")
+    "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a or b or c")
+    "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a.c or b.c() or a[2]")
+    "Module(body=[Expr(value=BoolOp(op=Or(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='c', ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a and b")
+    "Module(body=[Expr(value=BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a and b or c")
+    "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]), Name(id='c', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a[2] and b.f() or c.e")
+    "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='f', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)]), Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load())]))])\n"))
+  (should
+   (equal
+    (py-ast "a.e and b[2] or c.e() and 2 ")
+    "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load()), Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]), BoolOp(op=And(), values=[Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Num(n=2)])]))])\n")))
+(ert-deftest pyel-boolop-el-ast nil
+  (should
+   (string=
+    (pyel "a or b" t)
+    "(boolop or ((name  \"a\" 'load) (name  \"b\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a or b or c" t)
+    "(boolop or ((name  \"a\" 'load) (name  \"b\" 'load) (name  \"c\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a.c or b.c() or a[2]" t)
+    "(boolop or ((attribute  (name  \"a\" 'load) \"c\" 'load) (call  (attribute  (name  \"b\" 'load) \"c\" 'load) nil nil nil nil) (subscript (name  \"a\" 'load) (index (num 2)) 'load)))\n"))
+  (should
+   (string=
+    (pyel "a and b" t)
+    "(boolop and ((name  \"a\" 'load) (name  \"b\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a and b or c" t)
+    "(boolop or ((boolop and ((name  \"a\" 'load) (name  \"b\" 'load))) (name  \"c\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a[2] and b.f() or c.e" t)
+    "(boolop or ((boolop and ((subscript (name  \"a\" 'load) (index (num 2)) 'load) (call  (attribute  (name  \"b\" 'load) \"f\" 'load) nil nil nil nil))) (attribute  (name  \"c\" 'load) \"e\" 'load)))\n"))
+  (should
+   (string=
+    (pyel "a.e and b[2] or c.e() and 2 " t)
+    "(boolop or ((boolop and ((attribute  (name  \"a\" 'load) \"e\" 'load) (subscript (name  \"b\" 'load) (index (num 2)) 'load))) (boolop and ((call  (attribute  (name  \"c\" 'load) \"e\" 'load) nil nil nil nil) (num 2)))))\n")))
 
 ;;
 
