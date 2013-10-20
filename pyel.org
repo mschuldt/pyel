@@ -6491,6 +6491,7 @@ assert x[9] == '9'
   (def-transform boolop pyel (op values)
     (lambda (op values)
       (cons op (mapcar 'transform values))))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -6503,9 +6504,118 @@ assert x[9] == '9'
 #+END_SRC
 
 ** tests
-(pyel-create-tests '<name>
+(pyel-create-tests 'boolop
+"a or b"
+"a or b or c"
+"a.c or b.c() or a[2]"
+"a and b"
+"a and b or c"
+"a[2] and b.f() or c.e"
+"a.e and b[2] or c.e() and 2 ")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (ert-deftest pyel-boolop-full-transform nil
+    (should
+     (equal
+      (pyel "a or b")
+      '(or a b)))
+    (should
+     (equal
+      (pyel "a or b or c")
+      '(or a b c)))
+    (should
+     (equal
+      (pyel "a.c or b.c() or a[2]")
+      '(or
+        (oref a c)
+        (c b)
+        (pyel-subscript-load-index a 2))))
+    (should
+     (equal
+      (pyel "a and b")
+      '(and a b)))
+    (should
+     (equal
+      (pyel "a and b or c")
+      '(or
+        (and a b)
+        c)))
+    (should
+     (equal
+      (pyel "a[2] and b.f() or c.e")
+      '(or
+        (and
+         (pyel-subscript-load-index a 2)
+         (f b))
+        (oref c e))))
+    (should
+     (equal
+      (pyel "a.e and b[2] or c.e() and 2 ")
+      '(or
+        (and
+         (oref a e)
+         (pyel-subscript-load-index b 2))
+        (and
+         (e c)
+         2)))))
+  (ert-deftest pyel-boolop-py-ast nil
+    (should
+     (equal
+      (py-ast "a or b")
+      "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a or b or c")
+      "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a.c or b.c() or a[2]")
+      "Module(body=[Expr(value=BoolOp(op=Or(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='c', ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a and b")
+      "Module(body=[Expr(value=BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a and b or c")
+      "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]), Name(id='c', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a[2] and b.f() or c.e")
+      "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='f', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)]), Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load())]))])\n"))
+    (should
+     (equal
+      (py-ast "a.e and b[2] or c.e() and 2 ")
+      "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load()), Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]), BoolOp(op=And(), values=[Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Num(n=2)])]))])\n")))
+  (ert-deftest pyel-boolop-el-ast nil
+    (should
+     (string=
+      (pyel "a or b" t)
+      "(boolop or ((name  \"a\" 'load) (name  \"b\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a or b or c" t)
+      "(boolop or ((name  \"a\" 'load) (name  \"b\" 'load) (name  \"c\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a.c or b.c() or a[2]" t)
+      "(boolop or ((attribute  (name  \"a\" 'load) \"c\" 'load) (call  (attribute  (name  \"b\" 'load) \"c\" 'load) nil nil nil nil) (subscript (name  \"a\" 'load) (index (num 2)) 'load)))\n"))
+    (should
+     (string=
+      (pyel "a and b" t)
+      "(boolop and ((name  \"a\" 'load) (name  \"b\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a and b or c" t)
+      "(boolop or ((boolop and ((name  \"a\" 'load) (name  \"b\" 'load))) (name  \"c\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a[2] and b.f() or c.e" t)
+      "(boolop or ((boolop and ((subscript (name  \"a\" 'load) (index (num 2)) 'load) (call  (attribute  (name  \"b\" 'load) \"f\" 'load) nil nil nil nil))) (attribute  (name  \"c\" 'load) \"e\" 'load)))\n"))
+    (should
+     (string=
+      (pyel "a.e and b[2] or c.e() and 2 " t)
+      "(boolop or ((boolop and ((attribute  (name  \"a\" 'load) \"e\" 'load) (subscript (name  \"b\" 'load) (index (num 2)) 'load))) (boolop and ((call  (attribute  (name  \"c\" 'load) \"e\" 'load) nil nil nil nil) (num 2)))))\n")))
+  
 #+END_SRC
 
 
