@@ -5523,7 +5523,9 @@ assert x == [0,1,3,4]"
          (setq b
                (list 1 2 3 4))
          (setq c 0)
-         (loop for a in b do
+         (loop for a in
+               (py-list b)
+               do
                (setq c
                      (pyel-+ c a)))
          (assert
@@ -5534,14 +5536,16 @@ assert x == [0,1,3,4]"
       (pyel "for i in range(n):\n break")
       '(catch '__break__
          (loop for i in
-               (py-range n)
+               (py-list
+                (py-range n))
                do
                (throw '__break__ nil)))))
     (should
      (equal
       (pyel "for i in range(n):\n continue")
       '(loop for i in
-             (py-range n)
+             (py-list
+              (py-range n))
              do
              (catch '__continue__
                (throw '__continue__ nil)))))
@@ -5552,7 +5556,8 @@ assert x == [0,1,3,4]"
          (setq x
                (list))
          (loop for i in
-               (py-range 5)
+               (py-list
+                (py-range 5))
                do
                (catch '__continue__
                  (if
@@ -5598,6 +5603,7 @@ assert x == [0,1,3,4]"
      (string=
       (pyel "x = []\nfor i in range(5):\n if i == 2:\n  continue\n x.append(i)\nassert x == [0,1,3,4]" t)
       "(assign  ((name  \"x\" 'store)) (list nil 'load))\n(for  (name  \"i\" 'store) (call  (name  \"range\" 'load) ((num 5)) nil nil nil) ((if  (compare  (name  \"i\" 'load) (\"==\") ((num 2))) ((continue)) nil) (call  (attribute  (name  \"x\" 'load) \"append\" 'load) ((name  \"i\" 'load)) nil nil nil)) nil)\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((list ((num 0) (num 1) (num 3) (num 4)) 'load))) nil)\n")))
+  
   
 #+END_SRC
   
