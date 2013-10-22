@@ -5047,16 +5047,22 @@ assert len(a) == 2"
 ;;
 #+END_SRC
 
-** map
-*** transform
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-translate-function-name 'map 'mapcar)
-#+END_SRC
-
 ** input
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 (pyel-translate-function-name 'input 'read-string)
+#+END_SRC
+
+** simple name changes
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-translate-function-name 'map 'mapcar)
+(pyel-translate-function-name 'chr 'byte-to-string)
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
 #+END_SRC
 
 ** transform template
