@@ -5454,12 +5454,13 @@ assert x == ['y', 'y', 'x', 'y', 'x']")
   
   ;;TODO: for a,y in thing: ...
   ;;TODO: check if iter is an object, then do the iterator thing
+  
   (defun pyel-for (target iter body orelse)
     (if (eq (car target) 'tuple)
         "TODO: var unpacking"
       ;;create a temp target variable
       ;;in body, unpack that into the provided target variables
-  
+      
       (let* ((continue-for nil)
              (break-for nil)
              (code (using-context for (mapcar 'transform body)))
@@ -5471,10 +5472,11 @@ assert x == ['y', 'y', 'x', 'y', 'x']")
         `(,@break-code
           (loop for ,(using-context for-loop-target
                                     (transform target))
-                in ,(transform iter)
+                in (py-list ,(transform iter))
                 do (,@continue-code
                     ,@(mapcar 'transform body)))
           ,@(mapcar 'transform orelse)))))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
