@@ -6178,6 +6178,7 @@ DOC: generator expressions are translated to list comprehensions
     (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
   
   
+  
   (defun pyel-comprehension (target iter ifs)
     ;;this uses the inter-transform var 'comprehension-body'
     (assert (boundp 'comprehension-body)
@@ -6185,7 +6186,7 @@ DOC: generator expressions are translated to list comprehensions
     ;;TODO: ifs
     `(loop for ,(using-context for-loop-target
                                (transform target))
-           in ,(transform iter)
+           in (py-list ,(transform iter))
            ,(if ifs
                 (list '@ 'if 
                          (cons (if (> (length ifs) 1)
