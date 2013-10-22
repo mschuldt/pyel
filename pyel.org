@@ -431,7 +431,6 @@ main
 
 create tests
 
-
 #+Begin_SRC emacs-lisp :tangle pyel.el
   
   ;; (defun pyel-create-test-here (name &rest py-code)
@@ -1831,8 +1830,11 @@ assert a == b == c == 9.3"
     (lambda (value attr ctx)
       (pyel-attribute value attr ctx)))
   
+  
   (defun pyel-attribute (value attr ctx)
-    (setq ctx (eval ctx))
+    (setq ctx (cond ((context-p 'force-load) 'load)
+                    ((context-p 'force-store) 'store)
+                    (t (eval ctx))))
     (let ((t-value (transform value))
           (attr (read (_to- (transform attr)))))
       
@@ -5816,7 +5818,8 @@ assert x2 == 35"
 		   "a = 3
 b = 4
 a += b + 1
-assert a == 8")
+assert a == 8"
+)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-aug-assign-full-transform nil
     (should
