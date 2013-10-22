@@ -6357,7 +6357,8 @@ assert x[9] == '9'
       '(let
            ((__list__ nil))
          (loop for x in
-               (py-range 10)
+               (py-list
+                (py-range 10))
                do
                (setq __list__
                      (cons
@@ -6370,7 +6371,8 @@ assert x[9] == '9'
       '(let
            ((__list__ nil))
          (loop for x in
-               (py-range 10)
+               (py-list
+                (py-range 10))
                if
                (pyel-> x 5)
                do
@@ -6385,7 +6387,8 @@ assert x[9] == '9'
       '(let
            ((__list__ nil))
          (loop for x in
-               (py-range 10)
+               (py-list
+                (py-range 10))
                if
                (and
                 (pyel-> x 5)
@@ -6404,10 +6407,12 @@ assert x[9] == '9'
          (let
              ((__list__ nil))
            (loop for x in
-                 (list 1 2 3)
+                 (py-list
+                  (list 1 2 3))
                  do
                  (loop for y in
-                       (list 3 1 4)
+                       (py-list
+                        (list 3 1 4))
                        if
                        (pyel-!= x y)
                        do
@@ -6438,13 +6443,16 @@ assert x[9] == '9'
                (let
                    ((__list__ nil))
                  (loop for i in
-                       (py-range 4)
+                       (py-list
+                        (py-range 4))
                        do
                        (setq __list__
                              (cons
                               (let
                                   ((__list__ nil))
-                                (loop for row in matrix do
+                                (loop for row in
+                                      (py-list matrix)
+                                      do
                                       (setq __list__
                                             (cons
                                              (pyel-subscript-load-index row i)
@@ -6467,12 +6475,15 @@ assert x[9] == '9'
          (setq transposed
                (list))
          (loop for i in
-               (py-range 4)
+               (py-list
+                (py-range 4))
                do
                (pyel-append-method transposed
                                    (let
                                        ((__list__ nil))
-                                     (loop for row in matrix do
+                                     (loop for row in
+                                           (py-list matrix)
+                                           do
                                            (setq __list__
                                                  (cons
                                                   (pyel-subscript-load-index row i)
@@ -6493,13 +6504,15 @@ assert x[9] == '9'
            ((__dict__
              (make-hash-table :test 'equal)))
          (loop for x in
-               (py-range 20)
+               (py-list
+                (py-range 20))
                do
                (puthash x
                         (let
                             ((__list__ nil))
                           (loop for y in
-                                (py-range x)
+                                (py-list
+                                 (py-range x))
                                 do
                                 (setq __list__
                                       (cons
@@ -6517,7 +6530,8 @@ assert x[9] == '9'
                    ((__dict__
                      (make-hash-table :test 'equal)))
                  (loop for x in
-                       (py-range 10)
+                       (py-list
+                        (py-range 10))
                        do
                        (puthash x
                                 (number-to-string x)
