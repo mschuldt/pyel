@@ -5053,6 +5053,37 @@ assert len(a) == 2"
 (pyel-translate-function-name 'input 'read-string)
 #+END_SRC
 
+** list
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-translate-function-name 'list 'py-list)
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-list (&rest things)
+    "tries to be like python's list function"
+    (if (> (length things) 1)
+        things
+      (setq thing (car things))
+    (cond
+     ((stringp thing)
+      (char-split-string thing)) ;;TODO: use func from string library
+     ((vectorp thing)
+      (mapcar 'identity thing))
+     ((hash-table-p thing)
+      (let (keys)
+        (maphash (lambda (key value)
+                   (setq keys (cons key keys))) thing)
+        keys))
+     ((listp thing) thing))))
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** simple name changes
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
