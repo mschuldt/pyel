@@ -109,8 +109,11 @@
   (lambda (value attr ctx)
     (pyel-attribute value attr ctx)))
 
+
 (defun pyel-attribute (value attr ctx)
-  (setq ctx (eval ctx))
+  (setq ctx (cond ((context-p 'force-load) 'load)
+                  ((context-p 'force-store) 'store)
+                  (t (eval ctx))))
   (let ((t-value (transform value))
         (attr (read (_to- (transform attr)))))
     
@@ -331,23 +334,21 @@
         `(let ((__c (,t-func ,(pyel-next-obj-name))))
            (--init-- __c ,@(mapcar 'transform args))
            __c)
-      (if (eq (car func) 'attribute)
-          ;;method call
-          
+      
+      (if (eq (car func) 'attribute);;method call
           (if (member (setq m-name (read (caddr func)))
                       pyel-method-transforms)
               ;;this methods transform is overridden
-              ;;TODO:(?) check for correct number of arguments?
               (eval `(call-transform ',(pyel-method-transform-name m-name)
                                      ',(transform (cadr func))
                                      ,@(mapcar '(lambda (x) `(quote ,x)) args)));;Transform these args?
             ;;normal method call
-            (using-context method-call
-                           `(,(transform func) ,@(remove-context method-call
-                                                                 (mapcar 'transform args)))))
+            (remove-context method-call-override
+                            (using-context method-call
+                                           `(,(transform func) ,@(remove-context method-call
+                                                                                 (mapcar 'transform args))))))
         
-        ;;function call
-        (when (setq new-func (assoc t-func pyel-function-name-translations))
+        (when (setq new-func (assoc t-func pyel-function-name-translations));;function call
           ;;translate name 
           (setq t-func (cadr new-func)))
         
@@ -749,9 +750,12 @@
 
 (push '(range py-range) pyel-function-name-translations)
 
-(pyel-translate-function-name 'map 'mapcar)
-
 (pyel-translate-function-name 'input 'read-string)
+
+(pyel-translate-function-name 'list 'py-list)
+
+(pyel-translate-function-name 'map 'mapcar)
+(pyel-translate-function-name 'chr 'byte-to-string)
 
 ;;
 
@@ -788,6 +792,10 @@
 
 ;;
 
+(pyel-method-transform join (obj elem)
+                  (string _) ->  (mapconcat 'identity elem obj) 
+                  (_ _)      -> (join obj thing))
+
 ;;
 
 (def-transform for pyel ()
@@ -796,12 +804,13 @@
 
 ;;TODO: for a,y in thing: ...
 ;;TODO: check if iter is an object, then do the iterator thing
+
 (defun pyel-for (target iter body orelse)
   (if (eq (car target) 'tuple)
       "TODO: var unpacking"
     ;;create a temp target variable
     ;;in body, unpack that into the provided target variables
-
+    
     (let* ((continue-for nil)
            (break-for nil)
            (code (using-context for (mapcar 'transform body)))
@@ -813,7 +822,7 @@
       `(,@break-code
         (loop for ,(using-context for-loop-target
                                   (transform target))
-              in ,(transform iter)
+              in (py-list ,(transform iter))
               do (,@continue-code
                   ,@(mapcar 'transform body)))
         ,@(mapcar 'transform orelse)))))
@@ -916,6 +925,7 @@
   (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
 
 
+
 (defun pyel-comprehension (target iter ifs)
   ;;this uses the inter-transform var 'comprehension-body'
   (assert (boundp 'comprehension-body)
@@ -923,7 +933,7 @@
   ;;TODO: ifs
   `(loop for ,(using-context for-loop-target
                              (transform target))
-         in ,(transform iter)
+         in (py-list ,(transform iter))
          ,(if ifs
               (list '@ 'if 
                        (cons (if (> (length ifs) 1)

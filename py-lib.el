@@ -1,6 +1,23 @@
 
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
+(defun py-list (&rest things)
+  "tries to be like python's list function"
+  (if (> (length things) 1)
+      things
+    (setq thing (car things))
+  (cond
+   ((stringp thing)
+    (char-split-string thing)) ;;TODO: use func from string library
+   ((vectorp thing)
+    (mapcar 'identity thing))
+   ((hash-table-p thing)
+    (let (keys)
+      (maphash (lambda (key value)
+                 (setq keys (cons key keys))) thing)
+      keys))
+   ((listp thing) thing))))
+
 
 
 (defun list-index (elem list)

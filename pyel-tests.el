@@ -1198,7 +1198,25 @@
    (equal
     (pyel "aa.b(1,a.b(1,2,3))")
     '(b aa 1
-        (b a 1 2 3)))))
+        (b a 1 2 3))))
+  (should
+   (equal
+    (pyel "a.b().c()")
+    '(c
+      (b a))))
+  (should
+   (equal
+    (pyel "a.b().c().d()")
+    '(d
+      (c
+       (b a)))))
+  (should
+   (equal
+    (pyel "a.b(x.y().e()).c()")
+    '(c
+      (b a
+         (e
+          (y x)))))))
 (ert-deftest pyel-call-py-ast nil
   (should
    (equal
@@ -1227,7 +1245,19 @@
   (should
    (equal
     (py-ast "aa.b(1,a.b(1,2,3))")
-    "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='aa', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Num(n=2), Num(n=3)], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None))])\n")))
+    "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='aa', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Num(n=2), Num(n=3)], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None))])\n"))
+  (should
+   (equal
+    (py-ast "a.b().c()")
+    "Module(body=[Expr(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
+  (should
+   (equal
+    (py-ast "a.b().c().d()")
+    "Module(body=[Expr(value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='d', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
+  (should
+   (equal
+    (py-ast "a.b(x.y().e()).c()")
+    "Module(body=[Expr(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Name(id='x', ctx=Load()), attr='y', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n")))
 (ert-deftest pyel-call-el-ast nil
   (should
    (string=
@@ -1256,7 +1286,19 @@
   (should
    (string=
     (pyel "aa.b(1,a.b(1,2,3))" t)
-    "(call  (attribute  (name  \"aa\" 'load) \"b\" 'load) ((num 1) (call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((num 1) (num 2) (num 3)) nil nil nil)) nil nil nil)\n")))
+    "(call  (attribute  (name  \"aa\" 'load) \"b\" 'load) ((num 1) (call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((num 1) (num 2) (num 3)) nil nil nil)) nil nil nil)\n"))
+  (should
+   (string=
+    (pyel "a.b().c()" t)
+    "(call  (attribute  (call  (attribute  (name  \"a\" 'load) \"b\" 'load) nil nil nil nil) \"c\" 'load) nil nil nil nil)\n"))
+  (should
+   (string=
+    (pyel "a.b().c().d()" t)
+    "(call  (attribute  (call  (attribute  (call  (attribute  (name  \"a\" 'load) \"b\" 'load) nil nil nil nil) \"c\" 'load) nil nil nil nil) \"d\" 'load) nil nil nil nil)\n"))
+  (should
+   (string=
+    (pyel "a.b(x.y().e()).c()" t)
+    "(call  (attribute  (call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((call  (attribute  (call  (attribute  (name  \"x\" 'load) \"y\" 'load) nil nil nil nil) \"e\" 'load) nil nil nil nil)) nil nil nil) \"c\" 'load) nil nil nil nil)\n")))
 
 (ert-deftest pyel-while-full-transform nil
   (should
@@ -2239,6 +2281,23 @@
 
 ;;
 
+(ert-deftest pyel-py-list nil
+  (should (equal (py-list "string")
+                  '("s" "t" "r" "i" "n" "g")))
+  (should (equal (py-list [2 3 4 4])
+                 '(2 3 4 4)))
+  (should (equal  (py-list '(2 3 4 4))
+                  '(2 3 4 4)))
+  (should (equal (py-list 23 4 2 "h")
+                 '(23 4 2 "h")))
+  (should (equal (py-list (let ((__h__ (make-hash-table :test (quote equal)))) (puthash 1 "1" __h__) (puthash "3" 3 __h__) (puthash 23 2 __h__) __h__))
+                 '(23 "3" 1))))
+;;(pyel "{1:'1','3':3,23:2}")
+
+;;
+
+;;
+
 ;;
 
 ;;
@@ -2347,7 +2406,9 @@
        (setq b
              (list 1 2 3 4))
        (setq c 0)
-       (loop for a in b do
+       (loop for a in
+             (py-list b)
+             do
              (setq c
                    (pyel-+ c a)))
        (assert
@@ -2358,14 +2419,16 @@
     (pyel "for i in range(n):\n break")
     '(catch '__break__
        (loop for i in
-             (py-range n)
+             (py-list
+              (py-range n))
              do
              (throw '__break__ nil)))))
   (should
    (equal
     (pyel "for i in range(n):\n continue")
     '(loop for i in
-           (py-range n)
+           (py-list
+            (py-range n))
            do
            (catch '__continue__
              (throw '__continue__ nil)))))
@@ -2376,7 +2439,8 @@
        (setq x
              (list))
        (loop for i in
-             (py-range 5)
+             (py-list
+              (py-range 5))
              do
              (catch '__continue__
                (if
@@ -2563,7 +2627,28 @@
                      (pyel-+ b 1)))
        (assert
         (pyel-== a 8)
-        t nil)))))
+        t nil))))
+  (should
+   (equal
+    (pyel "a.b += a[2]")
+    '(oset a b
+           (pyel-+
+            (oref a b)
+            (pyel-subscript-load-index a 2)))))
+  (should
+   (equal
+    (pyel "a.b += 4")
+    '(oset a b
+           (pyel-+
+            (oref a b)
+            4))))
+  (should
+   (equal
+    (pyel "a.b += d.e")
+    '(oset a b
+           (pyel-+
+            (oref a b)
+            (oref d e))))))
 (ert-deftest pyel-aug-assign-py-ast nil
   (should
    (equal
@@ -2596,7 +2681,19 @@
   (should
    (equal
     (py-ast "a = 3\nb = 4\na += b + 1\nassert a == 8")
-    "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=3)), Assign(targets=[Name(id='b', ctx=Store())], value=Num(n=4)), AugAssign(target=Name(id='a', ctx=Store()), op=Add(), value=BinOp(left=Name(id='b', ctx=Load()), op=Add(), right=Num(n=1))), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])\n")))
+    "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=3)), Assign(targets=[Name(id='b', ctx=Store())], value=Num(n=4)), AugAssign(target=Name(id='a', ctx=Store()), op=Add(), value=BinOp(left=Name(id='b', ctx=Load()), op=Add(), right=Num(n=1))), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])\n"))
+  (should
+   (equal
+    (py-ast "a.b += a[2]")
+    "Module(body=[AugAssign(target=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), op=Add(), value=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "a.b += 4")
+    "Module(body=[AugAssign(target=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), op=Add(), value=Num(n=4))])\n"))
+  (should
+   (equal
+    (py-ast "a.b += d.e")
+    "Module(body=[AugAssign(target=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), op=Add(), value=Attribute(value=Name(id='d', ctx=Load()), attr='e', ctx=Load()))])\n")))
 (ert-deftest pyel-aug-assign-el-ast nil
   (should
    (string=
@@ -2629,7 +2726,19 @@
   (should
    (string=
     (pyel "a = 3\nb = 4\na += b + 1\nassert a == 8" t)
-    "(assign  ((name  \"a\" 'store)) (num 3))\n(assign  ((name  \"b\" 'store)) (num 4))\n(aug-assign (name  \"a\" 'store) + (bin-op  (name  \"b\" 'load) + (num 1)))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((num 8))) nil)\n")))
+    "(assign  ((name  \"a\" 'store)) (num 3))\n(assign  ((name  \"b\" 'store)) (num 4))\n(aug-assign (name  \"a\" 'store) + (bin-op  (name  \"b\" 'load) + (num 1)))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((num 8))) nil)\n"))
+  (should
+   (string=
+    (pyel "a.b += a[2]" t)
+    "(aug-assign (attribute  (name  \"a\" 'load) \"b\" 'store) + (subscript (name  \"a\" 'load) (index (num 2)) 'load))\n"))
+  (should
+   (string=
+    (pyel "a.b += 4" t)
+    "(aug-assign (attribute  (name  \"a\" 'load) \"b\" 'store) + (num 4))\n"))
+  (should
+   (string=
+    (pyel "a.b += d.e" t)
+    "(aug-assign (attribute  (name  \"a\" 'load) \"b\" 'store) + (attribute  (name  \"d\" 'load) \"e\" 'load))\n")))
 
 ;;
 
@@ -2691,7 +2800,8 @@
     '(let
          ((__list__ nil))
        (loop for x in
-             (py-range 10)
+             (py-list
+              (py-range 10))
              do
              (setq __list__
                    (cons
@@ -2704,7 +2814,8 @@
     '(let
          ((__list__ nil))
        (loop for x in
-             (py-range 10)
+             (py-list
+              (py-range 10))
              if
              (pyel-> x 5)
              do
@@ -2719,7 +2830,8 @@
     '(let
          ((__list__ nil))
        (loop for x in
-             (py-range 10)
+             (py-list
+              (py-range 10))
              if
              (and
               (pyel-> x 5)
@@ -2738,10 +2850,12 @@
        (let
            ((__list__ nil))
          (loop for x in
-               (list 1 2 3)
+               (py-list
+                (list 1 2 3))
                do
                (loop for y in
-                     (list 3 1 4)
+                     (py-list
+                      (list 3 1 4))
                      if
                      (pyel-!= x y)
                      do
@@ -2772,13 +2886,16 @@
              (let
                  ((__list__ nil))
                (loop for i in
-                     (py-range 4)
+                     (py-list
+                      (py-range 4))
                      do
                      (setq __list__
                            (cons
                             (let
                                 ((__list__ nil))
-                              (loop for row in matrix do
+                              (loop for row in
+                                    (py-list matrix)
+                                    do
                                     (setq __list__
                                           (cons
                                            (pyel-subscript-load-index row i)
@@ -2801,12 +2918,15 @@
        (setq transposed
              (list))
        (loop for i in
-             (py-range 4)
+             (py-list
+              (py-range 4))
              do
              (pyel-append-method transposed
                                  (let
                                      ((__list__ nil))
-                                   (loop for row in matrix do
+                                   (loop for row in
+                                         (py-list matrix)
+                                         do
                                          (setq __list__
                                                (cons
                                                 (pyel-subscript-load-index row i)
@@ -2827,13 +2947,15 @@
          ((__dict__
            (make-hash-table :test 'equal)))
        (loop for x in
-             (py-range 20)
+             (py-list
+              (py-range 20))
              do
              (puthash x
                       (let
                           ((__list__ nil))
                         (loop for y in
-                              (py-range x)
+                              (py-list
+                               (py-range x))
                               do
                               (setq __list__
                                     (cons
@@ -2851,7 +2973,8 @@
                  ((__dict__
                    (make-hash-table :test 'equal)))
                (loop for x in
-                     (py-range 10)
+                     (py-list
+                      (py-range 10))
                      do
                      (puthash x
                               (number-to-string x)
