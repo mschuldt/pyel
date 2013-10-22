@@ -3078,23 +3078,21 @@ else:
           `(let ((__c (,t-func ,(pyel-next-obj-name))))
              (--init-- __c ,@(mapcar 'transform args))
              __c)
-        (if (eq (car func) 'attribute)
-            ;;method call
-            
+        
+        (if (eq (car func) 'attribute);;method call
             (if (member (setq m-name (read (caddr func)))
                         pyel-method-transforms)
                 ;;this methods transform is overridden
-                ;;TODO:(?) check for correct number of arguments?
                 (eval `(call-transform ',(pyel-method-transform-name m-name)
                                        ',(transform (cadr func))
                                        ,@(mapcar '(lambda (x) `(quote ,x)) args)));;Transform these args?
               ;;normal method call
-              (using-context method-call
-                             `(,(transform func) ,@(remove-context method-call
-                                                                   (mapcar 'transform args)))))
+              (remove-context method-call-override
+                              (using-context method-call
+                                             `(,(transform func) ,@(remove-context method-call
+                                                                                   (mapcar 'transform args))))))
           
-          ;;function call
-          (when (setq new-func (assoc t-func pyel-function-name-translations))
+          (when (setq new-func (assoc t-func pyel-function-name-translations));;function call
             ;;translate name 
             (setq t-func (cadr new-func)))
           
