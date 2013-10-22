@@ -5079,7 +5079,7 @@ assert len(a) == 2"
 ;;
 #+END_SRC
 
-* method transforms
+* built-in method transforms
 TODO: tests!
 ** append
 *** transform
@@ -5248,6 +5248,20 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
+
+** join
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform join (obj elem)
+                    (string _) ->  (mapconcat 'identity elem obj) 
+                    (_ _)      -> (join obj thing))
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 
 * macro transforms
 macros and macroish primitives
