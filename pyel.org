@@ -544,7 +544,10 @@ create tests
                                  (hash-table hash-table-p)
                                  (symbol symbolp)
                                  (array arrayp)
-                                 (object object-p))
+                                 (object object-p)
+                                 (function functionp)
+                                 (func functionp))
+    
     "alist of types used in pyel-call-transform for the switch-type
       and the function used to test for that type")
   
