@@ -171,8 +171,9 @@ main
   
     (setq pyel-marked-ast-pieces nil)
     (setq pyel-transform-status nil) ;;so far so good...
-    
-    (let ((file "/tmp/py2el.py")
+  
+    (let* ((python (replace-regexp-in-string "\"" "\\\\\"" python))
+          (file "/tmp/py2el.py")
           (py-ast "")
           (el-code "")
           (current-transform-table (get-transform-table 'pyel))
