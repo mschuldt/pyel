@@ -4236,6 +4236,9 @@ assert x.value == [1,2,3]"
 
 "a[2] += 3"
 "a[2] += b[3]"
+
+"[2,3,3][2]"
+"assert [1,2,(3,2,8)][2][2] == 8"
  )
 
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -4607,7 +4610,26 @@ assert x.value == [1,2,3]"
       '(pyel-subscript-store-index a 2
                                    (pyel-+
                                     (pyel-subscript-load-index a 2)
-                                    (pyel-subscript-load-index b 3))))))
+                                    (pyel-subscript-load-index b 3)))))
+    (should
+     (equal
+      (pyel "[2,3,3][2]")
+      '(pyel-subscript-load-index
+        (list 2 3 3)
+        2)))
+    (should
+     (equal
+      (pyel "assert [1,2,(3,2,8)][2][2] == 8")
+      '(assert
+        (pyel-==
+         (pyel-subscript-load-index
+          (pyel-subscript-load-index
+           (list 1 2
+                 (vector 3 2 8))
+           2)
+          2)
+         8)
+        t nil))))
   (ert-deftest pyel-subscript-py-ast nil
     (should
      (equal
@@ -4676,7 +4698,15 @@ assert x.value == [1,2,3]"
     (should
      (equal
       (py-ast "a[2] += b[3]")
-      "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()))])\n")))
+      "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "[2,3,3][2]")
+      "Module(body=[Expr(value=Subscript(value=List(elts=[Num(n=2), Num(n=3), Num(n=3)], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "assert [1,2,(3,2,8)][2][2] == 8")
+      "Module(body=[Assert(test=Compare(left=Subscript(value=Subscript(value=List(elts=[Num(n=1), Num(n=2), Tuple(elts=[Num(n=3), Num(n=2), Num(n=8)], ctx=Load())], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])\n")))
   (ert-deftest pyel-subscript-el-ast nil
     (should
      (string=
@@ -4745,7 +4775,15 @@ assert x.value == [1,2,3]"
     (should
      (string=
       (pyel "a[2] += b[3]" t)
-      "(aug-assign (subscript (name  \"a\" 'load) (index (num 2)) 'store) + (subscript (name  \"b\" 'load) (index (num 3)) 'load))\n")))
+      "(aug-assign (subscript (name  \"a\" 'load) (index (num 2)) 'store) + (subscript (name  \"b\" 'load) (index (num 3)) 'load))\n"))
+    (should
+     (string=
+      (pyel "[2,3,3][2]" t)
+      "(subscript (list ((num 2) (num 3) (num 3)) 'load) (index (num 2)) 'load)\n"))
+    (should
+     (string=
+      (pyel "assert [1,2,(3,2,8)][2][2] == 8" t)
+      "(assert  (compare  (subscript (subscript (list ((num 1) (num 2) (tuple  ((num 3) (num 2) (num 8)) 'load)) 'load) (index (num 2)) 'load) (index (num 2)) 'load) (\"==\") ((num 8))) nil)\n")))
   
 #+END_SRC
 
