@@ -4079,7 +4079,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   
   
   (defun pyel-subscript (value slice ctx)
-    (let* ((value (transform value))
+    (let* (;(value (transform value))
            (slice (transform slice))
            (ctx (cond ((context-p 'force-load) 'load)
                       ((context-p 'force-store) 'store)
@@ -4098,9 +4098,9 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
         (if (object-p slice)
             (call-transform 'subscript-store-slice value start stop step assign-value)
           (call-transform 'subscript-store-index value slice assign-value)) ;;load index
-          
-          ;;      (test value start stop step assign-value)
-          )))
+        
+        ;;      (test value start stop step assign-value)
+        )))
   
 #+END_SRC
 ** python ast
