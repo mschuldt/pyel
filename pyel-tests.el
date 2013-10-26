@@ -2598,6 +2598,8 @@
     (pyel "x = 1\ny = 1\ndef func():\n global x\n x = 7\n y = 7\nfunc()\nassert x == 7\nassert y == 1\n" t)
     "(assign  ((name  \"x\" 'store)) (num 1))\n(assign  ((name  \"y\" 'store)) (num 1))\n(def \" func \" ((arguments  nil nil nil nil nil nil nil nil )) ((global (x)) (assign  ((name  \"x\" 'store)) (num 7)) (assign  ((name  \"y\" 'store)) (num 7))) nil nil )\n(call  (name  \"func\" 'load) nil nil nil nil)\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((num 7))) nil)\n(assert  (compare  (name  \"y\" 'load) (\"==\") ((num 1))) nil)\n")))
 
+;;
+
 (ert-deftest pyel-lambda-full-transform nil
   (should
    (equal
@@ -3229,6 +3231,8 @@
    (string=
     (pyel "a.e and b[2] or c.e() and 2 " t)
     "(boolop or ((boolop and ((attribute  (name  \"a\" 'load) \"e\" 'load) (subscript (name  \"b\" 'load) (index (num 2)) 'load))) (boolop and ((call  (attribute  (name  \"c\" 'load) \"e\" 'load) nil nil nil nil) (num 2)))))\n")))
+
+;;
 
 ;;
 

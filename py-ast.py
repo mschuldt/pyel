@@ -201,6 +201,9 @@ def For(target, iter, body, orelse):
 def Global(names):
   return l_str(['global', l_str(names)])
 
+def Nonlocal(names):
+  return l_str(['global', l_str(names)])
+
 def Lambda(args, body):
     return ll_str(["lambda", ll_str(args),'('+ll_str(body)+')'])
 
@@ -259,6 +262,9 @@ def Pass():
     return "(pass)"
 
 
+
+def IfExp (test, body, orelse):
+    return l_str(["if-exp", test, body, orelse])
 
 
 

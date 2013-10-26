@@ -48,7 +48,8 @@ PYTHON is a string.
 If PY-AST-ONLY, return the un-evaled ast.
 If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
   this is ignored if PY-AST-ONLY is non-nil"
-
+  (assert (eq lexical-binding nil) "pyel requires dynamic scoping")
+  
   (setq pyel-marked-ast-pieces nil)
   (setq pyel-transform-status nil) ;;so far so good...
 
@@ -545,6 +546,8 @@ not contribute to the output code")
      (let ((ret (progn ,@code)))
        (pop pyel-context)
        ret)))
+(def-edebug-spec using-context (symbolp &rest form))
+
 
 (defmacro remove-context (context &rest code)
   "remove CONTEXT and translate CODE, then restore context"
