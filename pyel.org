@@ -5830,6 +5830,26 @@ assert y == 1
   
 #+END_SRC
 
+* nonlocal
+DOC: 'nonlocal' is currently equivalent to 'global'
+     It seems to be working fine...
+
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+
+ #+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def Nonlocal(names):
+    return l_str(['global', l_str(names)])
+#+END_SRC
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+
 * lambda
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
