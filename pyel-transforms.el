@@ -468,85 +468,100 @@
      (append first (list last-line))))
 
 (defun pyel-def (name args body decoratorlist returns)
-  (let* ((name (read (_to- name)))
-         (func 'defun)
-         t-body
-         arglist
 
-         ;;trans-template vars
-         (assign-defaults (list pyel-nothing));;holds assignment code set by the arguments transform
-         return-middle 
-         let-arglist
-         global-vars
-         docstring
-          ;;;
-         (ret pyel-nothing)
-         (args (using-context function-def (transform (car args))))
-         )
-
-    (when (context-p 'lambda-def)
-      (setq func 'lambda
-            name pyel-nothing))
+  (let ((name (read (_to- name))))
     
-    (using-context
-     function-def
-     (context-switch
-      (class-def (using-context method-def
-                                (setq last-line (using-context last-function-line
-                                                               (transform (car (last body))))
-                                      first (mapcar 'transform (subseq body 0 (1- (length body))))
-                                      t-body (append first (list last-line)))
+    (when (context-p 'function-def)
+      (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
+    
+    (let* ((func 'defun)
+           t-body
+           arglist
+           
+           ;;trans-template vars
+           (assign-defaults (list pyel-nothing));;holds assignment code set by the arguments transform
+           return-middle 
+           let-arglist
+           global-vars
+           docstring
+           
+            ;;;
+           (ret pyel-nothing)
+           (args (using-context function-def (transform (car args))))
+           (inner-defun (context-p 'function-def))
+           (orig-name name)
+           setq-code
+           )
 
-                                ;;TODO: let-arlist for methods like
-                                ;;      and *args ...
-                                (push `(defmethod ,name
-                                         ((,(car args) ,class-def-name)
-                                          ,@(cdr args))
-                                         
-                                         ,@t-body)
-                                      class-def-methods)))
+      
+      (when (or (context-p 'lambda-def)
+                inner-defun)
+        (setq func 'lambda
+              name pyel-nothing))
 
-      (t (setq last-line (using-context last-function-line
-                                    (transform (car (last body))))
-               first (subseq body 0 (1- (length body)))
-               first (if first
-                         (mapcar 'transform first)
-                       nil)
-               t-body (append first (list last-line)))
-         
-       ;;(setq t-body (transform-last-with-context
-        ;;                'last-function-line body))
-                
-          ;;remove variables from the let arglist that have been declared global
-          (setq let-arglist (let (arglist) (mapcar (lambda (x)
-                                                     (unless (member x global-vars)
-                                                       (push x arglist)))
-                                                   let-arglist)
-                                 arglist))
-          ;;      ?remove variables that are defined in emacs?
+      
+      (using-context
+       function-def
+       (context-switch
+        (class-def (using-context method-def
+                                  (setq last-line (using-context last-function-line
+                                                                 (transform (car (last body))))
+                                        first (mapcar 'transform (subseq body 0 (1- (length body))))
+                                        t-body (append first (list last-line)))
+                                  
+                                  ;;TODO: let-arlist for methods like
+                                  ;;      and *args ...
+                                  (push `(defmethod ,name
+                                           ((,(car args) ,class-def-name)
+                                            ,@(cdr args))
+                                           
+                                           ,@t-body)
+                                        class-def-methods)))
+        
+        (t (setq last-line (using-context last-function-line
+                                          (transform (car (last body))))
+                 first (subseq body 0 (1- (length body)))
+                 first (if first
+                           (mapcar 'transform first)
+                         nil)
+                 t-body (append first (list last-line)))
+           
+           ;;(setq t-body (transform-last-with-context
+           ;;                'last-function-line body))
+           
+           ;;remove variables from the let arglist that have been declared global
+           (setq let-arglist (let (arglist) (mapcar (lambda (x)
+                                                      (unless (member x global-vars)
+                                                        (push x arglist)))
+                                                    let-arglist)
+                                  arglist))
+           ;;      ?remove variables that are defined in emacs?
+           
+           (setq docstring 
+                 (if (stringp (car t-body))
+                     (pop t-body)
+                   pyel-nothing))
+           
+           (when return-middle
+             (setq ret '(catch '__return__)))
 
-          (setq docstring 
-                (if (stringp (car t-body))
-                    (pop t-body)
-                  pyel-nothing))
-          
-          (when return-middle
-            (setq ret '(catch '__return__)))
-          
-          (if let-arglist
-                `(,func ,name ,args
-                        ,docstring
-                        ,@assign-defaults
-                        (let ,let-arglist;;TODO: use lexical-let ??
-                          (,@ret
-                          ,@t-body
-                          )))
-            `(,func ,name ,args
-                    ,docstring 
-                    ,@assign-defaults
-                    (,@ret
-                     ,@t-body)))
-          )))))
+           (if let-arglist
+               (setq let-arglist (list '@ 'let let-arglist))
+             (setq let-arglist '@))
+
+           (if inner-defun
+               (setq setq-code (list '@ 'setq orig-name))
+             (setq setq-code '@))
+
+           `(,setq-code (,func ,name ,args
+                               ,docstring
+                               ,@assign-defaults
+                               (,let-arglist
+                                (,@ret
+                                 ,@t-body
+                                 ))))
+           
+           ))))))
 
 (def-transform bin-op pyel ()
     (lambda (left op right)
@@ -681,9 +696,11 @@
 
 
 (defun pyel-subscript (value slice ctx)
-  (let* ((value (transform value))
+  (let* (;(value (transform value))
          (slice (transform slice))
-         (ctx (eval ctx))
+         (ctx (cond ((context-p 'force-load) 'load)
+                    ((context-p 'force-store) 'store)
+                    (t (eval ctx))))
          start stop step)
     
     (when (object-p slice)
@@ -698,9 +715,9 @@
       (if (object-p slice)
           (call-transform 'subscript-store-slice value start stop step assign-value)
         (call-transform 'subscript-store-index value slice assign-value)) ;;load index
-        
-        ;;      (test value start stop step assign-value)
-        )))
+      
+      ;;      (test value start stop step assign-value)
+      )))
 
 (def-transform classdef pyel ()
   (lambda (name bases keywords starargs kwargs body decorator_list)
@@ -986,6 +1003,9 @@
 (def-transform boolop pyel (op values)
   (lambda (op values)
     (cons op (mapcar 'transform values))))
+
+(def-transform pass pyel ()
+  (lambda () nil))
 
 (def-transform unimplemented pyel (name)
   (lambda (name)

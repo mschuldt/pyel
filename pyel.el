@@ -51,8 +51,9 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
 
   (setq pyel-marked-ast-pieces nil)
   (setq pyel-transform-status nil) ;;so far so good...
-  
-  (let ((file "/tmp/py2el.py")
+
+  (let* ((python (replace-regexp-in-string "\"" "\\\\\"" python))
+        (file "/tmp/py2el.py")
         (py-ast "")
         (el-code "")
         (current-transform-table (get-transform-table 'pyel))
@@ -414,7 +415,10 @@ This is used when the ast form is needed by a transform that is manually
                                (hash-table hash-table-p)
                                (symbol symbolp)
                                (array arrayp)
-                               (object object-p))
+                               (object object-p)
+                               (function functionp)
+                               (func functionp))
+  
   "alist of types used in pyel-call-transform for the switch-type
     and the function used to test for that type")
 

@@ -1948,7 +1948,40 @@
         (pyel-==
          (oref x value)
          (list 1 2 3))
-        t nil)))))
+        t nil))))
+  (should
+   (equal
+    (pyel "a[2] += 3")
+    '(pyel-subscript-store-index a 2
+                                 (pyel-+
+                                  (pyel-subscript-load-index a 2)
+                                  3))))
+  (should
+   (equal
+    (pyel "a[2] += b[3]")
+    '(pyel-subscript-store-index a 2
+                                 (pyel-+
+                                  (pyel-subscript-load-index a 2)
+                                  (pyel-subscript-load-index b 3)))))
+  (should
+   (equal
+    (pyel "[2,3,3][2]")
+    '(pyel-subscript-load-index
+      (list 2 3 3)
+      2)))
+  (should
+   (equal
+    (pyel "assert [1,2,(3,2,8)][2][2] == 8")
+    '(assert
+      (pyel-==
+       (pyel-subscript-load-index
+        (pyel-subscript-load-index
+         (list 1 2
+               (vector 3 2 8))
+         2)
+        2)
+       8)
+      t nil))))
 (ert-deftest pyel-subscript-py-ast nil
   (should
    (equal
@@ -2009,7 +2042,23 @@
   (should
    (equal
     (py-ast "class a:\n def __setitem__ (self, index, value):\n  self.start = index.start\n  self.end = index.end\n  self.step = index.step\n  self.value = value\nx = a()\nx[2:3] = [1,2,3]\nassert x.start == 2\nassert x.end == 3\nassert x.value == [1,2,3]")
-    "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__setitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='index', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='start', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='start', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='end', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='end', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='step', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='step', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='value', ctx=Store())], value=Name(id='value', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=3), step=None), ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='start', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='end', ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='value', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())]), msg=None)])\n")))
+    "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__setitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='index', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='start', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='start', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='end', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='end', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='step', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='step', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='value', ctx=Store())], value=Name(id='value', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=3), step=None), ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='start', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='end', ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='value', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())]), msg=None)])\n"))
+  (should
+   (equal
+    (py-ast "a[2] += 3")
+    "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Num(n=3))])\n"))
+  (should
+   (equal
+    (py-ast "a[2] += b[3]")
+    "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "[2,3,3][2]")
+    "Module(body=[Expr(value=Subscript(value=List(elts=[Num(n=2), Num(n=3), Num(n=3)], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])\n"))
+  (should
+   (equal
+    (py-ast "assert [1,2,(3,2,8)][2][2] == 8")
+    "Module(body=[Assert(test=Compare(left=Subscript(value=Subscript(value=List(elts=[Num(n=1), Num(n=2), Tuple(elts=[Num(n=3), Num(n=2), Num(n=8)], ctx=Load())], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])\n")))
 (ert-deftest pyel-subscript-el-ast nil
   (should
    (string=
@@ -2070,7 +2119,23 @@
   (should
    (string=
     (pyel "class a:\n def __setitem__ (self, index, value):\n  self.start = index.start\n  self.end = index.end\n  self.step = index.step\n  self.value = value\nx = a()\nx[2:3] = [1,2,3]\nassert x.start == 2\nassert x.end == 3\nassert x.value == [1,2,3]" t)
-    "(classdef a nil nil nil nil ((def \" __setitem__ \" ((arguments  ((arg \"self\"  nil) (arg \"index\"  nil) (arg \"value\"  nil)) nil nil nil nil nil nil nil )) ((assign  ((attribute  (name  \"self\" 'load) \"start\" 'store)) (attribute  (name  \"index\" 'load) \"start\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"end\" 'store)) (attribute  (name  \"index\" 'load) \"end\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"step\" 'store)) (attribute  (name  \"index\" 'load) \"step\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"value\" 'store)) (name  \"value\" 'load))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"a\" 'load) nil nil nil nil))\n(assign  ((subscript (name  \"x\" 'load) (slice (num 2) (num 3) nil) 'store)) (list ((num 1) (num 2) (num 3)) 'load))\n(assert  (compare  (attribute  (name  \"x\" 'load) \"start\" 'load) (\"==\") ((num 2))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"end\" 'load) (\"==\") ((num 3))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"value\" 'load) (\"==\") ((list ((num 1) (num 2) (num 3)) 'load))) nil)\n")))
+    "(classdef a nil nil nil nil ((def \" __setitem__ \" ((arguments  ((arg \"self\"  nil) (arg \"index\"  nil) (arg \"value\"  nil)) nil nil nil nil nil nil nil )) ((assign  ((attribute  (name  \"self\" 'load) \"start\" 'store)) (attribute  (name  \"index\" 'load) \"start\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"end\" 'store)) (attribute  (name  \"index\" 'load) \"end\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"step\" 'store)) (attribute  (name  \"index\" 'load) \"step\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"value\" 'store)) (name  \"value\" 'load))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"a\" 'load) nil nil nil nil))\n(assign  ((subscript (name  \"x\" 'load) (slice (num 2) (num 3) nil) 'store)) (list ((num 1) (num 2) (num 3)) 'load))\n(assert  (compare  (attribute  (name  \"x\" 'load) \"start\" 'load) (\"==\") ((num 2))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"end\" 'load) (\"==\") ((num 3))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"value\" 'load) (\"==\") ((list ((num 1) (num 2) (num 3)) 'load))) nil)\n"))
+  (should
+   (string=
+    (pyel "a[2] += 3" t)
+    "(aug-assign (subscript (name  \"a\" 'load) (index (num 2)) 'store) + (num 3))\n"))
+  (should
+   (string=
+    (pyel "a[2] += b[3]" t)
+    "(aug-assign (subscript (name  \"a\" 'load) (index (num 2)) 'store) + (subscript (name  \"b\" 'load) (index (num 3)) 'load))\n"))
+  (should
+   (string=
+    (pyel "[2,3,3][2]" t)
+    "(subscript (list ((num 2) (num 3) (num 3)) 'load) (index (num 2)) 'load)\n"))
+  (should
+   (string=
+    (pyel "assert [1,2,(3,2,8)][2][2] == 8" t)
+    "(assert  (compare  (subscript (subscript (list ((num 1) (num 2) (tuple  ((num 3) (num 2) (num 8)) 'load)) 'load) (index (num 2)) 'load) (index (num 2)) 'load) (\"==\") ((num 8))) nil)\n")))
 
 (ert-deftest pyel-class-full-transform nil
   (should
@@ -3164,6 +3229,8 @@
    (string=
     (pyel "a.e and b[2] or c.e() and 2 " t)
     "(boolop or ((boolop and ((attribute  (name  \"a\" 'load) \"e\" 'load) (subscript (name  \"b\" 'load) (index (num 2)) 'load))) (boolop and ((call  (attribute  (name  \"c\" 'load) \"e\" 'load) nil nil nil nil) (num 2)))))\n")))
+
+;;
 
 ;;
 

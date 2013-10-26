@@ -255,6 +255,9 @@ def Or():
 def And():
     return "and"
 
+def Pass():
+    return "(pass)"
+
 
 
 
