@@ -686,6 +686,8 @@ This will have to be removed after the code is generated
        (let ((ret (progn ,@code)))
          (pop pyel-context)
          ret)))
+  (def-edebug-spec using-context (symbolp &rest form))
+  
   
   (defmacro remove-context (context &rest code)
     "remove CONTEXT and translate CODE, then restore context"
