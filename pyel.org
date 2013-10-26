@@ -168,7 +168,8 @@ main
   If PY-AST-ONLY, return the un-evaled ast.
   If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
     this is ignored if PY-AST-ONLY is non-nil"
-  
+    (assert (eq lexical-binding nil) "pyel requires dynamic scoping")
+    
     (setq pyel-marked-ast-pieces nil)
     (setq pyel-transform-status nil) ;;so far so good...
   
