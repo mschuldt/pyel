@@ -6894,6 +6894,23 @@ assert x[9] == '9'
   
 #+END_SRC
 
+* pass
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+ (def-transform pass pyel ()
+   (lambda () nil))
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def Pass():
+      return "(pass)"
+#+END_SRC
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 
 * unimplemented
 This will help notify the user when some syntax has not been implemented
