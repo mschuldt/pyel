@@ -2957,13 +2957,16 @@ assert a == b == c == 9.3"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform if pyel ()
     (lambda (test body orelse)
-      (let ((tst (transform test)))
-        (setq _x tst)
+      (let* ((tst (transform test))
+             (true-body (mapcar 'transform body))
+             (progn-code (if (> (length true-body) 1)
+                             '(@ progn)
+                           '@)))
+  
         `(if  ,(if (equal tst []) nil tst)
-                ;;?TODO: Have option to optimize in cases like this.
-                ;;       Just include the else statements, if any
-                (progn ,@(mapcar 'transform body))
-                ,@(mapcar 'transform orelse)))))
+  
+             (,progn-code ,@true-body)
+           ,@(mapcar 'transform orelse)))))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
