@@ -5757,7 +5757,7 @@ assert x == [0,1,3,4]"
   (def-transform global pyel ()
     (lambda (names)
       (if (context-p 'function-def)
-          (progn (mapc (lambda (x) (add-to-list 'global-vars x)) names)
+          (progn (mapc (lambda (x) (add-to-list 'global-vars (_to- x))) names)
                  pyel-nothing)
         (pyel-not-implemented "'global' calls outside of function definitions"))))
 #+END_SRC
