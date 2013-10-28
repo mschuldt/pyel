@@ -318,11 +318,16 @@ main
   
   
   (defun pyel-reload ()
-    (interactive)
-    (dolist (f '(pyel pyel-tests pyel-transforms ))
-      (setq features (remove f features)))
-    (require 'pyel))
-  
+      (interactive)
+      (dolist (f '(pyel
+                   pyel-tests
+                   pyel-transforms
+                   pyel-mode
+                   pyel-pp
+                   pyel-preprocessor
+                   transformer))
+        (setq features (remove f features)))
+      (require 'pyel))
   
   
   (defun pyel-method-transform-name(method-name)
