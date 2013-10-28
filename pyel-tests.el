@@ -1100,8 +1100,7 @@
     (pyel "if (a==b):\n  b=c\nelse:\n  a = d")
     '(if
          (pyel-== a b)
-         (progn
-           (setq b c))
+         (setq b c)
        (setq a d))))
   (should
    (equal
@@ -1121,9 +1120,8 @@
          (pyel-<=
           (oref a b)
           (oref a e))
-         (progn
-           (oset a b
-                 (vector 2.1 2)))
+         (oset a b
+               (vector 2.1 2))
        (oset
         (oref b a)
         c
@@ -1332,8 +1330,7 @@
     '(catch '__break__
        (while a
          (if b
-             (progn
-               (throw '__break__ nil))
+             (throw '__break__ nil)
            (c))))))
   (should
    (equal
@@ -1341,8 +1338,7 @@
     '(while a
        (catch '__continue__
          (if b
-             (progn
-               (throw '__continue__ nil)))
+             (throw '__continue__ nil))
          (c))))))
 (ert-deftest pyel-while-py-ast nil
   (should
@@ -1485,9 +1481,8 @@
        (let
            (x y)
          (if ab
-             (progn
-               (setq x
-                     (pyel-+ a b))))
+             (setq x
+                   (pyel-+ a b)))
          (setq y 3)
          (-a-)
          (oset z a 4))))))
@@ -2510,8 +2505,7 @@
              (catch '__continue__
                (if
                    (pyel-== i 2)
-                   (progn
-                     (throw '__continue__ nil)))
+                   (throw '__continue__ nil))
                (pyel-append-method x i)))
        (assert
         (pyel-== x
@@ -3236,7 +3230,51 @@
 
 ;;
 
-;;
+(ert-deftest pyel-conditional-expressions-full-transform nil
+  (should
+   (equal
+    (pyel "1 if True else 0")
+    '(if t 1 0)))
+  (should
+   (equal
+    (pyel "true() if tst() else false()")
+    '(if
+         (tst)
+         (true)
+       (false))))
+  (should
+   (equal
+    (pyel "a[1] if a[2:2] else a[2]")
+    '(if
+         (pyel-subscript-load-slice a 2 2 nil)
+         (pyel-subscript-load-index a 1)
+       (pyel-subscript-load-index a 2)))))
+(ert-deftest pyel-conditional-expressions-py-ast nil
+  (should
+   (equal
+    (py-ast "1 if True else 0")
+    "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])\n"))
+  (should
+   (equal
+    (py-ast "true() if tst() else false()")
+    "Module(body=[Expr(value=IfExp(test=Call(func=Name(id='tst', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), body=Call(func=Name(id='true', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), orelse=Call(func=Name(id='false', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)))])\n"))
+  (should
+   (equal
+    (py-ast "a[1] if a[2:2] else a[2]")
+    "Module(body=[Expr(value=IfExp(test=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=2), step=None), ctx=Load()), body=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), orelse=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())))])\n")))
+(ert-deftest pyel-conditional-expressions-el-ast nil
+  (should
+   (string=
+    (pyel "1 if True else 0" t)
+    "(if-exp (name  \"True\" 'load) (num 1) (num 0))\n"))
+  (should
+   (string=
+    (pyel "true() if tst() else false()" t)
+    "(if-exp (call  (name  \"tst\" 'load) nil nil nil nil) (call  (name  \"true\" 'load) nil nil nil nil) (call  (name  \"false\" 'load) nil nil nil nil))\n"))
+  (should
+   (string=
+    (pyel "a[1] if a[2:2] else a[2]" t)
+    "(if-exp (subscript (name  \"a\" 'load) (slice (num 2) (num 2) nil) 'load) (subscript (name  \"a\" 'load) (index (num 1)) 'load) (subscript (name  \"a\" 'load) (index (num 2)) 'load))\n")))
 
 ;;
 

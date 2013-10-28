@@ -305,13 +305,16 @@
 
 (def-transform if pyel ()
   (lambda (test body orelse)
-    (let ((tst (transform test)))
-      (setq _x tst)
+    (let* ((tst (transform test))
+           (true-body (mapcar 'transform body))
+           (progn-code (if (> (length true-body) 1)
+                           '(@ progn)
+                         '@)))
+
       `(if  ,(if (equal tst []) nil tst)
-              ;;?TODO: Have option to optimize in cases like this.
-              ;;       Just include the else statements, if any
-              (progn ,@(mapcar 'transform body))
-              ,@(mapcar 'transform orelse)))))
+
+           (,progn-code ,@true-body)
+         ,@(mapcar 'transform orelse)))))
 
 (defvar pyel-obj-counter 0)
 
@@ -851,7 +854,7 @@
 (def-transform global pyel ()
   (lambda (names)
     (if (context-p 'function-def)
-        (progn (mapc (lambda (x) (add-to-list 'global-vars x)) names)
+        (progn (mapc (lambda (x) (add-to-list 'global-vars (_to- x))) names)
                pyel-nothing)
       (pyel-not-implemented "'global' calls outside of function definitions"))))
 
