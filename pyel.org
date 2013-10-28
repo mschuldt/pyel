@@ -162,6 +162,7 @@ main
     "return the full file name of py-ast.el"
     (file-path-concat pyel-directory "py-ast.py"))
   
+  
   (defun pyel (python &optional py-ast-only include-defuns)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
@@ -173,7 +174,11 @@ main
     (setq pyel-marked-ast-pieces nil)
     (setq pyel-transform-status nil) ;;so far so good...
   
-    (let* ((python (replace-regexp-in-string "\"" "\\\\\"" python))
+    (let* (;;Q general way of replacing backslashes?
+           (python (replace-regexp-in-string "\"" "\\\\\"" python))
+           (python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
+           
+           ;; (pyel "x = 'x\n'")
           (file "/tmp/py2el.py")
           (py-ast "")
           (el-code "")
@@ -221,6 +226,7 @@ main
         (mapc 'eval pyel-function-definitions) 
         ret
         ))))
+  
   
   (defun pyel-buffer-to-string (&optional ast-only)
     "transform python in current buffer and return a string"
@@ -273,23 +279,23 @@ main
   
   
   (defun py-ast (code &optional pp)
-    "return the python abstract syntax tree for python CODE"
-    (let ((file "/tmp/py2el.py")
+    "Return the python abstract syntax tree for python CODE"
+    (let ((file "/tmp/pyel-ast.py")
           (py-ast "")
           (el-code "")
           ret)
       
-      (find-file file)
-      (erase-buffer)
-      (insert "import ast" "\n");; "import test" "\n")
-  
-      (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")))" code))
-      (save-buffer)
-      (kill-buffer)
+      (with-temp-buffer
+        (insert "import ast" "\n")
+        (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")))" code))
+        (write-region nil nil file nil 'silent))
+      
       (setq ret (shell-command-to-string (format "python3 %s" file)))
-      (if pp
-          (mapconcat 'identity (split-string ret ",") ",\n")
-        ret)))
+      (when pp
+        (dolist (x '(("," . ",\n")
+                     ("=" . " = ")))
+          (setq ret (mapconcat 'identity (split-string ret (car x)) (cdr x)))))
+      ret))
   
   
   ;;'(a (@ b (c)))) => (a b (c))
