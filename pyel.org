@@ -176,7 +176,7 @@ main
   
     (let* (;;Q general way of replacing backslashes?
            (python (replace-regexp-in-string "\"" "\\\\\"" python))
-           (python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
+           ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
            
            ;; (pyel "x = 'x\n'")
           (file "/tmp/py2el.py")
