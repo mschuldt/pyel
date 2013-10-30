@@ -306,19 +306,20 @@ main
   
   (defun pyel-do-splices (code)
     (if (listp code)
-        (if (eq (car code) '@) ;;special case: outer most list 
-            (if (> (length code) 2)
-                (pyel-do-splices `(progn ,code))
-              (pyel-do-splices (cadr code)))
-          (let ((ncode nil))
-            (while code
-              (setq c (pop code))
-              (if (listp c)
-                  (if (equal (car c) '@)
-                      (setq ncode (append (reverse (pyel-do-splices (cdr c))) ncode))
-                    (push (pyel-do-splices c) ncode))
-                (push c ncode)))
-            (if (listp ncode) (reverse ncode) ncode)))
+        (let (c)
+          (if (eq (car code) '@) ;;special case: outer most list 
+              (if (> (length code) 2)
+                  (pyel-do-splices `(progn ,code))
+                (pyel-do-splices (cadr code)))
+            (let ((ncode nil))
+              (while code
+                (setq c (pop code))
+                (if (listp c)
+                    (if (equal (car c) '@)
+                        (setq ncode (append (reverse (pyel-do-splices (cdr c))) ncode))
+                      (push (pyel-do-splices c) ncode))
+                  (push c ncode)))
+              (if (listp ncode) (reverse ncode) ncode))))
       code))
   
   
