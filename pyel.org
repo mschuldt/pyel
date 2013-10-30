@@ -256,14 +256,7 @@ main
                                 code
                               (pyel-do-splices code)))))
   
-  (defun pyel-ast (code)
-    "return the ast of python CODE"
-    ;;TODO:
-    ;;create a new ast type and add the code from the list `pyel-marked-ast-pieces'
-    ;;   to the ast
-    ;; have a transform for it to rebuild `pyel-marked-ast-pieces'
-    ;; This way the AST can be transformed independently of any variables
-    )
+  
   (defun pyel-file-ast (file-name)
     "return the ast from .py file FILE-NAME"
     )
