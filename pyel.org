@@ -652,7 +652,8 @@ create tests
   
   (defvar pyel-marker-counter 0)
   
-  
+(defvar pyel-tmp-file  "/tmp/pyel-ast.py"
+  "Name of temp file to use for AST generation")
   
 #+END_SRC  
 ** syntax output variables
