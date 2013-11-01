@@ -179,7 +179,6 @@ main
            ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
            
            ;; (pyel "x = 'x\n'")
-          (file "/tmp/py2el.py")
           (py-ast "")
           (el-code "")
           (current-transform-table (get-transform-table 'pyel))
@@ -203,9 +202,9 @@ main
         (write-region
          nil
          nil
-         file nil 'silent))
+         pyel-tmp-file nil 'silent))
       
-      (setq py-ast (shell-command-to-string (format "python3 %s" file)))
+      (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
   
       (if (setq py-error (pyel-is-error py-ast))
           (progn
@@ -273,17 +272,16 @@ main
   
   (defun py-ast (code &optional pp)
     "Return the python abstract syntax tree for python CODE"
-    (let ((file "/tmp/pyel-ast.py")
-          (py-ast "")
+    (let ((py-ast "")
           (el-code "")
           ret)
       
       (with-temp-buffer
         (insert "import ast" "\n")
         (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")))" code))
-        (write-region nil nil file nil 'silent))
+        (write-region nil nil pyel-tmp-file nil 'silent))
       
-      (setq ret (shell-command-to-string (format "python3 %s" file)))
+      (setq ret (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
       (if pp
           (mapconcat 'identity (split-string ret ",") ",\n")
         ret)))
