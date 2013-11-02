@@ -5218,7 +5218,7 @@ assert len(a) == 2"
       (setq thing (car things))
       (cond
        ((stringp thing)
-        (split-string thing "" :omit-nulls)) ;;TODO: use func from string library
+        (split-string thing "" :omit-nulls))
        ((vectorp thing)
         (mapcar 'identity thing))
        ((hash-table-p thing)
@@ -5226,7 +5226,7 @@ assert len(a) == 2"
           (maphash (lambda (key value)
                      (setq keys (cons key keys))) thing)
           keys))
-       ((listp thing) (copy-list ething)))))
+       ((listp thing) (copy-list thing)))))
   
 #+END_SRC
 
