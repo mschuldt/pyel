@@ -6,17 +6,17 @@
   (if (> (length things) 1)
       things
     (setq thing (car things))
-  (cond
-   ((stringp thing)
-    (char-split-string thing)) ;;TODO: use func from string library
-   ((vectorp thing)
-    (mapcar 'identity thing))
-   ((hash-table-p thing)
-    (let (keys)
-      (maphash (lambda (key value)
-                 (setq keys (cons key keys))) thing)
-      keys))
-   ((listp thing) thing))))
+    (cond
+     ((stringp thing)
+      (split-string thing "" :omit-nulls))
+     ((vectorp thing)
+      (mapcar 'identity thing))
+     ((hash-table-p thing)
+      (let (keys)
+        (maphash (lambda (key value)
+                   (setq keys (cons key keys))) thing)
+        keys))
+     ((listp thing) (copy-list thing)))))
 
 
 

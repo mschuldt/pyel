@@ -276,7 +276,8 @@
 
 (pyel-create-py-func > (l r)
                      (number number) -> (> l r)
-                     (string string) -> `(and (not (string< l r)) (not (string= l r)))
+                     ;;TODO: macro for this
+                     (string string) -> (and (not (string< l r)) (not (string= l r)))
                      (object _) -> (__gt__ l r))
 ;;TODO: other py types?
 ;;::Q does `string<' behave like < for strings in python?
