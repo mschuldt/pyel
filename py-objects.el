@@ -143,9 +143,9 @@ These names will be set globally to their index in this list")
 	 `(progn
 	    (setq ,name ',new)
 	    (defun ,name (&rest args)
-	      (make-instance ,name args)))))
+	      (obj-make-instance ,name args)))))
 
-(defun make-instance (class args)
+(defun obj-make-instance (class args)
   (let ((new (make-empty-instance)))
 
     ;;each instance has its own reference to the getter and setter methods
