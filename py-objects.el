@@ -128,7 +128,8 @@ These names will be set globally to their index in this list")
 	       (append methods
 		       (mapcar (lambda (var--value)
 				 (_make-attr :name (car var--value)
-					     :value (cdr var--value)))
+					     :value (cdr var--value)
+					     :type attr-normal-type))
 			       class-variables)))
 
 	 (obj-set new --name-- name)
