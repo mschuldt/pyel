@@ -191,7 +191,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 	   (funcall attr object))
 	  ((= type attr-method-type)  ;; method
 	   (bind-method object attr))
-	  (t attr))))
+	  (t value))))
 
 (defun _obj-getattr (obj attr)
   ;; retrieves the internal attribute representation
@@ -238,7 +238,17 @@ if it is not call OBJECT's --getattr-- method if defined"
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
   (let ((method (aref object method-index)))
-    (or method (error "method not found"))
+    (or method
+	(let* ((bases (aref object obj-bases-index))
+	       (nbases (length bases))
+		(i 0))
+	  (while (not method) ;;TODO: proper MRO
+	    (setq method (_obj-get-special (aref bases i) method-index))
+	    (setq i (1+ i))
+	    (if (and (not method)
+		     (>= i nbases)) (error "attr does not exist")))
+	  method)
+	(error "method not found"))
     ;;TODO: inheritance
   ))
 
@@ -261,8 +271,11 @@ if it is not call OBJECT's --getattr-- method if defined"
 (defun _obj-setattr (obj attr value)
   ;;TODO: specify the type?
   (push (_make-attr :name attr
-		    :value value)
-	(aref obj obj-dict-index)))
+		    :value value
+		    :type attr-normal-type
+		    )
+	(aref obj obj-dict-index))
+  nil)
 
 
 ;;internal attribute representation
@@ -308,4 +321,3 @@ if it is not call OBJECT's --getattr-- method if defined"
 (defmacro def (name args decorator-list doc &rest body)
 
 )
-
