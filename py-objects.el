@@ -298,12 +298,12 @@ if it is not call OBJECT's --getattr-- method if defined"
 
 (defmacro _get-attr-prop (attr key)
   (cond ((eq key :name)
-	 `(aref ,attr attr-name-index))
+	 `(aref ,attr ,attr-name-index))
 	((eq key :value)
-	 `(aref ,attr attr-value-index))
+	 `(aref ,attr ,attr-value-index))
 	((eq key :type)
-	 `(aref ,attr attr-type-index))
-	(t `(cdr (assoc ,key (aref ,attr attr-alist-index))))))
+	 `(aref ,attr ,attr-type-index))
+	(t `(cdr (assoc ,key (aref ,attr ,attr-alist-index))))))
 
 (defmacro def (name args decorator-list doc &rest body)
 
