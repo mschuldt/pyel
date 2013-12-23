@@ -256,7 +256,8 @@ if it is not call OBJECT's --getattr-- method if defined"
 (defmacro call-method (object method &rest args)
   ;;'bind' method and call it
   ;;TODO: check if it is special first
-  `(funcall (obj-get ,object ,method) ,object ,@args))
+  `(funcall (aref (_obj-getattr ,object ',method) attr-value-index)
+		  ,object ,@args))
 
 (defmacro obj-set (obj attr value)
   `(obj-setattr ,obj ',attr ,value))
