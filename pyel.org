@@ -2270,7 +2270,7 @@ assert a == b == c == 9.3"
          ((eq ctx 'load) id)
          ((eq ctx 'store)  (if (context-p 'for-loop-target)
                                id
-                             (list 'setq id (transform assign-value))))
+                             (list 'py-set id (transform assign-value))))
          (t  "<ERROR: name>"))
         )))
   
