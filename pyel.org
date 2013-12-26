@@ -1178,6 +1178,13 @@ This will have to be removed after the code is generated
                  (cond ((functionp '(\, val))
                         (fset '(\, sym) '(\, val)))
                        (t (setq (\, sym) __val__))))))
+  
+  
+  (defun strip$ (sym)
+    (let ((str (symbol-name sym)))
+      (if (string-match "\\(^\\$\\)\\(.+\\)" str)
+          (intern (match-string 2 str))
+        sym)))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
