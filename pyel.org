@@ -1387,7 +1387,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 * assign
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-create-py-func py-set (sym val)
+  (pyel-create-py-func set (sym val)
                        (_ $function) -> (fset $$sym $$val)
                        (_ _) -> (setq $sym val)) ;;TODO: other?
   
@@ -2289,7 +2289,7 @@ assert a == b == c == 9.3"
          ((eq ctx 'load) id)
          ((eq ctx 'store)  (if (context-p 'for-loop-target)
                                id
-                             (call-transform  'py-set id (transform assign-value))))
+                             (call-transform  'set id (transform assign-value))))
          (t  "<ERROR: name>"))
         )))
   
