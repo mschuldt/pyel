@@ -1396,8 +1396,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-create-py-func py-set (sym val)
-                       (_ function) -> (fset sym val)
-                       (_ _) -> (setq sym val)) ;;TODO: other?
+                       (_ $function) -> (fset $$sym $$val)
+                       (_ _) -> (setq $sym val)) ;;TODO: other?
   
   (def-transform assign pyel ()
       (lambda (targ val) (py-assign targ val)))
