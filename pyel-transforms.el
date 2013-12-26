@@ -3,6 +3,10 @@
 
 (make-transform-table 'pyel)
 
+(pyel-create-py-func set (_sym _val)
+                     (_ $function) -> (fset $$sym $$val)
+                     (_ _) -> (setq $sym val)) ;;TODO: other?
+
 (def-transform assign pyel ()
     (lambda (targ val) (py-assign targ val)))
   
@@ -200,7 +204,7 @@
        ((eq ctx 'load) id)
        ((eq ctx 'store)  (if (context-p 'for-loop-target)
                              id
-                           (list 'setq id (transform assign-value))))
+                           (call-transform  'set id (transform assign-value))))
        (t  "<ERROR: name>"))
       )))
 
