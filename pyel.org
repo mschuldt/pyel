@@ -1016,14 +1016,17 @@ This will have to be removed after the code is generated
            ;;list of symbols to replace
            ;;format: (symbol replace)
            (let-vars (append (mapcar* (lambda (a b) (list a b))
-                                       args new-args)
-                              ))
+                                      args new-args)
+                             ))
            ;;the __x__ type replacements interfere with the (\, x) type replacements
            ;;so they must be seporated and done one at a time
            (arg-replacements1 let-vars)
            (arg-replacements2 (mapcar (lambda (x)
-                                               (list  (intern (format "$%s" x)) (list '\, x)))
-                                             args))
+                                        (list  (intern (format "$%s" x)) (list '\, x)))
+                                      args))
+           (arg-replacements3 (mapcar (lambda (x)
+                                        (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
+                                      args))
            (arg-replacements (append arg-replacements1 arg-replacements2))
   
            (current-replace-list nil)
@@ -1031,7 +1034,7 @@ This will have to be removed after the code is generated
            ;;                           (mapcar (lambda (x)
            ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
            ;;                                   args)))
-                    
+           
            (ts ) ;;??
            (valid nil) ;;list of valid arg--types
            (found nil)
@@ -1064,7 +1067,7 @@ This will have to be removed after the code is generated
             
             (dolist(pos-type possible-types)
               (when (and (equal (eval (caar t-s)) (car pos-type))
-                         (equal (cadar t-s) (cdr pos-type)))
+                         (equal (strip$ (cadar t-s)) (cdr pos-type)))
                 (push t-s valid))))));;TODO: break if found?
       
       
@@ -1105,31 +1108,42 @@ This will have to be removed after the code is generated
              (replace-vars (code)
                            (let* ((current-replace-list arg-replacements1)
                                   (code (replace code arg-replacements1))
-                                  (current-replace-list arg-replacements2))
-                             (replace code arg-replacements2)))
-              
+                                  (current-replace-list arg-replacements2)
+                                  (code (replace code arg-replacements2))
+                                  (current-replace-list arg-replacements3))
+                             (replace code arg-replacements3)))
+             
              (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                               (if (equal (car t-s--c) 'and)
-                                  `((and ,@(mapcar '(lambda (x)
-                                                      ;;TODO: test
-                                                      `(,(type-tester (cadr x))
-                                                        ,(get-replacement-OLD
-                                                          (car x))))
-                                                   (cadr t-s--c)))
-                                    ,(replace-vars (caddr t-s--c)))
-                                       
+                                  (progn (setq __x t-s--c)
+                                         `((and ,@(mapcar '(lambda (x)
+                                                             ;;TODO: test
+                                                             `(,(type-tester (cadr x))
+                                                               ,(get-replacement-OLD
+                                                                 (car x))))
+                                                          (cadr t-s--c)))
+                                           ,(replace-vars (caddr t-s--c))))
+                                
                                 ;;TODO
-                                (if (equal (car t-s--c) t) ;;all types where _
-                                    `(t ,(replace-vars (cadr t-s--c)))
-                                  `((,(type-tester (cadar t-s--c))
-                                     ,(get-replacement-OLD (caar t-s--c)))
-                                    ,(replace-vars (cadr t-s--c))
-                                    ))))
-             
+                                (progn (setq __x t-s--c)
+                                       (if (equal (car t-s--c) t) ;;all types where _
+                                           `(t ,(replace-vars (cadr t-s--c)))
+                                         (let* ((str (symbol-name (cadar t-s--c)))
+                                                (quote-arg-p (string-match-p "\\(^\\$\\)\\(.+\\)"
+                                                                             str))
+                                                (type (if quote-arg-p (intern (match-string 2 str)) (cadar t-s--c)))
+                                                (tester (type-tester type))
+                                                (body (replace-vars (cadr t-s--c)))
+                                                (arg (get-replacement-OLD (caar t-s--c))))
+                                           `((,tester ,(if quote-arg-p (list 'quote (list '\, (caar t-s--c))) arg))
+                                             ,body))
+  
+                                         ))))
+  
              (gen-varlist ()
-                            (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
-                                    let-vars)
-                            ))
+                          (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
+                                  let-vars)
+                          ))
         
         (cond ((<= len 0) "ERROR: no valid type")
               ((= len 1)
@@ -1158,6 +1172,12 @@ This will have to be removed after the code is generated
   NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
     (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
   
+  (defmacro pyel-py-set (sym val)
+    (backquote (let ((__sym__ (\, sym))
+                     (__val__ (\, val)))
+                 (cond ((functionp '(\, val))
+                        (fset '(\, sym) '(\, val)))
+                       (t (setq (\, sym) __val__))))))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
