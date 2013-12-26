@@ -794,21 +794,22 @@ This will have to be removed after the code is generated
     ;;  add new func name to defined code list
     
     ;;temp solution: does not check types etc
-    `(def-transform ,name pyel ()
-       (lambda ,args
-         (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "")))
-               ;;      (body (pyel-do-call-transform (pyel-get-possible-types ,@(mapcar (lambda (x) `(quote ,x))args))
-               (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
-                                             ',args
-                                             ',type-switches))
-               (known-types nil)) ;;tmp
-           (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
-                         body)
-                   pyel-function-definitions)
-             (push fsym pyel-defined-functions)
-             (fset fsym (lambda () nil)))
-           (cons fsym (mapcar 'eval ',args))))))
+    (let ((striped-args (mapcar 'strip_ args)))
+      `(def-transform ,name pyel ()
+         (lambda ,striped-args
+           (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "")))
+                 ;;      (body (pyel-do-call-transform (pyel-get-possible-types ,@(mapcar (lambda (x) `(quote ,x))args))
+                 (body (pyel-do-call-transform (pyel-get-possible-types ,@striped-args)
+                                               ',args
+                                               ',type-switches))
+                 (known-types nil)) ;;tmp
+             (unless (member fsym pyel-defined-functions)
+               (push (list 'defmacro fsym ',striped-args
+                           body)
+                     pyel-function-definitions)
+               (push fsym pyel-defined-functions)
+               (fset fsym (lambda () nil)))
+             (cons fsym (mapcar 'eval ',striped-args)))))))
   
   (defmacro pyel-method-transform (name args &rest type-switches)
     "define transforms for method calls on primative types"
@@ -1073,8 +1074,8 @@ This will have to be removed after the code is generated
           (if (eq (car t-s) t) ;;when all types are _
               (push t-s valid)
             ;;otherwise check if the type is one of the valid types
-            
-            
+                 
+            (setq _xx t-s)
             (dolist(pos-type possible-types)
               (when (and (equal (eval (caar t-s)) (car pos-type))
                          (equal (strip$ (cadar t-s)) (cdr pos-type)))
@@ -1177,6 +1178,7 @@ This will have to be removed after the code is generated
                                      (cond ,@(reverse clauses)))
                                   `(cond ,@(reverse clauses)))
                                  )))))))
+  
   
   
   (defun call-transform (template-name &rest args)
