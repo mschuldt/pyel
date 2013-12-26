@@ -803,7 +803,7 @@ This will have to be removed after the code is generated
                                              ',type-switches))
                (known-types nil)) ;;tmp
            (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',args
+             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
                          body)
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
@@ -851,7 +851,7 @@ This will have to be removed after the code is generated
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
            
            (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',args
+             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
                          body)
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
@@ -1011,13 +1011,23 @@ This will have to be removed after the code is generated
                                  (push (cons arg type) ret)))
                              ret))
            (c 0)
-           (new-args (loop for a in args
-                           collect (intern (format "__%s__" (symbol-name a)))))
+           
+           (new-args (loop for a in args ;;doing: check for leading underscore
+                           collect (if (string-match-p "\\(^_\\)\\(.+\\)"
+                                                       (symbol-name a)) nil
+                                       (intern (format "__%s__" (symbol-name a))))))
            ;;list of symbols to replace
            ;;format: (symbol replace)
-           (let-vars (append (mapcar* (lambda (a b) (list a b))
-                                      args new-args)
-                             ))
+           (let-vars (let (lv) (mapcar* (lambda (a b) (if b
+                                                          (push (list a b) lv)))
+                                        args new-args)
+                          lv))
+           ;;strip any leading underscores
+           (args (mapcar (lambda (a)
+                              (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
+                                (intern (match-string 2 (symbol-name a))) a))
+                                args))
+                       
            ;;the __x__ type replacements interfere with the (\, x) type replacements
            ;;so they must be seporated and done one at a time
            (arg-replacements1 let-vars)
@@ -1175,6 +1185,11 @@ This will have to be removed after the code is generated
   (defun strip$ (sym)
     (let ((str (symbol-name sym)))
       (if (string-match "\\(^\\$\\)\\(.+\\)" str)
+          (intern (match-string 2 str))
+        sym)))
+  (defun strip_ (sym)
+    (let ((str (symbol-name sym)))
+      (if (string-match "\\(^_\\)\\(.+\\)" str)
           (intern (match-string 2 str))
         sym)))
 #+END_SRC
