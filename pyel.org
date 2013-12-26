@@ -827,7 +827,7 @@ This will have to be removed after the code is generated
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
            
            (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',args
+             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
                          body)
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
