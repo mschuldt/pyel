@@ -1172,8 +1172,11 @@ This will have to be removed after the code is generated
                                     '(t (error "invalid type, expected <TODO>"))
                                     clauses)))
                         (varlist (gen-varlist)))
-                   `(backquote (let ,varlist
-                                 (cond ,@(reverse clauses))))))))))
+                   `(backquote ,(if varlist
+                                   `(let ,varlist
+                                     (cond ,@(reverse clauses)))
+                                  `(cond ,@(reverse clauses)))
+                                 )))))))
   
   
   (defun call-transform (template-name &rest args)
