@@ -3162,10 +3162,10 @@ else:
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
     (lambda (func args keywords starargs kwargs)
-      (pyel-call func args keywords starargs kwargs)))
+      (pyel-call-transform func args keywords starargs kwargs)))
   
   
-  (defun pyel-call (func args keywords starargs kwargs)
+  (defun pyel-call-transform (func args keywords starargs kwargs)
     (let ((t-func (transform func))
           new-func m-name  f-name )
       (if (member t-func pyel-defined-classes)
