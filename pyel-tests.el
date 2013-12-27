@@ -50,7 +50,7 @@
   (should
    (equal
     (pyel "a = 1")
-    '(setq a 1)))
+    '(pyel-set a 1)))
   (should
    (equal
     (pyel "a.b = 1")
@@ -76,8 +76,8 @@
     '(let
          ((__1__ 1)
           (__2__ 2))
-       (setq a __1__)
-       (setq b __2__))))
+       (pyel-set a __1__)
+       (pyel-set b __2__))))
   (should
    (equal
     (pyel "a,b.c,x[2] = 1,a.c(),x[x()+y]")
@@ -90,20 +90,20 @@
                                       (pyel-+
                                        (x)
                                        y))))
-       (setq a __1__)
+       (pyel-set a __1__)
        (oset b c __2__)
        (pyel-subscript-store-index x 2 __3__))))
   (should
    (equal
     (pyel "a = 1\nb = 2\na,b= b,a\nassert a == 2\nassert b == 1")
     '(progn
-       (setq a 1)
-       (setq b 2)
+       (pyel-set a 1)
+       (pyel-set b 2)
        (let
            ((__1__ b)
             (__2__ a))
-         (setq a __1__)
-         (setq b __2__))
+         (pyel-set a __1__)
+         (pyel-set b __2__))
        (assert
         (pyel-== a 2)
         t nil)
@@ -115,41 +115,41 @@
     (pyel "a,b = c")
     '(let
          ((__value__ c))
-       (setq a
-             (pyel-subscript-load-index __value__ 0))
-       (setq b
-             (pyel-subscript-load-index __value__ 1)))))
+       (pyel-set a
+                 (pyel-subscript-load-index __value__ 0))
+       (pyel-set b
+                 (pyel-subscript-load-index __value__ 1)))))
   (should
    (equal
     (pyel "a,b,c = c.a")
     '(let
          ((__value__
            (oref c a)))
-       (setq a
-             (pyel-subscript-load-index __value__ 0))
-       (setq b
-             (pyel-subscript-load-index __value__ 1))
-       (setq c
-             (pyel-subscript-load-index __value__ 2)))))
+       (pyel-set a
+                 (pyel-subscript-load-index __value__ 0))
+       (pyel-set b
+                 (pyel-subscript-load-index __value__ 1))
+       (pyel-set c
+                 (pyel-subscript-load-index __value__ 2)))))
   (should
    (equal
     (pyel "a,b = c.a()")
     '(let
          ((__value__
            (a c)))
-       (setq a
-             (pyel-subscript-load-index __value__ 0))
-       (setq b
-             (pyel-subscript-load-index __value__ 1)))))
+       (pyel-set a
+                 (pyel-subscript-load-index __value__ 0))
+       (pyel-set b
+                 (pyel-subscript-load-index __value__ 1)))))
   (should
    (equal
     (pyel "a,b = c")
     '(let
          ((__value__ c))
-       (setq a
-             (pyel-subscript-load-index __value__ 0))
-       (setq b
-             (pyel-subscript-load-index __value__ 1)))))
+       (pyel-set a
+                 (pyel-subscript-load-index __value__ 0))
+       (pyel-set b
+                 (pyel-subscript-load-index __value__ 1)))))
   (should
    (equal
     (pyel "a,b = a.e.e()")
@@ -157,10 +157,10 @@
          ((__value__
            (e
             (oref a e))))
-       (setq a
-             (pyel-subscript-load-index __value__ 0))
-       (setq b
-             (pyel-subscript-load-index __value__ 1)))))
+       (pyel-set a
+                 (pyel-subscript-load-index __value__ 0))
+       (pyel-set b
+                 (pyel-subscript-load-index __value__ 1)))))
   (should
    (equal
     (pyel "a[1:4], b[2], a.c = c")
@@ -176,36 +176,36 @@
    (equal
     (pyel "a = b = c")
     '(progn
-       (setq b c)
-       (setq a b))))
+       (pyel-set b c)
+       (pyel-set a b))))
   (should
    (equal
     (pyel "a = b = c.e")
     '(progn
-       (setq b
-             (oref c e))
-       (setq a b))))
+       (pyel-set b
+                 (oref c e))
+       (pyel-set a b))))
   (should
    (equal
     (pyel "a = b = c.e()")
     '(progn
-       (setq b
-             (e c))
-       (setq a b))))
+       (pyel-set b
+                 (e c))
+       (pyel-set a b))))
   (should
    (equal
     (pyel "a = b = c = 9.3")
     '(progn
-       (setq c 9.3)
-       (setq b c)
-       (setq a b))))
+       (pyel-set c 9.3)
+       (pyel-set b c)
+       (pyel-set a b))))
   (should
    (equal
     (pyel "a = b = c = 9.3\nassert a == b == c == 9.3")
     '(progn
-       (setq c 9.3)
-       (setq b c)
-       (setq a b)
+       (pyel-set c 9.3)
+       (pyel-set b c)
+       (pyel-set a b)
        (assert
         (and
          (pyel-== a b)
@@ -684,19 +684,19 @@
   (should
    (equal
     (pyel "a = [1,2,a.b]")
-    '(setq a
-           (list 1 2
-                 (oref a b)))))
+    '(pyel-set a
+               (list 1 2
+                     (oref a b)))))
   (should
    (equal
     (pyel "b = [1,[1,a,[a.b,[],3]]]")
-    '(setq b
-           (list 1
-                 (list 1 a
-                       (list
-                        (oref a b)
-                        (list)
-                        3))))))
+    '(pyel-set b
+               (list 1
+                     (list 1 a
+                           (list
+                            (oref a b)
+                            (list)
+                            3))))))
   (should
    (equal
     (pyel "[[[[[[[a]]]]]]]")
@@ -763,38 +763,38 @@
   (should
    (equal
     (pyel "a = {a:2, b:4}")
-    '(setq a
-           (let
-               ((__h__
-                 (make-hash-table :test 'equal)))
-             (puthash a 2 __h__)
-             (puthash b 4 __h__)
-             __h__))))
+    '(pyel-set a
+               (let
+                   ((__h__
+                     (make-hash-table :test 'equal)))
+                 (puthash a 2 __h__)
+                 (puthash b 4 __h__)
+                 __h__))))
   (should
    (equal
     (pyel "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}")
-    '(setq x
-           (let
-               ((__h__
-                 (make-hash-table :test 'equal)))
-             (puthash "a" 2 __h__)
-             (puthash "b" 4 __h__)
-             (puthash "c"
-                      (let
-                          ((__h__
-                            (make-hash-table :test 'equal)))
-                        (puthash "d" 1 __h__)
-                        (puthash "e" 2 __h__)
-                        (puthash f
-                                 (let
-                                     ((__h__
-                                       (make-hash-table :test 'equal)))
-                                   (puthash g 3 __h__)
-                                   __h__)
-                                 __h__)
-                        __h__)
-                      __h__)
-             __h__)))))
+    '(pyel-set x
+               (let
+                   ((__h__
+                     (make-hash-table :test 'equal)))
+                 (puthash "a" 2 __h__)
+                 (puthash "b" 4 __h__)
+                 (puthash "c"
+                          (let
+                              ((__h__
+                                (make-hash-table :test 'equal)))
+                            (puthash "d" 1 __h__)
+                            (puthash "e" 2 __h__)
+                            (puthash f
+                                     (let
+                                         ((__h__
+                                           (make-hash-table :test 'equal)))
+                                       (puthash g 3 __h__)
+                                       __h__)
+                                     __h__)
+                            __h__)
+                          __h__)
+                 __h__)))))
 (ert-deftest pyel-dict-py-ast nil
   (should
    (equal
@@ -884,7 +884,7 @@
   (should
    (equal
     (pyel "x = 'a'")
-    '(setq x "a")))
+    '(pyel-set x "a")))
   (should
    (equal
     (pyel "['a','b']")
@@ -1100,19 +1100,19 @@
     (pyel "if (a==b):\n  b=c\nelse:\n  a = d")
     '(if
          (pyel-== a b)
-         (setq b c)
-       (setq a d))))
+         (pyel-set b c)
+       (pyel-set a d))))
   (should
    (equal
     (pyel "if (a==b):\n   b=c\n   z=1\nelse:\n  a = 4\n  b = a.b")
     '(if
          (pyel-== a b)
          (progn
-           (setq b c)
-           (setq z 1))
-       (setq a 4)
-       (setq b
-             (oref a b)))))
+           (pyel-set b c)
+           (pyel-set z 1))
+       (pyel-set a 4)
+       (pyel-set b
+                 (oref a b)))))
   (should
    (equal
     (pyel "if (a.b <= a.e):\n a.b=(2.1,2)\nelse:\n b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]")
@@ -1174,8 +1174,8 @@
   (should
    (equal
     (pyel "aa=b()")
-    '(setq aa
-           (b))))
+    '(pyel-set aa
+               (b))))
   (should
    (equal
     (pyel "aa(3,b(c(),[2,(2,3)]))")
@@ -1311,7 +1311,7 @@
     '(while
          (pyel-== a b)
        (print "hi")
-       (setq a b))))
+       (pyel-set a b))))
   (should
    (equal
     (pyel "while (a==b):\n  while (a>2):\n    b(3,[a,2])\n    b=c.e\n  a=b")
@@ -1321,9 +1321,9 @@
            (pyel-> a 2)
          (b 3
             (list a 2))
-         (setq b
-               (oref c e)))
-       (setq a b))))
+         (pyel-set b
+                   (oref c e)))
+       (pyel-set a b))))
   (should
    (equal
     (pyel "while a:\n if b:\n  break\n else:\n  c()")
@@ -1402,7 +1402,7 @@
        (let
            (a)
          (print "ok")
-         (setq a b)))))
+         (pyel-set a b)))))
   (should
    (equal
     (pyel "def a(b,c):\n  if (a==b()):\n    c()\n    while (a < d.b):\n      b,c = 1,3\n  a.b.c = [a,(2,2)]")
@@ -1421,8 +1421,8 @@
                  (let
                      ((__1__ 1)
                       (__2__ 3))
-                   (setq b __1__)
-                   (setq c __2__)))))
+                   (pyel-set b __1__)
+                   (pyel-set c __2__)))))
          (oset
           (oref a b)
           c
@@ -1481,9 +1481,9 @@
        (let
            (x y)
          (if ab
-             (setq x
-                   (pyel-+ a b)))
-         (setq y 3)
+             (pyel-set x
+                       (pyel-+ a b)))
+         (pyel-set y 3)
          (-a-)
          (oset z a 4))))))
 (ert-deftest pyel-def-py-ast nil
@@ -1589,6 +1589,549 @@
     (pyel "assert 1/2 == 0.5" t)
     "(assert  (compare  (bin-op  (num 1) / (num 2)) (\"==\") ((num 0.5))) nil)\n")))
 
+(ert-deftest pyel-subscript-full-transform nil
+    (should
+     (equal
+      (pyel "a = '1X23'\nassert a[1] == 'X'")
+      '(progn
+         (pyel-set a "1X23")
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index a 1)
+           "X")
+          t nil))))
+    (should
+     (equal
+      (pyel "a = [1,2,3,4]\nassert a[1] == 2")
+      '(progn
+         (pyel-set a
+                   (list 1 2 3 4))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index a 1)
+           2)
+          t nil))))
+    (should
+     (equal
+      (pyel "a = (1,2,3,4)\nassert a[1] == 2")
+      '(progn
+         (pyel-set a
+                   (vector 1 2 3 4))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index a 1)
+           2)
+          t nil))))
+    (should
+     (equal
+      (pyel "class a:\n def __getitem__ (self, value):\n  return value + 4\nx = a()\nassert x[1] == 5")
+      '(progn
+         (defclass a nil nil "pyel class")
+         (defmethod --getitem--
+           ((self a)
+            value)
+           (pyel-+ value 4))
+         (defmethod --init--
+           ((self a))
+           "Default initializer")
+         (pyel-set x
+                   (let
+                       ((__c
+                         (a "obj")))
+                     (--init-- __c)
+                     __c))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index x 1)
+           5)
+          t nil))))
+    (should
+     (equal
+      (pyel "a = (1,2,3,4,5)\nassert a[1:4] == (2,3,4)\nassert a[:4] == (1,2,3,4)\nassert a[2:] == (3,4,5)\nassert a[:] == (1,2,3,4,5)")
+      '(progn
+         (pyel-set a
+                   (vector 1 2 3 4 5))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 1 4 nil)
+           (vector 2 3 4))
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 0 4 nil)
+           (vector 1 2 3 4))
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 2 nil nil)
+           (vector 3 4 5))
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 0 nil nil)
+           (vector 1 2 3 4 5))
+          t nil))))
+    (should
+     (equal
+      (pyel "a = [1,2,3,4,5]\nassert a[1:4] == [2,3,4]\nassert a[:4] == [1,2,3,4]\nassert a[2:] == [3,4,5]\nassert a[:] == [1,2,3,4,5]")
+      '(progn
+         (pyel-set a
+                   (list 1 2 3 4 5))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 1 4 nil)
+           (list 2 3 4))
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 0 4 nil)
+           (list 1 2 3 4))
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 2 nil nil)
+           (list 3 4 5))
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 0 nil nil)
+           (list 1 2 3 4 5))
+          t nil))))
+    (should
+     (equal
+      (pyel "a = '012345678'\nassert a[1:4] == '123'\nassert a[:4] == '0123'\nassert a[2:] == '2345678'\nassert a[:] == '012345678'")
+      '(progn
+         (pyel-set a "012345678")
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 1 4 nil)
+           "123")
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 0 4 nil)
+           "0123")
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 2 nil nil)
+           "2345678")
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice a 0 nil nil)
+           "012345678")
+          t nil))))
+    (should
+     (equal
+      (pyel "class a:\n def __getitem__ (self, value):\n  return value.start + value.end\nx = a()\nassert x[1:2] == 3\nassert x[5:7] == 12")
+      '(progn
+         (defclass a nil
+           ((start :initarg :start :initform nil)
+            (end :initarg :end :initform nil))
+           "pyel class")
+         (defmethod --getitem--
+           ((self a)
+            value)
+           (pyel-+
+            (oref value start)
+            (oref value end)))
+         (defmethod --init--
+           ((self a))
+           "Default initializer")
+         (pyel-set x
+                   (let
+                       ((__c
+                         (a "obj")))
+                     (--init-- __c)
+                     __c))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice x 1 2 nil)
+           3)
+          t nil)
+         (assert
+          (pyel-==
+           (pyel-subscript-load-slice x 5 7 nil)
+           12)
+          t nil))))
+    (should
+     (equal
+      (pyel "def __add(a,b):\n return a+b\na = [1,2,3,4]\na[0] = __add(a[1],a[2])\nassert a[0] == 5\na[2] = 'str'\nassert a[2] == 'str'")
+      '(progn
+         (defun --add
+           (a b)
+           (pyel-+ a b))
+         (pyel-set a
+                   (list 1 2 3 4))
+         (pyel-subscript-store-index a 0
+                                     (--add
+                                      (pyel-subscript-load-index a 1)
+                                      (pyel-subscript-load-index a 2)))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index a 0)
+           5)
+          t nil)
+         (pyel-subscript-store-index a 2 "str")
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index a 2)
+           "str")
+          t nil))))
+    (should
+     (equal
+      (pyel "a = (1,2,3,4)\na[0] = a[1] + a[2]\nassert aa[0] == 5\na[2] = 'str'\nassert a[2] == 'str'")
+      '(progn
+         (pyel-set a
+                   (vector 1 2 3 4))
+         (pyel-subscript-store-index a 0
+                                     (pyel-+
+                                      (pyel-subscript-load-index a 1)
+                                      (pyel-subscript-load-index a 2)))
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index aa 0)
+           5)
+          t nil)
+         (pyel-subscript-store-index a 2 "str")
+         (assert
+          (pyel-==
+           (pyel-subscript-load-index a 2)
+           "str")
+          t nil))))
+    (should
+     (equal
+      (pyel "class a:\n def __setitem__ (self, index, value):\n  self.index = index\n  self.value = value\nx = a()\nx[3] = 5\nassert x.index == 3\nassert x.value == 5")
+      '(progn
+         (defclass a nil
+           ((value :initarg :value :initform nil)
+            (index :initarg :index :initform nil))
+           "pyel class")
+         (defmethod --setitem--
+           ((self a)
+            index value)
+           (oset self index index)
+           (oset self value value))
+         (defmethod --init--
+           ((self a))
+           "Default initializer")
+         (pyel-set x
+                   (let
+                       ((__c
+                         (a "obj")))
+                     (--init-- __c)
+                     __c))
+         (pyel-subscript-store-index x 3 5)
+         (assert
+          (pyel-==
+           (oref x index)
+           3)
+          t nil)
+         (assert
+          (pyel-==
+           (oref x value)
+           5)
+          t nil))))
+    (should
+     (equal
+      (pyel "a = [1,2,3,4,5,6]\na[1:4] = [5,4,'f']\nassert a == [1,5,4,'f',5,6]\na[:3] = ['a',4,2.2]\nassert a == ['a',4,2.2,'f',5,6]\na[3:] = [3,3]\nassert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]")
+      '(progn
+         (pyel-set a
+                   (list 1 2 3 4 5 6))
+         (pyel-subscript-store-slice a 1 4 nil
+                                     (list 5 4 "f"))
+         (assert
+          (pyel-== a
+                   (list 1 5 4 "f" 5 6))
+          t nil)
+         (pyel-subscript-store-slice a 0 3 nil
+                                     (list "a" 4 2.2))
+         (assert
+          (pyel-== a
+                   (list "a" 4 2.2 "f" 5 6))
+          t nil)
+         (pyel-subscript-store-slice a 3 nil nil
+                                     (list 3 3))
+         (assert
+          (pyel-== a
+                   (list "a" 4 2.2 3 3 6))
+          t nil))))
+    (should
+     (equal
+      (pyel "a = (1,2,3,4,5,6)\na[1:4] = (5,4,'f')\nassert a == (1,5,4,'f',5,6)\na[:3] = ('a',4,2.2)\nassert a == ('a',4,2.2,'f',5,6)\na[3:] = (3,3)\nassert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)")
+      '(progn
+         (pyel-set a
+                   (vector 1 2 3 4 5 6))
+         (pyel-subscript-store-slice a 1 4 nil
+                                     (vector 5 4 "f"))
+         (assert
+          (pyel-== a
+                   (vector 1 5 4 "f" 5 6))
+          t nil)
+         (pyel-subscript-store-slice a 0 3 nil
+                                     (vector "a" 4 2.2))
+         (assert
+          (pyel-== a
+                   (vector "a" 4 2.2 "f" 5 6))
+          t nil)
+         (pyel-subscript-store-slice a 3 nil nil
+                                     (vector 3 3))
+         (assert
+          (pyel-== a
+                   (vector "a" 4 2.2 3 3 6))
+          t nil))))
+    (should
+     (equal
+      (pyel "a = '123456'\na[1:4] = '54f'\nassert a == '154f56'\na[:3] = 'a42'\nassert a == 'a42f56'\na[3:] = '33'\nassert a == 'a42336'#TODO: should == 'a4233'")
+      '(progn
+         (pyel-set a "123456")
+         (pyel-subscript-store-slice a 1 4 nil "54f")
+         (assert
+          (pyel-== a "154f56")
+          t nil)
+         (pyel-subscript-store-slice a 0 3 nil "a42")
+         (assert
+          (pyel-== a "a42f56")
+          t nil)
+         (pyel-subscript-store-slice a 3 nil nil "33")
+         (assert
+          (pyel-== a "a42336")
+          t nil))))
+    (should
+     (equal
+      (pyel "class a:\n def __setitem__ (self, index, value):\n  self.start = index.start\n  self.end = index.end\n  self.step = index.step\n  self.value = value\nx = a()\nx[2:3] = [1,2,3]\nassert x.start == 2\nassert x.end == 3\nassert x.value == [1,2,3]")
+      '(progn
+         (defclass a nil
+           ((value :initarg :value :initform nil)
+            (start :initarg :start :initform nil)
+            (end :initarg :end :initform nil)
+            (step :initarg :step :initform nil))
+           "pyel class")
+         (defmethod --setitem--
+           ((self a)
+            index value)
+           (oset self start
+                 (oref index start))
+           (oset self end
+                 (oref index end))
+           (oset self step
+                 (oref index step))
+           (oset self value value))
+         (defmethod --init--
+           ((self a))
+           "Default initializer")
+         (pyel-set x
+                   (let
+                       ((__c
+                         (a "obj")))
+                     (--init-- __c)
+                     __c))
+         (pyel-subscript-store-slice x 2 3 nil
+                                     (list 1 2 3))
+         (assert
+          (pyel-==
+           (oref x start)
+           2)
+          t nil)
+         (assert
+          (pyel-==
+           (oref x end)
+           3)
+          t nil)
+         (assert
+          (pyel-==
+           (oref x value)
+           (list 1 2 3))
+          t nil))))
+    (should
+     (equal
+      (pyel "a[2] += 3")
+      '(pyel-subscript-store-index a 2
+                                   (pyel-+
+                                    (pyel-subscript-load-index a 2)
+                                    3))))
+    (should
+     (equal
+      (pyel "a[2] += b[3]")
+      '(pyel-subscript-store-index a 2
+                                   (pyel-+
+                                    (pyel-subscript-load-index a 2)
+                                    (pyel-subscript-load-index b 3)))))
+    (should
+     (equal
+      (pyel "[2,3,3][2]")
+      '(pyel-subscript-load-index
+        (list 2 3 3)
+        2)))
+    (should
+     (equal
+      (pyel "assert [1,2,(3,2,8)][2][2] == 8")
+      '(assert
+        (pyel-==
+         (pyel-subscript-load-index
+          (pyel-subscript-load-index
+           (list 1 2
+                 (vector 3 2 8))
+           2)
+          2)
+         8)
+        t nil))))
+  (ert-deftest pyel-subscript-py-ast nil
+    (should
+     (equal
+      (py-ast "a = '1X23'\nassert a[1] == 'X'")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='1X23')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Str(s='X')]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = [1,2,3,4]\nassert a[1] == 2")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = (1,2,3,4)\nassert a[1] == 2")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "class a:\n def __getitem__ (self, value):\n  return value + 4\nx = a()\nassert x[1] == 5")
+      "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__getitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=BinOp(left=Name(id='value', ctx=Load()), op=Add(), right=Num(n=4)))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = (1,2,3,4,5)\nassert a[1:4] == (2,3,4)\nassert a[:4] == (1,2,3,4)\nassert a[2:] == (3,4,5)\nassert a[:] == (1,2,3,4,5)")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = [1,2,3,4,5]\nassert a[1:4] == [2,3,4]\nassert a[:4] == [1,2,3,4]\nassert a[2:] == [3,4,5]\nassert a[:] == [1,2,3,4,5]")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = '012345678'\nassert a[1:4] == '123'\nassert a[:4] == '0123'\nassert a[2:] == '2345678'\nassert a[:] == '012345678'")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='012345678')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='123')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='0123')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='2345678')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='012345678')]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "class a:\n def __getitem__ (self, value):\n  return value.start + value.end\nx = a()\nassert x[1:2] == 3\nassert x[5:7] == 12")
+      "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__getitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=BinOp(left=Attribute(value=Name(id='value', ctx=Load()), attr='start', ctx=Load()), op=Add(), right=Attribute(value=Name(id='value', ctx=Load()), attr='end', ctx=Load())))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=2), step=None), ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=5), upper=Num(n=7), step=None), ctx=Load()), ops=[Eq()], comparators=[Num(n=12)]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "def __add(a,b):\n return a+b\na = [1,2,3,4]\na[0] = __add(a[1],a[2])\nassert a[0] == 5\na[2] = 'str'\nassert a[2] == 'str'")
+      "Module(body=[FunctionDef(name='__add', args=arguments(args=[arg(arg='a', annotation=None), arg(arg='b', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=BinOp(left=Name(id='a', ctx=Load()), op=Add(), right=Name(id='b', ctx=Load())))], decorator_list=[], returns=None), Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Store())], value=Call(func=Name(id='__add', ctx=Load()), args=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store())], value=Str(s='str')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Str(s='str')]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = (1,2,3,4)\na[0] = a[1] + a[2]\nassert aa[0] == 5\na[2] = 'str'\nassert a[2] == 'str'")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Store())], value=BinOp(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), op=Add(), right=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))), Assert(test=Compare(left=Subscript(value=Name(id='aa', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store())], value=Str(s='str')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Str(s='str')]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "class a:\n def __setitem__ (self, index, value):\n  self.index = index\n  self.value = value\nx = a()\nx[3] = 5\nassert x.index == 3\nassert x.value == 5")
+      "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__setitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='index', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='index', ctx=Store())], value=Name(id='index', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='value', ctx=Store())], value=Name(id='value', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Store())], value=Num(n=5)), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='index', ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='value', ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = [1,2,3,4,5,6]\na[1:4] = [5,4,'f']\nassert a == [1,5,4,'f',5,6]\na[:3] = ['a',4,2.2]\nassert a == ['a',4,2.2,'f',5,6]\na[3:] = [3,3]\nassert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5), Num(n=6)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store())], value=List(elts=[Num(n=5), Num(n=4), Str(s='f')], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=5), Num(n=4), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=3), step=None), ctx=Store())], value=List(elts=[Str(s='a'), Num(n=4), Num(n=2.2)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=3), upper=None, step=None), ctx=Store())], value=List(elts=[Num(n=3), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Num(n=3), Num(n=3), Num(n=6)], ctx=Load())]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = (1,2,3,4,5,6)\na[1:4] = (5,4,'f')\nassert a == (1,5,4,'f',5,6)\na[:3] = ('a',4,2.2)\nassert a == ('a',4,2.2,'f',5,6)\na[3:] = (3,3)\nassert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5), Num(n=6)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store())], value=Tuple(elts=[Num(n=5), Num(n=4), Str(s='f')], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=1), Num(n=5), Num(n=4), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=3), step=None), ctx=Store())], value=Tuple(elts=[Str(s='a'), Num(n=4), Num(n=2.2)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=3), upper=None, step=None), ctx=Store())], value=Tuple(elts=[Num(n=3), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Num(n=3), Num(n=3), Num(n=6)], ctx=Load())]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a = '123456'\na[1:4] = '54f'\nassert a == '154f56'\na[:3] = 'a42'\nassert a == 'a42f56'\na[3:] = '33'\nassert a == 'a42336'#TODO: should == 'a4233'")
+      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='123456')), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store())], value=Str(s='54f')), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='154f56')]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=3), step=None), ctx=Store())], value=Str(s='a42')), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='a42f56')]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=3), upper=None, step=None), ctx=Store())], value=Str(s='33')), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='a42336')]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "class a:\n def __setitem__ (self, index, value):\n  self.start = index.start\n  self.end = index.end\n  self.step = index.step\n  self.value = value\nx = a()\nx[2:3] = [1,2,3]\nassert x.start == 2\nassert x.end == 3\nassert x.value == [1,2,3]")
+      "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__setitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='index', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='start', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='start', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='end', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='end', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='step', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='step', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='value', ctx=Store())], value=Name(id='value', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=3), step=None), ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='start', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='end', ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='value', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())]), msg=None)])\n"))
+    (should
+     (equal
+      (py-ast "a[2] += 3")
+      "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Num(n=3))])\n"))
+    (should
+     (equal
+      (py-ast "a[2] += b[3]")
+      "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "[2,3,3][2]")
+      "Module(body=[Expr(value=Subscript(value=List(elts=[Num(n=2), Num(n=3), Num(n=3)], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])\n"))
+    (should
+     (equal
+      (py-ast "assert [1,2,(3,2,8)][2][2] == 8")
+      "Module(body=[Assert(test=Compare(left=Subscript(value=Subscript(value=List(elts=[Num(n=1), Num(n=2), Tuple(elts=[Num(n=3), Num(n=2), Num(n=8)], ctx=Load())], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])\n")))
+  (ert-deftest pyel-subscript-el-ast nil
+    (should
+     (string=
+      (pyel "a = '1X23'\nassert a[1] == 'X'" t)
+      "(assign  ((name  \"a\" 'store)) (str \"1X23\"))\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 1)) 'load) (\"==\") ((str \"X\"))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = [1,2,3,4]\nassert a[1] == 2" t)
+      "(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (num 3) (num 4)) 'load))\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 1)) 'load) (\"==\") ((num 2))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = (1,2,3,4)\nassert a[1] == 2" t)
+      "(assign  ((name  \"a\" 'store)) (tuple  ((num 1) (num 2) (num 3) (num 4)) 'load))\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 1)) 'load) (\"==\") ((num 2))) nil)\n"))
+    (should
+     (string=
+      (pyel "class a:\n def __getitem__ (self, value):\n  return value + 4\nx = a()\nassert x[1] == 5" t)
+      "(classdef a nil nil nil nil ((def \" __getitem__ \" ((arguments  ((arg \"self\"  nil) (arg \"value\"  nil)) nil nil nil nil nil nil nil )) ((return (bin-op  (name  \"value\" 'load) + (num 4)))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"a\" 'load) nil nil nil nil))\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 1)) 'load) (\"==\") ((num 5))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = (1,2,3,4,5)\nassert a[1:4] == (2,3,4)\nassert a[:4] == (1,2,3,4)\nassert a[2:] == (3,4,5)\nassert a[:] == (1,2,3,4,5)" t)
+      "(assign  ((name  \"a\" 'store)) (tuple  ((num 1) (num 2) (num 3) (num 4) (num 5)) 'load))\n(assert  (compare  (subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'load) (\"==\") ((tuple  ((num 2) (num 3) (num 4)) 'load))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice 0 (num 4) nil) 'load) (\"==\") ((tuple  ((num 1) (num 2) (num 3) (num 4)) 'load))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice (num 2) nil nil) 'load) (\"==\") ((tuple  ((num 3) (num 4) (num 5)) 'load))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice 0 nil nil) 'load) (\"==\") ((tuple  ((num 1) (num 2) (num 3) (num 4) (num 5)) 'load))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = [1,2,3,4,5]\nassert a[1:4] == [2,3,4]\nassert a[:4] == [1,2,3,4]\nassert a[2:] == [3,4,5]\nassert a[:] == [1,2,3,4,5]" t)
+      "(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (num 3) (num 4) (num 5)) 'load))\n(assert  (compare  (subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'load) (\"==\") ((list ((num 2) (num 3) (num 4)) 'load))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice 0 (num 4) nil) 'load) (\"==\") ((list ((num 1) (num 2) (num 3) (num 4)) 'load))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice (num 2) nil nil) 'load) (\"==\") ((list ((num 3) (num 4) (num 5)) 'load))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice 0 nil nil) 'load) (\"==\") ((list ((num 1) (num 2) (num 3) (num 4) (num 5)) 'load))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = '012345678'\nassert a[1:4] == '123'\nassert a[:4] == '0123'\nassert a[2:] == '2345678'\nassert a[:] == '012345678'" t)
+      "(assign  ((name  \"a\" 'store)) (str \"012345678\"))\n(assert  (compare  (subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'load) (\"==\") ((str \"123\"))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice 0 (num 4) nil) 'load) (\"==\") ((str \"0123\"))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice (num 2) nil nil) 'load) (\"==\") ((str \"2345678\"))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (slice 0 nil nil) 'load) (\"==\") ((str \"012345678\"))) nil)\n"))
+    (should
+     (string=
+      (pyel "class a:\n def __getitem__ (self, value):\n  return value.start + value.end\nx = a()\nassert x[1:2] == 3\nassert x[5:7] == 12" t)
+      "(classdef a nil nil nil nil ((def \" __getitem__ \" ((arguments  ((arg \"self\"  nil) (arg \"value\"  nil)) nil nil nil nil nil nil nil )) ((return (bin-op  (attribute  (name  \"value\" 'load) \"start\" 'load) + (attribute  (name  \"value\" 'load) \"end\" 'load)))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"a\" 'load) nil nil nil nil))\n(assert  (compare  (subscript (name  \"x\" 'load) (slice (num 1) (num 2) nil) 'load) (\"==\") ((num 3))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (slice (num 5) (num 7) nil) 'load) (\"==\") ((num 12))) nil)\n"))
+    (should
+     (string=
+      (pyel "def __add(a,b):\n return a+b\na = [1,2,3,4]\na[0] = __add(a[1],a[2])\nassert a[0] == 5\na[2] = 'str'\nassert a[2] == 'str'" t)
+      "(def \" __add \" ((arguments  ((arg \"a\"  nil) (arg \"b\"  nil)) nil nil nil nil nil nil nil )) ((return (bin-op  (name  \"a\" 'load) + (name  \"b\" 'load)))) nil nil )\n(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (num 3) (num 4)) 'load))\n(assign  ((subscript (name  \"a\" 'load) (index (num 0)) 'store)) (call  (name  \"__add\" 'load) ((subscript (name  \"a\" 'load) (index (num 1)) 'load) (subscript (name  \"a\" 'load) (index (num 2)) 'load)) nil nil nil))\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 0)) 'load) (\"==\") ((num 5))) nil)\n(assign  ((subscript (name  \"a\" 'load) (index (num 2)) 'store)) (str \"str\"))\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 2)) 'load) (\"==\") ((str \"str\"))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = (1,2,3,4)\na[0] = a[1] + a[2]\nassert aa[0] == 5\na[2] = 'str'\nassert a[2] == 'str'" t)
+      "(assign  ((name  \"a\" 'store)) (tuple  ((num 1) (num 2) (num 3) (num 4)) 'load))\n(assign  ((subscript (name  \"a\" 'load) (index (num 0)) 'store)) (bin-op  (subscript (name  \"a\" 'load) (index (num 1)) 'load) + (subscript (name  \"a\" 'load) (index (num 2)) 'load)))\n(assert  (compare  (subscript (name  \"aa\" 'load) (index (num 0)) 'load) (\"==\") ((num 5))) nil)\n(assign  ((subscript (name  \"a\" 'load) (index (num 2)) 'store)) (str \"str\"))\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 2)) 'load) (\"==\") ((str \"str\"))) nil)\n"))
+    (should
+     (string=
+      (pyel "class a:\n def __setitem__ (self, index, value):\n  self.index = index\n  self.value = value\nx = a()\nx[3] = 5\nassert x.index == 3\nassert x.value == 5" t)
+      "(classdef a nil nil nil nil ((def \" __setitem__ \" ((arguments  ((arg \"self\"  nil) (arg \"index\"  nil) (arg \"value\"  nil)) nil nil nil nil nil nil nil )) ((assign  ((attribute  (name  \"self\" 'load) \"index\" 'store)) (name  \"index\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"value\" 'store)) (name  \"value\" 'load))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"a\" 'load) nil nil nil nil))\n(assign  ((subscript (name  \"x\" 'load) (index (num 3)) 'store)) (num 5))\n(assert  (compare  (attribute  (name  \"x\" 'load) \"index\" 'load) (\"==\") ((num 3))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"value\" 'load) (\"==\") ((num 5))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = [1,2,3,4,5,6]\na[1:4] = [5,4,'f']\nassert a == [1,5,4,'f',5,6]\na[:3] = ['a',4,2.2]\nassert a == ['a',4,2.2,'f',5,6]\na[3:] = [3,3]\nassert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]" t)
+      "(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (num 3) (num 4) (num 5) (num 6)) 'load))\n(assign  ((subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'store)) (list ((num 5) (num 4) (str \"f\")) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((list ((num 1) (num 5) (num 4) (str \"f\") (num 5) (num 6)) 'load))) nil)\n(assign  ((subscript (name  \"a\" 'load) (slice 0 (num 3) nil) 'store)) (list ((str \"a\") (num 4) (num 2.2)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((list ((str \"a\") (num 4) (num 2.2) (str \"f\") (num 5) (num 6)) 'load))) nil)\n(assign  ((subscript (name  \"a\" 'load) (slice (num 3) nil nil) 'store)) (list ((num 3) (num 3)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((list ((str \"a\") (num 4) (num 2.2) (num 3) (num 3) (num 6)) 'load))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = (1,2,3,4,5,6)\na[1:4] = (5,4,'f')\nassert a == (1,5,4,'f',5,6)\na[:3] = ('a',4,2.2)\nassert a == ('a',4,2.2,'f',5,6)\na[3:] = (3,3)\nassert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)" t)
+      "(assign  ((name  \"a\" 'store)) (tuple  ((num 1) (num 2) (num 3) (num 4) (num 5) (num 6)) 'load))\n(assign  ((subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'store)) (tuple  ((num 5) (num 4) (str \"f\")) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((tuple  ((num 1) (num 5) (num 4) (str \"f\") (num 5) (num 6)) 'load))) nil)\n(assign  ((subscript (name  \"a\" 'load) (slice 0 (num 3) nil) 'store)) (tuple  ((str \"a\") (num 4) (num 2.2)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((tuple  ((str \"a\") (num 4) (num 2.2) (str \"f\") (num 5) (num 6)) 'load))) nil)\n(assign  ((subscript (name  \"a\" 'load) (slice (num 3) nil nil) 'store)) (tuple  ((num 3) (num 3)) 'load))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((tuple  ((str \"a\") (num 4) (num 2.2) (num 3) (num 3) (num 6)) 'load))) nil)\n"))
+    (should
+     (string=
+      (pyel "a = '123456'\na[1:4] = '54f'\nassert a == '154f56'\na[:3] = 'a42'\nassert a == 'a42f56'\na[3:] = '33'\nassert a == 'a42336'#TODO: should == 'a4233'" t)
+      "(assign  ((name  \"a\" 'store)) (str \"123456\"))\n(assign  ((subscript (name  \"a\" 'load) (slice (num 1) (num 4) nil) 'store)) (str \"54f\"))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((str \"154f56\"))) nil)\n(assign  ((subscript (name  \"a\" 'load) (slice 0 (num 3) nil) 'store)) (str \"a42\"))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((str \"a42f56\"))) nil)\n(assign  ((subscript (name  \"a\" 'load) (slice (num 3) nil nil) 'store)) (str \"33\"))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((str \"a42336\"))) nil)\n"))
+    (should
+     (string=
+      (pyel "class a:\n def __setitem__ (self, index, value):\n  self.start = index.start\n  self.end = index.end\n  self.step = index.step\n  self.value = value\nx = a()\nx[2:3] = [1,2,3]\nassert x.start == 2\nassert x.end == 3\nassert x.value == [1,2,3]" t)
+      "(classdef a nil nil nil nil ((def \" __setitem__ \" ((arguments  ((arg \"self\"  nil) (arg \"index\"  nil) (arg \"value\"  nil)) nil nil nil nil nil nil nil )) ((assign  ((attribute  (name  \"self\" 'load) \"start\" 'store)) (attribute  (name  \"index\" 'load) \"start\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"end\" 'store)) (attribute  (name  \"index\" 'load) \"end\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"step\" 'store)) (attribute  (name  \"index\" 'load) \"step\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"value\" 'store)) (name  \"value\" 'load))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"a\" 'load) nil nil nil nil))\n(assign  ((subscript (name  \"x\" 'load) (slice (num 2) (num 3) nil) 'store)) (list ((num 1) (num 2) (num 3)) 'load))\n(assert  (compare  (attribute  (name  \"x\" 'load) \"start\" 'load) (\"==\") ((num 2))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"end\" 'load) (\"==\") ((num 3))) nil)\n(assert  (compare  (attribute  (name  \"x\" 'load) \"value\" 'load) (\"==\") ((list ((num 1) (num 2) (num 3)) 'load))) nil)\n"))
+    (should
+     (string=
+      (pyel "a[2] += 3" t)
+      "(aug-assign (subscript (name  \"a\" 'load) (index (num 2)) 'store) + (num 3))\n"))
+    (should
+     (string=
+      (pyel "a[2] += b[3]" t)
+      "(aug-assign (subscript (name  \"a\" 'load) (index (num 2)) 'store) + (subscript (name  \"b\" 'load) (index (num 3)) 'load))\n"))
+    (should
+     (string=
+      (pyel "[2,3,3][2]" t)
+      "(subscript (list ((num 2) (num 3) (num 3)) 'load) (index (num 2)) 'load)\n"))
+    (should
+     (string=
+      (pyel "assert [1,2,(3,2,8)][2][2] == 8" t)
+      "(assert  (compare  (subscript (subscript (list ((num 1) (num 2) (tuple  ((num 3) (num 2) (num 8)) 'load)) 'load) (index (num 2)) 'load) (index (num 2)) 'load) (\"==\") ((num 8))) nil)\n")))
+  
 (ert-deftest pyel-subscript-full-transform nil
   (should
    (equal
@@ -2152,12 +2695,12 @@
        (defmethod getb
          ((self test))
          (oref self b))
-       (setq x
-             (let
-                 ((__c
-                   (test "obj")))
-               (--init-- __c 5 6)
-               __c))
+       (pyel-set x
+                 (let
+                     ((__c
+                       (test "obj")))
+                   (--init-- __c 5 6)
+                   __c))
        (assert
         (pyel-==
          (geta x)
@@ -2220,8 +2763,8 @@
    (equal
     (pyel "a=[1,2,3]\na.append('str')\nassert len(a) == 4\nassert a[3] == 'str'")
     '(progn
-       (setq a
-             (list 1 2 3))
+       (pyel-set a
+                 (list 1 2 3))
        (pyel-append-method a "str")
        (assert
         (pyel-==
@@ -2249,8 +2792,8 @@
    (equal
     (pyel "a = [1,2,3,'5']\nassert len(a) == 4")
     '(progn
-       (setq a
-             (list 1 2 3 "5"))
+       (pyel-set a
+                 (list 1 2 3 "5"))
        (assert
         (pyel-==
          (pyel-len-function a)
@@ -2260,8 +2803,8 @@
    (equal
     (pyel "a = []\nassert len(a) == 0")
     '(progn
-       (setq a
-             (list))
+       (pyel-set a
+                 (list))
        (assert
         (pyel-==
          (pyel-len-function a)
@@ -2271,7 +2814,7 @@
    (equal
     (pyel "a = 'str'\nassert len(a) == 3")
     '(progn
-       (setq a "str")
+       (pyel-set a "str")
        (assert
         (pyel-==
          (pyel-len-function a)
@@ -2281,8 +2824,8 @@
    (equal
     (pyel "a = (1,2)\nassert len(a) == 2")
     '(progn
-       (setq a
-             (vector 1 2))
+       (pyel-set a
+                 (vector 1 2))
        (assert
         (pyel-==
          (pyel-len-function a)
@@ -2377,16 +2920,16 @@
    (equal
     (pyel "x = cond([1 > 2, 'first']\n   [2 == 2, 'second']\n   [5 == 7, 'third']\n   [True, error('wtf')])\nassert x == 'second'")
     '(progn
-       (setq x
-             (cond
-              ((pyel-> 1 2)
-               "first")
-              ((pyel-== 2 2)
-               "second")
-              ((pyel-== 5 7)
-               "third")
-              (t
-               (error "wtf"))))
+       (pyel-set x
+                 (cond
+                  ((pyel-> 1 2)
+                   "first")
+                  ((pyel-== 2 2)
+                   "second")
+                  ((pyel-== 5 7)
+                   "third")
+                  (t
+                   (error "wtf"))))
        (assert
         (pyel-== x "second")
         t nil)))))
@@ -2399,7 +2942,7 @@
   (should
    (string=
     (pyel "x = cond([1 > 2, 'first']\n   [2 == 2, 'second']\n   [5 == 7, 'third']\n   [True, error('wtf')])\nassert x == 'second'" t)
-    "(assign  ((name  \"x\" 'store)) (name  \"__pyel_marker_1__\" 'load))\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((str \"second\"))) nil)\n")))
+    "(assign  ((name  \"x\" 'store)) (name  \"__pyel_marker_2__\" 'load))\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((str \"second\"))) nil)\n")))
 
 (ert-deftest pyel-lambda-full-transform nil
   (should
@@ -2463,14 +3006,14 @@
    (equal
     (pyel "b = [1,2,3,4]\nc = 0\nfor a in b:\n c = c + a\nassert c==10")
     '(progn
-       (setq b
-             (list 1 2 3 4))
-       (setq c 0)
+       (pyel-set b
+                 (list 1 2 3 4))
+       (pyel-set c 0)
        (loop for a in
              (py-list b)
              do
-             (setq c
-                   (pyel-+ c a)))
+             (pyel-set c
+                       (pyel-+ c a)))
        (assert
         (pyel-== c 10)
         t nil))))
@@ -2496,8 +3039,8 @@
    (equal
     (pyel "x = []\nfor i in range(5):\n if i == 2:\n  continue\n x.append(i)\nassert x == [0,1,3,4]")
     '(progn
-       (setq x
-             (list))
+       (pyel-set x
+                 (list))
        (loop for i in
              (py-list
               (py-range 5))
@@ -2553,19 +3096,19 @@
     '(defun a nil
        (let
            (y)
-         (setq x 3)
-         (setq y 1)))))
+         (pyel-set x 3)
+         (pyel-set y 1)))))
   (should
    (equal
     (pyel "x = 1\ny = 1\ndef func():\n global x\n x = 7\n y = 7\nfunc()\nassert x == 7\nassert y == 1\n")
     '(progn
-       (setq x 1)
-       (setq y 1)
+       (pyel-set x 1)
+       (pyel-set y 1)
        (defun func nil
          (let
              (y)
-           (setq x 7)
-           (setq y 7)))
+           (pyel-set x 7)
+           (pyel-set y 7)))
        (func)
        (assert
         (pyel-== x 7)
@@ -2609,14 +3152,14 @@
    (equal
     (pyel "x = range(2, 9)\nx2 = reduce(lambda a,b:a+b, x)\nassert x2 == 35")
     '(progn
-       (setq x
-             (py-range 2 9))
-       (setq x2
-             (reduce
-              (lambda
-                (a b)
-                (pyel-+ a b))
-              x))
+       (pyel-set x
+                 (py-range 2 9))
+       (pyel-set x2
+                 (reduce
+                  (lambda
+                    (a b)
+                    (pyel-+ a b))
+                  x))
        (assert
         (pyel-== x2 35)
         t nil)))))
@@ -2645,47 +3188,47 @@
   (should
    (equal
     (pyel "a += b")
-    '(setq a
-           (pyel-+ a b))))
+    '(pyel-set a
+               (pyel-+ a b))))
   (should
    (equal
     (pyel "a -= b")
-    '(setq a
-           (pyel-- a b))))
+    '(pyel-set a
+               (pyel-- a b))))
   (should
    (equal
     (pyel "a /= b")
-    '(setq a
-           (pyel-/ a b))))
+    '(pyel-set a
+               (pyel-/ a b))))
   (should
    (equal
     (pyel "a *= b")
-    '(setq a
-           (pyel-* a b))))
+    '(pyel-set a
+               (pyel-* a b))))
   (should
    (equal
     (pyel "a **= b")
-    '(setq a
-           (pyel-** a b))))
+    '(pyel-set a
+               (pyel-** a b))))
   (should
    (equal
     (pyel "a ^= b")
-    '(setq a
-           (pyel-^ a b))))
+    '(pyel-set a
+               (pyel-^ a b))))
   (should
    (equal
     (pyel "a |= b")
-    '(setq a
-           (pyel-| a b))))
+    '(pyel-set a
+               (pyel-| a b))))
   (should
    (equal
     (pyel "a = 3\nb = 4\na += b + 1\nassert a == 8")
     '(progn
-       (setq a 3)
-       (setq b 4)
-       (setq a
-             (pyel-+ a
-                     (pyel-+ b 1)))
+       (pyel-set a 3)
+       (pyel-set b 4)
+       (pyel-set a
+                 (pyel-+ a
+                         (pyel-+ b 1)))
        (assert
         (pyel-== a 8)
         t nil))))
@@ -2812,12 +3355,12 @@
    (equal
     (pyel "x = ''\ntry:\n 1 / 0\n x = 'yes'\nexcept:\n x = 'no'\nassert x == 'no'")
     '(progn
-       (setq x "")
+       (pyel-set x "")
        (condition-case nil
            (pyel-/ 1 0)
-         (setq x "yes")
+         (pyel-set x "yes")
          (error
-          (setq x "no")))
+          (pyel-set x "no")))
        (assert
         (pyel-== x "no")
         t nil))))
@@ -2938,32 +3481,32 @@
    (equal
     (pyel "\nmatrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]\n_x = [[row[i] for row in matrix] for i in range(4)]\nassert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]")
     '(progn
-       (setq matrix
-             (list
-              (list 1 2 3 4)
-              (list 5 6 7 8)
-              (list 9 10 11 12)))
-       (setq -x
-             (let
-                 ((__list__ nil))
-               (loop for i in
-                     (py-list
-                      (py-range 4))
-                     do
-                     (setq __list__
-                           (cons
-                            (let
-                                ((__list__ nil))
-                              (loop for row in
-                                    (py-list matrix)
-                                    do
-                                    (setq __list__
-                                          (cons
-                                           (pyel-subscript-load-index row i)
-                                           __list__)))
-                              (reverse __list__))
-                            __list__)))
-               (reverse __list__)))
+       (pyel-set matrix
+                 (list
+                  (list 1 2 3 4)
+                  (list 5 6 7 8)
+                  (list 9 10 11 12)))
+       (pyel-set -x
+                 (let
+                     ((__list__ nil))
+                   (loop for i in
+                         (py-list
+                          (py-range 4))
+                         do
+                         (setq __list__
+                               (cons
+                                (let
+                                    ((__list__ nil))
+                                  (loop for row in
+                                        (py-list matrix)
+                                        do
+                                        (setq __list__
+                                              (cons
+                                               (pyel-subscript-load-index row i)
+                                               __list__)))
+                                  (reverse __list__))
+                                __list__)))
+                   (reverse __list__)))
        (assert
         (pyel-== -x
                  (list
@@ -2976,8 +3519,8 @@
    (equal
     (pyel "\ntransposed = []\nfor i in range(4):\n transposed.append([row[i] for row in matrix])\nassert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]\n")
     '(progn
-       (setq transposed
-             (list))
+       (pyel-set transposed
+                 (list))
        (loop for i in
              (py-list
               (py-range 4))
@@ -3029,18 +3572,18 @@
    (equal
     (pyel "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n")
     '(progn
-       (setq x
-             (let
-                 ((__dict__
-                   (make-hash-table :test 'equal)))
-               (loop for x in
-                     (py-list
-                      (py-range 10))
-                     do
-                     (puthash x
-                              (number-to-string x)
-                              __dict__))
-               __dict__))
+       (pyel-set x
+                 (let
+                     ((__dict__
+                       (make-hash-table :test 'equal)))
+                   (loop for x in
+                         (py-list
+                          (py-range 10))
+                         do
+                         (puthash x
+                                  (number-to-string x)
+                                  __dict__))
+                   __dict__))
        (assert
         (pyel-==
          (hash-table-count x)
