@@ -333,35 +333,55 @@ This is used when the ast form is needed by a transform that is manually
   (let ((complete nil)
         (py-ast nil)
         (el-ast nil)
+        (c 0)
+        ert-tests
+        tests
         trans)
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
       
-      (dolist (code (reverse py-code))
-        ;;check complete code transformation
-        (setq trans (pyel code))
-        (push `(should (equal
-                        (pyel ,code)
-                        ',trans))
-              complete)
-        ;;check pure .py syntax tree
-        (push `(should (equal (py-ast ,code)
-                              ,(py-ast code)))
-              py-ast)
-        ;;check transformed .py syntax tree
-        (push `(should (string= (pyel ,code t)
-                                ,(pyel code t)))
-              el-ast))
-      
-      (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
-                                   () ,@complete)))
-      (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
-                                      () ,@py-ast)) nil)
-      
-      (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
-                                      () ,@el-ast)) nil)
-      (message "Tests copied to kill ring"))))
+      (flet ((pyel-create-new-marker () "test_marker"))
+        
+        (dolist (code (reverse py-code))
+          (if (consp code)
+              (push `(ert-deftest
+                         ,(intern (concat "pyel-" (symbol-name name)
+                                          (number-to-string (setq c (1+ c))))) ()
+                       (should (equal (eval (pyel ,(concat (functionize (car code))
+                                                           "\nf()")))
+                                      ,(cadr code))))
+                    _pyel-tests)
+
+          ;;check complete code transformation
+          (setq trans (pyel code))
+          (push `(push '(should (equal
+                                 (pyel ,code)
+                                 ',trans))
+                       pyel-transform-tests)
+                _pyel-tests)
+          ;;check python ast
+          (push `(push '(should (equal (py-ast ,code)
+                                ,(py-ast code)))
+                       pyel-py-ast-tests)
+                _pyel-tests)
+                  
+          ;;check transformed .py syntax tree
+          (push `(push '(should (string= (pyel ,code t)
+                                  ,(pyel code t)))
+                       pyel-el-ast-tests)
+                _pyel-tests)
+          ))
+        
+        ;; (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
+        ;;                              () ,@complete)))
+        ;; (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
+        ;;                                 () ,@py-ast)) nil)
+        
+        ;; (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
+        ;;                                 () ,@el-ast)) nil)
+        ;; (message "Tests copied to kill ring")
+        ))))
 
   
 (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
@@ -608,7 +628,7 @@ This is used when the ast form is needed by a transform that is manually
   )
 
 ;;this is all temp for testing
-  (setq known-types '((number object ) (number string)))
+(setq known-types '((number object ) (number string)))
 
 ;;prevents error: "Wrong type argument: listp, string"
 (setq known-types '((number list vector string object hash function)
@@ -621,19 +641,28 @@ This is used when the ast form is needed by a transform that is manually
                     (number list vector string object hash function)
                     (number list vector string object hash function)
                     (number list vector string object hash function)))
- 
-  (defun pyel-get-possible-types (&rest args)
-    "return a list in the form (arg types).
+
+(defun pyel-get-possible-types (&rest args)
+  "return a list in the form (arg types).
   The car is the argument and the cdr is a list of possible types"
   
-    ;;FOR TESTING
-    (let ((types (if (>= (length known-types) (length args))
-                     known-types
-                   (append known-types '(string number list vector integer float)))))
-  
-      (mapcar* (lambda (arg type) (cons arg type))
-               args types)))
+  ;;FOR TESTING
+  (let ((types (if (>= (length known-types) (length args))
+                   known-types
+                 (append known-types '(string number list vector integer float))))
+        (args (filter (lambda (x) (not (or (eq x '&optional)
+                                           (eq x '&rest)))) args)))
+    
+    (mapcar* (lambda (arg type) (cons arg type))
+             args types)))
 
+(defun pyel-filter-non-args(args)
+  "remove '&optional' and '&rest' from ARGS list"
+  (filter (lambda (x) (not (or (eq x '&optional)
+                               (eq x '&rest))))
+          args))
+
+  
 ;;TODO: have functions saved in another file,
 ;;      instead of putting them all at the top of the file, have some type of
 ;;      require/import mechanism to functions are not constantly being redefined
@@ -649,12 +678,14 @@ This is used when the ast form is needed by a transform that is manually
   ;;  add new func name to defined code list
   
   ;;temp solution: does not check types etc
-  (let ((striped-args (mapcar 'strip_ args)))
+  (let* ((striped-args (mapcar 'strip_ args))
+        (args-just-vars (pyel-filter-non-args  striped-args)))
     `(def-transform ,name pyel ()
        (lambda ,striped-args
          (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "")))
                ;;      (body (pyel-do-call-transform (pyel-get-possible-types ,@(mapcar (lambda (x) `(quote ,x))args))
-               (body (pyel-do-call-transform (pyel-get-possible-types ,@striped-args)
+               (body (pyel-do-call-transform (pyel-get-possible-types
+                                              ,@args-just-vars)
                                              ',args
                                              ',type-switches))
                (known-types nil)) ;;tmp
@@ -664,7 +695,7 @@ This is used when the ast form is needed by a transform that is manually
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
-           (cons fsym (mapcar 'eval ',striped-args)))))))
+           (cons fsym (mapcar 'eval ',args-just-vars)))))))
 
 (defmacro pyel-method-transform (name args &rest type-switches)
   "define transforms for method calls on primative types"
@@ -854,7 +885,6 @@ This is used when the ast form is needed by a transform that is manually
     ret))
 
 
-
 (defun pyel-do-call-transform (possible-types args type-switch)
   "This is responsible for  producing a call to NAME in the most
       efficient way possible with the known types"
@@ -867,16 +897,19 @@ This is used when the ast form is needed by a transform that is manually
                                (push (cons arg type) ret)))
                            ret))
          (c 0)
-         
+
+         (args-just-vars (pyel-filter-non-args args))
          (new-args (loop for a in args ;;doing: check for leading underscore
-                         collect (if (string-match-p "\\(^_\\)\\(.+\\)"
-                                                     (symbol-name a)) nil
+                         collect (if (or (eq a '&optional)
+                                         (eq a '&rest)
+                                         (string-match-p "\\(^_\\)\\(.+\\)"
+                                                         (symbol-name a))) nil
                                      (intern (format "__%s__" (symbol-name a))))))
          ;;list of symbols to replace
          ;;format: (symbol replace)
          (let-vars (let (lv) (mapcar* (lambda (a b) (if b
                                                         (push (list a b) lv)))
-                                      args new-args)
+                                      args-just-vars new-args)
                         lv))
          ;;strip any leading underscores
          (args (mapcar (lambda (a)
@@ -889,10 +922,10 @@ This is used when the ast form is needed by a transform that is manually
          (arg-replacements1 let-vars)
          (arg-replacements2 (mapcar (lambda (x)
                                       (list  (intern (format "$%s" x)) (list '\, x)))
-                                    args))
+                                    args-just-vars))
          (arg-replacements3 (mapcar (lambda (x)
                                       (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
-                                    args))
+                                    args-just-vars))
          (arg-replacements (append arg-replacements1 arg-replacements2))
 
          (current-replace-list nil)
@@ -913,7 +946,7 @@ This is used when the ast form is needed by a transform that is manually
     ;;collect all the arg-type--code pairs that are valid possibilities,
     ;;that is, members of possible-types.
     ;;This essentially throws out all the arg types that have been ruled out.
-    (dolist (t-s (pyel-expand-type-switch-2 args type-switch))
+    (dolist (t-s (pyel-expand-type-switch-2 args-just-vars type-switch))
       (if (equal (car t-s) 'and)
           (progn (setq all-good t
                        found nil)
