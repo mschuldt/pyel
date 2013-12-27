@@ -679,7 +679,10 @@ This is used when the ast form is needed by a transform that is manually
   
   ;;temp solution: does not check types etc
   (let* ((striped-args (mapcar 'strip_ args))
-        (args-just-vars (pyel-filter-non-args  striped-args)))
+         (args-just-vars (pyel-filter-non-args  striped-args))
+         (rest-arg (if (eq (car (last args 2)) '&rest)
+                       (car (last args)) nil)))
+
     `(def-transform ,name pyel ()
        (lambda ,striped-args
          (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "")))
@@ -695,7 +698,11 @@ This is used when the ast form is needed by a transform that is manually
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
-           (cons fsym (mapcar 'eval ',args-just-vars)))))))
+           ;;(if (eq (car (last args 2)) '&rest)
+               
+           (cons fsym (mapcar 'eval ,(if rest-arg
+                                         `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                                       `(quote ,args-just-vars)))))))))
 
 (defmacro pyel-method-transform (name args &rest type-switches)
   "define transforms for method calls on primative types"
