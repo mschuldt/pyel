@@ -850,7 +850,7 @@ This will have to be removed after the code is generated
              ;;                             `(quote ,args-just-vars))))
              (cons fsym ,(if rest-arg
                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                          `(quote ,args-just-vars)))
+                          (cons 'list args-just-vars)))
              )))))
   
   (defmacro pyel-method-transform (name args &rest type-switches)
@@ -1452,7 +1452,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-create-py-func set (_sym _val)
                        (_ $function) -> (fset $$sym $$val)
-                       (_ _) -> (setq $sym val)) ;;TODO: other?
+                       (_ _) -> (setq $sym $val)) ;;TODO: other?
   
   (def-transform assign pyel ()
       (lambda (targ val) (py-assign targ val)))
