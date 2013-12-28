@@ -1509,13 +1509,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   ;; This is a tangled file  -- DO NOT HAND-EDIT -- 
   (defalias 'pyel-verify 'pyel-run-tests)
-  (defun pyel-run-tests ()
-    (interactive)
-    (flet ((pyel-create-new-marker ()  "test_marker"))
-      (progv
-          (mapcar 'car test-variable-values)
-          (mapcar 'cadr test-variable-values)
-        (ert-run-tests-interactively "pyel"))))
   
 #+END_SRC
 
