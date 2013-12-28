@@ -1752,36 +1752,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 
 (pyel-create-tests 'num "3" "4.21")
 ** tests
-(pyel-create-tests 'num "3" "4.23")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-num-full-transform nil
-    (should
-     (equal
-      (pyel "3")
-      '3))
-    (should
-     (equal
-      (pyel "4.23")
-      '4.23)))
-  (ert-deftest pyel-num-py-ast nil
-    (should
-     (equal
-      (py-ast "3")
-      "Module(body=[Expr(value=Num(n=3))])\n"))
-    (should
-     (equal
-      (py-ast "4.23")
-      "Module(body=[Expr(value=Num(n=4.23))])\n")))
-  (ert-deftest pyel-num-el-ast nil
-    (should
-     (string=
-      (pyel "3" t)
-      "(num 3)\n"))
-    (should
-     (string=
-      (pyel "4.23" t)
-      "(num 4.23)\n")))
-  
+  (pyel-create-tests num "3" "4.23")
 #+END_SRC
 
 * name 
