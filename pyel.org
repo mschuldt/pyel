@@ -1900,66 +1900,12 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       return l_str(["tuple ", ll_str(elts), ctx])
 #+END_SRC
 *** tests
-(pyel-create-tests 'Tuple
-		   "()"
-		   "(a, b)"
-		   "(a, (b, (c,d)))"
-		   "((((((((a))))))))")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-Tuple-full-transform nil
-    (should
-     (equal
-      (pyel "()")
-      '(vector)))
-    (should
-     (equal
-      (pyel "(a, b)")
-      '(vector a b)))
-    (should
-     (equal
-      (pyel "(a, (b, (c,d)))")
-      '(vector a
-               (vector b
-                       (vector c d)))))
-    (should
-     (equal
-      (pyel "((((((((a))))))))")
-      'a)))
-  (ert-deftest pyel-Tuple-py-ast nil
-    (should
-     (equal
-      (py-ast "()")
-      "Module(body=[Expr(value=Tuple(elts=[], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "(a, b)")
-      "Module(body=[Expr(value=Tuple(elts=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "(a, (b, (c,d)))")
-      "Module(body=[Expr(value=Tuple(elts=[Name(id='a', ctx=Load()), Tuple(elts=[Name(id='b', ctx=Load()), Tuple(elts=[Name(id='c', ctx=Load()), Name(id='d', ctx=Load())], ctx=Load())], ctx=Load())], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "((((((((a))))))))")
-      "Module(body=[Expr(value=Name(id='a', ctx=Load()))])\n")))
-  (ert-deftest pyel-Tuple-el-ast nil
-    (should
-     (string=
-      (pyel "()" t)
-      "(tuple  nil 'load)\n"))
-    (should
-     (string=
-      (pyel "(a, b)" t)
-      "(tuple  ((name  \"a\" 'load) (name  \"b\" 'load)) 'load)\n"))
-    (should
-     (string=
-      (pyel "(a, (b, (c,d)))" t)
-      "(tuple  ((name  \"a\" 'load) (tuple  ((name  \"b\" 'load) (tuple  ((name  \"c\" 'load) (name  \"d\" 'load)) 'load)) 'load)) 'load)\n"))
-    (should
-     (string=
-      (pyel "((((((((a))))))))" t)
-      "(name  \"a\" 'load)\n")))
-  
+  (pyel-create-tests Tuple
+                     "()"
+                     "(a, b)"
+                     "(a, (b, (c,d)))"
+                     "((((((((a))))))))")
 #+END_SRC
 
 ** string
