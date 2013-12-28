@@ -3564,58 +3564,13 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   
 #+END_SRC
 ** tests
-(pyel-create-tests 'lambda
-"lambda x,y,z=4,*g: print(z);x()"
-"x = range(2, 9)
-x2 = reduce(lambda a,b:a+b, x)
-assert x2 == 35"
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-lambda-full-transform nil
-    (should
-     (equal
-      (pyel "lambda x,y,z=4,*g: print(z);x()")
-      '(progn
-         (lambda
-           (x y &optional z &rest g)
-           (setq z
-                 (or z 4))
-           (print z))
-         (x))))
-    (should
-     (equal
-      (pyel "x = range(2, 9)\nx2 = reduce(lambda a,b:a+b, x)\nassert x2 == 35")
-      '(progn
-         (pyel-set x
-                   (py-range 2 9))
-         (pyel-set x2
-                   (reduce
-                    (lambda
-                      (a b)
-                      (pyel-+ a b))
-                    x))
-         (assert
-          (pyel-== x2 35)
-          t nil)))))
-  (ert-deftest pyel-lambda-py-ast nil
-    (should
-     (equal
-      (py-ast "lambda x,y,z=4,*g: print(z);x()")
-      "Module(body=[Expr(value=Lambda(args=arguments(args=[arg(arg='x', annotation=None), arg(arg='y', annotation=None), arg(arg='z', annotation=None)], vararg='g', varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=4)], kw_defaults=[]), body=Call(func=Name(id='print', ctx=Load()), args=[Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None))), Expr(value=Call(func=Name(id='x', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "x = range(2, 9)\nx2 = reduce(lambda a,b:a+b, x)\nassert x2 == 35")
-      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='range', ctx=Load()), args=[Num(n=2), Num(n=9)], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='x2', ctx=Store())], value=Call(func=Name(id='reduce', ctx=Load()), args=[Lambda(args=arguments(args=[arg(arg='a', annotation=None), arg(arg='b', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=BinOp(left=Name(id='a', ctx=Load()), op=Add(), right=Name(id='b', ctx=Load()))), Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Name(id='x2', ctx=Load()), ops=[Eq()], comparators=[Num(n=35)]), msg=None)])\n")))
-  (ert-deftest pyel-lambda-el-ast nil
-    (should
-     (string=
-      (pyel "lambda x,y,z=4,*g: print(z);x()" t)
-      "(lambda ((arguments  ((arg \"x\"  nil) (arg \"y\"  nil) (arg \"z\"  nil)) g nil nil nil nil ((num 4)) nil )) ((call  (name  \"print\" 'load) ((name  \"z\" 'load)) nil nil nil)))\n(call  (name  \"x\" 'load) nil nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "x = range(2, 9)\nx2 = reduce(lambda a,b:a+b, x)\nassert x2 == 35" t)
-      "(assign  ((name  \"x\" 'store)) (call  (name  \"range\" 'load) ((num 2) (num 9)) nil nil nil))\n(assign  ((name  \"x2\" 'store)) (call  (name  \"reduce\" 'load) ((lambda ((arguments  ((arg \"a\"  nil) (arg \"b\"  nil)) nil nil nil nil nil nil nil )) ((bin-op  (name  \"a\" 'load) + (name  \"b\" 'load)))) (name  \"x\" 'load)) nil nil nil))\n(assert  (compare  (name  \"x2\" 'load) (\"==\") ((num 35))) nil)\n")))
-  
+  (pyel-create-tests lambda
+                     "lambda x,y,z=4,*g: print(z);x()"
+                     "x = range(2, 9)
+  x2 = reduce(lambda a,b:a+b, x)
+  assert x2 == 35"
+                     )
 #+END_SRC
 
 * unary op
