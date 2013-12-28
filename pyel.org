@@ -2077,197 +2077,22 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   def NotIn():
         return "\"not-in\"";      
 #+END_SRC
-** tests
-   (pyel-create-tests 'compare
-   "a=='d'"
-   "a==b"
-   "a>=b"
-   "a<=b"
-   "a<b"
-   "a>b"
-   "a!=b"
-   "(a,b) == [c,d]"
-   "[a == 1]"
-   "((a == 1),)"
-   "a<b<c"
-   "a<=b<c<=d"
-"a.b<=b.c()<c<=3")
+** tests   
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-compare-full-transform nil
-    (should
-     (equal
-      (pyel "a=='d'")
-      '(pyel-== a "d")))
-    (should
-     (equal
-      (pyel "a==b")
-      '(pyel-== a b)))
-    (should
-     (equal
-      (pyel "a>=b")
-      '(pyel->= a b)))
-    (should
-     (equal
-      (pyel "a<=b")
-      '(pyel-<= a b)))
-    (should
-     (equal
-      (pyel "a<b")
-      '(pyel-< a b)))
-    (should
-     (equal
-      (pyel "a>b")
-      '(pyel-> a b)))
-    (should
-     (equal
-      (pyel "a!=b")
-      '(pyel-!= a b)))
-    (should
-     (equal
-      (pyel "(a,b) == [c,d]")
-      '(pyel-==
-        (vector a b)
-        (list c d))))
-    (should
-     (equal
-      (pyel "[a == 1]")
-      '(list
-        (pyel-== a 1))))
-    (should
-     (equal
-      (pyel "((a == 1),)")
-      '(vector
-        (pyel-== a 1))))
-    (should
-     (equal
-      (pyel "a<b<c")
-      '(and
-        (pyel-< a b)
-        (pyel-< b c))))
-    (should
-     (equal
-      (pyel "a<=b<c<=d")
-      '(and
-        (pyel-<= a b)
-        (pyel-< b c)
-        (pyel-<= c d))))
-    (should
-     (equal
-      (pyel "a.b<=b.c()<c<=3")
-      '(and
-        (pyel-<=
-         (oref a b)
-         (c b))
-        (pyel-<
-         (c b)
-         c)
-        (pyel-<= c 3)))))
-  (ert-deftest pyel-compare-py-ast nil
-    (should
-     (equal
-      (py-ast "a=='d'")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='d')]))])\n"))
-    (should
-     (equal
-      (py-ast "a==b")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Name(id='b', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a>=b")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[GtE()], comparators=[Name(id='b', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a<=b")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[LtE()], comparators=[Name(id='b', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a<b")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Lt()], comparators=[Name(id='b', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a>b")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Gt()], comparators=[Name(id='b', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a!=b")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[NotEq()], comparators=[Name(id='b', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "(a,b) == [c,d]")
-      "Module(body=[Expr(value=Compare(left=Tuple(elts=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())], ctx=Load()), ops=[Eq()], comparators=[List(elts=[Name(id='c', ctx=Load()), Name(id='d', ctx=Load())], ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "[a == 1]")
-      "Module(body=[Expr(value=List(elts=[Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)])], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "((a == 1),)")
-      "Module(body=[Expr(value=Tuple(elts=[Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)])], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a<b<c")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[Lt(), Lt()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a<=b<c<=d")
-      "Module(body=[Expr(value=Compare(left=Name(id='a', ctx=Load()), ops=[LtE(), Lt(), LtE()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load()), Name(id='d', ctx=Load())]))])\n"))
-    (should
-     (equal
-      (py-ast "a.b<=b.c()<c<=3")
-      "Module(body=[Expr(value=Compare(left=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), ops=[LtE(), Lt(), LtE()], comparators=[Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Name(id='c', ctx=Load()), Num(n=3)]))])\n")))
-  (ert-deftest pyel-compare-el-ast nil
-    (should
-     (string=
-      (pyel "a=='d'" t)
-      "(compare  (name  \"a\" 'load) (\"==\") ((str \"d\")))\n"))
-    (should
-     (string=
-      (pyel "a==b" t)
-      "(compare  (name  \"a\" 'load) (\"==\") ((name  \"b\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a>=b" t)
-      "(compare  (name  \"a\" 'load) (\">=\") ((name  \"b\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a<=b" t)
-      "(compare  (name  \"a\" 'load) (\"<=\") ((name  \"b\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a<b" t)
-      "(compare  (name  \"a\" 'load) (\"<\") ((name  \"b\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a>b" t)
-      "(compare  (name  \"a\" 'load) (\">\") ((name  \"b\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a!=b" t)
-      "(compare  (name  \"a\" 'load) (\"!=\") ((name  \"b\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "(a,b) == [c,d]" t)
-      "(compare  (tuple  ((name  \"a\" 'load) (name  \"b\" 'load)) 'load) (\"==\") ((list ((name  \"c\" 'load) (name  \"d\" 'load)) 'load)))\n"))
-    (should
-     (string=
-      (pyel "[a == 1]" t)
-      "(list ((compare  (name  \"a\" 'load) (\"==\") ((num 1)))) 'load)\n"))
-    (should
-     (string=
-      (pyel "((a == 1),)" t)
-      "(tuple  ((compare  (name  \"a\" 'load) (\"==\") ((num 1)))) 'load)\n"))
-    (should
-     (string=
-      (pyel "a<b<c" t)
-      "(compare  (name  \"a\" 'load) (\"<\" \"<\") ((name  \"b\" 'load) (name  \"c\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a<=b<c<=d" t)
-      "(compare  (name  \"a\" 'load) (\"<=\" \"<\" \"<=\") ((name  \"b\" 'load) (name  \"c\" 'load) (name  \"d\" 'load)))\n"))
-    (should
-     (string=
-      (pyel "a.b<=b.c()<c<=3" t)
-      "(compare  (attribute  (name  \"a\" 'load) \"b\" 'load) (\"<=\" \"<\" \"<=\") ((call  (attribute  (name  \"b\" 'load) \"c\" 'load) nil nil nil nil) (name  \"c\" 'load) (num 3)))\n")))
+  (pyel-create-tests compare
+                     "a=='d'"
+                     "a==b"
+                     "a>=b"
+                     "a<=b"
+                     "a<b"
+                     "a>b"
+                     "a!=b"
+                     "(a,b) == [c,d]"
+                     "[a == 1]"
+                     "((a == 1),)"
+                     "a<b<c"
+                     "a<=b<c<=d"
+                     "a.b<=b.c()<c<=3")
   
 #+END_SRC
 
