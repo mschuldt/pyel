@@ -3388,76 +3388,21 @@ macros and macroish primitives
 #+END_SRC
 ** lambda
 *** tests
-(pyel-create-tests 'lambda
-"x = [2,3,4]
-square = lambda([x]
- x*x)
-y = mapcar(square,x)
-assert y == [4,9,16]
-"
-"f = lambda([x,y]
-if x > y:
- 'x'
-else:
- 'y')
-x=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])
-assert x == ['y', 'y', 'x', 'y', 'x']")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-lambda-full-transform nil
-    (should
-     (equal
-      (pyel "x = [2,3,4]\nsquare = lambda([x]\n x*x)\ny = mapcar(square,x)\nassert y == [4,9,16]\n")
-      '(progn
-         (setq x
-               (list 2 3 4))
-         (setq square
-               (lambda
-                 (x)
-                 (pyel-* x x)))
-         (setq y
-               (mapcar square x))
-         (assert
-          (pyel-== y
-                   (list 4 9 16))
-          t nil))))
-    (should
-     (equal
-      (pyel "f = lambda([x,y]\nif x > y:\n 'x'\nelse:\n 'y')\nx=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])\nassert x == ['y', 'y', 'x', 'y', 'x']")
-      '(progn
-         (setq f
-               (lambda
-                 (x y)
-                 (if
-                     (pyel-> x y)
-                     (progn "x")
-                   "y")))
-         (setq x
-               (cl_mapcar f
-                          (list 1 2 3 4 5)
-                          (list 4 2 1 6 3)))
-         (assert
-          (pyel-== x
-                   (list "y" "y" "x" "y" "x"))
-          t nil)))))
-  (ert-deftest pyel-lambda-py-ast nil
-    (should
-     (equal
-      (py-ast "x = [2,3,4]\nsquare = lambda([x]\n x*x)\ny = mapcar(square,x)\nassert y == [4,9,16]\n")
-      "Traceback (most recent call last):\n  File \"/tmp/py2el.py\", line 7, in <module>\n    \"\"\")))\n  File \"/usr/lib/python3.2/ast.py\", line 36, in parse\n    return compile(source, filename, mode, PyCF_ONLY_AST)\n  File \"<unknown>\", line 2\n    square = lambda([x]\n                   ^\nSyntaxError: invalid syntax\n"))
-    (should
-     (equal
-      (py-ast "f = lambda([x,y]\nif x > y:\n 'x'\nelse:\n 'y')\nx=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])\nassert x == ['y', 'y', 'x', 'y', 'x']")
-      "Traceback (most recent call last):\n  File \"/tmp/py2el.py\", line 8, in <module>\n    assert x == ['y', 'y', 'x', 'y', 'x']\"\"\")))\n  File \"/usr/lib/python3.2/ast.py\", line 36, in parse\n    return compile(source, filename, mode, PyCF_ONLY_AST)\n  File \"<unknown>\", line 1\n    f = lambda([x,y]\n              ^\nSyntaxError: invalid syntax\n")))
-  (ert-deftest pyel-lambda-el-ast nil
-    (should
-     (string=
-      (pyel "x = [2,3,4]\nsquare = lambda([x]\n x*x)\ny = mapcar(square,x)\nassert y == [4,9,16]\n" t)
-      "(assign  ((name  \"x\" 'store)) (list ((num 2) (num 3) (num 4)) 'load))\n(assign  ((name  \"square\" 'store)) (name  \"__pyel_marker_81__\" 'load))\n(assign  ((name  \"y\" 'store)) (call  (name  \"mapcar\" 'load) ((name  \"square\" 'load) (name  \"x\" 'load)) nil nil nil))\n(assert  (compare  (name  \"y\" 'load) (\"==\") ((list ((num 4) (num 9) (num 16)) 'load))) nil)\n"))
-    (should
-     (string=
-      (pyel "f = lambda([x,y]\nif x > y:\n 'x'\nelse:\n 'y')\nx=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])\nassert x == ['y', 'y', 'x', 'y', 'x']" t)
-      "(assign  ((name  \"f\" 'store)) (name  \"__pyel_marker_79__\" 'load))\n(assign  ((name  \"x\" 'store)) (call  (name  \"cl_mapcar\" 'load) ((name  \"f\" 'load) (list ((num 1) (num 2) (num 3) (num 4) (num 5)) 'load) (list ((num 4) (num 2) (num 1) (num 6) (num 3)) 'load)) nil nil nil))\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((list ((str \"y\") (str \"y\") (str \"x\") (str \"y\") (str \"x\")) 'load))) nil)\n")))
-  
+  (pyel-create-tests lambda
+                     "x = [2,3,4]
+  square = lambda([x]
+   x*x)
+  y = mapcar(square,x)
+  assert y == [4,9,16]
+  "
+                     "f = lambda([x,y]
+  if x > y:
+   'x'
+  else:
+   'y')
+  x=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])
+  assert x == ['y', 'y', 'x', 'y', 'x']")
 #+END_SRC
 
 ** transform template
