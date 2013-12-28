@@ -1749,8 +1749,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   def Num(n):
       return "(num " + str(n) +")"
 #+END_SRC
-
-(pyel-create-tests 'num "3" "4.21")
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests num "3" "4.23")
@@ -1923,7 +1921,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       return "(str \"" + str(s) +"\")"
 #+END_SRC
 *** tests
-(pyel-create-tests 'str
+(pyel-create-tests str
 		   "'a'"
 		   "x = 'a'"
 		   "['a','b']")
@@ -2119,7 +2117,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests 'if
+  (pyel-create-tests if
                      "if (a==b):
     b=c
   else:
@@ -2209,7 +2207,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests 'call
+  (pyel-create-tests call
                      "aa()"
                      "aa(b,c(1,2))"
                      ;;"aa()()" does not work yet
@@ -2294,7 +2292,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests 'while
+  (pyel-create-tests while
                      "while (a==b):
     print('hi')"
   
@@ -3076,7 +3074,7 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests 'len
+  (pyel-create-tests len
                      "a = [1,2,3,'5']
   assert len(a) == 4"
                      "a = []
@@ -3628,7 +3626,7 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests 'aug-assign
+  (pyel-create-tests aug-assign
                      "a += b"
                      "a -= b"
                      "a /= b"
@@ -4124,7 +4122,6 @@ prevents multiple/none '/' seporating file names"
 #+END_SRC
 
 * EOF
-
 ** main
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (require 'transformer)
