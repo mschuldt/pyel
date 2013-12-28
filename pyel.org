@@ -1316,7 +1316,6 @@ ert tests
 http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 
 #+Begin_SRC emacs-lisp :tangle pyel.el
-  
   (defvar pyel-test-py-functions nil
     "list of generated python test functions.
   when `pyel-run-tests' is run, these are translated to e-lisp
@@ -1483,13 +1482,20 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
         (let ((transform-passed (reduce '+ (mapcar (lambda (test)
-                                                     (if (eval test) 1 0))
+                                                     (if (condition-case nil
+                                                             (eval test)
+                                                           (error nil))
+                                                           1 0))
                                                    pyel-transform-tests)))
               (py-ast-passed (reduce '+ (mapcar (lambda (test)
-                                                  (if (eval test) 1 0))
+                                                  (if (condition-case nil
+                                                          (eval test)
+                                                        (error nil)) 1 0))
                                                 pyel-py-ast-tests)))
               (el-ast-passed (reduce '+ (mapcar (lambda (test)
-                                                  (if (eval test) 1 0))
+                                                  (if (condition-case nil
+                                                          (eval test)
+                                                        (error nil)) 1 0))
                                                 pyel-el-ast-tests))))
           (message "transform: %s/%s\npy-ast: %s/%s\nel-ast: %s/%s\n"
                    transform-passed (length pyel-transform-tests)
@@ -3370,7 +3376,6 @@ TODO: tests!
 ;;
 #+END_SRC
 
-
 * macro transforms
 macros and macroish primitives
 ** cond
@@ -3545,7 +3550,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 
 * lambda
 ** transform
@@ -4008,7 +4012,6 @@ DOC: generator expressions are translated to list comprehensions
 ;;
 #+END_SRC
 
-
 * unimplemented
 This will help notify the user when some syntax has not been implemented
 ** transform
@@ -4034,7 +4037,6 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 
 * conditional expressions
 ** transform
