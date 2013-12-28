@@ -2352,7 +2352,7 @@ assert a == b == c == 9.3"
          ((eq ctx 'load) id)
          ((eq ctx 'store)  (if (context-p 'for-loop-target)
                                id
-                             (call-transform  'set id assign-value)))
+                             (call-transform 'set id assign-value)))
          (t  "<ERROR: name>"))
         )))
   
@@ -3162,6 +3162,10 @@ else:
         (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
       "obj"))
   
+  (pyel-create-py-func fcall (_func &rest args)
+                       ($function _) -> ($func ,@args)
+                       (_ _) -> (funcall $func ,@args))
+  
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
     (lambda (func args keywords starargs kwargs)
@@ -3202,7 +3206,9 @@ else:
                                      ,@(mapcar '(lambda (x) `(quote ,x)) args)))
             
             ;;normal function call
-            `(,t-func ,@(mapcar 'transform args)))))))
+            ;;`(,t-func ,@(mapcar 'transform args))
+            (eval `(call-transform 'fcall ,@(cons 't-func (mapcar 'transform args))))
+            )))))
   
   
   

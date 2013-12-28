@@ -679,9 +679,9 @@ This is used when the ast form is needed by a transform that is manually
   
   ;;temp solution: does not check types etc
   (let* ((striped-args (mapcar 'strip_ args))
-         (args-just-vars (pyel-filter-non-args  striped-args))
-         (rest-arg (if (eq (car (last args 2)) '&rest)
-                       (car (last args)) nil)))
+         (args-just-vars (pyel-filter-non-args striped-args))
+         (rest-arg (if (eq (car (last striped-args 2)) '&rest)
+                       (car (last striped-args)) nil)))
 
     `(def-transform ,name pyel ()
        (lambda ,striped-args
@@ -700,9 +700,13 @@ This is used when the ast form is needed by a transform that is manually
              (fset fsym (lambda () nil)))
            ;;(if (eq (car (last args 2)) '&rest)
                
-           (cons fsym (mapcar 'eval ,(if rest-arg
-                                         `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                                       `(quote ,args-just-vars)))))))))
+           ;; (cons fsym (mapcar 'eval ,(if rest-arg
+           ;;                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+           ;;                             `(quote ,args-just-vars))))
+           (cons fsym ,(if rest-arg
+                          `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                        (cons 'list args-just-vars)))
+           )))))
 
 (defmacro pyel-method-transform (name args &rest type-switches)
   "define transforms for method calls on primative types"
@@ -905,7 +909,7 @@ This is used when the ast form is needed by a transform that is manually
                            ret))
          (c 0)
 
-         (args-just-vars (pyel-filter-non-args args))
+         (args-just-vars (pyel-filter-non-args (mapcar 'strip_ args)))
          (new-args (loop for a in args ;;doing: check for leading underscore
                          collect (if (or (eq a '&optional)
                                          (eq a '&rest)
@@ -1073,7 +1077,6 @@ This is used when the ast form is needed by a transform that is manually
                                    (cond ,@(reverse clauses)))
                                 `(cond ,@(reverse clauses)))
                                )))))))
-
 
 
 (defun call-transform (template-name &rest args)
