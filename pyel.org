@@ -517,7 +517,7 @@ create tests
                    (push `(ert-deftest
                                 ,(intern (concat "pyel-" (symbol-name name)
                                                  (number-to-string (setq c (1+ c))))) ()
-                              (should (equal (eval (pyel ,(concat (functionize (car test))
+                              (should (equal (eval (pyel ,(concat (pyel-functionize (car test))
                                                                   "\nf()")))
                                              ,(cadr test))))
                            _pyel-tests))
