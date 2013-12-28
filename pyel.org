@@ -454,6 +454,11 @@ create tests
   
   ;;     (pp `(ert-deftest ,name () ,@shoulds)) nil))
   
+  (defvar pyel-test-py-functions nil
+    "list of generated python test functions.
+  when `pyel-run-tests' is run, these are translated to e-lisp
+  and compared to expected values")
+  
   (defmacro pyel-create-tests (name &rest py-tests)
     (let ((complete nil)
           (py-ast nil)
