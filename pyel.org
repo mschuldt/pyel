@@ -7308,11 +7308,11 @@ prevents multiple/none '/' seporating file names"
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (require 'transformer)
   (require 'pyel-transforms)
-  (require 'pyel-tests)
+  (require 'pyel-tests-generated)
   (require 'pyel-preprocessor)  
   
   (require 'pyel-mode)
-
+  
   (provide 'pyel)
   ;;pyel.el ends here
 #+END_SRC
