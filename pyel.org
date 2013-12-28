@@ -2208,161 +2208,24 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     
 #+END_SRC
 ** tests
-   (pyel-create-tests 'call
-   "aa()"
-   "aa(b,c(1,2))"
-   ;;"aa()()" does not work yet
-   "aa=b()"
-   ;;"aa.b()"
-   ;;"[aa.b()==4]"
-   "aa(3,b(c(),[2,(2,3)]))"
-   "aa.b()"
-   "aa.b(1,2)"
-   "aa.b(1,a.b(1,2,3))"
-   
-   "a.b().c()"
-   "a.b().c().d()"
-   "a.b(x.y().e()).c()"
-   
-		   )
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-call-full-transform nil
-    (should
-     (equal
-      (pyel "aa()")
-      '(aa)))
-    (should
-     (equal
-      (pyel "aa(b,c(1,2))")
-      '(aa b
-           (c 1 2))))
-    (should
-     (equal
-      (pyel "aa=b()")
-      '(pyel-set aa
-                 (b))))
-    (should
-     (equal
-      (pyel "aa(3,b(c(),[2,(2,3)]))")
-      '(aa 3
-           (b
-            (c)
-            (list 2
-                  (vector 2 3))))))
-    (should
-     (equal
-      (pyel "aa.b()")
-      '(b aa)))
-    (should
-     (equal
-      (pyel "aa.b(1,2)")
-      '(b aa 1 2)))
-    (should
-     (equal
-      (pyel "aa.b(1,a.b(1,2,3))")
-      '(b aa 1
-          (b a 1 2 3))))
-    (should
-     (equal
-      (pyel "a.b().c()")
-      '(c
-        (b a))))
-    (should
-     (equal
-      (pyel "a.b().c().d()")
-      '(d
-        (c
-         (b a)))))
-    (should
-     (equal
-      (pyel "a.b(x.y().e()).c()")
-      '(c
-        (b a
-           (e
-            (y x)))))))
-  (ert-deftest pyel-call-py-ast nil
-    (should
-     (equal
-      (py-ast "aa()")
-      "Module(body=[Expr(value=Call(func=Name(id='aa', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "aa(b,c(1,2))")
-      "Module(body=[Expr(value=Call(func=Name(id='aa', ctx=Load()), args=[Name(id='b', ctx=Load()), Call(func=Name(id='c', ctx=Load()), args=[Num(n=1), Num(n=2)], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "aa=b()")
-      "Module(body=[Assign(targets=[Name(id='aa', ctx=Store())], value=Call(func=Name(id='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "aa(3,b(c(),[2,(2,3)]))")
-      "Module(body=[Expr(value=Call(func=Name(id='aa', ctx=Load()), args=[Num(n=3), Call(func=Name(id='b', ctx=Load()), args=[Call(func=Name(id='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), List(elts=[Num(n=2), Tuple(elts=[Num(n=2), Num(n=3)], ctx=Load())], ctx=Load())], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "aa.b()")
-      "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='aa', ctx=Load()), attr='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "aa.b(1,2)")
-      "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='aa', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Num(n=2)], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "aa.b(1,a.b(1,2,3))")
-      "Module(body=[Expr(value=Call(func=Attribute(value=Name(id='aa', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Num(n=1), Num(n=2), Num(n=3)], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "a.b().c()")
-      "Module(body=[Expr(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "a.b().c().d()")
-      "Module(body=[Expr(value=Call(func=Attribute(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='d', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n"))
-    (should
-     (equal
-      (py-ast "a.b(x.y().e()).c()")
-      "Module(body=[Expr(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), args=[Call(func=Attribute(value=Call(func=Attribute(value=Name(id='x', ctx=Load()), attr='y', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)], keywords=[], starargs=None, kwargs=None), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])\n")))
-  (ert-deftest pyel-call-el-ast nil
-    (should
-     (string=
-      (pyel "aa()" t)
-      "(call  (name  \"aa\" 'load) nil nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "aa(b,c(1,2))" t)
-      "(call  (name  \"aa\" 'load) ((name  \"b\" 'load) (call  (name  \"c\" 'load) ((num 1) (num 2)) nil nil nil)) nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "aa=b()" t)
-      "(assign  ((name  \"aa\" 'store)) (call  (name  \"b\" 'load) nil nil nil nil))\n"))
-    (should
-     (string=
-      (pyel "aa(3,b(c(),[2,(2,3)]))" t)
-      "(call  (name  \"aa\" 'load) ((num 3) (call  (name  \"b\" 'load) ((call  (name  \"c\" 'load) nil nil nil nil) (list ((num 2) (tuple  ((num 2) (num 3)) 'load)) 'load)) nil nil nil)) nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "aa.b()" t)
-      "(call  (attribute  (name  \"aa\" 'load) \"b\" 'load) nil nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "aa.b(1,2)" t)
-      "(call  (attribute  (name  \"aa\" 'load) \"b\" 'load) ((num 1) (num 2)) nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "aa.b(1,a.b(1,2,3))" t)
-      "(call  (attribute  (name  \"aa\" 'load) \"b\" 'load) ((num 1) (call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((num 1) (num 2) (num 3)) nil nil nil)) nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "a.b().c()" t)
-      "(call  (attribute  (call  (attribute  (name  \"a\" 'load) \"b\" 'load) nil nil nil nil) \"c\" 'load) nil nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "a.b().c().d()" t)
-      "(call  (attribute  (call  (attribute  (call  (attribute  (name  \"a\" 'load) \"b\" 'load) nil nil nil nil) \"c\" 'load) nil nil nil nil) \"d\" 'load) nil nil nil nil)\n"))
-    (should
-     (string=
-      (pyel "a.b(x.y().e()).c()" t)
-      "(call  (attribute  (call  (attribute  (name  \"a\" 'load) \"b\" 'load) ((call  (attribute  (call  (attribute  (name  \"x\" 'load) \"y\" 'load) nil nil nil nil) \"e\" 'load) nil nil nil nil)) nil nil nil) \"c\" 'load) nil nil nil nil)\n")))
-  
+  (pyel-create-tests 'call
+                     "aa()"
+                     "aa(b,c(1,2))"
+                     ;;"aa()()" does not work yet
+                     "aa=b()"
+                     ;;"aa.b()"
+                     ;;"[aa.b()==4]"
+                     "aa(3,b(c(),[2,(2,3)]))"
+                     "aa.b()"
+                     "aa.b(1,2)"
+                     "aa.b(1,a.b(1,2,3))"
+                     
+                     "a.b().c()"
+                     "a.b().c().d()"
+                     "a.b(x.y().e()).c()"
+                     
+                     )
 #+END_SRC
 
 * while loop
