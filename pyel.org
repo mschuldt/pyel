@@ -3627,184 +3627,24 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 
 #+END_SRC
 ** tests
-(pyel-create-tests 'aug-assign
-		   "a += b"
-		   "a -= b"
-		   "a /= b"
-		   "a *= b"
-		   "a **= b"
-		   "a ^= b"
-		   "a |= b"
-		   "a = 3
-b = 4
-a += b + 1
-assert a == 8"
-
-"a.b += a[2]"
-"a.b += 4"
-"a.b += d.e"
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-aug-assign-full-transform nil
-    (should
-     (equal
-      (pyel "a += b")
-      '(pyel-set a
-                 (pyel-+ a b))))
-    (should
-     (equal
-      (pyel "a -= b")
-      '(pyel-set a
-                 (pyel-- a b))))
-    (should
-     (equal
-      (pyel "a /= b")
-      '(pyel-set a
-                 (pyel-/ a b))))
-    (should
-     (equal
-      (pyel "a *= b")
-      '(pyel-set a
-                 (pyel-* a b))))
-    (should
-     (equal
-      (pyel "a **= b")
-      '(pyel-set a
-                 (pyel-** a b))))
-    (should
-     (equal
-      (pyel "a ^= b")
-      '(pyel-set a
-                 (pyel-^ a b))))
-    (should
-     (equal
-      (pyel "a |= b")
-      '(pyel-set a
-                 (pyel-| a b))))
-    (should
-     (equal
-      (pyel "a = 3\nb = 4\na += b + 1\nassert a == 8")
-      '(progn
-         (pyel-set a 3)
-         (pyel-set b 4)
-         (pyel-set a
-                   (pyel-+ a
-                           (pyel-+ b 1)))
-         (assert
-          (pyel-== a 8)
-          t nil))))
-    (should
-     (equal
-      (pyel "a.b += a[2]")
-      '(oset a b
-             (pyel-+
-              (oref a b)
-              (pyel-subscript-load-index a 2)))))
-    (should
-     (equal
-      (pyel "a.b += 4")
-      '(oset a b
-             (pyel-+
-              (oref a b)
-              4))))
-    (should
-     (equal
-      (pyel "a.b += d.e")
-      '(oset a b
-             (pyel-+
-              (oref a b)
-              (oref d e))))))
-  (ert-deftest pyel-aug-assign-py-ast nil
-    (should
-     (equal
-      (py-ast "a += b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=Add(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a -= b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=Sub(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a /= b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=Div(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a *= b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=Mult(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a **= b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=Pow(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a ^= b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=BitXor(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a |= b")
-      "Module(body=[AugAssign(target=Name(id='a', ctx=Store()), op=BitOr(), value=Name(id='b', ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a = 3\nb = 4\na += b + 1\nassert a == 8")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=3)), Assign(targets=[Name(id='b', ctx=Store())], value=Num(n=4)), AugAssign(target=Name(id='a', ctx=Store()), op=Add(), value=BinOp(left=Name(id='b', ctx=Load()), op=Add(), right=Num(n=1))), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "a.b += a[2]")
-      "Module(body=[AugAssign(target=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), op=Add(), value=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a.b += 4")
-      "Module(body=[AugAssign(target=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), op=Add(), value=Num(n=4))])\n"))
-    (should
-     (equal
-      (py-ast "a.b += d.e")
-      "Module(body=[AugAssign(target=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store()), op=Add(), value=Attribute(value=Name(id='d', ctx=Load()), attr='e', ctx=Load()))])\n")))
-  (ert-deftest pyel-aug-assign-el-ast nil
-    (should
-     (string=
-      (pyel "a += b" t)
-      "(aug-assign (name  \"a\" 'store) + (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a -= b" t)
-      "(aug-assign (name  \"a\" 'store) - (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a /= b" t)
-      "(aug-assign (name  \"a\" 'store) / (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a *= b" t)
-      "(aug-assign (name  \"a\" 'store) * (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a **= b" t)
-      "(aug-assign (name  \"a\" 'store) ** (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a ^= b" t)
-      "(aug-assign (name  \"a\" 'store) ^ (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a |= b" t)
-      "(aug-assign (name  \"a\" 'store) | (name  \"b\" 'load))\n"))
-    (should
-     (string=
-      (pyel "a = 3\nb = 4\na += b + 1\nassert a == 8" t)
-      "(assign  ((name  \"a\" 'store)) (num 3))\n(assign  ((name  \"b\" 'store)) (num 4))\n(aug-assign (name  \"a\" 'store) + (bin-op  (name  \"b\" 'load) + (num 1)))\n(assert  (compare  (name  \"a\" 'load) (\"==\") ((num 8))) nil)\n"))
-    (should
-     (string=
-      (pyel "a.b += a[2]" t)
-      "(aug-assign (attribute  (name  \"a\" 'load) \"b\" 'store) + (subscript (name  \"a\" 'load) (index (num 2)) 'load))\n"))
-    (should
-     (string=
-      (pyel "a.b += 4" t)
-      "(aug-assign (attribute  (name  \"a\" 'load) \"b\" 'store) + (num 4))\n"))
-    (should
-     (string=
-      (pyel "a.b += d.e" t)
-      "(aug-assign (attribute  (name  \"a\" 'load) \"b\" 'store) + (attribute  (name  \"d\" 'load) \"e\" 'load))\n")))
+  (pyel-create-tests 'aug-assign
+                     "a += b"
+                     "a -= b"
+                     "a /= b"
+                     "a *= b"
+                     "a **= b"
+                     "a ^= b"
+                     "a |= b"
+                     "a = 3
+  b = 4
+  a += b + 1
+  assert a == 8"
   
+                     "a.b += a[2]"
+                     "a.b += 4"
+                     "a.b += d.e"
+                     )
 #+END_SRC
 
 * return
