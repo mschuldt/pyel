@@ -1848,7 +1848,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      "b = [1,[1,a,[a.b,[],3]]]"
                      "[[[[[[[a]]]]]]]")
 #+END_SRC
-
 ** dict
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -1879,83 +1878,11 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       return "(dict " + ll_str(keys) + " " + ll_str(values) + ")"
 #+END_SRC
 *** tests
-(pyel-create-tests 'dict
-		   "{'a':2, 'b':4}"
-		   "a = {a:2, b:4}"
-		   "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-dict-full-transform nil
-    (should
-     (equal
-      (pyel "{'a':2, 'b':4}")
-      '(let
-           ((__h__
-             (make-hash-table :test 'equal)))
-         (puthash "a" 2 __h__)
-         (puthash "b" 4 __h__)
-         __h__)))
-    (should
-     (equal
-      (pyel "a = {a:2, b:4}")
-      '(pyel-set a
-                 (let
-                     ((__h__
-                       (make-hash-table :test 'equal)))
-                   (puthash a 2 __h__)
-                   (puthash b 4 __h__)
-                   __h__))))
-    (should
-     (equal
-      (pyel "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}")
-      '(pyel-set x
-                 (let
-                     ((__h__
-                       (make-hash-table :test 'equal)))
-                   (puthash "a" 2 __h__)
-                   (puthash "b" 4 __h__)
-                   (puthash "c"
-                            (let
-                                ((__h__
-                                  (make-hash-table :test 'equal)))
-                              (puthash "d" 1 __h__)
-                              (puthash "e" 2 __h__)
-                              (puthash f
-                                       (let
-                                           ((__h__
-                                             (make-hash-table :test 'equal)))
-                                         (puthash g 3 __h__)
-                                         __h__)
-                                       __h__)
-                              __h__)
-                            __h__)
-                   __h__)))))
-  (ert-deftest pyel-dict-py-ast nil
-    (should
-     (equal
-      (py-ast "{'a':2, 'b':4}")
-      "Module(body=[Expr(value=Dict(keys=[Str(s='a'), Str(s='b')], values=[Num(n=2), Num(n=4)]))])\n"))
-    (should
-     (equal
-      (py-ast "a = {a:2, b:4}")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Dict(keys=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())], values=[Num(n=2), Num(n=4)]))])\n"))
-    (should
-     (equal
-      (py-ast "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}")
-      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Dict(keys=[Str(s='a'), Str(s='b'), Str(s='c')], values=[Num(n=2), Num(n=4), Dict(keys=[Str(s='d'), Str(s='e'), Name(id='f', ctx=Load())], values=[Num(n=1), Num(n=2), Dict(keys=[Name(id='g', ctx=Load())], values=[Num(n=3)])])]))])\n")))
-  (ert-deftest pyel-dict-el-ast nil
-    (should
-     (string=
-      (pyel "{'a':2, 'b':4}" t)
-      "(dict ((str \"a\") (str \"b\")) ((num 2) (num 4)))\n"))
-    (should
-     (string=
-      (pyel "a = {a:2, b:4}" t)
-      "(assign  ((name  \"a\" 'store)) (dict ((name  \"a\" 'load) (name  \"b\" 'load)) ((num 2) (num 4))))\n"))
-    (should
-     (string=
-      (pyel "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}" t)
-      "(assign  ((name  \"x\" 'store)) (dict ((str \"a\") (str \"b\") (str \"c\")) ((num 2) (num 4) (dict ((str \"d\") (str \"e\") (name  \"f\" 'load)) ((num 1) (num 2) (dict ((name  \"g\" 'load)) ((num 3))))))))\n")))
-  
+  (pyel-create-tests dict
+                     "{'a':2, 'b':4}"
+                     "a = {a:2, b:4}"
+                     "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}")
 #+END_SRC
 
 ** tuple
