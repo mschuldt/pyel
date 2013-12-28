@@ -583,7 +583,6 @@ create tests
         (message "Tests copied to kill ring"))))
   
     
-  
   (defun pyel-generate-tests ()
     (interactive)
     ;;read in tests from pyel-tests.el
