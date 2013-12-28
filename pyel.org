@@ -459,6 +459,10 @@ create tests
   when `pyel-run-tests' is run, these are translated to e-lisp
   and compared to expected values")
   
+  (defun pyel-make-test-func-name ()
+    (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
+  
+  
   (defmacro pyel-create-tests (name &rest py-tests)
     (let ((complete nil)
           (py-ast nil)
@@ -610,6 +614,7 @@ create tests
         ;;save py test functions
         (insert (format "(setq pyel-test-py-functions '%s)"
                         (prin1-to-string pyel-test-py-functions)))
+        (insert "\n(provide 'pyel-tests-generated)")
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el"))
         (eval-buffer))))
   
