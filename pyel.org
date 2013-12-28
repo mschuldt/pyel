@@ -3056,42 +3056,13 @@ Example:
                   (_ _)    -> (append obj thing))
 #+END_SRC
 *** tests
-(pyel-create-tests 'append
-"a=[1,2,3]
-a.append('str')
-assert len(a) == 4
-assert a[3] == 'str'"
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-append-full-transform nil
-    (should
-     (equal
-      (pyel "a=[1,2,3]\na.append('str')\nassert len(a) == 4\nassert a[3] == 'str'")
-      '(progn
-         (pyel-set a
-                   (list 1 2 3))
-         (pyel-append-method a "str")
-         (assert
-          (pyel-==
-           (pyel-len-function a)
-           4)
-          t nil)
-         (assert
-          (pyel-==
-           (pyel-subscript-load-index a 3)
-           "str")
-          t nil)))))
-  (ert-deftest pyel-append-py-ast nil
-    (should
-     (equal
-      (py-ast "a=[1,2,3]\na.append('str')\nassert len(a) == 4\nassert a[3] == 'str'")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())), Expr(value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='append', ctx=Load()), args=[Str(s='str')], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='a', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=4)]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()), ops=[Eq()], comparators=[Str(s='str')]), msg=None)])\n")))
-  (ert-deftest pyel-append-el-ast nil
-    (should
-     (string=
-      (pyel "a=[1,2,3]\na.append('str')\nassert len(a) == 4\nassert a[3] == 'str'" t)
-      "(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (num 3)) 'load))\n(call  (attribute  (name  \"a\" 'load) \"append\" 'load) ((str \"str\")) nil nil nil)\n(assert  (compare  (call  (name  \"len\" 'load) ((name  \"a\" 'load)) nil nil nil) (\"==\") ((num 4))) nil)\n(assert  (compare  (subscript (name  \"a\" 'load) (index (num 3)) 'load) (\"==\") ((str \"str\"))) nil)\n")))
-  
+  (pyel-create-tests append
+                     "a=[1,2,3]
+  a.append('str')
+  assert len(a) == 4
+  assert a[3] == 'str'"
+                     )
 #+END_SRC
 
 * function transforms
