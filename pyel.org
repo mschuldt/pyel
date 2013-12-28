@@ -2983,75 +2983,22 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+END_SRC
 
 ** tests
-(pyel-create-tests 'class
-		   "class test:
- def __init__(self,aa,bb):
-  self.a = aa
-  self.b = bb
- def geta(self):
-  return self.a
- def getb(self):
-  return self.b
-x = test(5,6)
-assert x.geta() == 5
-assert x.getb() == 6
-x.b = 2
-assert x.getb() == 2")
 
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-class-full-transform nil
-    (should
-     (equal
-      (pyel "class test:\n def __init__(self,aa,bb):\n  self.a = aa\n  self.b = bb\n def geta(self):\n  return self.a\n def getb(self):\n  return self.b\nx = test(5,6)\nassert x.geta() == 5\nassert x.getb() == 6\nx.b = 2\nassert x.getb() == 2")
-      '(progn
-         (defclass test nil
-           ((b :initarg :b :initform nil)
-            (a :initarg :a :initform nil))
-           "pyel class")
-         (defmethod --init--
-           ((self test)
-            aa bb)
-           (oset self a aa)
-           (oset self b bb))
-         (defmethod geta
-           ((self test))
-           (oref self a))
-         (defmethod getb
-           ((self test))
-           (oref self b))
-         (pyel-set x
-                   (let
-                       ((__c
-                         (test "obj")))
-                     (--init-- __c 5 6)
-                     __c))
-         (assert
-          (pyel-==
-           (geta x)
-           5)
-          t nil)
-         (assert
-          (pyel-==
-           (getb x)
-           6)
-          t nil)
-         (oset x b 2)
-         (assert
-          (pyel-==
-           (getb x)
-           2)
-          t nil)))))
-  (ert-deftest pyel-class-py-ast nil
-    (should
-     (equal
-      (py-ast "class test:\n def __init__(self,aa,bb):\n  self.a = aa\n  self.b = bb\n def geta(self):\n  return self.a\n def getb(self):\n  return self.b\nx = test(5,6)\nassert x.geta() == 5\nassert x.getb() == 6\nx.b = 2\nassert x.getb() == 2")
-      "Module(body=[ClassDef(name='test', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__init__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='aa', annotation=None), arg(arg='bb', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='a', ctx=Store())], value=Name(id='aa', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='b', ctx=Store())], value=Name(id='bb', ctx=Load()))], decorator_list=[], returns=None), FunctionDef(name='geta', args=arguments(args=[arg(arg='self', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=Attribute(value=Name(id='self', ctx=Load()), attr='a', ctx=Load()))], decorator_list=[], returns=None), FunctionDef(name='getb', args=arguments(args=[arg(arg='self', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=Attribute(value=Name(id='self', ctx=Load()), attr='b', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='test', ctx=Load()), args=[Num(n=5), Num(n=6)], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Call(func=Attribute(value=Name(id='x', ctx=Load()), attr='geta', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=5)]), msg=None), Assert(test=Compare(left=Call(func=Attribute(value=Name(id='x', ctx=Load()), attr='getb', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=6)]), msg=None), Assign(targets=[Attribute(value=Name(id='x', ctx=Load()), attr='b', ctx=Store())], value=Num(n=2)), Assert(test=Compare(left=Call(func=Attribute(value=Name(id='x', ctx=Load()), attr='getb', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=2)]), msg=None)])\n")))
-  (ert-deftest pyel-class-el-ast nil
-    (should
-     (string=
-      (pyel "class test:\n def __init__(self,aa,bb):\n  self.a = aa\n  self.b = bb\n def geta(self):\n  return self.a\n def getb(self):\n  return self.b\nx = test(5,6)\nassert x.geta() == 5\nassert x.getb() == 6\nx.b = 2\nassert x.getb() == 2" t)
-      "(classdef test nil nil nil nil ((def \" __init__ \" ((arguments  ((arg \"self\"  nil) (arg \"aa\"  nil) (arg \"bb\"  nil)) nil nil nil nil nil nil nil )) ((assign  ((attribute  (name  \"self\" 'load) \"a\" 'store)) (name  \"aa\" 'load)) (assign  ((attribute  (name  \"self\" 'load) \"b\" 'store)) (name  \"bb\" 'load))) nil nil ) (def \" geta \" ((arguments  ((arg \"self\"  nil)) nil nil nil nil nil nil nil )) ((return (attribute  (name  \"self\" 'load) \"a\" 'load))) nil nil ) (def \" getb \" ((arguments  ((arg \"self\"  nil)) nil nil nil nil nil nil nil )) ((return (attribute  (name  \"self\" 'load) \"b\" 'load))) nil nil )) nil)\n(assign  ((name  \"x\" 'store)) (call  (name  \"test\" 'load) ((num 5) (num 6)) nil nil nil))\n(assert  (compare  (call  (attribute  (name  \"x\" 'load) \"geta\" 'load) nil nil nil nil) (\"==\") ((num 5))) nil)\n(assert  (compare  (call  (attribute  (name  \"x\" 'load) \"getb\" 'load) nil nil nil nil) (\"==\") ((num 6))) nil)\n(assign  ((attribute  (name  \"x\" 'load) \"b\" 'store)) (num 2))\n(assert  (compare  (call  (attribute  (name  \"x\" 'load) \"getb\" 'load) nil nil nil nil) (\"==\") ((num 2))) nil)\n")))
-  
+  (pyel-create-tests class
+                     "class test:
+   def __init__(self,aa,bb):
+    self.a = aa
+    self.b = bb
+   def geta(self):
+    return self.a
+   def getb(self):
+    return self.b
+  x = test(5,6)
+  assert x.geta() == 5
+  assert x.getb() == 6
+  x.b = 2
+  assert x.getb() == 2")
 #+END_SRC
 
 * assert
