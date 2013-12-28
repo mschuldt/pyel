@@ -458,7 +458,9 @@ create tests
       "list of generated python test functions.
     when `pyel-run-tests' is run, these are translated to e-lisp
     and compared to expected values")
-    
+
+    (setq _pyel-tests nil)    
+
     (defvar pyel-test-func-counter 0
       "just another counter")
   
