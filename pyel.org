@@ -1815,24 +1815,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 #+END_SRC
 
 ** tests
-(pyel-create-tests 'name "testName")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-name-full-transform nil
-    (should
-     (equal
-      (pyel "testName")
-      'testName)))
-  (ert-deftest pyel-name-py-ast nil
-    (should
-     (equal
-      (py-ast "testName")
-      "Module(body=[Expr(value=Name(id='testName', ctx=Load()))])\n")))
-  (ert-deftest pyel-name-el-ast nil
-    (should
-     (string=
-      (pyel "testName" t)
-      "(name  \"testName\" 'load)\n")))
-  
+  (pyel-create-tests name "testName")
 #+END_SRC
 
 * literals
