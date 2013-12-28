@@ -2118,92 +2118,25 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         return l_str(["if ",test, ll_str(body), ll_str(orelse)])
 #+END_SRC
 ** tests
-(pyel-create-tests 'if
-"if (a==b):
-  b=c
-else:
-  a = d"
-
-"if (a==b):
-   b=c
-   z=1
-else:
-  a = 4
-  b = a.b"
-
-"if (a.b <= a.e):
- a.b=(2.1,2)
-else:
- b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]"
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-if-full-transform nil
-    (should
-     (equal
-      (pyel "if (a==b):\n  b=c\nelse:\n  a = d")
-      '(if
-           (pyel-== a b)
-           (pyel-set b c)
-         (pyel-set a d))))
-    (should
-     (equal
-      (pyel "if (a==b):\n   b=c\n   z=1\nelse:\n  a = 4\n  b = a.b")
-      '(if
-           (pyel-== a b)
-           (progn
-             (pyel-set b c)
-             (pyel-set z 1))
-         (pyel-set a 4)
-         (pyel-set b
-                   (oref a b)))))
-    (should
-     (equal
-      (pyel "if (a.b <= a.e):\n a.b=(2.1,2)\nelse:\n b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]")
-      '(if
-           (pyel-<=
-            (oref a b)
-            (oref a e))
-           (oset a b
-                 (vector 2.1 2))
-         (oset
-          (oref b a)
-          c
-          (list a
-                (let
-                    ((__h__
-                      (make-hash-table :test 'equal)))
-                  (puthash "a" 23.3 __h__)
-                  (puthash "b"
-                           (vector 3.2 3.1)
-                           __h__)
-                  __h__)))))))
-  (ert-deftest pyel-if-py-ast nil
-    (should
-     (equal
-      (py-ast "if (a==b):\n  b=c\nelse:\n  a = d")
-      "Module(body=[If(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Name(id='b', ctx=Load())]), body=[Assign(targets=[Name(id='b', ctx=Store())], value=Name(id='c', ctx=Load()))], orelse=[Assign(targets=[Name(id='a', ctx=Store())], value=Name(id='d', ctx=Load()))])])\n"))
-    (should
-     (equal
-      (py-ast "if (a==b):\n   b=c\n   z=1\nelse:\n  a = 4\n  b = a.b")
-      "Module(body=[If(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Name(id='b', ctx=Load())]), body=[Assign(targets=[Name(id='b', ctx=Store())], value=Name(id='c', ctx=Load())), Assign(targets=[Name(id='z', ctx=Store())], value=Num(n=1))], orelse=[Assign(targets=[Name(id='a', ctx=Store())], value=Num(n=4)), Assign(targets=[Name(id='b', ctx=Store())], value=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()))])])\n"))
-    (should
-     (equal
-      (py-ast "if (a.b <= a.e):\n a.b=(2.1,2)\nelse:\n b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]")
-      "Module(body=[If(test=Compare(left=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), ops=[LtE()], comparators=[Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load())]), body=[Assign(targets=[Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Store())], value=Tuple(elts=[Num(n=2.1), Num(n=2)], ctx=Load()))], orelse=[Assign(targets=[Attribute(value=Attribute(value=Name(id='b', ctx=Load()), attr='a', ctx=Load()), attr='c', ctx=Store())], value=List(elts=[Name(id='a', ctx=Load()), Dict(keys=[Str(s='a'), Str(s='b')], values=[Num(n=23.3), Tuple(elts=[Num(n=3.2), Num(n=3.1)], ctx=Load())])], ctx=Load()))])])\n")))
-  (ert-deftest pyel-if-el-ast nil
-    (should
-     (string=
-      (pyel "if (a==b):\n  b=c\nelse:\n  a = d" t)
-      "(if  (compare  (name  \"a\" 'load) (\"==\") ((name  \"b\" 'load))) ((assign  ((name  \"b\" 'store)) (name  \"c\" 'load))) ((assign  ((name  \"a\" 'store)) (name  \"d\" 'load))))\n"))
-    (should
-     (string=
-      (pyel "if (a==b):\n   b=c\n   z=1\nelse:\n  a = 4\n  b = a.b" t)
-      "(if  (compare  (name  \"a\" 'load) (\"==\") ((name  \"b\" 'load))) ((assign  ((name  \"b\" 'store)) (name  \"c\" 'load)) (assign  ((name  \"z\" 'store)) (num 1))) ((assign  ((name  \"a\" 'store)) (num 4)) (assign  ((name  \"b\" 'store)) (attribute  (name  \"a\" 'load) \"b\" 'load))))\n"))
-    (should
-     (string=
-      (pyel "if (a.b <= a.e):\n a.b=(2.1,2)\nelse:\n b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]" t)
-      "(if  (compare  (attribute  (name  \"a\" 'load) \"b\" 'load) (\"<=\") ((attribute  (name  \"a\" 'load) \"e\" 'load))) ((assign  ((attribute  (name  \"a\" 'load) \"b\" 'store)) (tuple  ((num 2.1) (num 2)) 'load))) ((assign  ((attribute  (attribute  (name  \"b\" 'load) \"a\" 'load) \"c\" 'store)) (list ((name  \"a\" 'load) (dict ((str \"a\") (str \"b\")) ((num 23.3) (tuple  ((num 3.2) (num 3.1)) 'load)))) 'load))))\n")))
+  (pyel-create-tests 'if
+                     "if (a==b):
+    b=c
+  else:
+    a = d"
   
+                     "if (a==b):
+     b=c
+     z=1
+  else:
+    a = 4
+    b = a.b"
+  
+                     "if (a.b <= a.e):
+   a.b=(2.1,2)
+  else:
+   b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]"
+                     )
 #+END_SRC
 
 * call
