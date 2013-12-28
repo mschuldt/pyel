@@ -589,9 +589,12 @@ create tests
     ;;read in tests from pyel-tests.el
     ;;save resulting tests in  pyel-tests-generated.el
     ;;evaluate all the tests
-    (let (transform-tests
-          py-ast-tests
-          el-ast-tests
+    (let ((pyel-test-func-counter 0)
+          pyel-transform-tests
+          pyel-py-ast-tests
+          pyel-el-ast-tests
+          pyel-test-py-functions
+          _pyel-tests
           )
   
       (load-file (file-path-concat pyel-directory "pyel-tests.el"))
