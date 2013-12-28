@@ -1311,7 +1311,7 @@ This is for all non template specific code.
     
 #+END_SRC  
 * runtime
-* tests
+* testing
 ert tests
 http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 
