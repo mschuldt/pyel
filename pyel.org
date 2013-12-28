@@ -2543,200 +2543,39 @@ FunctionDef(name='a',
       return "(arg \"" + arg + "\" " + " " + (annotation or "nil") + ")"
 #+END_SRC
 ** tests
-(pyel-create-tests 'def
-"def a(b,c):
-  print('ok')
-  a=b"
-
-"def a(b,c):
-  if (a==b()):
-    c()
-    while (a < d.b):
-      b,c = 1,3
-  a.b.c = [a,(2,2)]"
-
-"def a():
-  return time()"
-
-"def a(x,y=2,z=4):
- print(z)"
-"def a(x=1,y=2,z=4):
- print(z)"
-"def a(x,y,z=4):
- print(z)"
-"def a(x,y,z=4,*g):
- print(z)"
-
-;;optional and variable args 
-"def pyel_test(a,b=1,*c):
- if ab:
-  x = a+b
- y = 3
- _a_()
- z.a = 4"
-)
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-def-full-transform nil
-    (should
-     (equal
-      (pyel "def a(b,c):\n  print('ok')\n  a=b")
-      '(defun a
-         (b c)
-         (let
-             (a)
-           (print "ok")
-           (pyel-set a b)))))
-    (should
-     (equal
-      (pyel "def a(b,c):\n  if (a==b()):\n    c()\n    while (a < d.b):\n      b,c = 1,3\n  a.b.c = [a,(2,2)]")
-      '(defun a
-         (b c)
-         (let
-             (b c)
-           (if
-               (pyel-== a
-                        (b))
-               (progn
-                 (c)
-                 (while
-                     (pyel-< a
-                             (oref d b))
-                   (let
-                       ((__1__ 1)
-                        (__2__ 3))
-                     (pyel-set b __1__)
-                     (pyel-set c __2__)))))
-           (oset
-            (oref a b)
-            c
-            (list a
-                  (vector 2 2)))))))
-    (should
-     (equal
-      (pyel "def a():\n  return time()")
-      '(defun a nil
-         (time))))
-    (should
-     (equal
-      (pyel "def a(x,y=2,z=4):\n print(z)")
-      '(defun a
-         (x &optional y z)
-         (setq z
-               (or z 4))
-         (setq y
-               (or y 2))
-         (print z))))
-    (should
-     (equal
-      (pyel "def a(x=1,y=2,z=4):\n print(z)")
-      '(defun a
-         (&optional x y z)
-         (setq z
-               (or z 4))
-         (setq y
-               (or y 2))
-         (setq x
-               (or x 1))
-         (print z))))
-    (should
-     (equal
-      (pyel "def a(x,y,z=4):\n print(z)")
-      '(defun a
-         (x y &optional z)
-         (setq z
-               (or z 4))
-         (print z))))
-    (should
-     (equal
-      (pyel "def a(x,y,z=4,*g):\n print(z)")
-      '(defun a
-         (x y &optional z &rest g)
-         (setq z
-               (or z 4))
-         (print z))))
-    (should
-     (equal
-      (pyel "def pyel_test(a,b=1,*c):\n if ab:\n  x = a+b\n y = 3\n _a_()\n z.a = 4")
-      '(defun pyel-test
-         (a &optional b &rest c)
-         (setq b
-               (or b 1))
-         (let
-             (x y)
-           (if ab
-               (pyel-set x
-                         (pyel-+ a b)))
-           (pyel-set y 3)
-           (-a-)
-           (oset z a 4))))))
-  (ert-deftest pyel-def-py-ast nil
-    (should
-     (equal
-      (py-ast "def a(b,c):\n  print('ok')\n  a=b")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[arg(arg='b', annotation=None), arg(arg='c', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Str(s='ok')], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='a', ctx=Store())], value=Name(id='b', ctx=Load()))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def a(b,c):\n  if (a==b()):\n    c()\n    while (a < d.b):\n      b,c = 1,3\n  a.b.c = [a,(2,2)]")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[arg(arg='b', annotation=None), arg(arg='c', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[If(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Call(func=Name(id='b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)]), body=[Expr(value=Call(func=Name(id='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), While(test=Compare(left=Name(id='a', ctx=Load()), ops=[Lt()], comparators=[Attribute(value=Name(id='d', ctx=Load()), attr='b', ctx=Load())]), body=[Assign(targets=[Tuple(elts=[Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=3)], ctx=Load()))], orelse=[])], orelse=[]), Assign(targets=[Attribute(value=Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), attr='c', ctx=Store())], value=List(elts=[Name(id='a', ctx=Load()), Tuple(elts=[Num(n=2), Num(n=2)], ctx=Load())], ctx=Load()))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def a():\n  return time()")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=Call(func=Name(id='time', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def a(x,y=2,z=4):\n print(z)")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[arg(arg='x', annotation=None), arg(arg='y', annotation=None), arg(arg='z', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=2), Num(n=4)], kw_defaults=[]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def a(x=1,y=2,z=4):\n print(z)")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[arg(arg='x', annotation=None), arg(arg='y', annotation=None), arg(arg='z', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=1), Num(n=2), Num(n=4)], kw_defaults=[]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def a(x,y,z=4):\n print(z)")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[arg(arg='x', annotation=None), arg(arg='y', annotation=None), arg(arg='z', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=4)], kw_defaults=[]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def a(x,y,z=4,*g):\n print(z)")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[arg(arg='x', annotation=None), arg(arg='y', annotation=None), arg(arg='z', annotation=None)], vararg='g', varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=4)], kw_defaults=[]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "def pyel_test(a,b=1,*c):\n if ab:\n  x = a+b\n y = 3\n _a_()\n z.a = 4")
-      "Module(body=[FunctionDef(name='pyel_test', args=arguments(args=[arg(arg='a', annotation=None), arg(arg='b', annotation=None)], vararg='c', varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=1)], kw_defaults=[]), body=[If(test=Name(id='ab', ctx=Load()), body=[Assign(targets=[Name(id='x', ctx=Store())], value=BinOp(left=Name(id='a', ctx=Load()), op=Add(), right=Name(id='b', ctx=Load())))], orelse=[]), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=3)), Expr(value=Call(func=Name(id='_a_', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Attribute(value=Name(id='z', ctx=Load()), attr='a', ctx=Store())], value=Num(n=4))], decorator_list=[], returns=None)])\n")))
-  (ert-deftest pyel-def-el-ast nil
-    (should
-     (string=
-      (pyel "def a(b,c):\n  print('ok')\n  a=b" t)
-      "(def \" a \" ((arguments  ((arg \"b\"  nil) (arg \"c\"  nil)) nil nil nil nil nil nil nil )) ((call  (name  \"print\" 'load) ((str \"ok\")) nil nil nil) (assign  ((name  \"a\" 'store)) (name  \"b\" 'load))) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def a(b,c):\n  if (a==b()):\n    c()\n    while (a < d.b):\n      b,c = 1,3\n  a.b.c = [a,(2,2)]" t)
-      "(def \" a \" ((arguments  ((arg \"b\"  nil) (arg \"c\"  nil)) nil nil nil nil nil nil nil )) ((if  (compare  (name  \"a\" 'load) (\"==\") ((call  (name  \"b\" 'load) nil nil nil nil))) ((call  (name  \"c\" 'load) nil nil nil nil) (while  (compare  (name  \"a\" 'load) (\"<\") ((attribute  (name  \"d\" 'load) \"b\" 'load))) ((assign  ((tuple  ((name  \"b\" 'store) (name  \"c\" 'store)) 'store)) (tuple  ((num 1) (num 3)) 'load))) nil)) nil) (assign  ((attribute  (attribute  (name  \"a\" 'load) \"b\" 'load) \"c\" 'store)) (list ((name  \"a\" 'load) (tuple  ((num 2) (num 2)) 'load)) 'load))) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def a():\n  return time()" t)
-      "(def \" a \" ((arguments  nil nil nil nil nil nil nil nil )) ((return (call  (name  \"time\" 'load) nil nil nil nil))) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def a(x,y=2,z=4):\n print(z)" t)
-      "(def \" a \" ((arguments  ((arg \"x\"  nil) (arg \"y\"  nil) (arg \"z\"  nil)) nil nil nil nil nil ((num 2) (num 4)) nil )) ((call  (name  \"print\" 'load) ((name  \"z\" 'load)) nil nil nil)) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def a(x=1,y=2,z=4):\n print(z)" t)
-      "(def \" a \" ((arguments  ((arg \"x\"  nil) (arg \"y\"  nil) (arg \"z\"  nil)) nil nil nil nil nil ((num 1) (num 2) (num 4)) nil )) ((call  (name  \"print\" 'load) ((name  \"z\" 'load)) nil nil nil)) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def a(x,y,z=4):\n print(z)" t)
-      "(def \" a \" ((arguments  ((arg \"x\"  nil) (arg \"y\"  nil) (arg \"z\"  nil)) nil nil nil nil nil ((num 4)) nil )) ((call  (name  \"print\" 'load) ((name  \"z\" 'load)) nil nil nil)) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def a(x,y,z=4,*g):\n print(z)" t)
-      "(def \" a \" ((arguments  ((arg \"x\"  nil) (arg \"y\"  nil) (arg \"z\"  nil)) g nil nil nil nil ((num 4)) nil )) ((call  (name  \"print\" 'load) ((name  \"z\" 'load)) nil nil nil)) nil nil )\n"))
-    (should
-     (string=
-      (pyel "def pyel_test(a,b=1,*c):\n if ab:\n  x = a+b\n y = 3\n _a_()\n z.a = 4" t)
-      "(def \" pyel_test \" ((arguments  ((arg \"a\"  nil) (arg \"b\"  nil)) c nil nil nil nil ((num 1)) nil )) ((if  (name  \"ab\" 'load) ((assign  ((name  \"x\" 'store)) (bin-op  (name  \"a\" 'load) + (name  \"b\" 'load)))) nil) (assign  ((name  \"y\" 'store)) (num 3)) (call  (name  \"_a_\" 'load) nil nil nil nil) (assign  ((attribute  (name  \"z\" 'load) \"a\" 'store)) (num 4))) nil nil )\n")))
+  (pyel-create-tests def
+                     "def a(b,c):
+    print('ok')
+    a=b"
   
+                     "def a(b,c):
+    if (a==b()):
+      c()
+      while (a < d.b):
+        b,c = 1,3
+    a.b.c = [a,(2,2)]"
+  
+                     "def a():
+    return time()"
+  
+                     "def a(x,y=2,z=4):
+   print(z)"
+                     "def a(x=1,y=2,z=4):
+   print(z)"
+                     "def a(x,y,z=4):
+   print(z)"
+                     "def a(x,y,z=4,*g):
+   print(z)"
+  
+                     ;;optional and variable args 
+                     "def pyel_test(a,b=1,*c):
+   if ab:
+    x = a+b
+   y = 3
+   _a_()
+   z.a = 4"
+                     )
 #+END_SRC
 
 * bin-op, +, -, *, /, **, |, &
