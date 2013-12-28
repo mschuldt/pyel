@@ -1840,91 +1840,13 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       return "(list " + ll_str(elts) + " " + ctx +")"
 #+END_SRC
 *** tests
-(pyel-create-tests 'list
-		   "[]"
-		   "[a,1,2]"
-		   "a = [1,2,a.b]"
-		   "b = [1,[1,a,[a.b,[],3]]]"
-		   "[[[[[[[a]]]]]]]")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-list-full-transform nil
-    (should
-     (equal
-      (pyel "[]")
-      '(list)))
-    (should
-     (equal
-      (pyel "[a,1,2]")
-      '(list a 1 2)))
-    (should
-     (equal
-      (pyel "a = [1,2,a.b]")
-      '(pyel-set a
-                 (list 1 2
-                       (oref a b)))))
-    (should
-     (equal
-      (pyel "b = [1,[1,a,[a.b,[],3]]]")
-      '(pyel-set b
-                 (list 1
-                       (list 1 a
-                             (list
-                              (oref a b)
-                              (list)
-                              3))))))
-    (should
-     (equal
-      (pyel "[[[[[[[a]]]]]]]")
-      '(list
-        (list
-         (list
-          (list
-           (list
-            (list
-             (list a))))))))))
-  (ert-deftest pyel-list-py-ast nil
-    (should
-     (equal
-      (py-ast "[]")
-      "Module(body=[Expr(value=List(elts=[], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "[a,1,2]")
-      "Module(body=[Expr(value=List(elts=[Name(id='a', ctx=Load()), Num(n=1), Num(n=2)], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "a = [1,2,a.b]")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load())], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "b = [1,[1,a,[a.b,[],3]]]")
-      "Module(body=[Assign(targets=[Name(id='b', ctx=Store())], value=List(elts=[Num(n=1), List(elts=[Num(n=1), Name(id='a', ctx=Load()), List(elts=[Attribute(value=Name(id='a', ctx=Load()), attr='b', ctx=Load()), List(elts=[], ctx=Load()), Num(n=3)], ctx=Load())], ctx=Load())], ctx=Load()))])\n"))
-    (should
-     (equal
-      (py-ast "[[[[[[[a]]]]]]]")
-      "Module(body=[Expr(value=List(elts=[List(elts=[List(elts=[List(elts=[List(elts=[List(elts=[List(elts=[Name(id='a', ctx=Load())], ctx=Load())], ctx=Load())], ctx=Load())], ctx=Load())], ctx=Load())], ctx=Load())], ctx=Load()))])\n")))
-  (ert-deftest pyel-list-el-ast nil
-    (should
-     (string=
-      (pyel "[]" t)
-      "(list nil 'load)\n"))
-    (should
-     (string=
-      (pyel "[a,1,2]" t)
-      "(list ((name  \"a\" 'load) (num 1) (num 2)) 'load)\n"))
-    (should
-     (string=
-      (pyel "a = [1,2,a.b]" t)
-      "(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (attribute  (name  \"a\" 'load) \"b\" 'load)) 'load))\n"))
-    (should
-     (string=
-      (pyel "b = [1,[1,a,[a.b,[],3]]]" t)
-      "(assign  ((name  \"b\" 'store)) (list ((num 1) (list ((num 1) (name  \"a\" 'load) (list ((attribute  (name  \"a\" 'load) \"b\" 'load) (list nil 'load) (num 3)) 'load)) 'load)) 'load))\n"))
-    (should
-     (string=
-      (pyel "[[[[[[[a]]]]]]]" t)
-      "(list ((list ((list ((list ((list ((list ((list ((name  \"a\" 'load)) 'load)) 'load)) 'load)) 'load)) 'load)) 'load)) 'load)\n")))
-  
+  (pyel-create-tests list
+                     "[]"
+                     "[a,1,2]"
+                     "a = [1,2,a.b]"
+                     "b = [1,[1,a,[a.b,[],3]]]"
+                     "[[[[[[[a]]]]]]]")
 #+END_SRC
 
 ** dict
