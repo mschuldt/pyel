@@ -3932,304 +3932,35 @@ DOC: generator expressions are translated to list comprehensions
 #+END_SRC
 
 ** tests
-(pyel-create-tests 'list-comprehensions
-"[x*x for x in range(10)]"
-"[x*x for x in range(10) if x > 5]"
-"[x*x for x in range(10) if x > 5 if x < 8]"
-
-"assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]"
-
-"
-matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
-_x = [[row[i] for row in matrix] for i in range(4)]
-assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]"
-
-"
-transposed = []
-for i in range(4):
- transposed.append([row[i] for row in matrix])
-assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
-"
-
-"{x: [y*y for y in range(x)] for x in range(20)}"
-
-"x = {x: number_to_string(x) for x in range(10)}
-assert hash_table_count(x) == 10
-assert x[1] == '1'
-assert x[9] == '9'
-"
-
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-list-comprehensions-full-transform nil
-    (should
-     (equal
-      (pyel "[x*x for x in range(10)]")
-      '(let
-           ((__list__ nil))
-         (loop for x in
-               (py-list
-                (py-range 10))
-               do
-               (setq __list__
-                     (cons
-                      (pyel-* x x)
-                      __list__)))
-         (reverse __list__))))
-    (should
-     (equal
-      (pyel "[x*x for x in range(10) if x > 5]")
-      '(let
-           ((__list__ nil))
-         (loop for x in
-               (py-list
-                (py-range 10))
-               if
-               (pyel-> x 5)
-               do
-               (setq __list__
-                     (cons
-                      (pyel-* x x)
-                      __list__)))
-         (reverse __list__))))
-    (should
-     (equal
-      (pyel "[x*x for x in range(10) if x > 5 if x < 8]")
-      '(let
-           ((__list__ nil))
-         (loop for x in
-               (py-list
-                (py-range 10))
-               if
-               (and
-                (pyel-> x 5)
-                (pyel-< x 8))
-               do
-               (setq __list__
-                     (cons
-                      (pyel-* x x)
-                      __list__)))
-         (reverse __list__))))
-    (should
-     (equal
-      (pyel "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]")
-      '(assert
-        (pyel-==
-         (let
-             ((__list__ nil))
-           (loop for x in
-                 (py-list
-                  (list 1 2 3))
-                 do
-                 (loop for y in
-                       (py-list
-                        (list 3 1 4))
-                       if
-                       (pyel-!= x y)
-                       do
-                       (setq __list__
-                             (cons
-                              (vector x y)
-                              __list__))))
-           (reverse __list__))
-         (list
-          (vector 1 3)
-          (vector 1 4)
-          (vector 2 3)
-          (vector 2 1)
-          (vector 2 4)
-          (vector 3 1)
-          (vector 3 4)))
-        t nil)))
-    (should
-     (equal
-      (pyel "\nmatrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]\n_x = [[row[i] for row in matrix] for i in range(4)]\nassert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]")
-      '(progn
-         (pyel-set matrix
-                   (list
-                    (list 1 2 3 4)
-                    (list 5 6 7 8)
-                    (list 9 10 11 12)))
-         (pyel-set -x
-                   (let
-                       ((__list__ nil))
-                     (loop for i in
-                           (py-list
-                            (py-range 4))
-                           do
-                           (setq __list__
-                                 (cons
-                                  (let
-                                      ((__list__ nil))
-                                    (loop for row in
-                                          (py-list matrix)
-                                          do
-                                          (setq __list__
-                                                (cons
-                                                 (pyel-subscript-load-index row i)
-                                                 __list__)))
-                                    (reverse __list__))
-                                  __list__)))
-                     (reverse __list__)))
-         (assert
-          (pyel-== -x
-                   (list
-                    (list 1 5 9)
-                    (list 2 6 10)
-                    (list 3 7 11)
-                    (list 4 8 12)))
-          t nil))))
-    (should
-     (equal
-      (pyel "\ntransposed = []\nfor i in range(4):\n transposed.append([row[i] for row in matrix])\nassert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]\n")
-      '(progn
-         (pyel-set transposed
-                   (list))
-         (loop for i in
-               (py-list
-                (py-range 4))
-               do
-               (pyel-append-method transposed
-                                   (let
-                                       ((__list__ nil))
-                                     (loop for row in
-                                           (py-list matrix)
-                                           do
-                                           (setq __list__
-                                                 (cons
-                                                  (pyel-subscript-load-index row i)
-                                                  __list__)))
-                                     (reverse __list__))))
-         (assert
-          (pyel-== transposed
-                   (list
-                    (list 1 5 9)
-                    (list 2 6 10)
-                    (list 3 7 11)
-                    (list 4 8 12)))
-          t nil))))
-    (should
-     (equal
-      (pyel "{x: [y*y for y in range(x)] for x in range(20)}")
-      '(let
-           ((__dict__
-             (make-hash-table :test 'equal)))
-         (loop for x in
-               (py-list
-                (py-range 20))
-               do
-               (puthash x
-                        (let
-                            ((__list__ nil))
-                          (loop for y in
-                                (py-list
-                                 (py-range x))
-                                do
-                                (setq __list__
-                                      (cons
-                                       (pyel-* y y)
-                                       __list__)))
-                          (reverse __list__))
-                        __dict__))
-         __dict__)))
-    (should
-     (equal
-      (pyel "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n")
-      '(progn
-         (pyel-set x
-                   (let
-                       ((__dict__
-                         (make-hash-table :test 'equal)))
-                     (loop for x in
-                           (py-list
-                            (py-range 10))
-                           do
-                           (puthash x
-                                    (number-to-string x)
-                                    __dict__))
-                     __dict__))
-         (assert
-          (pyel-==
-           (hash-table-count x)
-           10)
-          t nil)
-         (assert
-          (pyel-==
-           (pyel-subscript-load-index x 1)
-           "1")
-          t nil)
-         (assert
-          (pyel-==
-           (pyel-subscript-load-index x 9)
-           "9")
-          t nil)))))
-  (ert-deftest pyel-list-comprehensions-py-ast nil
-    (should
-     (equal
-      (py-ast "[x*x for x in range(10)]")
-      "Module(body=[Expr(value=ListComp(elt=BinOp(left=Name(id='x', ctx=Load()), op=Mult(), right=Name(id='x', ctx=Load())), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=10)], keywords=[], starargs=None, kwargs=None), ifs=[])]))])\n"))
-    (should
-     (equal
-      (py-ast "[x*x for x in range(10) if x > 5]")
-      "Module(body=[Expr(value=ListComp(elt=BinOp(left=Name(id='x', ctx=Load()), op=Mult(), right=Name(id='x', ctx=Load())), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=10)], keywords=[], starargs=None, kwargs=None), ifs=[Compare(left=Name(id='x', ctx=Load()), ops=[Gt()], comparators=[Num(n=5)])])]))])\n"))
-    (should
-     (equal
-      (py-ast "[x*x for x in range(10) if x > 5 if x < 8]")
-      "Module(body=[Expr(value=ListComp(elt=BinOp(left=Name(id='x', ctx=Load()), op=Mult(), right=Name(id='x', ctx=Load())), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=10)], keywords=[], starargs=None, kwargs=None), ifs=[Compare(left=Name(id='x', ctx=Load()), ops=[Gt()], comparators=[Num(n=5)]), Compare(left=Name(id='x', ctx=Load()), ops=[Lt()], comparators=[Num(n=8)])])]))])\n"))
-    (should
-     (equal
-      (py-ast "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]")
-      "Module(body=[Assert(test=Compare(left=ListComp(elt=Tuple(elts=[Name(id='x', ctx=Load()), Name(id='y', ctx=Load())], ctx=Load()), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load()), ifs=[]), comprehension(target=Name(id='y', ctx=Store()), iter=List(elts=[Num(n=3), Num(n=1), Num(n=4)], ctx=Load()), ifs=[Compare(left=Name(id='x', ctx=Load()), ops=[NotEq()], comparators=[Name(id='y', ctx=Load())])])]), ops=[Eq()], comparators=[List(elts=[Tuple(elts=[Num(n=1), Num(n=3)], ctx=Load()), Tuple(elts=[Num(n=1), Num(n=4)], ctx=Load()), Tuple(elts=[Num(n=2), Num(n=3)], ctx=Load()), Tuple(elts=[Num(n=2), Num(n=1)], ctx=Load()), Tuple(elts=[Num(n=2), Num(n=4)], ctx=Load()), Tuple(elts=[Num(n=3), Num(n=1)], ctx=Load()), Tuple(elts=[Num(n=3), Num(n=4)], ctx=Load())], ctx=Load())]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "\nmatrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]\n_x = [[row[i] for row in matrix] for i in range(4)]\nassert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]")
-      "Module(body=[Assign(targets=[Name(id='matrix', ctx=Store())], value=List(elts=[List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load()), List(elts=[Num(n=5), Num(n=6), Num(n=7), Num(n=8)], ctx=Load()), List(elts=[Num(n=9), Num(n=10), Num(n=11), Num(n=12)], ctx=Load())], ctx=Load())), Assign(targets=[Name(id='_x', ctx=Store())], value=ListComp(elt=ListComp(elt=Subscript(value=Name(id='row', ctx=Load()), slice=Index(value=Name(id='i', ctx=Load())), ctx=Load()), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='matrix', ctx=Load()), ifs=[])]), generators=[comprehension(target=Name(id='i', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=4)], keywords=[], starargs=None, kwargs=None), ifs=[])])), Assert(test=Compare(left=Name(id='_x', ctx=Load()), ops=[Eq()], comparators=[List(elts=[List(elts=[Num(n=1), Num(n=5), Num(n=9)], ctx=Load()), List(elts=[Num(n=2), Num(n=6), Num(n=10)], ctx=Load()), List(elts=[Num(n=3), Num(n=7), Num(n=11)], ctx=Load()), List(elts=[Num(n=4), Num(n=8), Num(n=12)], ctx=Load())], ctx=Load())]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "\ntransposed = []\nfor i in range(4):\n transposed.append([row[i] for row in matrix])\nassert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]\n")
-      "Module(body=[Assign(targets=[Name(id='transposed', ctx=Store())], value=List(elts=[], ctx=Load())), For(target=Name(id='i', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=4)], keywords=[], starargs=None, kwargs=None), body=[Expr(value=Call(func=Attribute(value=Name(id='transposed', ctx=Load()), attr='append', ctx=Load()), args=[ListComp(elt=Subscript(value=Name(id='row', ctx=Load()), slice=Index(value=Name(id='i', ctx=Load())), ctx=Load()), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='matrix', ctx=Load()), ifs=[])])], keywords=[], starargs=None, kwargs=None))], orelse=[]), Assert(test=Compare(left=Name(id='transposed', ctx=Load()), ops=[Eq()], comparators=[List(elts=[List(elts=[Num(n=1), Num(n=5), Num(n=9)], ctx=Load()), List(elts=[Num(n=2), Num(n=6), Num(n=10)], ctx=Load()), List(elts=[Num(n=3), Num(n=7), Num(n=11)], ctx=Load()), List(elts=[Num(n=4), Num(n=8), Num(n=12)], ctx=Load())], ctx=Load())]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "{x: [y*y for y in range(x)] for x in range(20)}")
-      "Module(body=[Expr(value=DictComp(key=Name(id='x', ctx=Load()), value=ListComp(elt=BinOp(left=Name(id='y', ctx=Load()), op=Mult(), right=Name(id='y', ctx=Load())), generators=[comprehension(target=Name(id='y', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None), ifs=[])]), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=20)], keywords=[], starargs=None, kwargs=None), ifs=[])]))])\n"))
-    (should
-     (equal
-      (py-ast "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n")
-      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=DictComp(key=Name(id='x', ctx=Load()), value=Call(func=Name(id='number_to_string', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None), generators=[comprehension(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Num(n=10)], keywords=[], starargs=None, kwargs=None), ifs=[])])), Assert(test=Compare(left=Call(func=Name(id='hash_table_count', ctx=Load()), args=[Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=10)]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Str(s='1')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=9)), ctx=Load()), ops=[Eq()], comparators=[Str(s='9')]), msg=None)])\n")))
-  (ert-deftest pyel-list-comprehensions-el-ast nil
-    (should
-     (string=
-      (pyel "[x*x for x in range(10)]" t)
-      "(list-comp (bin-op  (name  \"x\" 'load) * (name  \"x\" 'load)) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ())))\n"))
-    (should
-     (string=
-      (pyel "[x*x for x in range(10) if x > 5]" t)
-      "(list-comp (bin-op  (name  \"x\" 'load) * (name  \"x\" 'load)) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ((compare  (name  \"x\" 'load) (\">\") ((num 5)))))))\n"))
-    (should
-     (string=
-      (pyel "[x*x for x in range(10) if x > 5 if x < 8]" t)
-      "(list-comp (bin-op  (name  \"x\" 'load) * (name  \"x\" 'load)) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ((compare  (name  \"x\" 'load) (\">\") ((num 5))) (compare  (name  \"x\" 'load) (\"<\") ((num 8)))))))\n"))
-    (should
-     (string=
-      (pyel "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]" t)
-      "(assert  (compare  (list-comp (tuple  ((name  \"x\" 'load) (name  \"y\" 'load)) 'load) ((comprehension (name  \"x\" 'store) (list ((num 1) (num 2) (num 3)) 'load) ()) (comprehension (name  \"y\" 'store) (list ((num 3) (num 1) (num 4)) 'load) ((compare  (name  \"x\" 'load) (\"!=\") ((name  \"y\" 'load))))))) (\"==\") ((list ((tuple  ((num 1) (num 3)) 'load) (tuple  ((num 1) (num 4)) 'load) (tuple  ((num 2) (num 3)) 'load) (tuple  ((num 2) (num 1)) 'load) (tuple  ((num 2) (num 4)) 'load) (tuple  ((num 3) (num 1)) 'load) (tuple  ((num 3) (num 4)) 'load)) 'load))) nil)\n"))
-    (should
-     (string=
-      (pyel "\nmatrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]\n_x = [[row[i] for row in matrix] for i in range(4)]\nassert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]" t)
-      "(assign  ((name  \"matrix\" 'store)) (list ((list ((num 1) (num 2) (num 3) (num 4)) 'load) (list ((num 5) (num 6) (num 7) (num 8)) 'load) (list ((num 9) (num 10) (num 11) (num 12)) 'load)) 'load))\n(assign  ((name  \"_x\" 'store)) (list-comp (list-comp (subscript (name  \"row\" 'load) (index (name  \"i\" 'load)) 'load) ((comprehension (name  \"row\" 'store) (name  \"matrix\" 'load) ()))) ((comprehension (name  \"i\" 'store) (call  (name  \"range\" 'load) ((num 4)) nil nil nil) ()))))\n(assert  (compare  (name  \"_x\" 'load) (\"==\") ((list ((list ((num 1) (num 5) (num 9)) 'load) (list ((num 2) (num 6) (num 10)) 'load) (list ((num 3) (num 7) (num 11)) 'load) (list ((num 4) (num 8) (num 12)) 'load)) 'load))) nil)\n"))
-    (should
-     (string=
-      (pyel "\ntransposed = []\nfor i in range(4):\n transposed.append([row[i] for row in matrix])\nassert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]\n" t)
-      "(assign  ((name  \"transposed\" 'store)) (list nil 'load))\n(for  (name  \"i\" 'store) (call  (name  \"range\" 'load) ((num 4)) nil nil nil) ((call  (attribute  (name  \"transposed\" 'load) \"append\" 'load) ((list-comp (subscript (name  \"row\" 'load) (index (name  \"i\" 'load)) 'load) ((comprehension (name  \"row\" 'store) (name  \"matrix\" 'load) ())))) nil nil nil)) nil)\n(assert  (compare  (name  \"transposed\" 'load) (\"==\") ((list ((list ((num 1) (num 5) (num 9)) 'load) (list ((num 2) (num 6) (num 10)) 'load) (list ((num 3) (num 7) (num 11)) 'load) (list ((num 4) (num 8) (num 12)) 'load)) 'load))) nil)\n"))
-    (should
-     (string=
-      (pyel "{x: [y*y for y in range(x)] for x in range(20)}" t)
-      "(dict-comp (name  \"x\" 'load) (list-comp (bin-op  (name  \"y\" 'load) * (name  \"y\" 'load)) ((comprehension (name  \"y\" 'store) (call  (name  \"range\" 'load) ((name  \"x\" 'load)) nil nil nil) ()))) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 20)) nil nil nil) ())))\n"))
-    (should
-     (string=
-      (pyel "x = {x: number_to_string(x) for x in range(10)}\nassert hash_table_count(x) == 10\nassert x[1] == '1'\nassert x[9] == '9'\n" t)
-      "(assign  ((name  \"x\" 'store)) (dict-comp (name  \"x\" 'load) (call  (name  \"number_to_string\" 'load) ((name  \"x\" 'load)) nil nil nil) ((comprehension (name  \"x\" 'store) (call  (name  \"range\" 'load) ((num 10)) nil nil nil) ()))))\n(assert  (compare  (call  (name  \"hash_table_count\" 'load) ((name  \"x\" 'load)) nil nil nil) (\"==\") ((num 10))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 1)) 'load) (\"==\") ((str \"1\"))) nil)\n(assert  (compare  (subscript (name  \"x\" 'load) (index (num 9)) 'load) (\"==\") ((str \"9\"))) nil)\n")))
+  (pyel-create-tests list-comprehensions
+                     "[x*x for x in range(10)]"
+                     "[x*x for x in range(10) if x > 5]"
+                     "[x*x for x in range(10) if x > 5 if x < 8]"
   
+                     "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]"
+  
+                     "
+  matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
+  _x = [[row[i] for row in matrix] for i in range(4)]
+  assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]"
+  
+                     "
+  transposed = []
+  for i in range(4):
+   transposed.append([row[i] for row in matrix])
+  assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
+  "
+  
+                     "{x: [y*y for y in range(x)] for x in range(20)}"
+  
+                     "x = {x: number_to_string(x) for x in range(10)}
+  assert hash_table_count(x) == 10
+  assert x[1] == '1'
+  assert x[9] == '9'
+  "
+  
+                     )
 #+END_SRC
 
 * boolop, and, or
