@@ -582,6 +582,14 @@ create tests
                                         () ,@el-ast)) nil)
         (message "Tests copied to kill ring"))))
   
+    
+  (defun pyel-functionize (py-code &optional func-name &rest args)
+    "wrap PY-CODE in a function definition
+  FUNC-NAME defaults to 'f'"
+    (concat  "def " (or func-name "f") (if args (format "(%s)" (mapconcat 'identity args ", ")) "()") ":\n"
+             (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
+                                          (split-string py-code "\n"))
+                        "\n")))
 #+END_SRC
 
 ** variables
