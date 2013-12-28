@@ -3075,114 +3075,18 @@ TODO: tests!
 		     (_)      -> (length thing))
 #+END_SRC
 *** tests
-(pyel-create-tests 'len
-"a = [1,2,3,'5']
-assert len(a) == 4"
-"a = []
-assert len(a) == 0"
-"a = 'str'
-assert len(a) == 3"
-"a = (1,2)
-assert len(a) == 2"
-"assert len('')==0"
-)
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-len-full-transform nil
-    (should
-     (equal
-      (pyel "a = [1,2,3,'5']\nassert len(a) == 4")
-      '(progn
-         (pyel-set a
-                   (list 1 2 3 "5"))
-         (assert
-          (pyel-==
-           (pyel-len-function a)
-           4)
-          t nil))))
-    (should
-     (equal
-      (pyel "a = []\nassert len(a) == 0")
-      '(progn
-         (pyel-set a
-                   (list))
-         (assert
-          (pyel-==
-           (pyel-len-function a)
-           0)
-          t nil))))
-    (should
-     (equal
-      (pyel "a = 'str'\nassert len(a) == 3")
-      '(progn
-         (pyel-set a "str")
-         (assert
-          (pyel-==
-           (pyel-len-function a)
-           3)
-          t nil))))
-    (should
-     (equal
-      (pyel "a = (1,2)\nassert len(a) == 2")
-      '(progn
-         (pyel-set a
-                   (vector 1 2))
-         (assert
-          (pyel-==
-           (pyel-len-function a)
-           2)
-          t nil))))
-    (should
-     (equal
-      (pyel "assert len('')==0")
-      '(assert
-        (pyel-==
-         (pyel-len-function "")
-         0)
-        t nil))))
-  (ert-deftest pyel-len-py-ast nil
-    (should
-     (equal
-      (py-ast "a = [1,2,3,'5']\nassert len(a) == 4")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Str(s='5')], ctx=Load())), Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='a', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=4)]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "a = []\nassert len(a) == 0")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[], ctx=Load())), Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='a', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=0)]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "a = 'str'\nassert len(a) == 3")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='str')), Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='a', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=3)]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "a = (1,2)\nassert len(a) == 2")
-      "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2)], ctx=Load())), Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='a', ctx=Load())], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=2)]), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "assert len('')==0")
-      "Module(body=[Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Str(s='')], keywords=[], starargs=None, kwargs=None), ops=[Eq()], comparators=[Num(n=0)]), msg=None)])\n")))
-  (ert-deftest pyel-len-el-ast nil
-    (should
-     (string=
-      (pyel "a = [1,2,3,'5']\nassert len(a) == 4" t)
-      "(assign  ((name  \"a\" 'store)) (list ((num 1) (num 2) (num 3) (str \"5\")) 'load))\n(assert  (compare  (call  (name  \"len\" 'load) ((name  \"a\" 'load)) nil nil nil) (\"==\") ((num 4))) nil)\n"))
-    (should
-     (string=
-      (pyel "a = []\nassert len(a) == 0" t)
-      "(assign  ((name  \"a\" 'store)) (list nil 'load))\n(assert  (compare  (call  (name  \"len\" 'load) ((name  \"a\" 'load)) nil nil nil) (\"==\") ((num 0))) nil)\n"))
-    (should
-     (string=
-      (pyel "a = 'str'\nassert len(a) == 3" t)
-      "(assign  ((name  \"a\" 'store)) (str \"str\"))\n(assert  (compare  (call  (name  \"len\" 'load) ((name  \"a\" 'load)) nil nil nil) (\"==\") ((num 3))) nil)\n"))
-    (should
-     (string=
-      (pyel "a = (1,2)\nassert len(a) == 2" t)
-      "(assign  ((name  \"a\" 'store)) (tuple  ((num 1) (num 2)) 'load))\n(assert  (compare  (call  (name  \"len\" 'load) ((name  \"a\" 'load)) nil nil nil) (\"==\") ((num 2))) nil)\n"))
-    (should
-     (string=
-      (pyel "assert len('')==0" t)
-      "(assert  (compare  (call  (name  \"len\" 'load) ((str \"\")) nil nil nil) (\"==\") ((num 0))) nil)\n")))
-  
+  (pyel-create-tests 'len
+                     "a = [1,2,3,'5']
+  assert len(a) == 4"
+                     "a = []
+  assert len(a) == 0"
+                     "a = 'str'
+  assert len(a) == 3"
+                     "a = (1,2)
+  assert len(a) == 2"
+                     "assert len('')==0"
+                     )
 #+END_SRC
 
 ** range
