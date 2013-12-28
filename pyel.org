@@ -3022,41 +3022,11 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       return ll_str(["assert ", test , msg or "nil"])
 #+END_SRC
 ** tests
-(pyel-create-tests 'assert
-		   "assert sldk()"
-		   "assert adk,'messsage'")
+
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-assert-full-transform nil
-    (should
-     (equal
-      (pyel "assert sldk()")
-      '(assert
-        (sldk)
-        t nil)))
-    (should
-     (equal
-      (pyel "assert adk,'messsage'")
-      '(assert adk t "messsage"))))
-  (ert-deftest pyel-assert-py-ast nil
-    (should
-     (equal
-      (py-ast "assert sldk()")
-      "Module(body=[Assert(test=Call(func=Name(id='sldk', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), msg=None)])\n"))
-    (should
-     (equal
-      (py-ast "assert adk,'messsage'")
-      "Module(body=[Assert(test=Name(id='adk', ctx=Load()), msg=Str(s='messsage'))])\n")))
-  (ert-deftest pyel-assert-el-ast nil
-    (should
-     (string=
-      (pyel "assert sldk()" t)
-      "(assert  (call  (name  \"sldk\" 'load) nil nil nil nil) nil)\n"))
-    (should
-     (string=
-      (pyel "assert adk,'messsage'" t)
-      "(assert  (name  \"adk\" 'load) (str \"messsage\"))\n")))
-  
-  
+  (pyel-create-tests assert
+                     "assert sldk()"
+                     "assert adk,'messsage'")
 #+END_SRC
 
 * primitive type methods
