@@ -3143,7 +3143,7 @@ TODO: tests!
 
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-py-list nil
+(ert-deftest pyel-py-list nil
     (should (equal (py-list "string")
                     '("s" "t" "r" "i" "n" "g")))
     (should (equal (py-list [2 3 4 4])
@@ -3153,8 +3153,8 @@ TODO: tests!
     (should (equal (py-list 23 4 2 "h")
                    '(23 4 2 "h")))
     (should (equal (py-list (let ((__h__ (make-hash-table :test (quote equal)))) (puthash 1 "1" __h__) (puthash "3" 3 __h__) (puthash 23 2 __h__) __h__))
-                   '(23 "3" 1))))
-  ;;(pyel "{1:'1','3':3,23:2}")  
+                   '(23 "3" 1))))  
+  ;;(pyel "{1:'1','3':3,23:2}")
 #+END_SRC
 
 ** simple name changes
@@ -3377,44 +3377,14 @@ TODO: tests!
 macros and macroish primitives
 ** cond
 *** tests
-(pyel-create-tests 'cond
-"x = cond([1 > 2, 'first']
-   [2 == 2, 'second']
-   [5 == 7, 'third']
-   [True, error('wtf')])
-assert x == 'second'"
-)
-NOTE: had to change __pyel_marker_2__ to __pyel_marker_1__ in generated test
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-cond-full-transform nil
-    (should
-     (equal
-      (pyel "x = cond([1 > 2, 'first']\n   [2 == 2, 'second']\n   [5 == 7, 'third']\n   [True, error('wtf')])\nassert x == 'second'")
-      '(progn
-         (pyel-set x
-                   (cond
-                    ((pyel-> 1 2)
-                     "first")
-                    ((pyel-== 2 2)
-                     "second")
-                    ((pyel-== 5 7)
-                     "third")
-                    (t
-                     (error "wtf"))))
-         (assert
-          (pyel-== x "second")
-          t nil)))))
-  (ert-deftest pyel-cond-py-ast nil
-    (should
-     (equal
-      (py-ast "x = cond([1 > 2, 'first']\n   [2 == 2, 'second']\n   [5 == 7, 'third']\n   [True, error('wtf')])\nassert x == 'second'")
-      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='cond', ctx=Load()), args=[Subscript(value=Subscript(value=Subscript(value=List(elts=[Compare(left=Num(n=1), ops=[Gt()], comparators=[Num(n=2)]), Str(s='first')], ctx=Load()), slice=Index(value=Tuple(elts=[Compare(left=Num(n=2), ops=[Eq()], comparators=[Num(n=2)]), Str(s='second')], ctx=Load())), ctx=Load()), slice=Index(value=Tuple(elts=[Compare(left=Num(n=5), ops=[Eq()], comparators=[Num(n=7)]), Str(s='third')], ctx=Load())), ctx=Load()), slice=Index(value=Tuple(elts=[Name(id='True', ctx=Load()), Call(func=Name(id='error', ctx=Load()), args=[Str(s='wtf')], keywords=[], starargs=None, kwargs=None)], ctx=Load())), ctx=Load())], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Name(id='x', ctx=Load()), ops=[Eq()], comparators=[Str(s='second')]), msg=None)])\n")))
-  (ert-deftest pyel-cond-el-ast nil
-    (should
-     (string=
-      (pyel "x = cond([1 > 2, 'first']\n   [2 == 2, 'second']\n   [5 == 7, 'third']\n   [True, error('wtf')])\nassert x == 'second'" t)
-      "(assign  ((name  \"x\" 'store)) (name  \"test_marker\" 'load))\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((str \"second\"))) nil)\n")))
-  
+  (pyel-create-tests cond
+                     "x = cond([1 > 2, 'first']
+     [2 == 2, 'second']
+     [5 == 7, 'third']
+     [True, error('wtf')])
+  assert x == 'second'"
+                     )
 #+END_SRC
 ** lambda
 *** tests
