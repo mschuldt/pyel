@@ -1484,8 +1484,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (let ((transform-passed (reduce '+ (mapcar (lambda (test)
                                                      (if (condition-case nil
                                                              (eval test)
-                                                           (error nil))
-                                                           1 0))
+                                                           (error nil)) 1 0))
                                                    pyel-transform-tests)))
               (py-ast-passed (reduce '+ (mapcar (lambda (test)
                                                   (if (condition-case nil
@@ -2501,7 +2500,8 @@ FunctionDef(name='a',
                
                ;;remove variables from the let arglist that have been declared global
                (setq let-arglist (let (arglist) (mapcar (lambda (x)
-                                                          (unless (member x global-vars)
+                                                          (unless (or (member x global-vars)
+                                                                      (member x args))
                                                             (push x arglist)))
                                                         let-arglist)
                                       arglist))
