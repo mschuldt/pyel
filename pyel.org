@@ -2293,118 +2293,33 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       return l_str(["while ", test, ll_str(body), ll_str(orelse)])      
 #+END_SRC
 ** tests
-(pyel-create-tests 'while
-"while (a==b):
-  print('hi')"
-
-"while (a==b):
-  print('hi')
-  a=b"
-
-"while (a==b):
-  while (a>2):
-    b(3,[a,2])
-    b=c.e
-  a=b"
-
-"while a:
- if b:
-  break
- else:
-  c()"
-
-"while a:
- if b:
-  continue
- c()"
-
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-while-full-transform nil
-    (should
-     (equal
-      (pyel "while (a==b):\n  print('hi')")
-      '(while
-           (pyel-== a b)
-         (print "hi"))))
-    (should
-     (equal
-      (pyel "while (a==b):\n  print('hi')\n  a=b")
-      '(while
-           (pyel-== a b)
-         (print "hi")
-         (pyel-set a b))))
-    (should
-     (equal
-      (pyel "while (a==b):\n  while (a>2):\n    b(3,[a,2])\n    b=c.e\n  a=b")
-      '(while
-           (pyel-== a b)
-         (while
-             (pyel-> a 2)
-           (b 3
-              (list a 2))
-           (pyel-set b
-                     (oref c e)))
-         (pyel-set a b))))
-    (should
-     (equal
-      (pyel "while a:\n if b:\n  break\n else:\n  c()")
-      '(catch '__break__
-         (while a
-           (if b
-               (throw '__break__ nil)
-             (c))))))
-    (should
-     (equal
-      (pyel "while a:\n if b:\n  continue\n c()")
-      '(while a
-         (catch '__continue__
-           (if b
-               (throw '__continue__ nil))
-           (c))))))
-  (ert-deftest pyel-while-py-ast nil
-    (should
-     (equal
-      (py-ast "while (a==b):\n  print('hi')")
-      "Module(body=[While(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Name(id='b', ctx=Load())]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Str(s='hi')], keywords=[], starargs=None, kwargs=None))], orelse=[])])\n"))
-    (should
-     (equal
-      (py-ast "while (a==b):\n  print('hi')\n  a=b")
-      "Module(body=[While(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Name(id='b', ctx=Load())]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Str(s='hi')], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='a', ctx=Store())], value=Name(id='b', ctx=Load()))], orelse=[])])\n"))
-    (should
-     (equal
-      (py-ast "while (a==b):\n  while (a>2):\n    b(3,[a,2])\n    b=c.e\n  a=b")
-      "Module(body=[While(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Name(id='b', ctx=Load())]), body=[While(test=Compare(left=Name(id='a', ctx=Load()), ops=[Gt()], comparators=[Num(n=2)]), body=[Expr(value=Call(func=Name(id='b', ctx=Load()), args=[Num(n=3), List(elts=[Name(id='a', ctx=Load()), Num(n=2)], ctx=Load())], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='b', ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()))], orelse=[]), Assign(targets=[Name(id='a', ctx=Store())], value=Name(id='b', ctx=Load()))], orelse=[])])\n"))
-    (should
-     (equal
-      (py-ast "while a:\n if b:\n  break\n else:\n  c()")
-      "Module(body=[While(test=Name(id='a', ctx=Load()), body=[If(test=Name(id='b', ctx=Load()), body=[Break()], orelse=[Expr(value=Call(func=Name(id='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])], orelse=[])])\n"))
-    (should
-     (equal
-      (py-ast "while a:\n if b:\n  continue\n c()")
-      "Module(body=[While(test=Name(id='a', ctx=Load()), body=[If(test=Name(id='b', ctx=Load()), body=[Continue()], orelse=[]), Expr(value=Call(func=Name(id='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], orelse=[])])\n")))
-  (ert-deftest pyel-while-el-ast nil
-    (should
-     (string=
-      (pyel "while (a==b):\n  print('hi')" t)
-      "(while  (compare  (name  \"a\" 'load) (\"==\") ((name  \"b\" 'load))) ((call  (name  \"print\" 'load) ((str \"hi\")) nil nil nil)) nil)\n"))
-    (should
-     (string=
-      (pyel "while (a==b):\n  print('hi')\n  a=b" t)
-      "(while  (compare  (name  \"a\" 'load) (\"==\") ((name  \"b\" 'load))) ((call  (name  \"print\" 'load) ((str \"hi\")) nil nil nil) (assign  ((name  \"a\" 'store)) (name  \"b\" 'load))) nil)\n"))
-    (should
-     (string=
-      (pyel "while (a==b):\n  while (a>2):\n    b(3,[a,2])\n    b=c.e\n  a=b" t)
-      "(while  (compare  (name  \"a\" 'load) (\"==\") ((name  \"b\" 'load))) ((while  (compare  (name  \"a\" 'load) (\">\") ((num 2))) ((call  (name  \"b\" 'load) ((num 3) (list ((name  \"a\" 'load) (num 2)) 'load)) nil nil nil) (assign  ((name  \"b\" 'store)) (attribute  (name  \"c\" 'load) \"e\" 'load))) nil) (assign  ((name  \"a\" 'store)) (name  \"b\" 'load))) nil)\n"))
-    (should
-     (string=
-      (pyel "while a:\n if b:\n  break\n else:\n  c()" t)
-      "(while  (name  \"a\" 'load) ((if  (name  \"b\" 'load) ((break)) ((call  (name  \"c\" 'load) nil nil nil nil)))) nil)\n"))
-    (should
-     (string=
-      (pyel "while a:\n if b:\n  continue\n c()" t)
-      "(while  (name  \"a\" 'load) ((if  (name  \"b\" 'load) ((continue)) nil) (call  (name  \"c\" 'load) nil nil nil nil)) nil)\n")))
+  (pyel-create-tests 'while
+                     "while (a==b):
+    print('hi')"
   
+                     "while (a==b):
+    print('hi')
+    a=b"
+  
+                     "while (a==b):
+    while (a>2):
+      b(3,[a,2])
+      b=c.e
+    a=b"
+  
+                     "while a:
+   if b:
+    break
+   else:
+    c()"
+  
+                     "while a:
+   if b:
+    continue
+   c()"
+  
+                     )
 #+END_SRC
 
 * arguments
