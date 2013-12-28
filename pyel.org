@@ -3508,71 +3508,25 @@ macros and macroish primitives
     return l_str(['global', l_str(names)])
 #+END_SRC
 ** tests
-(pyel-create-tests 'global
-		   
-"def a():
- global x
- x = 3
- y = 1"
-
-"x = 1
-y = 1
-def func():
- global x
- x = 7
- y = 7
-func()
-assert x == 7
-assert y == 1
-"
-)
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-global-full-transform nil
-    (should
-     (equal
-      (pyel "def a():\n global x\n x = 3\n y = 1")
-      '(defun a nil
-         (let
-             (y)
-           (pyel-set x 3)
-           (pyel-set y 1)))))
-    (should
-     (equal
-      (pyel "x = 1\ny = 1\ndef func():\n global x\n x = 7\n y = 7\nfunc()\nassert x == 7\nassert y == 1\n")
-      '(progn
-         (pyel-set x 1)
-         (pyel-set y 1)
-         (defun func nil
-           (let
-               (y)
-             (pyel-set x 7)
-             (pyel-set y 7)))
-         (func)
-         (assert
-          (pyel-== x 7)
-          t nil)
-         (assert
-          (pyel-== y 1)
-          t nil)))))
-  (ert-deftest pyel-global-py-ast nil
-    (should
-     (equal
-      (py-ast "def a():\n global x\n x = 3\n y = 1")
-      "Module(body=[FunctionDef(name='a', args=arguments(args=[], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Global(names=['x']), Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=3)), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1))], decorator_list=[], returns=None)])\n"))
-    (should
-     (equal
-      (py-ast "x = 1\ny = 1\ndef func():\n global x\n x = 7\n y = 7\nfunc()\nassert x == 7\nassert y == 1\n")
-      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1)), FunctionDef(name='func', args=arguments(args=[], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Global(names=['x']), Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=7)), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=7))], decorator_list=[], returns=None), Expr(value=Call(func=Name(id='func', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Name(id='x', ctx=Load()), ops=[Eq()], comparators=[Num(n=7)]), msg=None), Assert(test=Compare(left=Name(id='y', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)]), msg=None)])\n")))
-  (ert-deftest pyel-global-el-ast nil
-    (should
-     (string=
-      (pyel "def a():\n global x\n x = 3\n y = 1" t)
-      "(def \" a \" ((arguments  nil nil nil nil nil nil nil nil )) ((global (x)) (assign  ((name  \"x\" 'store)) (num 3)) (assign  ((name  \"y\" 'store)) (num 1))) nil nil )\n"))
-    (should
-     (string=
-      (pyel "x = 1\ny = 1\ndef func():\n global x\n x = 7\n y = 7\nfunc()\nassert x == 7\nassert y == 1\n" t)
-      "(assign  ((name  \"x\" 'store)) (num 1))\n(assign  ((name  \"y\" 'store)) (num 1))\n(def \" func \" ((arguments  nil nil nil nil nil nil nil nil )) ((global (x)) (assign  ((name  \"x\" 'store)) (num 7)) (assign  ((name  \"y\" 'store)) (num 7))) nil nil )\n(call  (name  \"func\" 'load) nil nil nil nil)\n(assert  (compare  (name  \"x\" 'load) (\"==\") ((num 7))) nil)\n(assert  (compare  (name  \"y\" 'load) (\"==\") ((num 1))) nil)\n")))
+  (pyel-create-tests global
+                     
+                     "def a():
+   global x
+   x = 3
+   y = 1"
   
+                     "x = 1
+  y = 1
+  def func():
+   global x
+   x = 7
+   y = 7
+  func()
+  assert x == 7
+  assert y == 1
+  "
+                     )
 #+END_SRC
 
 * nonlocal
