@@ -2473,7 +2473,7 @@ FunctionDef(name='a',
            (cond
             
             ((context-p 'class-def) (using-context method-def
-                                      (setq last-line (using-context last-function-line
+                                      (setq last-line (using-context tail-context
                                                                      (transform (car (last body))))
                                             first (mapcar 'transform (subseq body 0 (1- (length body))))
                                             t-body (append first (list last-line)))
@@ -2487,7 +2487,7 @@ FunctionDef(name='a',
                                                ,@t-body)
                                             class-def-methods)))
             
-            (t (setq last-line (using-context last-function-line
+            (t (setq last-line (using-context tail-context
                                               (transform (car (last body))))
                      first (subseq body 0 (1- (length body)))
                      first (if first
@@ -2496,7 +2496,7 @@ FunctionDef(name='a',
                      t-body (append first (list last-line)))
                
                ;;(setq t-body (transform-last-with-context
-               ;;                'last-function-line body))
+               ;;                'tail-context body))
                
                ;;remove variables from the let arglist that have been declared global
                (setq let-arglist (let (arglist) (mapcar (lambda (x)
@@ -3655,7 +3655,7 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   (def-transform return pyel (value)
     (lambda (value)
       
-      (if (context-p 'last-function-line)
+      (if (context-p 'tail-context)
           (transform value)
         (setq return-middle t)
         `(throw '__return__ ,(transform value)))))
