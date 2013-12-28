@@ -3207,10 +3207,11 @@ else:
             
             ;;normal function call
             ;;`(,t-func ,@(mapcar 'transform args))
-            (eval `(call-transform 'fcall ,@(cons 't-func (mapcar 'transform args))))
+            ;;TODO: this is dumb, convert `call-transform' to a macro?
+            (eval `(call-transform 'fcall ,@(cons 't-func (mapcar (lambda (x)
+                                                                    `(quote ,x))
+                                                                   args))))
             )))))
-  
-  
   
 #+END_SRC
 ** python ast
