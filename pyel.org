@@ -3982,7 +3982,6 @@ DOC: generator expressions are translated to list comprehensions
 #+END_SRC
 
 ** tests
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests boolop
                      "a or b"
@@ -4010,7 +4009,6 @@ DOC: generator expressions are translated to list comprehensions
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 
 
 * unimplemented
@@ -4057,59 +4055,12 @@ This will help notify the user when some syntax has not been implemented
       return l_str(["if-exp", test, body, orelse])
 #+END_SRC
 ** tests
-(pyel-create-tests 'conditional-expressions
-"1 if True else 0"
-"true() if tst() else false()"
-"a[1] if a[2:2] else a[2]"
-)
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-conditional-expressions-full-transform nil
-    (should
-     (equal
-      (pyel "1 if True else 0")
-      '(if t 1 0)))
-    (should
-     (equal
-      (pyel "true() if tst() else false()")
-      '(if
-           (tst)
-           (true)
-         (false))))
-    (should
-     (equal
-      (pyel "a[1] if a[2:2] else a[2]")
-      '(if
-           (pyel-subscript-load-slice a 2 2 nil)
-           (pyel-subscript-load-index a 1)
-         (pyel-subscript-load-index a 2)))))
-  (ert-deftest pyel-conditional-expressions-py-ast nil
-    (should
-     (equal
-      (py-ast "1 if True else 0")
-      "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])\n"))
-    (should
-     (equal
-      (py-ast "true() if tst() else false()")
-      "Module(body=[Expr(value=IfExp(test=Call(func=Name(id='tst', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), body=Call(func=Name(id='true', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), orelse=Call(func=Name(id='false', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)))])\n"))
-    (should
-     (equal
-      (py-ast "a[1] if a[2:2] else a[2]")
-      "Module(body=[Expr(value=IfExp(test=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=2), step=None), ctx=Load()), body=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), orelse=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())))])\n")))
-  (ert-deftest pyel-conditional-expressions-el-ast nil
-    (should
-     (string=
-      (pyel "1 if True else 0" t)
-      "(if-exp (name  \"True\" 'load) (num 1) (num 0))\n"))
-    (should
-     (string=
-      (pyel "true() if tst() else false()" t)
-      "(if-exp (call  (name  \"tst\" 'load) nil nil nil nil) (call  (name  \"true\" 'load) nil nil nil nil) (call  (name  \"false\" 'load) nil nil nil nil))\n"))
-    (should
-     (string=
-      (pyel "a[1] if a[2:2] else a[2]" t)
-      "(if-exp (subscript (name  \"a\" 'load) (slice (num 2) (num 2) nil) 'load) (subscript (name  \"a\" 'load) (index (num 1)) 'load) (subscript (name  \"a\" 'load) (index (num 2)) 'load))\n")))
-  
+  (pyel-create-tests conditional-expressions
+                     "1 if True else 0"
+                     "true() if tst() else false()"
+                     "a[1] if a[2:2] else a[2]"
+                     )
 #+END_SRC
 
 * transform template
