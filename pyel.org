@@ -1315,7 +1315,7 @@ This is for all non template specific code.
 ert tests
 http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+#+Begin_SRC emacs-lisp :tangle pyel.el
   
   (defvar pyel-test-py-functions nil
     "list of generated python test functions.
@@ -1506,7 +1506,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                           (split-string py-code "\n"))
                         "\n")))
 #+END_SRC
-
 
 * ---------------------
 * assign
