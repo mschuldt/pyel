@@ -36,8 +36,14 @@ Bind variables according to VARLIST, like `let*' "
 (defvar transform-quote-args t);;this should be set by the transform def
 
 (defun transform (&rest code) 
-  (if (> (length code) 1)
-      (mapconcat 'transform code "\n") ;;TODO: optional newline
+  (cond ((> (length code) 1)
+	 (mapconcat 'transform code "\n")) ;;TODO: optional newline
+	;;special case: list of a single list
+	((and (= (length code) 1) 
+	      (and (consp (car code))
+		   (consp (caar code))))
+	 (list (transform (caar code))))
+	(t
     (let ((code (car code))
 	  var--func)
       (when (and transform-quote-args (listp code))
@@ -48,6 +54,7 @@ Bind variables according to VARLIST, like `let*' "
 	((cons list) ;;TODO: what if (car code) is not of type symbol? possible?
 	 (if (and (eq (type-of (car code)) 'symbol)
 		  (setq var--func (gethash (car code) current-transform-table)))
+
 	     (let* ((varlist (car var--func))
 		    (func (cdr var--func))
 		   (args (cdr code))
@@ -71,7 +78,7 @@ Bind variables according to VARLIST, like `let*' "
 	(vector
 	 "<vector>")
 	(hash-table
-	 "<hash-table>")))))
+	 "<hash-table>"))))))
 
 ;;DOES NOT WORK
 ;; (defun transform-with (table-name &rest code)
