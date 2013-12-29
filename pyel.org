@@ -610,9 +610,6 @@ This will have to be removed after the code is generated
                               `(member ',context pyel-context))) ,@(cdr x)))
                      forms)))
   
-  
-  
-  
   (defun get-context-group (context)
     (let ((groups pyel-context-groups)
           (found nil)
@@ -3665,7 +3662,7 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 * return
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (def-transform return pyel (value)
+  (def-transform return pyel ()
     (lambda (value)
       
       (if (context-p 'tail-context)
