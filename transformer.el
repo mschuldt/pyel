@@ -38,11 +38,11 @@ Bind variables according to VARLIST, like `let*' "
 (defun transform (&rest code) 
   (cond ((> (length code) 1)
 	 (mapconcat 'transform code "\n")) ;;TODO: optional newline
-	;;special case: list of a single list
+	;;special case: list whose car is a list
 	((and (= (length code) 1) 
 	      (and (consp (car code))
 		   (consp (caar code))))
-	 (list (transform (caar code))))
+	 (cons (transform (caar code)) (mapcar 'transform (cdar code))))
 	(t
     (let ((code (car code))
 	  var--func)
