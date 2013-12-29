@@ -65,11 +65,9 @@ Bind variables according to VARLIST, like `let*' "
 		     fcall
 		   (eval fcall))))
 	   ;;else: no defined transform
-	   (if (consp (car code))
-	       (cons (transform (car code)) (mapcar 'transform (cdr code))) 
 	     (if (null (car code))
 		 nil ;;?
-	       `(,(car code) ,@(mapcar 'transform (cdr orig-code))))))) ;;don't use quoted args
+	       `(,(car code) ,@(mapcar 'transform (cdr orig-code)))))) ;;don't use quoted args
 
 ;;	(string (pp-to-string code));(concat "\""  (replace-regexp-in-string "\\\" "\\\\\" code) "\"")) ;;TODO: does this account for all cases?
 
