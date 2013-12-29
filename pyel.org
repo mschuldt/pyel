@@ -2242,63 +2242,63 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 * while loop
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-    
-    ;;doc: context macro-call
-    (defun pyel-while (test body orelse)
-      ;;pyel-while is special. it gets to handle the macro definitions
-      (let* ((tst (transform test))
-             (else (mapcar 'transform orelse))
-             break-code 
-             continue-code
-             macro-name
-             ;;inter-transform variables
-             continue-while
-             break-while )
+  
+  ;;doc: context macro-call
+  (defun pyel-while (test body orelse)
+    ;;pyel-while is special. it gets to handle the macro definitions
+    (let* ((tst (transform test))
+           (else (mapcar 'transform orelse))
+           break-code 
+           continue-code
+           macro-name
+           ;;inter-transform variables
+           continue-while
+           break-while )
+      
+      (if (and (symbolp tst)
+               (string-match (format "^%s\\([A-Za-z0-9_]+\\)$" pyel-py-macro-prefix)
+                             (symbol-name tst)))
+          (using-context
+           macro-call
+           ;;expand as a macro call
+           `(,(intern (replace-regexp-in-string "_" "-" 
+                                                (match-string 1 (symbol-name tst))))
+             ;;TODO: if macro name is an alias, replace with actual
+             ,@(mapcar 'transform body)))
         
-        (if (and (symbolp tst)
-                 (string-match (format "^%s\\([A-Za-z0-9_]+\\)$" pyel-py-macro-prefix)
-                               (symbol-name tst)))
-            (using-context
-             macro-call
-             ;;expand as a macro call
-             `(,(intern (replace-regexp-in-string "_" "-" 
-                                                  (match-string 1 (symbol-name tst))))
-               ;;TODO: if macro name is an alias, replace with actual
-               ,@(mapcar 'transform body)))
-          
-          ;;expand as a normal while loop
-          (setq t-body (remove-context tail-context
-                                       (mapcar 'transform (subseq body 0 -1)))
-                t-last (transform (car (last body)))
-                code (append t-body t-last)
-    
-                break-code (if break-while '(catch '__break__)
-                             pyel-nothing)
-                continue-code (if continue-while '(catch '__continue__)
-                                pyel-nothing)
-                wile `(,@break-code
-                       (while
-                           ,(if (equal tst []) nil tst)
-                         (,@continue-code
-                          ,@code))))
-          (if else
-              `(@ ,wile ,@else)
-            wile))))
-    
-    ;; (defun pyel-while (test body orelse)
-    ;;   (let* ((tst (transform test))
-    ;;          (else (mapcar 'transform orelse))
-    ;;          (wile `(while ,(if (equal tst []) nil tst)
-    ;;                   ,@(mapcar 'transform body))))
-        
-    ;;     (if else
-    ;;         `(@ ,wile ,@else)
-    ;;       wile)))
-    
-    (def-transform while pyel ()
-      (lambda (test body orelse)
-        (pyel-while test body orelse)))
-    
+        ;;expand as a normal while loop
+        (setq t-body (remove-context tail-context
+                                     (mapcar 'transform (subseq body 0 -1)))
+              t-last (transform (car (last body)))
+              code (append t-body (list t-last))
+  
+              break-code (if break-while '(catch '__break__)
+                           pyel-nothing)
+              continue-code (if continue-while '(catch '__continue__)
+                              pyel-nothing)
+              wile `(,@break-code
+                     (while
+                         ,(if (equal tst []) nil tst)
+                       (,@continue-code
+                        ,@code))))
+        (if else
+            `(@ ,wile ,@else)
+          wile))))
+  
+  ;; (defun pyel-while (test body orelse)
+  ;;   (let* ((tst (transform test))
+  ;;          (else (mapcar 'transform orelse))
+  ;;          (wile `(while ,(if (equal tst []) nil tst)
+  ;;                   ,@(mapcar 'transform body))))
+      
+  ;;     (if else
+  ;;         `(@ ,wile ,@else)
+  ;;       wile)))
+  
+  (def-transform while pyel ()
+    (lambda (test body orelse)
+      (pyel-while test body orelse)))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
