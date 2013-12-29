@@ -2107,7 +2107,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (true-body (append (remove-context tail-context
                                                 (mapcar 'transform
                                                         (or (subseq body 0 -1)
-                                                            (car body))
+                                                            (list (car body)))
                                                             ))
                                   (when (> (length body) 1)
                                     (list (transform (car (last body)))))))
