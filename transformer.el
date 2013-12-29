@@ -35,7 +35,6 @@ Bind variables according to VARLIST, like `let*' "
 (defvar transform-no-eval nil) ;;for debugging
 (defvar transform-quote-args t);;this should be set by the transform def
 
-	     
 (defun transform (&rest code) 
   (if (> (length code) 1)
       (mapconcat 'transform code "\n") ;;TODO: optional newline
@@ -58,10 +57,12 @@ Bind variables according to VARLIST, like `let*' "
 		 (if transform-no-eval
 		     fcall
 		   (eval fcall))))
-	   ;;else: no defined transform 
-	   (if (null (car code))
-	       nil
-	       `(,(car code) ,@(mapcar 'transform (cdr orig-code)))))) ;;don't use quoted args
+	   ;;else: no defined transform
+	   (if (consp (car code))
+	       (cons (transform (car code)) (mapcar 'transform (cdr code))) 
+	     (if (null (car code))
+		 nil ;;?
+	       `(,(car code) ,@(mapcar 'transform (cdr orig-code))))))) ;;don't use quoted args
 
 ;;	(string (pp-to-string code));(concat "\""  (replace-regexp-in-string "\\\" "\\\\\" code) "\"")) ;;TODO: does this account for all cases?
 
