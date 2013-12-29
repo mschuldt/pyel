@@ -3472,6 +3472,16 @@ macros and macroish primitives
                     ,@(mapcar 'transform body)))
           ,@(mapcar 'transform orelse)))))
   
+  (defun pyel-split-list (lst sym)
+    "split list LST into two sub-lists at separated by SYM
+  The return value is the two sub-lists consed together"
+    (let ((current (pop lst))
+          first)
+  
+      (while (not (eq current sym))
+        (push current first)
+        (setq current (pop lst)))
+      (cons first lst)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
