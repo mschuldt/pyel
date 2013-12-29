@@ -2106,7 +2106,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (let* ((tst (transform test))
              (true-body (append (remove-context tail-context
                                                 (mapcar 'transform
-                                                        (subseq body 0 -1)))
+                                                        (or (subseq body 0 -1)
+                                                            (car body))
+                                                            ))
                                   (when (> (length body) 1)
                                     (list (transform (car (last body)))))))
              (progn-code (if (> (length true-body) 1)
