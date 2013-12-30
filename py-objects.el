@@ -192,7 +192,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 	  (t value))))
 
 
-(defun _obj-getattr (obj attr)
+(defun _obj-getattribute (obj attr)
   ;; retrieves the internal attribute representation
   
   ;;This does not call the objects --getattr-- method
@@ -211,7 +211,7 @@ if it is not call OBJECT's --getattr-- method if defined"
       (setq nbases (length bases)
 	    i 0)
       (while (not val) ;;TODO: proper MRO
-	(setq val (_obj-getattr (aref bases i) attr))
+	(setq val (_obj-getattribute (aref bases i) attr))
 	(setq i (1+ i))
 	(if (and (not val)
 		 (>= i nbases)) (error "attr does not exist")))
@@ -257,7 +257,7 @@ if it is not call OBJECT's --getattr-- method if defined"
     (if special
 	`(funcall (_obj-get-special ,object ,(cdr special)) ,object ,@args)
       
-      `(funcall (aref (_obj-getattr ,object ',method) attr-value-index)
+      `(funcall (aref (_obj-getattribute ,object ',method) attr-value-index)
 		,object ,@args))))
 
 (defmacro obj-set (obj attr value)
