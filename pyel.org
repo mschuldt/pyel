@@ -3776,9 +3776,10 @@ DOC: 'nonlocal' is currently equivalent to 'global'
     (lambda ()
       ;;TODO verify that it is ok to just use one inter-template var for this
       (context-switch
-       (while (setq break-while t))
-       (for (setq break-for t)))
-      '(throw '__break__ nil)))
+       (while (setq break-while t)
+         '(throw '__break__ nil))
+       (for (setq break-for t)
+            '(break)))))
   
   (def-transform continue pyel ()
     (lambda ()
