@@ -3451,37 +3451,54 @@ macros and macroish primitives
   ;;TODO: check if iter is an object, then do the iterator thing
   
   (defun pyel-for (target iter body orelse)
-    (if (eq (car target) 'tuple)
-        "TODO: var unpacking"
-      ;;create a temp target variable
-      ;;in body, unpack that into the provided target variables
+    (let ((target (using-context for-loop-target
+                                 (if (eq (car target) 'tuple)
+                                     (mapcar 'transform (cadr target))
+                                   (list (transform target)))))
+          (body (mapcar 'transform body))
+          (else (mapcar 'transform orelse)))
+      (when else
+        (setq body (append body (cons 'else else))))
       
-      (let* ((continue-for nil)
-             (break-for nil)
-             (code (using-context for (mapcar 'transform body)))
-             (break-code (if break-for '(catch '__break__)
-                           pyel-nothing))
-             (continue-code (if continue-for '(catch '__continue__)
-                              pyel-nothing)))
-        (setq _x break-for)
-        `(,@break-code
-          (loop for ,(using-context for-loop-target
-                                    (transform target))
-                in (py-list ,(transform iter))
-                do (,@continue-code
-                    ,@(mapcar 'transform body)))
-          ,@(mapcar 'transform orelse)))))
+      `(py-for ,@target in ,(transform iter) ,@body)))
+  
+  
+  
+    ;; (if (eq (car target) 'tuple)
+    ;;     "TODO: var unpacking"
+    ;;   ;;create a temp target variable
+    ;;   ;;in body, unpack that into the provided target variables
+      
+    ;;   (let* ((continue-for nil)
+    ;;          (break-for nil)
+    ;;          (code (using-context for (mapcar 'transform body)))
+    ;;          (break-code (if break-for '(catch '__break__)
+    ;;                        pyel-nothing))
+    ;;          (continue-code (if continue-for '(catch '__continue__)
+    ;;                           pyel-nothing)))
+    ;;     (setq _x break-for)
+    ;;     `(,@break-code
+    ;;       (loop for ,(using-context for-loop-target
+    ;;                                 (transform target))
+    ;;             in (py-list ,(transform iter))
+    ;;             do (,@continue-code
+    ;;                 ,@(mapcar 'transform body)))
+    ;;       ,@(mapcar 'transform orelse)))))
+  
   
   (defun pyel-split-list (lst sym)
     "split list LST into two sub-lists at separated by SYM
   The return value is the two sub-lists consed together"
-    (let ((current (pop lst))
+    (let ((current (not sym))
           first)
   
-      (while (not (eq current sym))
+      (while (and (not (eq current sym))
+                  lst)
+        (setq current (pop lst))
         (push current first)
-        (setq current (pop lst)))
-      (cons first lst)))
+        )
+      
+      (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
   
   
   (defmacro py-for (&rest args)
