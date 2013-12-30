@@ -21,16 +21,16 @@
 	     ))))
 
 (set
-(defvar special-method-names nil
-  "alist of speical method names and their corresponding indexes")
-  (let ((n (- (length object-indexes-alist) 1)))
-    (mapcar (lambda (x) (cons x (setq n (1+ n))))
-	    
-	    '(--init--
-	      --getattr--
-	      --getattribute--
-	      --call--
-	      ))))
+ (defvar special-method-names nil
+   "alist of speical method names and their corresponding indexes")
+ (let ((n (- (length object-indexes-alist) 1)))
+   (mapcar (lambda (x) (cons x (setq n (1+ n))))
+	   
+	   '(--init--
+	     --getattr--
+	     --getattribute--
+	     --call--
+	     ))))
 
 ;;TODO: add spcial-method-names to object-indexes-alist
 (setq py-class-vector-length (+ (length special-method-names)
@@ -174,15 +174,12 @@ These names will be set globally to their index in this list")
 (defun obj-getattr (object attr)
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
-  (let* ((getter (aref object getattribute-index) )
-	 (attr (if getter
-		   (funcall getter object attr)  ;;__getattribute__
-		 (condition-case nil
-		     (_obj-getattr object attr) ;;normal lookup
-		   (error
-		    (if (setq getter (aref object getattr-index)) ;;__getattr__
-			(funcall getter object attr)
-		      (error "attribute not found"))))))
+  (let* ((attr (condition-case nil
+		   (funcall (aref object getattribute-index) object attr)  ;;__getattribute__
+		 (error
+		  (if (setq getter (aref object getattr-index)) ;;__getattr__
+		      (funcall getter object attr)
+		    (error "attribute not found")))))
 	 (type (aref attr attr-type-index))
 	 (value (aref attr attr-value-index)))
 
@@ -193,6 +190,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 	  ((= type attr-method-type)  ;; method
 	   (bind-method object attr))
 	  (t value))))
+
 
 (defun _obj-getattr (obj attr)
   ;; retrieves the internal attribute representation
@@ -242,7 +240,7 @@ if it is not call OBJECT's --getattr-- method if defined"
     (or method
 	(let* ((bases (aref object obj-bases-index))
 	       (nbases (length bases))
-		(i 0))
+	       (i 0))
 	  (while (not method) ;;TODO: proper MRO
 	    (setq method (_obj-get-special (aref bases i) method-index))
 	    (setq i (1+ i))
@@ -251,7 +249,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 	  method)
 	(error "method not found"))
     ;;TODO: inheritance
-  ))
+    ))
 
 (defmacro call-method (object method &rest args)
   ;;'bind' method and call it
