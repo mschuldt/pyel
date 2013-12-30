@@ -5,7 +5,7 @@
 
 (pyel-create-py-func set (_sym _val)
                      (_ $function) -> (fset $$sym $$val)
-                     (_ _) -> (setq $sym val)) ;;TODO: other?
+                     (_ _) -> (setq $sym $val)) ;;TODO: other?
 
 (def-transform assign pyel ()
     (lambda (targ val) (py-assign targ val)))
@@ -81,11 +81,11 @@
 ;;DOC: tranforms must be carefull not to transform code multiple times
 
 (defun py-assign2 (target value)
-  (let ((ctx (eval (car (last target))))
+ (let ((ctx (eval (car (last target))))
 
         (assign-value value)) 
 
-    ;;the target code is reponsable for providing the correct assign function
+    ;;the target code is responsible for providing the correct assign function
     ;;
     
     ;;TODO:     is context-value still used?
@@ -174,7 +174,7 @@
     (setq ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
-                     
+    
     
     (if (assoc id pyel-marked-ast-pieces)
         ;;this id is a marker, insert the corresponding macro
@@ -204,7 +204,7 @@
        ((eq ctx 'load) id)
        ((eq ctx 'store)  (if (context-p 'for-loop-target)
                              id
-                           (call-transform  'set id (transform assign-value))))
+                           (call-transform 'set id assign-value)))
        (t  "<ERROR: name>"))
       )))
 
@@ -311,7 +311,13 @@
 (def-transform if pyel ()
   (lambda (test body orelse)
     (let* ((tst (transform test))
-           (true-body (mapcar 'transform body))
+           (true-body (append (remove-context tail-context
+                                              (mapcar 'transform
+                                                      (or (subseq body 0 -1)
+                                                          (list (car body)))
+                                                          ))
+                                (when (> (length body) 1)
+                                  (list (transform (car (last body)))))))
            (progn-code (if (> (length true-body) 1)
                            '(@ progn)
                          '@)))
@@ -319,7 +325,11 @@
       `(if  ,(if (equal tst []) nil tst)
 
            (,progn-code ,@true-body)
-         ,@(mapcar 'transform orelse)))))
+         ,@(append (remove-context tail-context
+                                   (mapcar 'transform
+                                           (subseq orelse 0 -1)))
+                   (when (> (length orelse) 1)
+                          (list (transform (car (last orelse))))))))))
 
 (defvar pyel-obj-counter 0)
 
@@ -328,13 +338,17 @@
       (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
     "obj"))
 
+(pyel-create-py-func fcall (_func &rest args)
+                     ($function _) -> ($func ,@args)
+                     (_ _) -> (funcall $func ,@args))
+
 (def-transform call pyel ()
   ;;TODO: some cases funcall will need to be used, how to handle that?
   (lambda (func args keywords starargs kwargs)
-    (pyel-call func args keywords starargs kwargs)))
+    (pyel-call-transform func args keywords starargs kwargs)))
 
 
-(defun pyel-call (func args keywords starargs kwargs)
+(defun pyel-call-transform (func args keywords starargs kwargs)
   (let ((t-func (transform func))
         new-func m-name  f-name )
     (if (member t-func pyel-defined-classes)
@@ -368,7 +382,12 @@
                                    ,@(mapcar '(lambda (x) `(quote ,x)) args)))
           
           ;;normal function call
-          `(,t-func ,@(mapcar 'transform args)))))))
+          ;;`(,t-func ,@(mapcar 'transform args))
+          ;;TODO: this is dumb, convert `call-transform' to a macro?
+          (eval `(call-transform 'fcall ,@(cons 't-func (mapcar (lambda (x)
+                                                                  `(quote ,x))
+                                                                 args))))
+          )))))
 
 ;;doc: context macro-call
 (defun pyel-while (test body orelse)
@@ -394,7 +413,11 @@
            ,@(mapcar 'transform body)))
       
       ;;expand as a normal while loop
-      (setq code (using-context while (mapcar 'transform body))
+      (setq t-body (remove-context tail-context
+                                   (mapcar 'transform (subseq body 0 -1)))
+            t-last (transform (car (last body)))
+            code (append t-body (list t-last))
+
             break-code (if break-while '(catch '__break__)
                          pyel-nothing)
             continue-code (if continue-while '(catch '__continue__)
@@ -407,8 +430,6 @@
       (if else
           `(@ ,wile ,@else)
         wile))))
-
-
 
 ;; (defun pyel-while (test body orelse)
 ;;   (let* ((tst (transform test))
@@ -516,7 +537,7 @@
          (cond
           
           ((context-p 'class-def) (using-context method-def
-                                    (setq last-line (using-context last-function-line
+                                    (setq last-line (using-context tail-context
                                                                    (transform (car (last body))))
                                           first (mapcar 'transform (subseq body 0 (1- (length body))))
                                           t-body (append first (list last-line)))
@@ -530,7 +551,7 @@
                                              ,@t-body)
                                           class-def-methods)))
           
-          (t (setq last-line (using-context last-function-line
+          (t (setq last-line (using-context tail-context
                                             (transform (car (last body))))
                    first (subseq body 0 (1- (length body)))
                    first (if first
@@ -539,11 +560,12 @@
                    t-body (append first (list last-line)))
              
              ;;(setq t-body (transform-last-with-context
-             ;;                'last-function-line body))
+             ;;                'tail-context body))
              
              ;;remove variables from the let arglist that have been declared global
              (setq let-arglist (let (arglist) (mapcar (lambda (x)
-                                                        (unless (member x global-vars)
+                                                        (unless (or (member x global-vars)
+                                                                    (member x args))
                                                           (push x arglist)))
                                                       let-arglist)
                                     arglist))
@@ -835,26 +857,113 @@
 ;;TODO: check if iter is an object, then do the iterator thing
 
 (defun pyel-for (target iter body orelse)
-  (if (eq (car target) 'tuple)
-      "TODO: var unpacking"
-    ;;create a temp target variable
-    ;;in body, unpack that into the provided target variables
+  (let ((target (using-context for-loop-target
+                               (if (eq (car target) 'tuple)
+                                   (mapcar 'transform (cadr target))
+                                 (list (transform target)))))
+        (body (using-context for (mapcar 'transform body)))
+        (else (mapcar 'transform orelse))) ;;break/continue for else?
+    (when else
+      (setq body (append body (cons 'else else))))
     
-    (let* ((continue-for nil)
-           (break-for nil)
-           (code (using-context for (mapcar 'transform body)))
-           (break-code (if break-for '(catch '__break__)
-                         pyel-nothing))
-           (continue-code (if continue-for '(catch '__continue__)
-                            pyel-nothing)))
-      (setq _x break-for)
-      `(,@break-code
-        (loop for ,(using-context for-loop-target
-                                  (transform target))
-              in (py-list ,(transform iter))
-              do (,@continue-code
-                  ,@(mapcar 'transform body)))
-        ,@(mapcar 'transform orelse)))))
+    `(py-for ,@target in ,(transform iter) ,@body)))
+
+
+  ;; (if (eq (car target) 'tuple)
+  ;;     "TODO: var unpacking"
+  ;;   ;;create a temp target variable
+  ;;   ;;in body, unpack that into the provided target variables
+    
+  ;;   (let* ((continue-for nil)
+  ;;          (break-for nil)
+  ;;          (code (using-context for (mapcar 'transform body)))
+  ;;          (break-code (if break-for '(catch '__break__)
+  ;;                        pyel-nothing))
+  ;;          (continue-code (if continue-for '(catch '__continue__)
+  ;;                           pyel-nothing)))
+  ;;     (setq _x break-for)
+  ;;     `(,@break-code
+  ;;       (loop for ,(using-context for-loop-target
+  ;;                                 (transform target))
+  ;;             in (py-list ,(transform iter))
+  ;;             do (,@continue-code
+  ;;                 ,@(mapcar 'transform body)))
+  ;;       ,@(mapcar 'transform orelse)))))
+
+
+(defun pyel-split-list (lst sym)
+  "split list LST into two sub-lists at separated by SYM
+The return value is the two sub-lists consed together"
+  (let ((current (not sym))
+        first)
+
+    (while (and (not (eq current sym))
+                lst)
+      (setq current (pop lst))
+      (push current first)
+      )
+    
+    (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
+
+
+(defmacro py-for (&rest args)
+  "(for <targets> in <iter> <body> else <body>)
+else is optional"
+
+  ;;TODO: error checking for correct form
+  (let* ((targets (pyel-split-list args 'in))
+         (args (cdr targets))
+         (targets (car targets))
+         (iter (pop args)) ;;TODO: must iter be only one form?
+         
+         (body (pyel-split-list args 'else))
+         (else-body (cdr body))
+         (body (car body))
+
+         (target (cond ((symbolp targets) ;;nil when there are multiple targets
+                        targets)
+                       ((= (length targets) 1)
+                        (car targets))
+                       (t nil)))
+         
+         (unpack-code (unless target
+                        (let (ret)
+                          (dotimes (i (length targets) (reverse ret))
+                            (push `(setq ,(nth i targets)
+                                         (nth ,i __target__))
+                                  ret)))))
+         (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
+         
+         (current-transform-table (get-transform-table 'for-macro))
+         __for-continue ;;these are set by the for-macro transforms
+         __for-break
+         )
+    ;;TODO: when multiple targets, check that all lists are the same size
+    (setq body (transform (setq _x body)))
+
+    (setq body (cons '(setq __idx (1+ __idx))  body)
+          body (if target
+                   (cons `(setq ,target (nth __idx __tmp-list)) body)
+                 (append unpack-code body)))
+    
+    (when __for-continue
+      (setq body `((catch '__continue__ ,@body))))
+
+    ;; ! This assumes that all iters are the same size
+    (setq body `((while (< __idx __len)
+                   ,@body)
+                 ,@else-body))
+    
+    (when __for-break
+      (setq body `((catch '__break__ ,@body))))
+    
+    `(let* ((__tmp-list ,iter) 
+            ;;      ,@iter-lets
+            ;;      ,@next-function-lets
+            (__len (length __tmp-list))
+            (__idx 0)
+            )
+       ,@body)))
 
 (def-transform global pyel ()
   (lambda (names)
@@ -885,10 +994,10 @@
                                                      (transform target))
                                       value))))
 
-(def-transform return pyel (value)
+(def-transform return pyel ()
   (lambda (value)
     
-    (if (context-p 'last-function-line)
+    (if (context-p 'tail-context)
         (transform value)
       (setq return-middle t)
       `(throw '__return__ ,(transform value)))))
@@ -897,17 +1006,19 @@
   (lambda ()
     ;;TODO verify that it is ok to just use one inter-template var for this
     (context-switch
-     (while (setq break-while t))
-     (for (setq break-for t)))
-    '(throw '__break__ nil)))
+     (while (setq break-while t)
+       '(throw '__break__ nil))
+     (for (setq break-for t)
+          '(break)))))
 
 (def-transform continue pyel ()
   (lambda ()
     ;;TODO verify that it is ok to just use one inter-template var for this
     (context-switch
-     (while (setq continue-while t))
-     (for (setq continue-for t)))
-    '(throw '__continue__ nil)))
+     (while (setq continue-while t)
+       '(throw '__continue__ nil))
+     (for (setq continue-for t)
+          '(continue)))))
 
 (def-transform except-handler pyel (type name body)
   ;;TODO: name?

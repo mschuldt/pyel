@@ -311,116 +311,6 @@ This is used when the ast form is needed by a transform that is manually
       (store
        '(quote store)))))
 
-;; (defun pyel-create-test-here (name &rest py-code)
-;;   (let ((shoulds nil))
-;;     (dolist (code (reverse py-code))
-;;       ;;check complete code transformation
-;;       (push `(should (string= (pyel ,code)
-;;                       ,(pyel code)))
-;;             shoulds)
-;;       ;;check transformed .py syntax tree
-;;       (push `(should (string= (pyel ,code t)
-;;                       ,(pyel code t)))
-;;             shoulds)
-;;       ;;check pure .py syntax tree
-;;       (push `(should (equal (py-ast ,code)
-;;                              ,(py-ast code)))
-;;             shoulds))
-
-;;     (pp `(ert-deftest ,name () ,@shoulds)) nil))
-
-(defun pyel-create-tests (name &rest py-code)
-  (let ((complete nil)
-        (py-ast nil)
-        (el-ast nil)
-        (c 0)
-        ert-tests
-        tests
-        trans)
-    (progv
-        (mapcar 'car test-variable-values)
-        (mapcar 'cadr test-variable-values)
-      
-      (flet ((pyel-create-new-marker () "test_marker"))
-        
-        (dolist (code (reverse py-code))
-          (if (consp code)
-              (push `(ert-deftest
-                         ,(intern (concat "pyel-" (symbol-name name)
-                                          (number-to-string (setq c (1+ c))))) ()
-                       (should (equal (eval (pyel ,(concat (functionize (car code))
-                                                           "\nf()")))
-                                      ,(cadr code))))
-                    _pyel-tests)
-
-          ;;check complete code transformation
-          (setq trans (pyel code))
-          (push `(push '(should (equal
-                                 (pyel ,code)
-                                 ',trans))
-                       pyel-transform-tests)
-                _pyel-tests)
-          ;;check python ast
-          (push `(push '(should (equal (py-ast ,code)
-                                ,(py-ast code)))
-                       pyel-py-ast-tests)
-                _pyel-tests)
-                  
-          ;;check transformed .py syntax tree
-          (push `(push '(should (string= (pyel ,code t)
-                                  ,(pyel code t)))
-                       pyel-el-ast-tests)
-                _pyel-tests)
-          ))
-        
-        ;; (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
-        ;;                              () ,@complete)))
-        ;; (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
-        ;;                                 () ,@py-ast)) nil)
-        
-        ;; (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
-        ;;                                 () ,@el-ast)) nil)
-        ;; (message "Tests copied to kill ring")
-        ))))
-
-  
-(defun pyel-create-tests-with-known-types (name known-types &rest py-code)
-  "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
-  ;;99% of the code is the same...
-  (let ((complete nil)
-        (py-ast nil)
-        (el-ast nil)    
-        trans)
-    (progv
-        (mapcar 'car test-variable-values)
-        (mapcar 'cadr test-variable-values)
-
-      
-      (dolist (code (reverse py-code))
-        ;;check complete code transformation
-        (setq trans (pyel-with-known-types known-types code))
-        (push `(should (equal
-                        (pyel-with-known-types ',known-types ,code)
-                        ',trans))
-              complete)
-        ;;check pure .py syntax tree
-        (push `(should (equal (py-ast ,code)
-                              ,(py-ast code)))
-              py-ast)
-        ;;check transformed .py syntax tree
-        (push `(should (string= (pyel ,code t)
-                                ,(pyel code t)))
-              el-ast))
-      
-      (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
-                                   () ,@complete)))
-      (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
-                                      () ,@py-ast)) nil)
-
-      (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
-                                      () ,@el-ast)) nil)
-      (message "Tests copied to kill ring"))))
-
 (defvar pyel-directory ""
     "Path to pyel files. must include py-ast.py, pyel.el etc")
   
@@ -577,6 +467,7 @@ This is used when the ast form is needed by a transform that is manually
   "remove CONTEXT and translate CODE, then restore context"
   `(let ((pyel-context (remove ',context pyel-context)))
      ,@code))
+(def-edebug-spec remove-context (symbolp &rest form))
 
 (defmacro context-switch (&rest forms)
   `(cond ,@(mapcar (lambda (x)
@@ -584,8 +475,6 @@ This is used when the ast form is needed by a transform that is manually
                           (if (eq context t) t
                             `(member ',context pyel-context))) ,@(cdr x)))
                    forms)))
-
-
 
 (defun get-context-group (context)
   (let ((groups pyel-context-groups)
@@ -1111,6 +1000,201 @@ in `pyel-message-formats'"
                     (format "[%s]: %%s" (upcase (symbol-name type))))
                 msg) pyel-translation-messages))
 
+(defvar pyel-test-py-functions nil
+  "list of generated python test functions.
+when `pyel-run-tests' is run, these are translated to e-lisp
+and compared to expected values")
+
+(setq _pyel-tests nil)    
+
+(defvar pyel-test-func-counter 0
+  "just another counter")
+  
+(defun pyel-make-test-func-name ()
+  (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
+
+
+(defmacro pyel-create-tests (name &rest py-tests)
+  (let ((complete nil)
+        (py-ast nil)
+        (el-ast nil)
+        (c 0)
+        ert-tests
+        tests
+        trans)
+    (progv
+        (mapcar 'car test-variable-values)
+        (mapcar 'cadr test-variable-values)
+      
+      (flet ((pyel-create-new-marker () "test_marker"))
+        
+        (dolist (test (reverse py-tests))
+          (cond ((and (consp test)
+                      (>= (length test) 2)
+                      (consp (cadr test)))
+                 (let* ((tests)  ;;form: ("test" ("test1" result1) ("test2" result2) ...)
+                        (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
+                        (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
+                        (d 0))
+                   
+                   (push (setq _x (pyel-functionize (concat (car test)
+                                                                  (if (= (length test) 2)
+                                                                      (concat "return " (caadr test))
+                                                                      (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
+                                                                                                 " return " (car x)))
+                                                                             (cdr test) "\n")))
+                                                          test-name "n"))
+                         pyel-test-py-functions)
+                   (setq d 0)
+                   (mapc (lambda (x)
+                           (push `(ert-deftest
+                                      ,(intern (concat "pyel-" name-str
+                                                       (number-to-string (setq c (1+ c))))) ()
+                                    (should (equal (eval (pyel ,(if (= (length test) 2)
+                                                                    (format "%s()" test-name)
+                                                                  (format "%s(%s)" test-name (setq d (1+ d))))))
+                                                   ,(cadr x))))
+                                 tests))
+                         (cdr test))
+                   (setq _pyel-tests (append _pyel-tests (reverse tests)))
+                   ))
+                
+              ((consp test) ;;form: ("test" expect)
+               (push `(ert-deftest
+                            ,(intern (concat "pyel-" (symbol-name name)
+                                             (number-to-string (setq c (1+ c))))) ()
+                          (should (equal (eval (pyel ,(concat (pyel-functionize (car test))
+                                                              "\nf()")))
+                                         ,(cadr test))))
+                       _pyel-tests))
+            
+              (t (progn ;;form "test"
+                   ;;check complete code transformation
+                   (setq trans (pyel test))
+                   (push `(push '(should (equal
+                                          (pyel ,test)
+                                          ',trans))
+                                pyel-transform-tests)
+                         _pyel-tests)
+                   ;;check python ast
+                   (push `(push '(should (equal (py-ast ,test)
+                                                ,(py-ast test)))
+                                pyel-py-ast-tests)
+                         _pyel-tests)
+                   
+                   ;;check transformed .py syntax tree
+                   (push `(push '(should (string= (pyel ,test t)
+                                                  ,(pyel test t)))
+                                pyel-el-ast-tests)
+                         _pyel-tests))
+          )))))))
+
+(defun pyel-create-tests-with-known-types (name known-types &rest py-code)
+  "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
+  ;;99% of the code is the same...
+  (let ((complete nil)
+        (py-ast nil)
+        (el-ast nil)    
+        trans)
+    (progv
+        (mapcar 'car test-variable-values)
+        (mapcar 'cadr test-variable-values)
+
+      
+      (dolist (code (reverse py-code))
+        ;;check complete code transformation
+        (setq trans (pyel-with-known-types known-types code))
+        (push `(should (equal
+                        (pyel-with-known-types ',known-types ,code)
+                        ',trans))
+              complete)
+        ;;check pure .py syntax tree
+        (push `(should (equal (py-ast ,code)
+                              ,(py-ast code)))
+              py-ast)
+        ;;check transformed .py syntax tree
+        (push `(should (string= (pyel ,code t)
+                                ,(pyel code t)))
+              el-ast))
+      
+      (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
+                                   () ,@complete)))
+      (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
+                                      () ,@py-ast)) nil)
+
+      (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
+                                      () ,@el-ast)) nil)
+      (message "Tests copied to kill ring"))))
+
+  
+(defun pyel-generate-tests ()
+  (interactive)
+  ;;read in tests from pyel-tests.el
+  ;;save resulting tests in  pyel-tests-generated.el
+  ;;evaluate all the tests
+  (let ((pyel-test-func-counter 0)
+        pyel-transform-tests
+        pyel-py-ast-tests
+        pyel-el-ast-tests
+        pyel-test-py-functions
+        _pyel-tests
+        )
+
+    (load-file (file-path-concat pyel-directory "pyel-tests.el"))
+    (with-temp-buffer
+      ;;insert header stuff
+      (mapc (lambda (x) (insert (prin1-to-string x) "\n"))
+            '((setq pyel-transform-tests nil)
+              (setq pyel-py-ast-tests nil)
+              (setq pyel-el-ast-tests nil)
+              ))
+      ;;insert main tests
+      (mapc (lambda (x) (insert (prin1-to-string x) "\n"))
+            _pyel-tests)
+      ;;save py test functions
+      (insert (format "(setq pyel-test-py-functions '%s)"
+                      (prin1-to-string pyel-test-py-functions)))
+      (insert "\n(provide 'pyel-tests-generated)")
+      (write-file (file-path-concat pyel-directory "pyel-tests-generated.el"))
+      (eval-buffer))))
+
+(defalias 'pyel-verify 'pyel-run-tests)
+(defun pyel-run-tests ()
+  (interactive)
+  (flet ((pyel-create-new-marker () "test_marker"))
+    (progv
+        (mapcar 'car test-variable-values)
+        (mapcar 'cadr test-variable-values)
+      (let ((transform-passed (reduce '+ (mapcar (lambda (test)
+                                                   (if (condition-case nil
+                                                           (eval test)
+                                                         (error nil)) 1 0))
+                                                 pyel-transform-tests)))
+            (py-ast-passed (reduce '+ (mapcar (lambda (test)
+                                                (if (condition-case nil
+                                                        (eval test)
+                                                      (error nil)) 1 0))
+                                              pyel-py-ast-tests)))
+            (el-ast-passed (reduce '+ (mapcar (lambda (test)
+                                                (if (condition-case nil
+                                                        (eval test)
+                                                      (error nil)) 1 0))
+                                              pyel-el-ast-tests))))
+        (message "transform: %s/%s\npy-ast: %s/%s\nel-ast: %s/%s\n"
+                 transform-passed (length pyel-transform-tests)
+                 py-ast-passed (length pyel-py-ast-tests)
+                 el-ast-passed (length pyel-el-ast-tests))
+        (ert-run-tests-interactively "pyel")
+        ))))
+
+(defun pyel-functionize (py-code &optional func-name &rest args)
+  "wrap PY-CODE in a function definition
+FUNC-NAME defaults to 'f'"
+  (concat  "def " (or func-name "f") (if args (format "(%s)" (mapconcat 'identity args ", ")) "()") ":\n"
+           (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
+                                        (split-string py-code "\n"))
+                      "\n")))
+
 (defun char-split-string (string)
   "split a string into its charaters"
   (cdr (butlast (split-string string ""))))
@@ -1148,7 +1232,7 @@ prevents multiple/none '/' seporating file names"
 
 (require 'transformer)
 (require 'pyel-transforms)
-(require 'pyel-tests)
+(require 'pyel-tests-generated)
 (require 'pyel-preprocessor)  
 
 (require 'pyel-mode)
