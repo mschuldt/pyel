@@ -3482,6 +3482,66 @@ macros and macroish primitives
         (push current first)
         (setq current (pop lst)))
       (cons first lst)))
+  
+  
+  (defmacro py-for (&rest args)
+    "(for <targets> in <iter> <body> else <body>)
+  else is optional"
+  
+    ;;TODO: error checking for correct form
+    (let* ((targets (pyel-split-list args 'in))
+           (args (cdr targets))
+           (targets (car targets))
+           (iter (pop args)) ;;TODO: must iter be only one form?
+           
+           (body (pyel-split-list args 'else))
+           (else-body (cdr body))
+           (body (car body))
+  
+           (target (cond ((symbolp targets) ;;nil when there are multiple targets
+                          targets)
+                         ((= (length targets) 1)
+                          (car targets))
+                         (t nil)))
+           
+           (unpack-code (unless target
+                          (let (ret)
+                            (dotimes (i (length targets) (reverse ret))
+                              (push `(setq ,(nth i targets)
+                                           (nth ,i __target__))
+                                    ret)))))
+           (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
+           
+           (current-transform-table (get-transform-table 'for-macro))
+           __for-continue ;;these are set by the for-macro transforms
+           __for-break
+           )
+      ;;TODO: when multiple targets, check that all lists are the same size
+      (setq body (transform (setq _x body)))
+  
+      (setq body (cons '(setq __idx (1+ __idx))  body)
+            body (if target
+                     (cons `(setq ,target (nth __idx __tmp-list)) body)
+                   (append unpack-code body)))
+      
+      (when __for-continue
+        (setq body `((catch '__continue__ ,@body))))
+  
+      ;; ! This assumes that all iters are the same size
+      (setq body `((while (< __idx __len)
+                     ,@body)
+                   ,@else-body))
+      
+      (when __for-break
+        (setq body `((catch '__break__ ,@body))))
+      
+      `(let* ((__tmp-list ,iter) 
+              ;;      ,@iter-lets
+              ;;      ,@next-function-lets
+              (__len (length __tmp-list))
+              (__idx 0)
+              )
+         ,@body)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
