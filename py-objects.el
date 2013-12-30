@@ -328,6 +328,9 @@ if it is not call OBJECT's --getattr-- method if defined"
 
 (define-class object ()
   "The most base type"
+  (def --getattribute-- (self name) ()
+       "x.__getattribute__('name') <==> x.name"
+       (_obj-getattribute self name))
   (def --str-- (self) ()
        "" "<class 'object'>")
   (def --repr-- (self) ()
