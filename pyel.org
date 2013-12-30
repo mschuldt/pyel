@@ -3784,9 +3784,10 @@ DOC: 'nonlocal' is currently equivalent to 'global'
     (lambda ()
       ;;TODO verify that it is ok to just use one inter-template var for this
       (context-switch
-       (while (setq continue-while t))
-       (for (setq continue-for t)))
-      '(throw '__continue__ nil)))
+       (while (setq continue-while t)
+         '(throw '__continue__ nil))
+       (for (setq continue-for t)
+            '(continue)))))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
