@@ -264,15 +264,11 @@ if it is not call OBJECT's --getattr-- method if defined"
   `(obj-setattr ,obj ',attr ,value))
 
 (defun obj-setattr (obj attr value)
-  ;;TODO: this does not remove the old value, just shadows it
-  ;;TODO: could just call the setter function directly
-  ;;      --when could this fail? 
-  (let ((setter (or (aref (aref obj setatter-index) 0)
-		    (error "found no getter method!"))))
-    (funcall setter obj attr value)))
+    (funcall (aref (aref obj setatter-index) 0) obj attr value))
 
 (defun _obj-setattr (obj attr value)
   ;;TODO: specify the type?
+  ;;TODO: this does not remove the old value, just shadows it
   (push (_make-attr :name attr
 		    :value value
 		    :type attr-normal-type
