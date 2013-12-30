@@ -3455,13 +3455,12 @@ macros and macroish primitives
                                  (if (eq (car target) 'tuple)
                                      (mapcar 'transform (cadr target))
                                    (list (transform target)))))
-          (body (mapcar 'transform body))
-          (else (mapcar 'transform orelse)))
+          (body (using-context for (mapcar 'transform body)))
+          (else (mapcar 'transform orelse))) ;;break/continue for else?
       (when else
         (setq body (append body (cons 'else else))))
       
       `(py-for ,@target in ,(transform iter) ,@body)))
-  
   
   
     ;; (if (eq (car target) 'tuple)
