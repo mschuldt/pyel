@@ -324,3 +324,12 @@ if it is not call OBJECT's --getattr-- method if defined"
 (defmacro def (name args decorator-list doc &rest body)
 
 )
+
+
+(define-class object ()
+  "The most base type"
+  (def --str-- (self) ()
+       "" "<class 'object'>")
+  (def --repr-- (self) ()
+       "" "<class 'object'>")
+  )
