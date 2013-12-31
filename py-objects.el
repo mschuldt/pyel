@@ -334,7 +334,9 @@ if it is not call OBJECT's --getattr-- method if defined"
        "x.__setattr__('name', value) <==> x.name = value"
        (_obj-setattr self name value))
   (def --str-- (self) ()
-       "" "<class 'object'>")
+       "x.__str__() <==> str(x)"
+       "<class 'object'>")
   (def --repr-- (self) ()
-       "" "<class 'object'>")
+       "x.__repr__() <==> repr(x)"
+       "<class 'object'>")
   )
