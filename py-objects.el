@@ -28,6 +28,8 @@ the rest are in `special-method-names'")
    (mapcar (lambda (x) (cons x (setq n (1+ n))))
 	   
 	   '(--init--
+	     --str--
+	     --repr--
 	     --call--
 	     ))))
 
@@ -346,6 +348,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   (def --repr-- (self) ()
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
-  )
+  ) 
+
 
 
