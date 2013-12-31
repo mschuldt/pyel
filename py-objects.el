@@ -83,6 +83,7 @@ These names will be set globally to their index in this list")
 	       ;;TODO: proper MRO -- currently just picking the first class
 	       
 	       (aset new setatter-index (aref base setatter-index))
+	       (aset new getattribute-index (aref base getattribute-index))
 	       ;;TODO: copy all special methods from the base classes
 	       ))
 	 
