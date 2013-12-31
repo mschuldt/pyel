@@ -75,7 +75,7 @@ These names will be set globally to their index in this list")
 
 	 (when (eq name 'object) ;;give the first one some help...
 	   (aset new setatter-index 
-	 	 (vector (lambda (self attr value)
+	 	 (list (lambda (self attr value)
 	 		   (_obj-setattr self attr value)))))
 
 	 (if (not (eq bases []))
@@ -114,7 +114,7 @@ These names will be set globally to their index in this list")
 	       (if (eq type 'special)
 		   ;;TODO: decorators?
 		   ;;special methods don't have the usual attribute format
-		   (aset new (cdr (assoc name special-method-names)) (vector func))
+		   (aset new (cdr (assoc name special-method-names)) (list func))
 		 
 		 (setq methods (cons (_make-attr :name name
 						 :value func
@@ -184,7 +184,7 @@ These names will be set globally to their index in this list")
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
   (let* ((attr (condition-case nil
-		   (funcall (aref (aref object getattribute-index) 0) object attr)  ;;__getattribute__
+		   (funcall (car (aref object getattribute-index)) object attr)  ;;__getattribute__
 		 (error
 		  (if (setq getter (aref object getattr-index)) ;;__getattr__
 		      (funcall getter object attr)
@@ -199,7 +199,6 @@ if it is not call OBJECT's --getattr-- method if defined"
 	  ((= type attr-method-type)  ;; method
 	   (bind-method object attr))
 	  (t value))))
-
 
 (defun _obj-getattribute (obj attr)
   ;; retrieves the internal attribute representation
@@ -245,7 +244,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
-  (let ((method (aref (aref object method-index) 0)))
+  (let ((method (car (aref object method-index))))
     (or method
 	(let* ((bases (aref object obj-bases-index))
 	       (nbases (length bases))
@@ -273,7 +272,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   `(obj-setattr ,obj ',attr ,value))
 
 (defun obj-setattr (obj attr value)
-    (funcall (aref (aref obj setatter-index) 0) obj attr value))
+    (funcall (car (aref obj setatter-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
   ;;TODO: specify the type?
@@ -349,3 +348,4 @@ if it is not call OBJECT's --getattr-- method if defined"
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
   )
+
