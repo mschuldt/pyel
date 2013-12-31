@@ -4,8 +4,9 @@
 (defconst obj-class-symbol 'pyel-class)
 
 (set
- (defvar object-indexes-alist nil
-   "alist of name and corresponding indexes")
+ (defvar object-indexes-alist nil 
+   "alist of name and corresponding indexes
+the rest are in `special-method-names'")
  (let ((n -1))
    (mapcar (lambda (x)
 	     (setq n (setq n (1+ n)))
@@ -27,10 +28,16 @@
    (mapcar (lambda (x) (cons x (setq n (1+ n))))
 	   
 	   '(--init--
-	     --getattr--
-	     --getattribute--
 	     --call--
 	     ))))
+
+;;add the special methods whose indexes are explicitly defined 
+;;in `object-indexes-alist' instead of `special-method-names'
+(mapc (lambda (x) (push (cons (cadr x) (eval (car x))) special-method-names))
+      '((setatter-index  --setattr--)
+	(getattribute-index --getattribute--)
+	(getattr-index --getattr--)))
+
 
 ;;TODO: add spcial-method-names to object-indexes-alist
 (setq py-class-vector-length (+ (length special-method-names)
@@ -153,7 +160,7 @@ These names will be set globally to their index in this list")
     ;;for faster lookup
     ;;This must also be done before any calls to `obj-set'
     (aset new setatter-index (aref class setatter-index))
-;;    (aset new obj-getter-index (aref class obj-getter-index))
+    ;;    (aset new obj-getter-index (aref class obj-getter-index))
     (dolist (special special-method-names)
       (aset new (cdr special) (aref class (cdr special))))
     
@@ -340,3 +347,5 @@ if it is not call OBJECT's --getattr-- method if defined"
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
   )
+
+
