@@ -244,7 +244,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
-  (let ((method (aref object method-index)))
+  (let ((method (aref (aref object method-index) 0)))
     (or method
 	(let* ((bases (aref object obj-bases-index))
 	       (nbases (length bases))
@@ -348,4 +348,3 @@ if it is not call OBJECT's --getattr-- method if defined"
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
   )
-
