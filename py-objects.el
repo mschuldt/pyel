@@ -324,6 +324,9 @@ if it is not call OBJECT's --getattr-- method if defined"
 
 (define-class object ()
   "The most base type"
+  (def --init-- () ()
+       "x.__init__(...) initializes x; see help(type(x)) for signature"
+       nil)
   (def --getattribute-- (self name) ()
        "x.__getattribute__('name') <==> x.name"
        (_obj-getattribute self name))
