@@ -161,7 +161,7 @@ These names will be set globally to their index in this list")
     ;;for faster lookup
     ;;This must also be done before any calls to `obj-set'
     (aset new setatter-index (aref class setatter-index))
-    ;;    (aset new obj-getter-index (aref class obj-getter-index))
+    (aset new getattribute-index (aref class getattribute-index))
     (dolist (special special-method-names)
       (aset new (cdr special) (aref class (cdr special))))
     
