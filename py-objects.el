@@ -184,7 +184,7 @@ These names will be set globally to their index in this list")
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
   (let* ((attr (condition-case nil
-		   (funcall (aref object getattribute-index) object attr)  ;;__getattribute__
+		   (funcall (aref (aref object getattribute-index) 0) object attr)  ;;__getattribute__
 		 (error
 		  (if (setq getter (aref object getattr-index)) ;;__getattr__
 		      (funcall getter object attr)
