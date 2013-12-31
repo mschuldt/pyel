@@ -113,7 +113,7 @@ These names will be set globally to their index in this list")
 	       (if (eq type 'special)
 		   ;;TODO: decorators?
 		   ;;special methods don't have the usual attribute format
-		   (aset new (cdr (assoc name special-method-names)) func)
+		   (aset new (cdr (assoc name special-method-names)) (vector func))
 		 
 		 (setq methods (cons (_make-attr :name name
 						 :value func
@@ -140,7 +140,6 @@ These names will be set globally to their index in this list")
 					     :value (cdr var--value)
 					     :type attr-normal-type))
 			       class-variables)))
-
 	 (obj-set new --name-- name)
 	 (when doc
 	   (obj-set new --doc-- doc))
@@ -342,13 +341,14 @@ if it is not call OBJECT's --getattr-- method if defined"
   (def --setattr-- (self name value) ()
        "x.__setattr__('name', value) <==> x.name = value"
        (_obj-setattr self name value))
-  (def --str-- (self) ()
-       "x.__str__() <==> str(x)"
-       "<class 'object'>")
-  (def --repr-- (self) ()
-       "x.__repr__() <==> repr(x)"
-       "<class 'object'>")
-  ) 
+  ;; (def --str-- (self) ()
+  ;;      "x.__str__() <==> str(x)"
+  ;;      "<class 'object'>")
+  ;; (def --repr-- (self) ()
+  ;;      "x.__repr__() <==> repr(x)"
+  ;;      "<class 'object'>")
+  )
+
 
 
 
