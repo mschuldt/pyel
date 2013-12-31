@@ -155,6 +155,12 @@ These names will be set globally to their index in this list")
 	    (defun ,name (&rest args)
 	      (obj-make-instance ,name args)))))
 
+(defun add-to-end (list thing)
+  "add THING to the end of LIST"
+  (while (not (null (cdr list)))
+    (setq list (cdr list)))
+  (setcdr list (list thing)))
+
 (defun obj-make-instance (class args)
   (let ((new (make-empty-instance)))
 
@@ -164,7 +170,10 @@ These names will be set globally to their index in this list")
     (aset new setatter-index (aref class setatter-index))
     (aset new getattribute-index (aref class getattribute-index))
     (dolist (special special-method-names)
-      (aset new (cdr special) (aref class (cdr special))))
+      (let* ((class-ref (aref class (cdr special)))
+	     (instance-ref (car class-ref)))
+	;;append instance-ref to the end of class-ref
+	(aset new (cdr special) (list instance-ref))))
     
     (aset new obj-bases-index (vector class)) ;;TODO: nesseary to vectorize again?
     (obj-setattr new '--class-- class);;double reference
