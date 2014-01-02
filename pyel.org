@@ -3388,6 +3388,48 @@ TODO: tests!
 ;;
 #+END_SRC
 
+** join
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform join (obj elem)
+                    (string _) ->  (mapconcat 'identity elem obj) 
+                    (_ _)      -> (join obj thing))
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
+** repr
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform repr (thing)
+                       (number) -> (number-to-string thing)
+                       (string) -> (py-repr-string thing)
+                       (list) -> (py-list-str thing)
+                       (object) -> (--repr-- thing)
+                       (vector) -> (py-vector-str thing)
+                       (hash-table) -> (py-hash-str thing)
+                       (symbol) -> (symbol-name thing)
+                       (func) -> (py-function-str thing))
+#+END_SRC
+*** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+(defsubst py-repr-string (thing)
+  (concat "\"" thing "\""))
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3408,18 +3450,6 @@ TODO: tests!
 ;;
 #+END_SRC
 
-** join
-*** transform
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform join (obj elem)
-                    (string _) ->  (mapconcat 'identity elem obj) 
-                    (_ _)      -> (join obj thing))
-#+END_SRC
-*** tests
-(pyel-create-tests '<name>
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
-#+END_SRC
 
 * macro transforms
 macros and macroish primitives
