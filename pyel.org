@@ -3083,6 +3083,18 @@ Example:
 
 * function transforms
 TODO: tests!
+** simple name changes
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-translate-function-name 'map 'mapcar)
+(pyel-translate-function-name 'chr 'byte-to-string)
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** len
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3206,17 +3218,6 @@ TODO: tests!
 ;;
 #+END_SRC
 
-** simple name changes
-*** transform
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'map 'mapcar)
-(pyel-translate-function-name 'chr 'byte-to-string)
-#+END_SRC
-*** tests
-(pyel-create-tests '<name>
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
-#+END_SRC
 
 ** transform template
 *** transform
