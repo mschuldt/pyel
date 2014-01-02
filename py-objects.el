@@ -297,6 +297,12 @@ if it is not call OBJECT's --getattr-- method if defined"
 	(aref obj obj-dict-index))
   nil)
 
+(defun obj-hasattr (object attr)
+  (condition-case
+      (progn (obj-getattr object attr)
+	     t)
+      (AttributeError nil)))
+
 ;;internal attribute representation
 
 (defconst attr-name-index 0) ;;name of the propery
