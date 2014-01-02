@@ -3236,9 +3236,7 @@ TODO: tests!
   (defun _py-str-sequence (seq)
     "convert SEQ to a string of its python representation
   does not include starting/ending parens or brackets"
-    (mapconcat (lambda (x) (if (stringp x)
-                               (format "\"%s\"" x)
-                             (pyel-str-function x))) seq ", "))
+    (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
   
   (defun py-list-str (thing)
     (concat "[" (_py-str-sequence thing) "]"))
