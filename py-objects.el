@@ -316,7 +316,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   nil)
 
 (defun obj-hasattr (object attr)
-  (condition-case
+  (condition-case nil
       (progn (obj-getattr object attr)
 	     t)
       (AttributeError nil)))
