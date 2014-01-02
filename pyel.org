@@ -3184,6 +3184,17 @@ TODO: tests!
 ;;
 #+END_SRC
 
+** hasattr
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-translate-function-name 'hasattr 'obj-hasattr)
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** simple name changes
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
