@@ -3401,6 +3401,29 @@ TODO: tests!
 ;;
 #+END_SRC
 
+** str
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-func-transform str (thing)
+		     (number) -> (number-to-string thing)
+		     (string) -> (identity thing) 
+		     (list) -> (py-list-str thing)
+		     (object) -> (--str-- thing)
+		     (vector) -> (py-vector-str thing)
+		     (hash-table) -> (py-hash-str thing)
+		     (symbol) -> (symbol-name thing)
+		     (func) -> (py-function-str thing))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** repr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3432,6 +3455,7 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
+
 
 ** transform template
 *** transform
