@@ -267,6 +267,11 @@ if it is not call OBJECT's --getattr-- method if defined"
   (and (vectorp thing)
        (= (length thing) py-class-vector-length)
        (eq (aref thing obj-symbol-index) obj-class-symbol)))
+
+(defun py-object-p (thing)
+  (and (vectorp thing)
+       (= (length thing) py-class-vector-length)
+       (eq (aref thing obj-symbol-index) obj-instance-symbol)))
   
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
