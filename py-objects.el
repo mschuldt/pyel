@@ -315,15 +315,12 @@ if it is not call OBJECT's --getattr-- method if defined"
 
   )
 
-(put 'AttributeError
-     'error-conditions
-     '(error AttributeError))
-(put 'AttributeError 'error-message "Error: AttributeError")
-
 (defmacro pyel-def-error (name)
   `(progn
      (put ',name 'error-conditions '(error ,name))
      (put ',name 'error-message '(concat "Error: " (symbol-name name)))))
+
+(pyel-def-error AttributeError)
 
 
 (define-class object ()
