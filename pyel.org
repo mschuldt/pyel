@@ -3407,7 +3407,7 @@ TODO: tests!
   (pyel-func-transform repr (thing)
                        (number) -> (number-to-string thing)
                        (string) -> (py-repr-string thing)
-                       (list) -> (py-list-str thing)
+                       (list) -> (py-list-repr thing)
                        (object) -> (--repr-- thing)
                        (vector) -> (py-vector-str thing)
                        (hash-table) -> (py-hash-str thing)
