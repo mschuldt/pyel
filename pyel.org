@@ -3255,7 +3255,7 @@ TODO: tests!
                        (number) -> (number-to-string thing)
                        (string) -> (py-repr-string thing)
                        (list) -> (py-list-repr thing)
-                       (object) -> (--repr-- thing)
+                       (object) -> (call-method thing --repr--)
                        (vector) -> (py-vector-str thing)
                        (hash-table) -> (py-hash-str thing)
                        (symbol) -> (symbol-name thing)
