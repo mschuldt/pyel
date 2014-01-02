@@ -186,7 +186,8 @@ These names will be set globally to their index in this list")
     new))
 
 (defmacro obj-get (object attr)
-  (let ((special (assoc attr special-method-names)))
+  (let ((special (assoc attr special-method-names))
+	(attr (if (stringp attr) (intern attr) attr)))
     (if special
 	`(_obj-get-special ,object ,(cdr special))
       `(obj-getattr ,object ',attr))))
@@ -339,7 +340,6 @@ if it is not call OBJECT's --getattr-- method if defined"
 (defmacro def (name args decorator-list doc &rest body)
 
   )
-
 
 (define-class object ()
   "The most base type"
