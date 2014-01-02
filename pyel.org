@@ -3416,7 +3416,8 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-
+  (defun py-list-str (thing)
+    (concat "[" (mapconcat (lambda (x) (pyel-str-function x)) thing ", ") "]"))
 #+END_SRC
 
 *** tests
