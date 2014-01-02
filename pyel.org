@@ -3422,6 +3422,9 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle py-lib.el
 (defsubst py-repr-string (thing)
   (concat "\"" thing "\""))
+
+(defun py-list-repr (thing)
+  (concat "[" (mapconcat (lambda (x) (pyel-repr-function x)) thing ", ") "]"))
 #+END_SRC
 
 *** tests
