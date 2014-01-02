@@ -315,6 +315,12 @@ if it is not call OBJECT's --getattr-- method if defined"
 
   )
 
+(put 'AttributeError
+     'error-conditions
+     '(error AttributeError))
+(put 'AttributeError 'error-message "Error: AttributeError")
+
+
 (define-class object ()
   "The most base type"
   (def --init-- () ()
@@ -333,4 +339,3 @@ if it is not call OBJECT's --getattr-- method if defined"
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
   )
-
