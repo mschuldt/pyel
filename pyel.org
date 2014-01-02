@@ -714,7 +714,7 @@ This will have to be removed after the code is generated
   
       `(def-transform ,name pyel ()
          (lambda ,striped-args
-           (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "")))
+           (let ((fsym ',(intern (concat "pyel-" (symbol-name name) "")))
                  ;;      (body (pyel-do-call-transform (pyel-get-possible-types ,@(mapcar (lambda (x) `(quote ,x))args))
                  (body (pyel-do-call-transform (pyel-get-possible-types
                                                 ,@args-just-vars)
@@ -3217,7 +3217,6 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 
 ** transform template
 *** transform

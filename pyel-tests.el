@@ -414,6 +414,8 @@ assert len(a) == 4
 assert a[3] == 'str'"
                    )
 
+;;
+
 (pyel-create-tests len
                    "a = [1,2,3,'5']
 assert len(a) == 4"
@@ -440,8 +442,6 @@ assert len(a) == 2"
     (should (equal (py-list (let ((__h__ (make-hash-table :test (quote equal)))) (puthash 1 "1" __h__) (puthash "3" 3 __h__) (puthash 23 2 __h__) __h__))
                    '(23 "3" 1))))  
   ;;(pyel "{1:'1','3':3,23:2}")
-
-;;
 
 ;;
 

@@ -795,6 +795,9 @@
                   (list _) -> (setq $obj (append obj (list thing)))
                   (_ _)    -> (append obj thing))
 
+(pyel-translate-function-name 'map 'mapcar)
+(pyel-translate-function-name 'chr 'byte-to-string)
+
 (pyel-func-transform len (thing)
                      (object) -> (--len-- thing)
                      (_)      -> (length thing))
@@ -810,9 +813,6 @@
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 
 (pyel-translate-function-name 'isinstance 'obj-isinstance)
-
-(pyel-translate-function-name 'map 'mapcar)
-(pyel-translate-function-name 'chr 'byte-to-string)
 
 ;;
 
@@ -1150,7 +1150,9 @@ else is optional"
              ,(transform body)
            ,(transform orelse)))))
 
-;;
+(def-transform raise pyel ()
+  (lambda (exc cause)
+    `(py-range ,(transform exc)))) ;;TODO: ignoring cause
 
 ;;
 
