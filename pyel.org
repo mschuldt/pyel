@@ -3227,7 +3227,7 @@ TODO: tests!
                        (list) -> (py-list-str thing)
                        (object) -> (call-method thing --str--)
                        (vector) -> (py-vector-str thing)
-                       (hash-table) -> (py-hash-str thing)
+                       (hash) -> (py-hash-str thing)
                        (symbol) -> (symbol-name thing)
                        (func) -> (py-function-str thing))
 #+END_SRC
@@ -3244,7 +3244,6 @@ TODO: tests!
     (concat "(" (_py-str-sequence thing) ")"))
   
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
