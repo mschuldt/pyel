@@ -31,6 +31,8 @@ the rest are in `special-method-names'")
 	     --str--
 	     --repr--
 	     --call--
+	     --get--
+	     --set--	     
 	     ))))
 
 ;;add the special methods whose indexes are explicitly defined 
