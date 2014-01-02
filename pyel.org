@@ -4196,6 +4196,27 @@ This will help notify the user when some syntax has not been implemented
                      )
 #+END_SRC
 
+* raise
+** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+;;
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def Raise(exc, cause):
+      return l_str(["raise", exc, cause or "nil"])
+#+END_SRC
+** python el lib
+#+Begin_SRC python :tangle py-lib.el
+
+#+END_SRC
+
+** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 * transform template
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
