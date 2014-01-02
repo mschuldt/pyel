@@ -325,7 +325,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   ;;TODO: built in types
   (and (py-object-p object)
        (py-class-p class)
-       (eq (aref object obj-bases-index) class)))
+       (eq (aref (aref object obj-bases-index) 0) class)))
 
 ;;internal attribute representation
 
