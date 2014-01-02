@@ -3271,7 +3271,9 @@ TODO: tests!
     (concat "\"" thing "\""))
   
   (defun py-list-repr (thing)
-    (concat "[" (mapconcat (lambda (x) (pyel-repr-function x)) thing ", ") "]"))
+    (concat "[" (mapconcat (lambda (x) (if (stringp x)
+                                           (format "\"%s\"" x)
+                                         (pyel-repr-function x))) thing ", ") "]"))
 #+END_SRC
 
 *** tests
