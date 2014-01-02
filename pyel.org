@@ -4199,7 +4199,9 @@ This will help notify the user when some syntax has not been implemented
 * raise
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-;;
+(def-transform raise pyel ()
+  (lambda (exc cause)
+    `(py-range ,(transform exc)))) ;;TODO: ignoring cause
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
