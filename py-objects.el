@@ -46,7 +46,7 @@ the rest are in `special-method-names'")
 ;;TODO: add spcial-method-names to object-indexes-alist
 (setq py-class-vector-length (+ (length special-method-names)
 				(length object-indexes-alist)))
-      
+
 (defvar setter-functions '(setq pset py-set)
   "list of symbols of function that can bind values
 The second element of the list must be the symbol to be bound")
@@ -71,91 +71,84 @@ These names will be set globally to their index in this list")
 		  (or bases '(object)))) ;;everything inherits from object
 	 (bases (list-to-vector bases)) ;;Python keeps the bases in a tuple
 	 (doc (if (eq (type-of (car attributes)) 'string)
-			(pop attributes) nil))
+		  (pop attributes) nil))
 	 class-variables
 	 methods non-method)
 
-	 (when (eq name 'object) ;;give the first one some help...
-	   (aset new setatter-index 
-	 	 (list (list (lambda (self attr value)
-			       (_obj-setattr self attr value))))))
+    (when (eq name 'object) ;;give the first one some help...
+      (aset new setatter-index 
+	    (list (list (lambda (self attr value)
+			  (_obj-setattr self attr value))))))
 
-	 (if (not (eq bases []))
-	     (let ((base (aref bases 0)))
-	       ;;TODO: proper MRO -- currently just picking the first class
-	       
-	       (aset new setatter-index (aref base setatter-index))
-	       (aset new getattribute-index (aref base getattribute-index))
-	       ;;TODO: copy all special methods from the base classes
-	       ))
-	 
-	 (dolist (attr attributes)
-	   
-	   ;;collect symbols that get bound during class definition
-	   (cond ((and (consp attr)
-		    (symbolp (cadr attr))
-		    (member (car attr) setter-functions))
-		  (progn (push (cadr attr) class-variables)
-			 (push attr non-method)))
+    (if (not (eq bases []))
+	(let ((base (aref bases 0)))
+	  ;;TODO: proper MRO -- currently just picking the first class
+	  
+	  (aset new setatter-index (aref base setatter-index))
+	  (aset new getattribute-index (aref base getattribute-index))
+	  ;;TODO: copy all special methods from the base classes
+	  ))
+    
+    (dolist (attr attributes)
+      
+      ;;collect symbols that get bound during class definition
+      (cond ((and (consp attr)
+		  (symbolp (cadr attr))
+		  (member (car attr) setter-functions))
+	     (progn (push (cadr attr) class-variables)
+		    (push attr non-method)))
 
-	   ;;add special methods to 'new' and collect other methods in 'methods'
+	    ;;add special methods to 'new' and collect other methods in 'methods'
 	    ((eq (car attr) 'def)
-	       (if (< (length attr) 4)
-		   (error "improper method form")
-	     (let* ((name (pop attr))
-		    (name (pop attr))
-		    (args (pop attr))
-		    (decorators (pop attr))
-		    (doc (if (eq (type-of (car attr)) 'string) (pop attr) nil))
-		    (func `(lambda ,args ,@attr))
-		    attr type )
-	       (setq type (cond ((assoc name special-method-names) 'special)
-				((member 'property decorators) attr-property-type)
-				(t attr-method-type)))
+	     (if (< (length attr) 4)
+		 (error "improper method form")
+	       (let* ((name (pop attr))
+		      (name (pop attr))
+		      (args (pop attr))
+		      (decorators (pop attr))
+		      (doc (if (eq (type-of (car attr)) 'string) (pop attr) nil))
+		      (func `(lambda ,args ,@attr))
+		      attr type )
+		 (setq type (cond ((assoc name special-method-names) 'special)
+				  ((member 'property decorators) 'property)
+				  (t 'method)))
 
-	       (if (eq type 'special)
-		   ;;TODO: decorators?
-		   ;;special methods don't have the usual attribute format
-		   (aset new (cdr (assoc name special-method-names)) (list (list func)))
-		 
-		 (setq methods (cons (_make-attr :name name
-						 :value func
-						 :type type
-						 :args args
-						 :doc doc
-						 :decorators decorators ;;??
-						 ) methods))))))
+		 (if (eq type 'special)
+		     ;;TODO: decorators?
+		     ;;special methods don't have the usual attribute format
+		     (aset new (cdr (assoc name special-method-names)) (list (list func)))
+		   ;;else normal method
+		   (setq methods (cons (cons name func) methods))))))
 	    (t (push attr non-method))))
 
-	 ;;eval non-method bits
-	 (setq class-variables
-	       (mapcar* 'cons
-			class-variables
-			(eval `(let ,class-variables
-				 ,@(reverse non-method)
-				 (list ,@class-variables)))))
-	 
-	 ;;add class variables and methods to object dict
-	 (aset new obj-dict-index
-	       (append methods
-		       (mapcar (lambda (var--value)
-				 (_make-attr :name (car var--value)
-					     :value (cdr var--value)
-					     :type attr-normal-type))
-			       class-variables)))
-	 (obj-set new --name-- name)
-	 (when doc
-	   (obj-set new --doc-- doc))
+    ;;eval non-method bits
+    (setq class-variables
+	  (mapcar* 'cons
+		   class-variables
+		   (eval `(let ,class-variables
+			    ,@(reverse non-method)
+			    (list ,@class-variables)))))
+    
+    ;;add class variables and methods to object dict
+    (aset new obj-dict-index
+	  (append methods
+		  (mapcar (lambda (var--value)
+			    (cons (car var--value)
+				  (cdr var--value)))
+			  class-variables)))
+    (obj-set new --name-- name)
+    (when doc
+      (obj-set new --doc-- doc))
 
-	 ;;This double reference makes the __bases__ attribute available
-	 ;;for users and provides this implementation quicker access
-	 (obj-set new --bases-- bases)
-	 (aset new obj-bases-index bases)
-	 
-	 `(progn
-	    (setq ,name ',new)
-	    (defun ,name (&rest args)
-	      (obj-make-instance ,name args)))))
+    ;;This double reference makes the __bases__ attribute available
+    ;;for users and provides this implementation quicker access
+    (obj-set new --bases-- bases)
+    (aset new obj-bases-index bases)
+    
+    `(progn
+       (setq ,name ',new)
+       (defun ,name (&rest args)
+	 (obj-make-instance ,name args)))))
 
 (defun add-to-end (list thing)
   "add THING to the end of LIST"
@@ -214,16 +207,11 @@ if it is not call OBJECT's --getattr-- method if defined"
 		  (if (setq getter (caar (aref object getattr-index))) ;;__getattr__
 		      (funcall getter object attr)
 		    (error "attribute not found")))))
-	 (type (aref attr attr-type-index))
-	 (value (aref attr attr-value-index)))
-
-    (cond ((py-class-p object);; class attribute
-	   (aref attr attr-value-index))  
-	  ((= type attr-property-type);; @property
-	   (funcall attr object))
-	  ((= type attr-method-type)  ;; method
-	   (bind-method object attr))
-	  (t value))))
+	 (val (cdr attr)))
+    (if (and (py-object-p object)
+	     (functionp val))
+	(bind-method object val)
+      val)))
 
 (defun _obj-getattribute (obj attr)
   ;; retrieves the internal attribute representation
@@ -234,13 +222,12 @@ if it is not call OBJECT's --getattr-- method if defined"
   (let ((val (assq attr (aref obj obj-dict-index)))
 	bases nbases i)
     (if val
-	(cdr val)
-
+	val
       ;;did not find it in this object
       ;;now check the class or the base classes
 
       (setq bases (aref obj obj-bases-index))
-       ;;TODO: obj-bases-index is being used interchangeably with the type-index
+      ;;TODO: obj-bases-index is being used interchangeably with the type-index
       (setq nbases (length bases)
 	    i 0)
       (while (not val) ;;TODO: proper MRO
@@ -248,8 +235,8 @@ if it is not call OBJECT's --getattr-- method if defined"
 	(setq i (1+ i))
 	(if (and (not val)
 		 (>= i nbases)) (error "attr does not exist")))
-       val
-;      (obj-class-getattr (aref obj obj-bases-index) attr))
+      val
+					;      (obj-class-getattr (aref obj obj-bases-index) attr))
       )))
 
 
@@ -257,11 +244,10 @@ if it is not call OBJECT's --getattr-- method if defined"
   "bind METHOD to OBJECT"
   ;;TODO: this is not fully compatible with python
   ;;      maybe this should return an object
-  (let ((func (_get-attr-prop method :value))
-	(args (cdr (_get-attr-prop method :args))))
-    
+  ;;presumes that method is a lambda function
+  (let ((args (cdadr method)))
     `(lambda ,args
-       (funcall ,func ,object ,@args))))
+       (funcall ,method ,object ,@args))))
 
 (defun py-class-p (thing)
   (and (vectorp thing)
@@ -272,7 +258,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   (and (vectorp thing)
        (= (length thing) py-class-vector-length)
        (eq (aref thing obj-symbol-index) obj-instance-symbol)))
-  
+
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
   (let ((method (caar (aref object method-index))))
@@ -296,22 +282,19 @@ if it is not call OBJECT's --getattr-- method if defined"
     (if special
 	`(funcall (_obj-get-special ,object ,(cdr special)) ,object ,@args)
       
-      `(funcall (aref (_obj-getattribute ,object ',method) attr-value-index)
+      `(funcall (cdr (_obj-getattribute ,object ',method))
 		,object ,@args))))
 
 (defmacro obj-set (obj attr value)
   `(obj-setattr ,obj ',attr ,value))
 
 (defun obj-setattr (obj attr value)
-    (funcall (caar (aref obj setatter-index)) obj attr value))
+  (funcall (caar (aref obj setatter-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
   ;;TODO: specify the type?
   ;;TODO: this does not remove the old value, just shadows it
-  (push (_make-attr :name attr
-		    :value value
-		    :type attr-normal-type
-		    )
+  (push (cons attr value)
 	(aref obj obj-dict-index))
   nil)
 
@@ -319,7 +302,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   (condition-case nil
       (progn (obj-getattr object attr)
 	     t)
-      (AttributeError nil)))
+    (AttributeError nil)))
 
 (defun obj-isinstance (object class)
   ;;TODO: built in types
@@ -327,45 +310,6 @@ if it is not call OBJECT's --getattr-- method if defined"
        (py-class-p class)
        (eq (aref (aref object obj-bases-index) 0) class)))
 
-;;internal attribute representation
-
-(defconst attr-name-index 0) ;;name of the propery
-(defconst attr-type-index 1) ;;integer type (property, method, etc) ....
-(defconst attr-value-index 2)
-(defconst attr-alist-index 3) ;; other properties like documentation, args
-
-(defconst attr-normal-type 0)
-(defconst attr-method-type 1) ;;bound method
-(defconst attr-property-type 2) ;; methods decorated with @property
-
-(defun _make-attr (&rest keylist);;TODO: check that length is even
-  (let ((new (vector nil nil nil nil))
-	name
-	key value)
-    (while keylist
-      (setq key (pop keylist)
-	    value (pop keylist))
-      (cond ((eq key :name)
-	     (aset new attr-name-index value)
-	     (setq name value))
-	    ((eq key :value)
-	     (aset new attr-value-index value))
-	    ((eq key :type)
-	     (aset new attr-type-index value))
-	    (t (aset new attr-alist-index
-		     (cons (cons key value) (aref new attr-alist-index ))))))
-    (if name ;;this should be temporary, so that we can search with 'assq'
-	(cons name new)
-      (error "attribute has no name"))))
-
-(defmacro _get-attr-prop (attr key)
-  (cond ((eq key :name)
-	 `(aref ,attr ,attr-name-index))
-	((eq key :value)
-	 `(aref ,attr ,attr-value-index))
-	((eq key :type)
-	 `(aref ,attr ,attr-type-index))
-	(t `(cdr (assoc ,key (aref ,attr ,attr-alist-index))))))
 
 (defmacro def (name args decorator-list doc &rest body)
 
