@@ -187,6 +187,11 @@ These names will be set globally to their index in this list")
     (eval `(call-method new --init-- ,@args))
     new))
 
+(defun data-descriptor-p (object)
+  (and (py-object-p object)
+       (obj-hasattr object '__get__)
+       (obj-hasattr object '__set__)))
+
 (defmacro obj-get (object attr)
   (let ((special (assoc attr special-method-names))
 	(attr (if (stringp attr) (intern attr) attr)))
