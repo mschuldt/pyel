@@ -303,6 +303,12 @@ if it is not call OBJECT's --getattr-- method if defined"
 	     t)
       (AttributeError nil)))
 
+(defun obj-isinstance (object class)
+  ;;TODO: built in types
+  (and (py-object-p object)
+       (py-class-p class)
+       (eq (aref object obj-bases-index) class)))
+
 ;;internal attribute representation
 
 (defconst attr-name-index 0) ;;name of the propery
