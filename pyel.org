@@ -3241,13 +3241,10 @@ TODO: tests!
                              (pyel-str-function x))) seq ", "))
   
   (defun py-list-str (thing)
-      (concat "[" (mapconcat (lambda (x) (if (stringp x)
-                                             (format "\"%s\"" x)
-                                           (pyel-str-function x))) thing ", ") "]"))
+    (concat "[" (_py-str-sequence thing) "]"))
   (defun py-vector-str (thing)
-      (concat "(" (mapconcat (lambda (x) (if (stringp x)
-                                             (format "\"%s\"" x)
-                                           (pyel-str-function x))) thing ", ") ")"))
+    (concat "(" (_py-str-sequence thing) ")"))
+  
 #+END_SRC
 
 *** tests
