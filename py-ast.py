@@ -266,6 +266,9 @@ def Pass():
 def IfExp (test, body, orelse):
     return l_str(["if-exp", test, body, orelse])
 
+def Raise(exc, cause):
+    return l_str(["raise", exc, cause or "nil"])
+
 
 
 #py-ast.py ends here

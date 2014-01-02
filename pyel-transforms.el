@@ -805,6 +805,12 @@
 
 (pyel-translate-function-name 'list 'py-list)
 
+(pyel-translate-function-name 'getattr 'obj-get)
+
+(pyel-translate-function-name 'hasattr 'obj-hasattr)
+
+(pyel-translate-function-name 'isinstance 'obj-isinstance)
+
 (pyel-translate-function-name 'map 'mapcar)
 (pyel-translate-function-name 'chr 'byte-to-string)
 
@@ -1143,6 +1149,8 @@ else is optional"
         `(if ,(if (equal tst []) nil tst)
              ,(transform body)
            ,(transform orelse)))))
+
+;;
 
 ;;
 

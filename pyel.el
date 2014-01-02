@@ -85,7 +85,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
        pyel-tmp-file nil 'silent))
     
     (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
-
+    (setq _x py-ast)
     (if (setq py-error (pyel-is-error py-ast))
         (progn
           (setq pyel-python-error-line py-error)
