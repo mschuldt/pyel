@@ -486,9 +486,3 @@ WARNING: will create file named FILE.el, overwriting without warning"
 
 
 ;;TODO: option a in b to return bool like python for the element like e-lisp
-
-
-
-
-
-
