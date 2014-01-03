@@ -430,29 +430,6 @@ main
          '(quote load))
         (store
          '(quote store)))))
-  
-  
-  (defmacro macrop (sym)
-    (if (boundp sym)
-        (list 'macrop-1 sym)
-      `(macrop-1 (quote ,sym))))
-  
-  (defun macrop-1 (function)
-    ;;this is mostly taken from `describe-function-1'
-    (let* ((advised (and (symbolp function) (featurep 'advice)
-                         (ad-get-advice-info function)))
-           ;; If the function is advised, use the symbol that has the
-           ;; real definition, if that symbol is already set up.
-           (real-function
-            (or (and advised
-                     (let ((origname (cdr (assq 'origname advised))))
-                       (and (fboundp origname) origname)))
-                function))
-           ;; Get the real definition.
-           (def (if (symbolp real-function)
-                    (symbol-function real-function)
-                  function)))
-      (eq (car-safe def) 'macro)))
 #+END_SRC
 
 
@@ -462,23 +439,21 @@ main
     (defvar pyel-directory ""
       "Path to pyel files. must include py-ast.py, pyel.el etc")
     
-    
-    (defvar pyel-type-test-funcs '((string stringp)
-                                   (number numberp)
-                                   (integer integerp)
-                                   (int integerp)
-                                   (float floatp)
-                                   (vector vectorp)
-                                   (list listp)
-                                   (cons consp)
-                                   (hash hash-table-p)
-                                   (hash-table hash-table-p)
-                                   (symbol symbolp)
-                                   (array arrayp)
-                                   (object object-p)
-                                   (function functionp)
-                                   (func functionp))
-      
+  (defvar pyel-type-test-funcs '((string stringp)
+                                 (number numberp)
+                                 (integer integerp)
+                                 (int integerp)
+                                 (float floatp)
+                                 (vector vectorp)
+                                 (list listp)
+                                 (cons consp)
+                                 (hash hash-table-p)
+                                 (hash-table hash-table-p)
+                                 (symbol symbolp)
+                                 (array arrayp)
+                                 (object object-p)
+                                 (function fboundp));;fboundp is also t for macros
+  
       "alist of types used in pyel-call-transform for the switch-type
         and the function used to test for that type")
     
