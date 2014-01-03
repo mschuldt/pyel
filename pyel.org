@@ -3235,7 +3235,7 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle py-lib.el  
   (defun _py-str-sequence (seq)
     "convert SEQ to a string of its python representation
-  does not include starting/ending parens or brackets"
+    does not include starting/ending parens or brackets"
     (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
   
   (defun py-list-str (thing)
@@ -3243,6 +3243,12 @@ TODO: tests!
   (defun py-vector-str (thing)
     (concat "(" (_py-str-sequence thing) ")"))
   
+  (defun py-function-str (func)
+    "return a string representation of function FUNC"
+    (format "<function %s at 0x18b071>" (if (and (listp func)
+                                                 (or (eq (car func) 'lambda)))
+                                            "<lambda>"
+                                          (symbol-name func))))
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
