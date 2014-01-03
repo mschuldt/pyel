@@ -430,6 +430,14 @@ main
          '(quote load))
         (store
          '(quote store)))))
+  
+  
+  
+  (defun callable-p (object)
+    (if (symbolp object)
+        (or (fboundp object)
+            (functionp object)) ;;necessary?
+      (functionp object)))
 #+END_SRC
 
 
