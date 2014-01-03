@@ -814,6 +814,26 @@
 
 (pyel-translate-function-name 'isinstance 'obj-isinstance)
 
+(pyel-func-transform str (thing)
+                     (number) -> (number-to-string thing)
+                     (string) -> (format "\"%s\"" thing)
+                     (function) -> (py-function-str thing)
+                     (list) -> (py-list-str thing)
+                     (object) -> (call-method thing --str--)
+                     (vector) -> (py-vector-str thing)
+                     (hash) -> (py-hash-str thing)
+                     (symbol) -> (symbol-name thing))
+
+(pyel-func-transform repr (thing)
+                     (number) -> (number-to-string thing)
+                     (string) -> (py-repr-string thing)
+                     (list) -> (py-list-repr thing)
+                     (object) -> (call-method thing --repr--)
+                     (vector) -> (py-vector-str thing)
+                     (hash-table) -> (py-hash-str thing)
+                     (symbol) -> (symbol-name thing)
+                     (func) -> (py-function-str thing))
+
 ;;
 
 (pyel-method-transform extend(obj thing)
@@ -847,11 +867,11 @@
                   (vector _) -> (count-elems-vector obj elem)
                   (object _)  -> (count thing));;
 
-;;
-
 (pyel-method-transform join (obj elem)
                   (string _) ->  (mapconcat 'identity elem obj) 
                   (_ _)      -> (join obj thing))
+
+;;
 
 ;;
 

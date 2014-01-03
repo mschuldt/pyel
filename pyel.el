@@ -520,16 +520,16 @@ This is used when the ast form is needed by a transform that is manually
 (setq known-types '((number object ) (number string)))
 
 ;;prevents error: "Wrong type argument: listp, string"
-(setq known-types '((number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)
-                    (number list vector string object hash function)))
+(setq known-types '((number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)
+                    (number list vector string object hash function symbol)))
 
 (defun pyel-get-possible-types (&rest args)
   "return a list in the form (arg types).

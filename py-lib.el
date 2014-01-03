@@ -18,6 +18,24 @@
         keys))
      ((listp thing) (copy-list thing)))))
 
+(defun _py-str-sequence (seq)
+  "convert SEQ to a string of its python representation
+does not include starting/ending parens or brackets"
+  (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
+
+(defun py-list-str (thing)
+  (concat "[" (_py-str-sequence thing) "]"))
+(defun py-vector-str (thing)
+  (concat "(" (_py-str-sequence thing) ")"))
+
+(defsubst py-repr-string (thing)
+  (concat "\"" thing "\""))
+
+(defun py-list-repr (thing)
+  (concat "[" (mapconcat (lambda (x) (if (stringp x)
+                                         (format "\"%s\"" x)
+                                       (pyel-repr-function x))) thing ", ") "]"))
+
 
 
 (defun list-index (elem list)
