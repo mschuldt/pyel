@@ -3235,7 +3235,7 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle py-lib.el  
   (defun _py-str-sequence (seq)
     "convert SEQ to a string of its python representation
-    does not include starting/ending parens or brackets"
+      does not include starting/ending parens or brackets"
     (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
   
   (defun py-list-str (thing)
@@ -3249,6 +3249,23 @@ TODO: tests!
                                                  (or (eq (car func) 'lambda)))
                                             "<lambda>"
                                           (symbol-name func))))
+  
+  ;;temp fix for 'str' transform
+  ;;The problem:
+  ;; cannot pass a function name to the str transform because the tranform
+  ;; treats it like a variable and it may not be bound as a variable
+  ;;*This should be temporary because the 'str' transform cannot
+  ;;expand this way to take advantage of known types
+  (defmacro pyel-str (thing)
+    (if (symbolp thing)
+        (if (boundp thing)
+            (list 'pyel-str-function thing)
+          (if (functionp thing)
+              `(py-function-str (quote ,thing))
+            thing;;error
+            ))
+      (list 'pyel-str-function thing)))
+  
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
