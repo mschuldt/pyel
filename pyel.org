@@ -3224,12 +3224,12 @@ TODO: tests!
   (pyel-func-transform str (thing)
                        (number) -> (number-to-string thing)
                        (string) -> (format "\"%s\"" thing)
+                       (function) -> (py-function-str thing)
                        (list) -> (py-list-str thing)
                        (object) -> (call-method thing --str--)
                        (vector) -> (py-vector-str thing)
                        (hash) -> (py-hash-str thing)
-                       (symbol) -> (symbol-name thing)
-                       (function) -> (py-function-str thing))
+                       (symbol) -> (symbol-name thing))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el  
