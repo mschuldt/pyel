@@ -392,7 +392,8 @@ simply inserts a newline."
 			       (kill-buffer (current-buffer))
 			       (set-buffer ipyel-wbuf)
 			       (setq ipyel-result
-                                     (eval ipyel-form lexical-binding))
+				     ;;mbs
+                                     (pyel-repr (eval ipyel-form lexical-binding)))
 			       (setq ipyel-wbuf (current-buffer))
 			       (setq
 				ipyel-temp-buffer
@@ -434,7 +435,7 @@ simply inserts a newline."
 	(setq * ipyel-result))
       (setq ipyel-output (concat ipyel-output "\n")))
     (setq ipyel-output (concat ipyel-output ipyel-prompt-internal))
-    (comint-output-filter (ipyel-process) ipyel-output)))
+    (comint-output-filter (ipyel-process) (setq _x ipyel-output))))
 
 ;;; Process and marker utilities
 
