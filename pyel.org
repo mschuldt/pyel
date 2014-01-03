@@ -430,6 +430,29 @@ main
          '(quote load))
         (store
          '(quote store)))))
+  
+  
+  (defmacro macrop (sym)
+    (if (boundp sym)
+        (list 'macrop-1 sym)
+      `(macrop-1 (quote ,sym))))
+  
+  (defun macrop-1 (function)
+    ;;this is mostly taken from `describe-function-1'
+    (let* ((advised (and (symbolp function) (featurep 'advice)
+                         (ad-get-advice-info function)))
+           ;; If the function is advised, use the symbol that has the
+           ;; real definition, if that symbol is already set up.
+           (real-function
+            (or (and advised
+                     (let ((origname (cdr (assq 'origname advised))))
+                       (and (fboundp origname) origname)))
+                function))
+           ;; Get the real definition.
+           (def (if (symbolp real-function)
+                    (symbol-function real-function)
+                  function)))
+      (eq (car-safe def) 'macro)))
 #+END_SRC
 
 
