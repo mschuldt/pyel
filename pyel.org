@@ -438,7 +438,7 @@ main
     
     (defvar pyel-directory ""
       "Path to pyel files. must include py-ast.py, pyel.el etc")
-    
+  
   (defvar pyel-type-test-funcs '((string stringp)
                                  (number numberp)
                                  (integer integerp)
@@ -452,8 +452,9 @@ main
                                  (symbol symbolp)
                                  (array arrayp)
                                  (object object-p)
-                                 (function fboundp));;fboundp is also t for macros
-  
+                                 (function functionp)
+                                 (func fboundp))
+    
       "alist of types used in pyel-call-transform for the switch-type
         and the function used to test for that type")
     
