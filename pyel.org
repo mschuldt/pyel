@@ -482,7 +482,9 @@ main
                                  (array arrayp)
                                  (object object-p)
                                  (function functionp)
-                                 (func fboundp))
+                                 (func fboundp)
+                                 (func functionp)
+                                 (callable callable-p))
     
       "alist of types used in pyel-call-transform for the switch-type
         and the function used to test for that type")
