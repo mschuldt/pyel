@@ -3306,6 +3306,23 @@ TODO: tests!
 ;;
 #+END_SRC
 
+** hex
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+;;
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+(defun py-hex (n)
+  (format "%X" n))
+#+END_SRC
+
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
