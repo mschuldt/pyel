@@ -419,7 +419,7 @@ simply inserts a newline."
 	(condition-case nil
 	    ;; Self-referential objects cause loops in the printer, so
 	    ;; trap quits here. May as well do errors, too
-	    (setq ipyel-output (concat ipyel-output (pp-to-string ipyel-result)))
+	    (setq ipyel-output (concat ipyel-output ipyel-result))
 	  (error (setq ipyel-error-type "IPYEL Error")
 		 (setq ipyel-result "Error during pretty-printing (bug in pp)"))
 	  (quit  (setq ipyel-error-type "IPYEL Error")
