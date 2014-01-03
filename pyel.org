@@ -687,16 +687,20 @@ This will have to be removed after the code is generated
   (setq known-types '((number object ) (number string)))
   
   ;;prevents error: "Wrong type argument: listp, string"
-  (setq known-types '((number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)
-                      (number list vector string object hash function symbol)))
+  ;;TODO: this is a bit of a mess now. types 'func' and 'function' in type
+  ;;transforms result in different tests but func/function still kind of mean the
+  ;;same thing when it comes to python. if func is known type, function should
+  ;;also be know. need some kind of an alias mechanism
+  (setq known-types '((number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)
+                      (number list vector string object hash function func symbol)))
   
   (defun pyel-get-possible-types (&rest args)
     "return a list in the form (arg types).
@@ -2191,7 +2195,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     (if pyel-unique-obj-names
         (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
       "obj"))
-  
   
   (pyel-create-py-func fcall (_func &rest args)
                        ($func _) -> ($func ,@args)
