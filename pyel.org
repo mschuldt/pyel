@@ -2192,8 +2192,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
       "obj"))
   
+  
   (pyel-create-py-func fcall (_func &rest args)
-                       ($function _) -> ($func ,@args)
+                       ($func _) -> ($func ,@args)
                        (_ _) -> (funcall $func ,@args))
   
   (def-transform call pyel ()
