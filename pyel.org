@@ -3337,7 +3337,7 @@ TODO: tests!
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defsubst py-repr-string (thing)
-    (concat "\"" thing "\""))
+    (prin1-to-string (prin1-to-string thing)))
   
   (defun _py-repr-sequence (seq)
     (mapconcat (lambda (x) (pyel-repr-function x)) seq ", "))
