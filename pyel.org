@@ -1549,8 +1549,10 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
 * assign
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  ;; should not fset functions because the effect takes place globally
+  ;; even when the name being set is let bound.  
   (pyel-create-py-func set (_sym _val)
-                       (_ $function) -> (fset $$sym $$val)
+                       (_ $function) -> (setq $sym $$val)
                        (_ _) -> (setq $sym $val)) ;;TODO: other?
   
   (def-transform assign pyel ()
