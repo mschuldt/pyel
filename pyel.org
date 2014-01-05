@@ -3354,7 +3354,7 @@ TODO: tests!
 ** hex
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-;;
+(pyel-translate-function-name 'hex 'py-hex)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
