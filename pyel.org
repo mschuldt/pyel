@@ -3327,12 +3327,12 @@ TODO: tests!
   (pyel-func-transform repr (thing)
                        (number) -> (number-to-string thing)
                        (string) -> (py-repr-string thing)
+                       (func) -> (py-function-str thing)
                        (list) -> (py-list-repr thing)
                        (object) -> (call-method thing --repr--)
                        (vector) -> (py-vector-str thing)
                        (hash-table) -> (py-hash-str thing)
-                       (symbol) -> (symbol-name thing)
-                       (func) -> (py-function-str thing))
+                       (symbol) -> (symbol-name thing))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
