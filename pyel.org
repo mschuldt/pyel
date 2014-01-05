@@ -3286,6 +3286,17 @@ TODO: tests!
                                             "<lambda>"
                                           (symbol-name func))))
   
+  (defun py-hash-str (ht)
+    (let (str)
+      (maphash (lambda (key value)
+                 (push (concat (pyel-str-function key)
+                               ": "
+                               (pyel-str-function value))
+                       str))
+               ht)
+      
+      (concat "{" (mapconcat 'identity (reverse str) ", ") "}")))
+  
   ;;temp fix for 'str' transform
   ;;The problem:
   ;; cannot pass a function name to the str transform because the tranform
