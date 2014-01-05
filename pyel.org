@@ -3371,7 +3371,7 @@ TODO: tests!
 ** bin
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-;;
+(pyel-translate-function-name 'bin 'py-bin)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
