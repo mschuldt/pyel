@@ -3339,10 +3339,15 @@ TODO: tests!
   (defsubst py-repr-string (thing)
     (concat "\"" thing "\""))
   
+  (defun _py-repr-sequence (seq)
+    (mapconcat (lambda (x) (pyel-repr-function x)) seq ", "))
+  
   (defun py-list-repr (thing)
-    (concat "[" (mapconcat (lambda (x) (if (stringp x)
-                                           (format "\"%s\"" x)
-                                         (pyel-repr-function x))) thing ", ") "]"))
+    (concat "[" (_py-repr-sequence thing) "]"))
+  
+  (defun py-vector-repr (thing)
+    (concat "(" (_py-repr-sequence thing) ")"))
+  
 #+END_SRC
 
 *** tests
