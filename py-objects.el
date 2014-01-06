@@ -290,7 +290,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 		,object ,@args))))
 
 (defmacro setattr (obj attr value)
-  `(obj-setattr ,obj ',attr ,value))
+  `(obj-setattr ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 
 (defun obj-setattr (obj attr value)
   (funcall (caar (aref obj setatter-index)) obj attr value))
