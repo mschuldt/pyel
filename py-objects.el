@@ -196,7 +196,7 @@ These names will be set globally to their index in this list")
 	   (obj-hasattr object '__get__)
 	   (not (obj-hasattr object '__set__)))))
 
-(defmacro obj-get (object attr)
+(defmacro getattr (object attr)
   (let* ((attr (if (stringp attr) (intern attr) attr))
 	 (special (assoc attr special-method-names)))
     (if special
