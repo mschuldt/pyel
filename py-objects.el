@@ -203,7 +203,7 @@ These names will be set globally to their index in this list")
 if it is not call OBJECT's --getattr-- method if defined"
   (let* ((attr (condition-case nil
 		   (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
-		 (error
+		 (AttributeError
 		  (if (setq getter (caar (aref object getattr-index))) ;;__getattr__
 		      (funcall getter object attr)
 		    (error "attribute not found")))))
