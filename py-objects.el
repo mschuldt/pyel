@@ -173,7 +173,7 @@ These names will be set globally to their index in this list")
 	  (aset new (cdr special) (list instance-ref)))))
     
     (aset new obj-bases-index (vector class)) ;;TODO: nesseary to vectorize again?
-    (obj-setattr new '--class-- class);;double reference
+    (setattr-1 new '--class-- class);;double reference
 
     (setq _x new)
     (setq _a args)
@@ -290,9 +290,9 @@ if it is not call OBJECT's --getattr-- method if defined"
 		,object ,@args))))
 
 (defmacro setattr (obj attr value)
-  `(obj-setattr ,obj ',(if (stringp attr) (intern attr) attr) ,value))
+  `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 
-(defun obj-setattr (obj attr value)
+(defun setattr-1 (obj attr value)
   (funcall (caar (aref obj setatter-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
