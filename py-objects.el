@@ -204,9 +204,8 @@ if it is not call OBJECT's --getattr-- method if defined"
   (let* ((attr (condition-case nil
 		   (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
 		 (AttributeError
-		  (if (setq getter (caar (aref object getattr-index))) ;;__getattr__
-		      (funcall getter object attr)
-		    (error "attribute not found")))))
+		  (funcall (caar (aref object getattr-index)) object attr) ;;__getattr__
+		  )))
 	 (val (cdr attr)))
     (if (and (py-object-p object)
 	     (functionp val))
