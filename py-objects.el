@@ -136,13 +136,13 @@ These names will be set globally to their index in this list")
 			    (cons (car var--value)
 				  (cdr var--value)))
 			  class-variables)))
-    (obj-set new --name-- name)
+    (setattr new --name-- name)
     (when doc
-      (obj-set new --doc-- doc))
+      (setattr new --doc-- doc))
 
     ;;This double reference makes the __bases__ attribute available
     ;;for users and provides this implementation quicker access
-    (obj-set new --bases-- bases)
+    (setattr new --bases-- bases)
     (aset new obj-bases-index bases)
     
     `(progn
@@ -162,7 +162,7 @@ These names will be set globally to their index in this list")
 
     ;;each instance has its own reference to the getter and setter methods
     ;;for faster lookup
-    ;;This must also be done before any calls to `obj-set'
+    ;;This must also be done before any calls to `setattr'
     (aset new setatter-index (aref (setq _x class) setatter-index))
     (aset new getattribute-index (aref class getattribute-index))
     (dolist (special special-method-names)
@@ -289,7 +289,7 @@ if it is not call OBJECT's --getattr-- method if defined"
       `(funcall (cdr (_obj-getattribute ,object ',method))
 		,object ,@args))))
 
-(defmacro obj-set (obj attr value)
+(defmacro setattr (obj attr value)
   `(obj-setattr ,obj ',attr ,value))
 
 (defun obj-setattr (obj attr value)
