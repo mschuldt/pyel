@@ -180,6 +180,11 @@ These names will be set globally to their index in this list")
     (eval `(call-method new --init-- ,@args))
     new))
 
+(defun descriptor-p (object)
+  (and (py-object-p object)
+       (or (obj-hasattr object '__get__)
+	   (obj-hasattr object '__set__))))
+
 (defun data-descriptor-p (object)
   (and (py-object-p object)
        (obj-hasattr object '__get__)
