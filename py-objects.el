@@ -201,9 +201,9 @@ These names will be set globally to their index in this list")
 	 (special (assoc attr special-method-names)))
     (if special
 	`(_obj-get-special ,object ,(cdr special))
-      `(getatter-1 ,object ',attr))))
+      `(getattr-1 ,object ',attr))))
 
-(defun getatter-1 (object attr)
+(defun getattr-1 (object attr)
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
   (let* ((attr (condition-case nil
@@ -304,7 +304,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 
 (defun obj-hasattr (object attr)
   (condition-case nil
-      (progn (getatter-1 object attr)
+      (progn (getattr-1 object attr)
 	     t)
     (AttributeError nil)))
 
