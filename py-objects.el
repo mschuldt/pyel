@@ -136,13 +136,13 @@ These names will be set globally to their index in this list")
 			    (cons (car var--value)
 				  (cdr var--value)))
 			  class-variables)))
-    (obj-set new --name-- name)
+    (setattr new --name-- name)
     (when doc
-      (obj-set new --doc-- doc))
+      (setattr new --doc-- doc))
 
     ;;This double reference makes the __bases__ attribute available
     ;;for users and provides this implementation quicker access
-    (obj-set new --bases-- bases)
+    (setattr new --bases-- bases)
     (aset new obj-bases-index bases)
     
     `(progn
@@ -162,7 +162,7 @@ These names will be set globally to their index in this list")
 
     ;;each instance has its own reference to the getter and setter methods
     ;;for faster lookup
-    ;;This must also be done before any calls to `obj-set'
+    ;;This must also be done before any calls to `setattr'
     (aset new setatter-index (aref (setq _x class) setatter-index))
     (aset new getattribute-index (aref class getattribute-index))
     (dolist (special special-method-names)
@@ -173,12 +173,17 @@ These names will be set globally to their index in this list")
 	  (aset new (cdr special) (list instance-ref)))))
     
     (aset new obj-bases-index (vector class)) ;;TODO: nesseary to vectorize again?
-    (obj-setattr new '--class-- class);;double reference
+    (setattr-1 new '--class-- class);;double reference
 
     (setq _x new)
     (setq _a args)
     (eval `(call-method new --init-- ,@args))
     new))
+
+(defun descriptor-p (object)
+  (and (py-object-p object)
+       (or (obj-hasattr object '__get__)
+	   (obj-hasattr object '__set__))))
 
 (defun data-descriptor-p (object)
   (and (py-object-p object)
@@ -191,54 +196,130 @@ These names will be set globally to their index in this list")
 	   (obj-hasattr object '__get__)
 	   (not (obj-hasattr object '__set__)))))
 
-(defmacro obj-get (object attr)
-  (let ((special (assoc attr special-method-names))
-	(attr (if (stringp attr) (intern attr) attr)))
+(defmacro getattr (object attr)
+  (let* ((attr (if (stringp attr) (intern attr) attr))
+	 (special (assoc attr special-method-names)))
     (if special
 	`(_obj-get-special ,object ,(cdr special))
-      `(obj-getattr ,object ',attr))))
+      `(getattr-1 ,object ',attr))))
 
-(defun obj-getattr (object attr)
+(defun getattr-1 (object attr)
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
   (let* ((attr (condition-case nil
 		   (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
-		 (error
-		  (if (setq getter (caar (aref object getattr-index))) ;;__getattr__
-		      (funcall getter object attr)
-		    (error "attribute not found")))))
+		 (AttributeError
+		  (funcall (caar (aref object getattr-index)) object attr) ;;__getattr__
+		  )))
 	 (val (cdr attr)))
     (if (and (py-object-p object)
 	     (functionp val))
 	(bind-method object val)
       val)))
 
+
 (defun _obj-getattribute (obj attr)
-  ;; retrieves the internal attribute representation
+  ;; return the value of attribute ATTR of OBJ
+  ;;assumes that ATTR is not special
   
-  ;;This does not call the objects --getattr-- method
-  ;; (but the --getattr-- method of the class will get called
-  ;; if it has to look for it there)  
-  (let ((val (assq attr (aref obj obj-dict-index)))
-	bases nbases i)
+  (let (val)
+    (condition-case nil
+	;;look for data descriptor in obj.__class__.__dict__
+	(_find-data-descriptor (aref (aref obj obj-bases-index) 0) obj attr) 
+      (AttributeError ;;look for attr in obj.__dict__
+       (if (eq (aref obj obj-symbol-index) obj-class-symbol)
+	   (_find-attr obj attr) ;; if obj is a class, search its bases as well
+	 (if (setq val (assoc attr (aref obj obj-dict-index)))
+	     (cdr val)
+	   (_find-non-data-descriptor (aref (aref obj obj-bases-index) 0) obj attr)))
+       ))))
+
+(defun _find-data-descriptor (class object name)
+  "return the value of the data descriptor NAME if found, else raise error"
+  
+  (let ((val (cdr (assq name (aref class obj-dict-index)))))
+    (if (data-descriptor-p val)
+	(call-method val __get__ class object)
+      ;;data descriptor not found, now check the bases
+      (let* ((bases (aref class obj-bases-index))
+	     (nbases (length bases))
+	     (i 0)
+	     done  val)
+	(if (> nbases 0)
+	    (while (not done)
+	      (setq done (condition-case nil
+			     (progn (setq val
+					  (_find-data-descriptor (aref bases i)
+								 object name))
+				    t)
+			   (AttributeError nil)))
+
+	      (setq i (1+ i))
+	      (if (and (not done)
+		       (>= i nbases)) (signal 'AttributeError nil))))
+	(or (and done val)
+	    (signal 'AttributeError nil))))))
+
+(defun _find-attr (object attr)
+  "return the value of ATTR.
+if it is a descriptor, return its value
+if it is not found, raise an AttributeError
+this does not create bound methods"
+  (let ((val (assq name (aref object obj-dict-index))))
+    (if (not val)
+	;;data descriptor not found, now check the bases
+	(let* ((bases (aref object obj-bases-index))
+	       (nbases (length bases))
+	       (i 0)
+	       done)
+	  (while (not done)
+	    (setq done (condition-case nil
+			   (progn (setq val
+					(_find-attr (aref bases i)
+						    object name))
+				  t)
+			 (AttributeError nil)))
+
+	    (setq i (1+ i))
+	    (if (and (not done)
+		     (>= i nbases)) (signal 'AttributeError nil)))))
     (if val
-	val
-      ;;did not find it in this object
-      ;;now check the class or the base classes
+	(if (descriptor-p (setq val (cdr val))) 
+	    (call-method val __get__ object object)
+	  val)
+      (signal 'AttributeError nil))))
 
-      (setq bases (aref obj obj-bases-index))
-      ;;TODO: obj-bases-index is being used interchangeably with the type-index
-      (setq nbases (length bases)
-	    i 0)
-      (while (not val) ;;TODO: proper MRO
-	(setq val (_obj-getattribute (aref bases i) attr))
-	(setq i (1+ i))
-	(if (and (not val)
-		 (>= i nbases)) (error "attr does not exist")))
-      val
-					;      (obj-class-getattr (aref obj obj-bases-index) attr))
-      )))
+(defun _find-non-data-descriptor (class object name)
+  "search for the non-data descriptor or plan attribute NAME
+if it is a descriptor, return its value"
+  (let ((val (assq name (aref class obj-dict-index))))
+    
+    (if (not val)
+	;;attr not found, now check the bases
+	(let* ((bases (aref class obj-bases-index))
+	       (nbases (length bases))
+	       (i 0)
+	       done)
+	  (while (not done)
+	    (setq done
+		  (condition-case nil
+		      (progn (setq val (_find-non-data-descriptor (aref bases i) object name))
+			     t)
+		    (AttributeError nil)))
 
+	    (setq i (1+ i))
+	    (if (and (not done)
+		     (>= i nbases)) (signal 'AttributeError nil)))))
+
+    
+    (if val
+	;;found the attr, now check if it is a data descriptor or method
+	(cond ((functionp (setq val (cdr val)))
+	       (bind-method object val))
+	      ((non-data-descriptor-p val)
+	       (call-method val __get__ class object))
+	      (t val))
+      (signal 'AttributeError nil))))
 
 (defun bind-method (object method)
   "bind METHOD to OBJECT"
@@ -285,14 +366,14 @@ if it is not call OBJECT's --getattr-- method if defined"
       `(funcall (cdr (_obj-getattribute ,object ',method))
 		,object ,@args))))
 
-(defmacro obj-set (obj attr value)
-  `(obj-setattr ,obj ',attr ,value))
+(defmacro setattr (obj attr value)
+  `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 
-(defun obj-setattr (obj attr value)
+(defun setattr-1 (obj attr value)
   (funcall (caar (aref obj setatter-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
-  ;;TODO: specify the type?
+  ;;TODO: if attr is a data-descriptor, use that to set it
   ;;TODO: this does not remove the old value, just shadows it
   (push (cons attr value)
 	(aref obj obj-dict-index))
@@ -300,7 +381,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 
 (defun obj-hasattr (object attr)
   (condition-case nil
-      (progn (obj-getattr object attr)
+      (progn (getattr-1 object attr)
 	     t)
     (AttributeError nil)))
 
