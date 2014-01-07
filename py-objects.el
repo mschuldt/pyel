@@ -333,7 +333,8 @@ if it is a descriptor, return its value"
 (defun py-object-p (thing)
   (and (vectorp thing)
        (= (length thing) py-class-vector-length)
-       (eq (aref thing obj-symbol-index) obj-instance-symbol)))
+       (or (eq (aref thing obj-symbol-index) obj-instance-symbol)
+	   (eq (aref thing obj-symbol-index) obj-class-symbol))))
 
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
@@ -358,8 +359,9 @@ if it is a descriptor, return its value"
     (if special
 	`(funcall (_obj-get-special ,object ,(cdr special)) ,object ,@args)
       
-      `(funcall (_obj-getattribute ,object ',method)
-		,object ,@args))))
+      `(funcall (getattr-1 ,object ',method)
+		;;,object ,@args))))
+		,@args))))
 
 (defmacro setattr (obj attr value)
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
@@ -407,7 +409,7 @@ if it is a descriptor, return its value"
        nil)
   (def --getattribute-- (self name) ()
        "x.__getattribute__('name') <==> x.name"
-       (_obj-getattribute self name))
+       (_obj-getatrtibute self name))
   (def --setattr-- (self name value) ()
        "x.__setattr__('name', value) <==> x.name = value"
        (_obj-setattr self name value))
