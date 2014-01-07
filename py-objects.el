@@ -140,7 +140,7 @@ These names will be set globally to their index in this list")
 
     (setattr new --doc-- doc)
 
-    (setattr new --base-- (aref bases 0)) ;;?
+    (setattr new --base-- (unless (eq bases []) (aref bases 0) nil)) ;;?
     
     ;;This double reference makes the __bases__ attribute available
     ;;for users and provides this implementation quicker access
