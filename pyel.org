@@ -1400,7 +1400,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                                                                                      (if (and (listp (cadr x))
                                                                                                               ;;form:  ("setup" ("test" expect))
                                                                                                               (not (eq (caadr x) 'lambda)))
-                                                                                                         (concat " " (car x) "\n"
+                                                                                                         (concat (pyel-indent-py-code (car x)) "\n"
                                                                                                                  (concat " return " (caadr x)))
                                                                                                        ;;form: ("test" expect)
                                                                                                          (concat " return " (car x)))))
