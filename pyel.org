@@ -1545,16 +1545,19 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-        (let ((transform-passed (reduce '+ (mapcar (lambda (test)
+        (let ((_ (message "Running transform tests..."))
+              (transform-passed (reduce '+ (mapcar (lambda (test)
                                                      (if (condition-case nil
                                                              (eval test)
                                                            (error nil)) 1 0))
                                                    pyel-transform-tests)))
+              (_ (message "Running python AST tests..."))
               (py-ast-passed (reduce '+ (mapcar (lambda (test)
                                                   (if (condition-case nil
                                                           (eval test)
                                                         (error nil)) 1 0))
                                                 pyel-py-ast-tests)))
+              (_ (message "Running lisp AST tests..."))
               (el-ast-passed (reduce '+ (mapcar (lambda (test)
                                                   (if (condition-case nil
                                                           (eval test)
@@ -1564,6 +1567,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                    transform-passed (length pyel-transform-tests)
                    py-ast-passed (length pyel-py-ast-tests)
                    el-ast-passed (length pyel-el-ast-tests))
+          (message "Evaluating test functions...")
+          (mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+          (message "Running ert tests...")
           (ert-run-tests-interactively "pyel")
           ))))
   
@@ -1574,6 +1580,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
                                           (split-string py-code "\n"))
                         "\n")))
+  
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
