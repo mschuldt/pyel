@@ -47,7 +47,7 @@ the rest are in `special-method-names'")
 (setq py-class-vector-length (+ (length special-method-names)
 				(length object-indexes-alist)))
 
-(defvar setter-functions '(setq pset py-set)
+(defvar setter-functions '(setq pset py-set pyel-set)
   "list of symbols of function that can bind values
 The second element of the list must be the symbol to be bound")
 
