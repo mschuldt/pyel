@@ -3081,6 +3081,10 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       ;;will store its methods and slots in class-def-methods and class-def-slots
       ;;respectively.
       (setq _x body)
+      
+      (if (context-p 'function-def)
+          (push name let-arglist))
+         
       (using-context class-def
   
                      (add-to-list 'pyel-defined-classes name)
