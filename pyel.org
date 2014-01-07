@@ -1741,7 +1741,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         
         (cond
          ((eq ctx 'store)
-          (list 'oset t-value attr (transform assign-value))) ;;assign target
+          ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
+          (list 'setattr t-value attr (transform assign-value)))
          ((eq ctx 'load) ;;assign value
           ;;(list 'oref t-value attr)
           (list 'getattr t-value attr))
