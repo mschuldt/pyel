@@ -123,7 +123,7 @@ header
 #+END_SRC
 
 ** main
- #+Begin_SRC emacs-lisp :tangle pyel.el
+#+Begin_SRC emacs-lisp :tangle pyel.el
 ;; This is a tangled file  -- DO NOT HAND-EDIT -- 
 ;;PYEL -> translate PYthon to Emacs Lisp
 #+END_SRC  
@@ -2488,7 +2488,7 @@ FunctionDef(name='a',
         (when (context-p 'function-def)
           (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
         
-        (let* ((func 'defun)
+        (let* ((func 'def)
                t-body
                arglist
                first
@@ -3336,7 +3336,7 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defsubst py-repr-string (thing)
+   (defsubst py-repr-string (thing)
     (prin1-to-string (prin1-to-string thing)))
   
   (defun _py-repr-sequence (seq)
