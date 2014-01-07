@@ -310,10 +310,11 @@ if it is not call OBJECT's --getattr-- method if defined"
        (py-class-p class)
        (eq (aref (aref object obj-bases-index) 0) class)))
 
-
 (defmacro def (name args decorator-list doc &rest body)
-
-  )
+  `(defun ,name ,args
+     ,doc
+     ,@body
+     ))
 
 (defmacro pyel-def-error (name)
   `(progn
