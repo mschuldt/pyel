@@ -1488,6 +1488,13 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                         () ,@el-ast)) nil)
         (message "Tests copied to kill ring"))))
   
+  (defun pyel-indent-py-code (code &optional indent)
+    "Indent CODE by INDENT. CODE is a string. INDENT defaults to one space"
+    (let ((indent (or indent " ")))
+      (mapconcat 'identity (mapcar (lambda (x) (concat indent x))
+                                   (split-string code "\n"))
+                 "\n")))
+  
   (defun pyel-generate-tests ()
     (interactive)
     ;;read in tests from pyel-tests.el
