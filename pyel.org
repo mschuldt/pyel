@@ -1535,8 +1535,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         
         (insert "\n(provide 'pyel-tests-generated)")
         
-        (write-file (file-path-concat pyel-directory "pyel-tests-generated.el"))
-        (eval-buffer))))  
+        (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
   
   (defalias 'pyel-verify 'pyel-run-tests)
   (defun pyel-run-tests ()
