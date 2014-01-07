@@ -1391,8 +1391,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                                                         (if (and (listp (cadr test))
                                                                                  ;;form:  ("setup" ("test" expect))
                                                                                  (not (eq (cadr test) 'lambda)))
-                                                                            (concat "\n" (caadr test) "\n"
-                                                                                    (concat "return " (caadr test)))
+                                                                                    (concat "\nreturn " (caadr test))
                                                                             ;;form: ("test" expect)
                                                                             (concat "return " (caaddr (cdr test))))
                                                                       ;;form ("setup" ("test1setup" ("test1" result1)) ...)
@@ -1405,7 +1404,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                                                                                        ;;form: ("test" expect)
                                                                                                          (concat " return " (car x)))))
                                                                                  (cdr test) "\n")))
-                                                            test-name "n"))
+                                                      test-name (if (= (length test) 2) nil "n")))
                            pyel-test-py-functions)
                      (setq d 0)
                      (mapc (lambda (x)
