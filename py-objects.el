@@ -57,11 +57,13 @@ These names will be set globally to their index in this list")
 (defun make-empty-class ()
   (let ((v (make-vector py-class-vector-length nil)))
     (aset v 0 obj-class-symbol)
+    (aset v obj-dict-index (make-hash-table :test 'equal))
     v))
 
 (defun make-empty-instance ()
   (let ((v (make-vector py-class-vector-length nil)))
     (aset v 0 obj-instance-symbol)
+    (aset v obj-dict-index (make-hash-table :test 'equal))
     v))
 
 (defmacro define-class (name bases &rest attributes)
@@ -130,12 +132,10 @@ These names will be set globally to their index in this list")
 			    (list ,@class-variables)))))
     
     ;;add class variables and methods to object dict
-    (aset new obj-dict-index
-	  (append methods
-		  (mapcar (lambda (var--value)
-			    (cons (car var--value)
-				  (cdr var--value)))
-			  class-variables)))
+    (let ((dict (aref new obj-dict-index)))
+      (mapc (lambda (x) (puthash (car x) (cdr x) dict))
+	    (append methods class-variables)))
+    
     (setattr new --name-- (symbol-name name))
 
     (setattr new --doc-- doc)
@@ -157,7 +157,6 @@ These names will be set globally to their index in this list")
   (while (not (null (cdr list)))
     (setq list (cdr list)))
   (setcdr list (list thing)))
-
 
 (defun obj-make-instance (class args)
   (let ((new (make-empty-instance)))
@@ -214,6 +213,7 @@ if it is not call OBJECT's --getattr-- method if defined"
      (funcall (caar (aref object getattr-index)) object attr) ;;__getattr__
      )))
 
+(setq pyel-none '__pyel-none__)
 
 (defun _obj-getattribute (obj attr)
   ;; return the value of attribute ATTR of OBJ
@@ -226,15 +226,16 @@ if it is not call OBJECT's --getattr-- method if defined"
       (AttributeError ;;look for attr in obj.__dict__
        (if (eq (aref obj obj-symbol-index) obj-class-symbol)
 	   (_find-attr obj attr) ;; if obj is a class, search its bases as well
-	 (if (setq val (assoc attr (aref obj obj-dict-index)))
-	     (cdr val)
-	   (_find-non-data-descriptor (aref (aref obj obj-bases-index) 0) obj attr)))
-       ))))
+	 (if (eq (setq val (gethash attr (aref obj obj-dict-index) pyel-none))
+		 pyel-none)
+	     (_find-non-data-descriptor (aref (aref obj obj-bases-index) 0) obj attr)  
+	   val
+	   ))))))
 
 (defun _find-data-descriptor (class object name)
   "return the value of the data descriptor NAME if found, else raise error"
   
-  (let ((val (cdr (assq name (aref class obj-dict-index)))))
+  (let ((val (gethash name (aref class obj-dict-index))))
     (if (data-descriptor-p val)
 	(call-method val __get__ class object)
       ;;data descriptor not found, now check the bases
@@ -262,7 +263,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 if it is a descriptor, return its value
 if it is not found, raise an AttributeError
 this does not create bound methods"
-  (let ((val (assq name (aref object obj-dict-index))))
+  (let ((val (gethash name (aref object obj-dict-index))))
     (if (not val)
 	;;data descriptor not found, now check the bases
 	(let* ((bases (aref object obj-bases-index))
@@ -281,7 +282,7 @@ this does not create bound methods"
 	    (if (and (not done)
 		     (>= i nbases)) (signal 'AttributeError nil)))))
     (if val
-	(if (descriptor-p (setq val (cdr val))) 
+	(if (descriptor-p val) 
 	    (call-method val __get__ object object)
 	  val)
       (signal 'AttributeError nil))))
@@ -289,7 +290,7 @@ this does not create bound methods"
 (defun _find-non-data-descriptor (class object name)
   "search for the non-data descriptor or plan attribute NAME
 if it is a descriptor, return its value"
-  (let ((val (assq name (aref class obj-dict-index))))
+  (let ((val (gethash name (aref class obj-dict-index))))
     
     (if (not val)
 	;;attr not found, now check the bases
@@ -311,7 +312,7 @@ if it is a descriptor, return its value"
     
     (if val
 	;;found the attr, now check if it is a data descriptor or method
-	(cond ((functionp (setq val (cdr val)))
+	(cond ((functionp val)
 	       (bind-method object val))
 	      ((non-data-descriptor-p val)
 	       (call-method val __get__ class object))
@@ -378,10 +379,9 @@ if it is a descriptor, return its value"
 
 (defun _obj-setattr (obj attr value)
   ;;TODO: if attr is a data-descriptor, use that to set it
-  ;;TODO: this does not remove the old value, just shadows it
-  (push (cons attr value)
-	(aref obj obj-dict-index))
+  (puthash attr value (aref obj obj-dict-index))
   nil)
+
 
 (defun obj-hasattr (object attr)
   (condition-case nil
@@ -426,4 +426,4 @@ if it is a descriptor, return its value"
   (def --repr-- (self) ()
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
-  )
+  ) 
