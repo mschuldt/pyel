@@ -1388,10 +1388,23 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      
                      (push (setq _x (pyel-functionize (concat (car test)
                                                                     (if (= (length test) 2)
-                                                                        (concat "return " (caadr test))
-                                                                        (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
-                                                                                                   " return " (car x)))
-                                                                               (cdr test) "\n")))
+                                                                        (if (and (listp (cadr test))
+                                                                                 ;;form:  ("setup" ("test" expect))
+                                                                                 (not (eq (cadr test) 'lambda)))
+                                                                            (concat "\n" (caadr test) "\n"
+                                                                                    (concat "return " (caadr test)))
+                                                                            ;;form: ("test" expect)
+                                                                            (concat "return " (caaddr (cdr test))))
+                                                                      ;;form ("setup" ("test1setup" ("test1" result1)) ...)
+                                                                      (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
+                                                                                                     (if (and (listp (cadr x))
+                                                                                                              ;;form:  ("setup" ("test" expect))
+                                                                                                              (not (eq (caadr x) 'lambda)))
+                                                                                                         (concat " " (car x) "\n"
+                                                                                                                 (concat " return " (caadr x)))
+                                                                                                       ;;form: ("test" expect)
+                                                                                                         (concat " return " (car x)))))
+                                                                                 (cdr test) "\n")))
                                                             test-name "n"))
                            pyel-test-py-functions)
                      (setq d 0)
