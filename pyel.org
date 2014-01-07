@@ -2215,11 +2215,11 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   (defun pyel-call-transform (func args keywords starargs kwargs)
     (let ((t-func (transform func))
           new-func m-name  f-name )
-      (if (member t-func pyel-defined-classes)
-          ;;instantiate an object and call its initializer
-          `(let ((__c (,t-func ,(pyel-next-obj-name))))
-             (--init-- __c ,@(mapcar 'transform args))
-             __c)
+      ;; (if (member t-func pyel-defined-classes)
+      ;;     ;;instantiate an object and call its initializer
+      ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
+      ;;        (--init-- __c ,@(mapcar 'transform args))
+      ;;        __c)
         
         (if (eq (car func) 'attribute);;method call
             (if (member (setq m-name (read (caddr func)))
@@ -2251,7 +2251,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
             (eval `(call-transform 'fcall ,@(cons 't-func (mapcar (lambda (x)
                                                                     `(quote ,x))
                                                                    args))))
-            )))))
+            ))))
   
 #+END_SRC
 ** python ast
