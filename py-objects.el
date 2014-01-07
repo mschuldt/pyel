@@ -206,16 +206,11 @@ These names will be set globally to their index in this list")
 (defun getattr-1 (object attr)
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
-  (let* ((attr (condition-case nil
-		   (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
-		 (AttributeError
-		  (funcall (caar (aref object getattr-index)) object attr) ;;__getattr__
-		  )))
-	 (val (cdr attr)))
-    (if (and (py-object-p object)
-	     (functionp val))
-	(bind-method object val)
-      val)))
+  (condition-case nil
+      (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
+    (AttributeError
+     (funcall (caar (aref object getattr-index)) object attr) ;;__getattr__
+     )))
 
 
 (defun _obj-getattribute (obj attr)
