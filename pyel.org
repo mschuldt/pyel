@@ -1724,7 +1724,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                (not (context-p 'method-call-override)))
           (using-context method-call-override
                          ;;ctx?
-                         `(@ ,attr ,(transform value)))
+                         `(@ call-method ,(transform value) ,attr))
         
         
         ;; (if (context-p 'assign-target)
@@ -1748,6 +1748,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           (list 'getattr t-value attr))
          (t "Error in attribute-- invalid ctx"))
         )))
+  
+  
   
 #+END_SRC
 ** python ast
@@ -2225,7 +2227,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                 ;;this methods transform is overridden
                 (eval `(call-transform ',(pyel-method-transform-name m-name)
                                        ',(transform (cadr func))
-                                       ,@(mapcar '(lambda (x) `(quote ,x)) args)));;Transform these args?
+                                       ,@(mapcar '(lambda (x) `(quote ,x)) args)))
               ;;normal method call
               (remove-context method-call-override
                               (using-context method-call
