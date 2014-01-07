@@ -136,7 +136,7 @@ These names will be set globally to their index in this list")
 			    (cons (car var--value)
 				  (cdr var--value)))
 			  class-variables)))
-    (setattr new --name-- name)
+    (setattr new --name-- (symbol-name name))
 
     (setattr new --doc-- doc)
 
