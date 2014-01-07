@@ -1475,7 +1475,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                         () ,@el-ast)) nil)
         (message "Tests copied to kill ring"))))
   
-    
   (defun pyel-generate-tests ()
     (interactive)
     ;;read in tests from pyel-tests.el
@@ -1491,21 +1490,33 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
       (load-file (file-path-concat pyel-directory "pyel-tests.el"))
       (with-temp-buffer
-        ;;insert header stuff
-        (mapc (lambda (x) (insert (prin1-to-string x) "\n"))
-              '((setq pyel-transform-tests nil)
-                (setq pyel-py-ast-tests nil)
-                (setq pyel-el-ast-tests nil)
-                ))
-        ;;insert main tests
-        (mapc (lambda (x) (insert (prin1-to-string x) "\n"))
-              _pyel-tests)
+        
         ;;save py test functions
         (insert (format "(setq pyel-test-py-functions '%s)"
                         (prin1-to-string pyel-test-py-functions)))
+        
+  
+        ;;insert ert tests and collect the others
+        (mapc (lambda (x)
+                (if (eq (car x) 'ert-deftest)
+                    (insert (prin1-to-string x) "\n")
+                  (eval x))) 
+              _pyel-tests)
+  
+        ;;how insert the other tests
+        (mapc 
+         (lambda (x) (insert (format "(setq %s '%s)"
+                                     (symbol-name x)
+                                     (prin1-to-string (eval x)))))
+         '(pyel-transform-tests
+           pyel-py-ast-tests
+           pyel-el-ast-tests
+           ))
+        
         (insert "\n(provide 'pyel-tests-generated)")
+        
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el"))
-        (eval-buffer))))
+        (eval-buffer))))  
   
   (defalias 'pyel-verify 'pyel-run-tests)
   (defun pyel-run-tests ()
