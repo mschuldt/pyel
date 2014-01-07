@@ -2571,7 +2571,7 @@ FunctionDef(name='a',
                    (setq setq-code (list '@ 'setq orig-name))
                  (setq setq-code '@))
     
-               `(,setq-code (,func ,name ,args
+               `(,setq-code (,func ,name ,args () ;;TODO: decorators
                                    ,docstring
                                    ,@assign-defaults
                                    (,let-arglist
