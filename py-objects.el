@@ -330,6 +330,11 @@ if it is a descriptor, return its value"
        (= (length thing) py-class-vector-length)
        (eq (aref thing obj-symbol-index) obj-class-symbol)))
 
+(defun py-instance-p (thing)
+  (and (vectorp thing)
+       (= (length thing) py-class-vector-length)
+       (eq (aref thing obj-symbol-index) obj-instance-symbol)))
+
 (defun py-object-p (thing)
   (and (vectorp thing)
        (= (length thing) py-class-vector-length)
