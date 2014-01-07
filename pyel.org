@@ -1371,6 +1371,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           ert-tests
           tests
           trans)
+      (message "creating tests for '%s'" name)
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
