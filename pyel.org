@@ -2520,20 +2520,20 @@ FunctionDef(name='a',
            function-def
            (cond
             
-            ((context-p 'class-def) (using-context method-def
-                                      (setq last-line (using-context tail-context
-                                                                     (transform (car (last body))))
-                                            first (mapcar 'transform (subseq body 0 (1- (length body))))
-                                            t-body (append first (list last-line)))
+            ;; ((context-p 'class-def) (using-context method-def
+            ;;                           (setq last-line (using-context tail-context
+            ;;                                                          (transform (car (last body))))
+            ;;                                 first (mapcar 'transform (subseq body 0 (1- (length body))))
+            ;;                                 t-body (append first (list last-line)))
                                       
-                                      ;;TODO: let-arlist for methods like
-                                      ;;      and *args ...
-                                      (push `(defmethod ,name
-                                               ((,(car args) ,class-def-name)
-                                                ,@(cdr args))
+            ;;                           ;;TODO: let-arlist for methods like
+            ;;                           ;;      and *args ...
+            ;;                           (push `(defmethod ,name
+            ;;                                    ((,(car args) ,class-def-name)
+            ;;                                     ,@(cdr args))
                                                
-                                               ,@t-body)
-                                            class-def-methods)))
+            ;;                                    ,@t-body)
+            ;;                                 class-def-methods)))
             
             (t (setq last-line (using-context tail-context
                                               (transform (car (last body))))
