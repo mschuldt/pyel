@@ -311,26 +311,56 @@ This is used when the ast form is needed by a transform that is manually
       (store
        '(quote store)))))
 
+
+(defmacro macrop (sym)
+  (if (boundp sym)
+      (list 'macrop-1 sym)
+    `(macrop-1 (quote ,sym))))
+
+(defun macrop-1 (function)
+  ;;this is mostly taken from `describe-function-1'
+  (let* ((advised (and (symbolp function) (featurep 'advice)
+                       (ad-get-advice-info function)))
+         ;; If the function is advised, use the symbol that has the
+         ;; real definition, if that symbol is already set up.
+         (real-function
+          (or (and advised
+                   (let ((origname (cdr (assq 'origname advised))))
+                     (and (fboundp origname) origname)))
+              function))
+         ;; Get the real definition.
+         (def (if (symbolp real-function)
+                  (symbol-function real-function)
+                function)))
+    (eq (car-safe def) 'macro)))
+
+(defun callable-p (object)
+  (if (symbolp object)
+      (or (fboundp object)
+          (functionp object)) ;;necessary?
+    (functionp object)))
+
 (defvar pyel-directory ""
     "Path to pyel files. must include py-ast.py, pyel.el etc")
+
+(defvar pyel-type-test-funcs '((string stringp)
+                               (number numberp)
+                               (integer integerp)
+                               (int integerp)
+                               (float floatp)
+                               (vector vectorp)
+                               (list listp)
+                               (cons consp)
+                               (hash hash-table-p)
+                               (hash-table hash-table-p)
+                               (symbol symbolp)
+                               (array arrayp)
+                               (object object-p)
+                               (function functionp)
+                               (func fboundp)
+                               (func functionp)
+                               (callable callable-p))
   
-  
-  (defvar pyel-type-test-funcs '((string stringp)
-                                 (number numberp)
-                                 (integer integerp)
-                                 (int integerp)
-                                 (float floatp)
-                                 (vector vectorp)
-                                 (list listp)
-                                 (cons consp)
-                                 (hash hash-table-p)
-                                 (hash-table hash-table-p)
-                                 (symbol symbolp)
-                                 (array arrayp)
-                                 (object object-p)
-                                 (function functionp)
-                                 (func functionp))
-    
     "alist of types used in pyel-call-transform for the switch-type
       and the function used to test for that type")
   
@@ -520,16 +550,20 @@ This is used when the ast form is needed by a transform that is manually
 (setq known-types '((number object ) (number string)))
 
 ;;prevents error: "Wrong type argument: listp, string"
-(setq known-types '((number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)
-                    (number list vector string object hash function symbol)))
+;;TODO: this is a bit of a mess now. types 'func' and 'function' in type
+;;transforms result in different tests but func/function still kind of mean the
+;;same thing when it comes to python. if func is known type, function should
+;;also be know. need some kind of an alias mechanism
+(setq known-types '((number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)
+                    (number list vector string object hash function func symbol)))
 
 (defun pyel-get-possible-types (&rest args)
   "return a list in the form (arg types).

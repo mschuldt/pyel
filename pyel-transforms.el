@@ -3,8 +3,10 @@
 
 (make-transform-table 'pyel)
 
+;; should not fset functions because the effect takes place globally
+;; even when the name being set is let bound.  
 (pyel-create-py-func set (_sym _val)
-                     (_ $function) -> (fset $$sym $$val)
+                     (_ $function) -> (setq $sym $$val)
                      (_ _) -> (setq $sym $val)) ;;TODO: other?
 
 (def-transform assign pyel ()
@@ -133,7 +135,7 @@
              (not (context-p 'method-call-override)))
         (using-context method-call-override
                        ;;ctx?
-                       `(@ ,attr ,(transform value)))
+                       `(@ call-method ,(transform value) ,attr))
       
       
       ;; (if (context-p 'assign-target)
@@ -150,9 +152,11 @@
       
       (cond
        ((eq ctx 'store)
-        (list 'oset t-value attr (transform assign-value))) ;;assign target
+        ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
+        (list 'setattr t-value attr (transform assign-value)))
        ((eq ctx 'load) ;;assign value
-        (list 'oref t-value attr))
+        ;;(list 'oref t-value attr)
+        (list 'getattr t-value attr))
        (t "Error in attribute-- invalid ctx"))
       )))
 
@@ -339,7 +343,7 @@
     "obj"))
 
 (pyel-create-py-func fcall (_func &rest args)
-                     ($function _) -> ($func ,@args)
+                     ($func _) -> ($func ,@args)
                      (_ _) -> (funcall $func ,@args))
 
 (def-transform call pyel ()
@@ -351,11 +355,11 @@
 (defun pyel-call-transform (func args keywords starargs kwargs)
   (let ((t-func (transform func))
         new-func m-name  f-name )
-    (if (member t-func pyel-defined-classes)
-        ;;instantiate an object and call its initializer
-        `(let ((__c (,t-func ,(pyel-next-obj-name))))
-           (--init-- __c ,@(mapcar 'transform args))
-           __c)
+    ;; (if (member t-func pyel-defined-classes)
+    ;;     ;;instantiate an object and call its initializer
+    ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
+    ;;        (--init-- __c ,@(mapcar 'transform args))
+    ;;        __c)
       
       (if (eq (car func) 'attribute);;method call
           (if (member (setq m-name (read (caddr func)))
@@ -363,7 +367,7 @@
               ;;this methods transform is overridden
               (eval `(call-transform ',(pyel-method-transform-name m-name)
                                      ',(transform (cadr func))
-                                     ,@(mapcar '(lambda (x) `(quote ,x)) args)));;Transform these args?
+                                     ,@(mapcar '(lambda (x) `(quote ,x)) args)))
             ;;normal method call
             (remove-context method-call-override
                             (using-context method-call
@@ -387,7 +391,7 @@
           (eval `(call-transform 'fcall ,@(cons 't-func (mapcar (lambda (x)
                                                                   `(quote ,x))
                                                                  args))))
-          )))))
+          ))))
 
 ;;doc: context macro-call
 (defun pyel-while (test body orelse)
@@ -504,7 +508,7 @@
       (when (context-p 'function-def)
         (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
       
-      (let* ((func 'defun)
+      (let* ((func 'def)
              t-body
              arglist
              first
@@ -536,20 +540,20 @@
          function-def
          (cond
           
-          ((context-p 'class-def) (using-context method-def
-                                    (setq last-line (using-context tail-context
-                                                                   (transform (car (last body))))
-                                          first (mapcar 'transform (subseq body 0 (1- (length body))))
-                                          t-body (append first (list last-line)))
+          ;; ((context-p 'class-def) (using-context method-def
+          ;;                           (setq last-line (using-context tail-context
+          ;;                                                          (transform (car (last body))))
+          ;;                                 first (mapcar 'transform (subseq body 0 (1- (length body))))
+          ;;                                 t-body (append first (list last-line)))
                                     
-                                    ;;TODO: let-arlist for methods like
-                                    ;;      and *args ...
-                                    (push `(defmethod ,name
-                                             ((,(car args) ,class-def-name)
-                                              ,@(cdr args))
+          ;;                           ;;TODO: let-arlist for methods like
+          ;;                           ;;      and *args ...
+          ;;                           (push `(defmethod ,name
+          ;;                                    ((,(car args) ,class-def-name)
+          ;;                                     ,@(cdr args))
                                              
-                                             ,@t-body)
-                                          class-def-methods)))
+          ;;                                    ,@t-body)
+          ;;                                 class-def-methods)))
           
           (t (setq last-line (using-context tail-context
                                             (transform (car (last body))))
@@ -587,7 +591,7 @@
                  (setq setq-code (list '@ 'setq orig-name))
                (setq setq-code '@))
   
-             `(,setq-code (,func ,name ,args
+             `(,setq-code (,func ,name ,args () ;;TODO: decorators
                                  ,docstring
                                  ,@assign-defaults
                                  (,let-arglist
@@ -754,9 +758,9 @@
       )))
 
 (def-transform classdef pyel ()
-  (lambda (name bases keywords starargs kwargs body decorator_list)
-    (pyel-defclass name bases keywords starargs kwargs body decorator_list)))
-
+    (lambda (name bases keywords starargs kwargs body decorator_list)
+      (pyel-defclass name bases keywords starargs kwargs body decorator_list)))
+  
 (defun pyel-defclass (name bases keywords starargs kwargs body decorator_list)
   (let ((class-def-methods nil) ;; list of methods that are part of this class
         (class-def-slots nil) ;;list of slots that are part of this class
@@ -769,20 +773,22 @@
     (using-context class-def
 
                    (add-to-list 'pyel-defined-classes name)
-                   
-                   (setq body (mapcar 'transform body))
-                   (setq _x body)
 
-                   ;;add default initializer if one has not been defined
-                   (unless (member '--init-- (mapcar 'cadr class-def-methods))
-                     (push (read (format pyel-default--init--method name))
-                           class-def-methods))
+                   `(define-class ,name ,(mapcar 'transform bases)
+                      ,@(mapcar 'transform body)
+                      )
+
+                   ;; ;;add default initializer if one has not been defined
+                   ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
+                   ;;   (push (read (format pyel-default--init--method name))
+                   ;;         class-def-methods))
                    
-                   `(@ (defclass ,class-def-name  () ;; ,bases ??
-                         (,@(reverse class-def-slots))
-                         "pyel class")
-                       
-                       ,@(reverse class-def-methods)))))
+                   ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
+                   ;;       (,@(reverse class-def-slots))
+                   ;;       "pyel class")
+                   
+                   ;;     ,@(reverse class-def-methods))
+                   )))
 
 (def-transform assert pyel ()
   (lambda (test msg) 
@@ -824,15 +830,21 @@
                      (hash) -> (py-hash-str thing)
                      (symbol) -> (symbol-name thing))
 
+(pyel-translate-function-name 'str 'pyel-str)
+
 (pyel-func-transform repr (thing)
                      (number) -> (number-to-string thing)
                      (string) -> (py-repr-string thing)
+                     (function) -> (py-function-str thing)
                      (list) -> (py-list-repr thing)
                      (object) -> (call-method thing --repr--)
                      (vector) -> (py-vector-str thing)
                      (hash-table) -> (py-hash-str thing)
-                     (symbol) -> (symbol-name thing)
-                     (func) -> (py-function-str thing))
+                     (symbol) -> (symbol-name thing))
+
+(pyel-translate-function-name 'hex 'py-hex)
+
+(pyel-translate-function-name 'bin 'py-bin)
 
 ;;
 
