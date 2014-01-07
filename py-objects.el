@@ -416,7 +416,7 @@ if it is a descriptor, return its value"
        nil)
   (def --getattribute-- (self name) ()
        "x.__getattribute__('name') <==> x.name"
-       (_obj-getatrtibute self name))
+       (_obj-getattribute self name))
   (def --setattr-- (self name value) ()
        "x.__setattr__('name', value) <==> x.name = value"
        (_obj-setattr self name value))
