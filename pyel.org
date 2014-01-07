@@ -2985,10 +2985,10 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 * class
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (def-transform classdef pyel ()
-    (lambda (name bases keywords starargs kwargs body decorator_list)
-      (pyel-defclass name bases keywords starargs kwargs body decorator_list)))
-  
+    (def-transform classdef pyel ()
+      (lambda (name bases keywords starargs kwargs body decorator_list)
+        (pyel-defclass name bases keywords starargs kwargs body decorator_list)))
+    
   (defun pyel-defclass (name bases keywords starargs kwargs body decorator_list)
     (let ((class-def-methods nil) ;; list of methods that are part of this class
           (class-def-slots nil) ;;list of slots that are part of this class
@@ -3001,20 +3001,23 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       (using-context class-def
   
                      (add-to-list 'pyel-defined-classes name)
-                     
-                     (setq body (mapcar 'transform body))
-                     (setq _x body)
   
-                     ;;add default initializer if one has not been defined
-                     (unless (member '--init-- (mapcar 'cadr class-def-methods))
-                       (push (read (format pyel-default--init--method name))
-                             class-def-methods))
+                     `(define-class ,name ,(mapcar 'transform bases)
+                        ,@(mapcar 'transform body)
+                        )
+  
+                     ;; ;;add default initializer if one has not been defined
+                     ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
+                     ;;   (push (read (format pyel-default--init--method name))
+                     ;;         class-def-methods))
                      
-                     `(@ (defclass ,class-def-name  () ;; ,bases ??
-                           (,@(reverse class-def-slots))
-                           "pyel class")
-                         
-                         ,@(reverse class-def-methods)))))
+                     ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
+                     ;;       (,@(reverse class-def-slots))
+                     ;;       "pyel class")
+                     
+                     ;;     ,@(reverse class-def-methods))
+                     )))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
