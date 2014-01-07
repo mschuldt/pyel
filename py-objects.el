@@ -140,6 +140,7 @@ These names will be set globally to their index in this list")
     (when doc
       (setattr new --doc-- doc))
 
+    (setattr new --base-- (car bases))
     ;;This double reference makes the __bases__ attribute available
     ;;for users and provides this implementation quicker access
     (setattr new --bases-- bases)
