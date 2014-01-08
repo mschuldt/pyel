@@ -464,7 +464,6 @@ main
 
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
-    
     (defvar pyel-directory ""
       "Path to pyel files. must include py-ast.py, pyel.el etc")
   
@@ -487,7 +486,7 @@ main
          (hash-table hash-table-p)
          (symbol symbolp)
          (array arrayp)
-         (object py-object-p)
+         (object object-p)
          (function functionp)
          (func fboundp)
          (vfunction vfunction-p)
@@ -1590,7 +1589,15 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                    py-ast-passed (length pyel-py-ast-tests)
                    el-ast-passed (length pyel-el-ast-tests))
           (message "Evaluating test functions...")
-          (mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+          ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+          (let ((tmp-file "~/tmp/pyel-test-functions.el"))
+            (with-temp-buffer
+              (mapc (lambda (x)
+                      ;;macroexpand so edebug-defun can be used on it
+                      (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
+                    pyel-test-py-functions)
+              (write-file tmp-file))
+            (load-file tmp-file))
           (message "Running ert tests...")
           (ert-run-tests-interactively "pyel")
           ))))
