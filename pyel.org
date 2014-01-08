@@ -488,6 +488,25 @@ main
          (func fboundp)
          (func functionp)
          (callable callable-p)))
+  
+  (defvar pyel-negated-function-tests nil
+    "A list of automatically created negated functions from `pyel-type-test-funcs'
+  stored here just for convenient inspection")
+  
+  ;;create negated test functions
+  (let (new func fname)
+    (setq pyel-negated-function-tests nil)
+    (mapc (lambda (x)
+            (setq name (cadr x)
+                  !name (intern (concat "!" (symbol-name name)))
+                  func `(defsubst ,!name (x) (not (,name x))))
+            (add-to-list 'pyel-negated-function-tests func)
+            (eval func)
+            (push (cons (intern (concat "!" (symbol-name (car x))))
+                        !name)
+                  new))
+          pyel-type-test-funcs)
+    (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
     
     
     (defvar pyel-defined-classes nil
