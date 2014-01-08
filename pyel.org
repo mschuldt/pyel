@@ -3151,20 +3151,49 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 ** tests
 
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests class
-                     "class test:
-   def __init__(self,aa,bb):
-    self.a = aa
-    self.b = bb
-   def geta(self):
+  (pyel-create-tests
+   objects
+   ("class tclass():
+   '''a test class'''
+   cvar = 12
+   def __init__(self, x):
+    self.a = x + 10
+   def get(self):
     return self.a
-   def getb(self):
-    return self.b
-  x = test(5,6)
-  assert x.geta() == 5
-  assert x.getb() == 6
-  x.b = 2
-  assert x.getb() == 2")
+   def set(self,n):
+    self.a = n
+  x = tclass(4)"
+    ("tclass.__name__" "tclass")
+    ("tclass.get" (lambda (self) (getattr self a)))
+    ("tclass.set" (lambda (self n) (setattr self a n)))
+    ("tclass.cvar" 12)
+    ("tclass.v = 'hi'" ("tclass.v" "hi"))
+    ("tclass.set(tclass, 23)" ("tclass.a" 23))
+    ("tclass.set(tclass, 19)" ("tclass.get(tclass)" 19))
+    ("tclass.add5 = lambda self: self.cvar + 5" ("tclass.add5" (lambda (self) nil (pyel-+ (getattr self cvar) 5))))
+    ("repr(x)" "<class 'object'>")
+    ("x.__class__ == tclass" t)
+    ("x.__class__.__name__" "tclass")
+    ("x.a" 14)
+    ("x.a = 2" ("x.a" 2))
+    ("x.cvar = 4" (" x.cvar, tclass.cvar" [4 12]))
+    ("x.set(10); y = x.get" ("y()" 10))
+    ("tclass.sixmore = lambda self: self.a + 6
+  y = x.sixmore
+  x.a = 2"
+     ("y()" 8)))
+  
+   ("class one:
+   def __init__(self,x):
+    self.n = x
+   def m(self):
+    return self.n + 1
+  class two:
+   def __init__(self):
+    self.other = one(5)
+  x = two()"
+    ("x.other.n" 5)
+    ("x.other.m()" 6)))
 #+END_SRC
 
 * assert
