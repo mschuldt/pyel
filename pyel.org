@@ -1003,6 +1003,13 @@ This will have to be removed after the code is generated
                                            (string-match-p "\\(^_\\)\\(.+\\)"
                                                            (symbol-name a))) nil
                                        (intern (format "__%s__" (symbol-name a))))))
+           (arg-replacements4 (let (ar)
+                                (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
+                                                                        (symbol-name x))
+                                                        (push (list (strip_ x) (list '\, (strip_ x))) ar)))
+                                        
+                                        args)
+                                ar))
            ;;list of symbols to replace
            ;;format: (symbol replace)
            (let-vars (let (lv) (mapcar* (lambda (a b) (if b
@@ -1099,7 +1106,8 @@ This will have to be removed after the code is generated
   
              ;;bug fix maybe...
              (get-replacement-OLD (arg) ;;returns arg replacement
-                                  (cadr (assoc arg arg-replacements)))
+                                  (or (cadr (assoc arg arg-replacements))
+                                      (cadr (assoc arg arg-replacements4))))
   
              ;;replaces the vars, one type at a time
              (replace-vars (code)
