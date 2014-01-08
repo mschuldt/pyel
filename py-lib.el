@@ -67,8 +67,10 @@
 ;;so they never have the change to expand.
 ;;The expanded functions are used so we force expansion here.
 ;;required functions are `pyel-str-function' and `pyel-repr-function'
-(call-transform (pyel-func-transform-name 'repr) nil)
-(call-transform (pyel-func-transform-name 'str) nil)
+;;;NOTE: this is also done in `pyel-run-tests'
+(let ((current-transform-table (get-transform-table 'pyel)))
+  (call-transform (pyel-func-transform-name 'repr) nil)
+  (call-transform (pyel-func-transform-name 'str) nil))
 
 ;;temp function. see `pyel-str' for details
 

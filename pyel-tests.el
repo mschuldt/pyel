@@ -34,6 +34,48 @@
   (should (equal (pyel-do-splices '(@)) nil))
 )
 
+(ert-deftest pyel-create-tests () 
+  (let ((pyel-test-func-counter 0)
+        pyel-test-py-functions
+        _pyel-tests)
+    (pyel-create-tests
+     test
+     "test1\na\nb"
+     ("test2 setup"
+      ("test2_1" expect2_1)
+      ("test2_2setup\na\nb" ("test2_2" expect2_2)))
+     ("test3" expect3)
+     ("test4setup\na\nb" ("test4" expect4)))
+    (equal pyel-test-py-functions '("def pyel_test_test_2(n):
+ test2 setup
+ if n == 1:
+  return test2_1
+ 
+ if n == 2:
+  test2_2setup
+  a
+  b
+  return test2_2" "def pyel_test_test_1():
+ test4setup
+ a
+ b
+ return test4"))
+    
+    (equal _pyel-tests
+           '((push (quote (string= (pyel "test1
+a
+b" t) "(name  \"test1\" 'load)
+(name  \"a\" 'load)
+(name  \"b\" 'load)
+")) pyel-el-ast-tests) (push (quote (equal (py-ast "test1
+a
+b") "Module(body=[Expr(value=Name(id='test1', ctx=Load())), Expr(value=Name(id='a', ctx=Load())), Expr(value=Name(id='b', ctx=Load()))])
+")) pyel-py-ast-tests) (push (quote (equal (pyel "test1
+a
+b") (quote (progn test1 a b)))) pyel-transform-tests) (ert-deftest pyel-test2 nil (equal (eval (pyel "def _pyel21312():
+test3
+_pyel21312()")) expect3)) (ert-deftest pyel-test1 nil (equal (eval (pyel "pyel_test_test_1()")) expect4)) (ert-deftest pyel-test3 nil (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1)) (ert-deftest pyel-test4 nil (equal (eval (pyel "pyel_test_test_2(2)")) expect2_2))))))
+
 (pyel-create-tests assign
                    "a = 1"
                    "a.b = 1"
@@ -353,20 +395,49 @@ assert x.value == [1,2,3]"
 "assert [1,2,(3,2,8)][2][2] == 8"
  )
 
-(pyel-create-tests class
-                   "class test:
- def __init__(self,aa,bb):
-  self.a = aa
-  self.b = bb
- def geta(self):
+(pyel-create-tests
+ objects
+ ("class tclass():
+ '''a test class'''
+ cvar = 12
+ def __init__(self, x):
+  self.a = x + 10
+ def get(self):
   return self.a
- def getb(self):
-  return self.b
-x = test(5,6)
-assert x.geta() == 5
-assert x.getb() == 6
-x.b = 2
-assert x.getb() == 2")
+ def set(self,n):
+  self.a = n
+x = tclass(4)"
+  ("tclass.__name__" "tclass")
+  ("tclass.get" (lambda (self) (getattr self a)))
+  ("tclass.set" (lambda (self n) (setattr self a n)))
+  ("tclass.cvar" 12)
+  ("tclass.v = 'hi'" ("tclass.v" "hi"))
+  ("tclass.set(tclass, 23)" ("tclass.a" 23))
+  ("tclass.set(tclass, 19)" ("tclass.get(tclass)" 19))
+  ("tclass.add5 = lambda self: self.cvar + 5" ("tclass.add5" (lambda (self) nil (pyel-+ (getattr self cvar) 5))))
+  ("repr(x)" "<class 'object'>")
+  ("x.__class__ == tclass" t)
+  ("x.__class__.__name__" "tclass")
+  ("x.a" 14)
+  ("x.a = 2" ("x.a" 2))
+  ("x.cvar = 4" (" x.cvar, tclass.cvar" [4 12]))
+  ("x.set(10); y = x.get" ("y()" 10))
+  ("tclass.sixmore = lambda self: self.a + 6
+y = x.sixmore
+x.a = 2"
+   ("y()" 8)))
+
+ ("class one:
+ def __init__(self,x):
+  self.n = x
+ def m(self):
+  return self.n + 1
+class two:
+ def __init__(self):
+  self.other = one(5)
+x = two()"
+  ("x.other.n" 5)
+  ("x.other.m()" 6)))
 
 (pyel-create-tests assert
                    "assert sldk()"

@@ -1062,7 +1062,7 @@ in `pyel-message-formats'"
 when `pyel-run-tests' is run, these are translated to e-lisp
 and compared to expected values")
 
-(setq _pyel-tests nil)    
+(setq _pyel-tests nil)
 
 (defvar pyel-test-func-counter 0
   "just another counter")
@@ -1070,6 +1070,10 @@ and compared to expected values")
 (defun pyel-make-test-func-name ()
   (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
 
+(defun cl-prettyprint-to-string (form)
+  (with-temp-buffer
+    (cl-prettyprint form)
+    (buffer-string)))
 
 (defmacro pyel-create-tests (name &rest py-tests)
   (let ((complete nil)
@@ -1120,10 +1124,15 @@ and compared to expected values")
                            (push `(ert-deftest
                                       ,(intern (concat "pyel-" name-str
                                                        (number-to-string (setq c (1+ c))))) ()
-                                    (should (equal (eval (pyel ,(if (= (length test) 2)
+                                    (equal (eval (pyel ,(if (= (length test) 2)
+
+                                                                        
                                                                     (format "%s()" test-name)
                                                                   (format "%s(%s)" test-name (setq d (1+ d))))))
-                                                   ,(cadr x))))
+                                                   ,(if (and (listp (cadr x))
+                                                            (not (eq (caadr x) 'lambda)))
+                                                        (cadr (cadr x)) ;;form: ("setup" ("test" expect))
+                                                      (cadr x)))) ;;;;form: ("test" expect)
                                  tests))
                          (cdr test))
                    (setq _pyel-tests (append _pyel-tests (reverse tests)))
@@ -1133,28 +1142,29 @@ and compared to expected values")
                (push `(ert-deftest
                             ,(intern (concat "pyel-" (symbol-name name)
                                              (number-to-string (setq c (1+ c))))) ()
-                          (should (equal (eval (pyel ,(concat (pyel-functionize (car test))
-                                                              "\nf()")))
-                                         ,(cadr test))))
+                          (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
+                                                      "\n_pyel21312()")))
+                                         ,(cadr test)))
+
                        _pyel-tests))
             
               (t (progn ;;form "test"
                    ;;check complete code transformation
                    (setq trans (pyel test))
-                   (push `(push '(should (equal
+                   (push `(push '(equal
                                           (pyel ,test)
-                                          ',trans))
+                                          ',trans)
                                 pyel-transform-tests)
                          _pyel-tests)
                    ;;check python ast
-                   (push `(push '(should (equal (py-ast ,test)
-                                                ,(py-ast test)))
+                   (push `(push '(equal (py-ast ,test)
+                                                ,(py-ast test))
                                 pyel-py-ast-tests)
                          _pyel-tests)
                    
                    ;;check transformed .py syntax tree
-                   (push `(push '(should (string= (pyel ,test t)
-                                                  ,(pyel test t)))
+                   (push `(push '(string= (pyel ,test t)
+                                                  ,(pyel test t))
                                 pyel-el-ast-tests)
                          _pyel-tests))
           )))))))
@@ -1275,7 +1285,17 @@ and compared to expected values")
                  py-ast-passed (length pyel-py-ast-tests)
                  el-ast-passed (length pyel-el-ast-tests))
         (message "Evaluating test functions...")
-        (mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+        ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+        (let ((tmp-file "~/tmp/pyel-test-functions.el"))
+          (find-file tmp-file)
+          (erase-buffer)
+          (mapc (lambda (x)
+                  ;;macroexpand so edebug-defun can be used on it
+                  (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
+                pyel-test-py-functions)
+          (save-buffer)
+          (kill-buffer)
+          (load-file tmp-file))
         (message "Running ert tests...")
         (ert-run-tests-interactively "pyel")
         ))))
