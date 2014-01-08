@@ -3470,7 +3470,18 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-   (defsubst py-repr-string (thing)
+  ;;temp function. see `pyel-str' for details
+  (defmacro pyel-repr (thing)
+    (if (symbolp thing)
+        (if (boundp thing)
+            (list 'pyel-repr-function thing)
+          (if (functionp thing)
+              `(py-function-str (quote ,thing))
+            thing;;error
+            ))
+      (list 'pyel-repr-function thing)))
+  
+  (defsubst py-repr-string (thing)
     (prin1-to-string (prin1-to-string thing)))
   
   (defun _py-repr-sequence (seq)
@@ -3481,6 +3492,7 @@ TODO: tests!
   
   (defun py-vector-repr (thing)
     (concat "(" (_py-repr-sequence thing) ")"))
+  
   
 #+END_SRC
 
