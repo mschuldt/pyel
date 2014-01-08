@@ -2082,7 +2082,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      "'a'"
                      "x = 'a'"
                      "['a','b']")
-  
+
 #+END_SRC
 
 ** ???
@@ -3476,9 +3476,26 @@ str(__ff_)"
 #+END_SRC
     
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+(pyel-create-tests
+ repr
+ ("repr('somestring')" "\"\\\"somestring\\\"\"")
+ ("repr(342)" "342")
+ ("x = [1,2,'hi']
+repr(x)"
+  "[1, 2, \"hi\"]")
+ ("x = (1,'two',3)
+repr(x)"
+  "(1, \"two\", 3)")
+ ("x = {1: 'one', 5: 'five', 12: 'telve'}
+repr(x)"
+  "{1: \"one\", 5: \"five\", 12: \"telve\"}")
+ ("f = lambda : False
+repr(f)"
+  "<function <lambda> at 0x18b071>")
+ ("def __ff_(): pass
+repr(__ff_)"
+  "<function --ff- at 0x18b071>"))
 #+END_SRC
 
 ** hex
