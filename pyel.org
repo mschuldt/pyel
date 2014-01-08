@@ -594,17 +594,9 @@ main
             (pyel-unique-obj-names nil)
             ;;(pyel-method-transforms nil)
             ;;(pyel-func-transforms nil)
-            (pyel-marker-counter 0)
-            (known-types ((number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)
-                          (number list vector string object hash function)))))
+            (pyel-marker-counter 0)))
+  
+  (push (list 'known-types known-types) test-variable-values)
     
     
     (defvar pyel-marker-counter 0)
