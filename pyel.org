@@ -3465,6 +3465,8 @@ TODO: tests!
                        (vector) -> (py-vector-str thing)
                        (hash) -> (py-hash-str thing)
                        (symbol) -> (symbol-name thing))
+  
+  (pyel-translate-function-name 'repr 'pyel-repr)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
