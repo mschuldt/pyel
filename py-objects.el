@@ -220,8 +220,11 @@ if it is not call OBJECT's --getattr-- method if defined"
   (condition-case nil
       (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
     (AttributeError
-     (funcall (caar (aref object getattr-index)) object attr) ;;__getattr__
-     )))
+     (let ((get-attr (caar (aref object getattr-index))))
+       (if get-attr
+	   (funcall get-attr object attr) ;;__getattr__
+	 (signal 'AttributeError nil)
+	 )))))
 
 (setq pyel-none '__pyel-none__)
 
