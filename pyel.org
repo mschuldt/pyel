@@ -468,26 +468,26 @@ main
     (defvar pyel-directory ""
       "Path to pyel files. must include py-ast.py, pyel.el etc")
   
-  (defvar pyel-type-test-funcs '((string stringp)
-                                 (number numberp)
-                                 (integer integerp)
-                                 (int integerp)
-                                 (float floatp)
-                                 (vector vectorp)
-                                 (list listp)
-                                 (cons consp)
-                                 (hash hash-table-p)
-                                 (hash-table hash-table-p)
-                                 (symbol symbolp)
-                                 (array arrayp)
-                                 (object object-p)
-                                 (function functionp)
-                                 (func fboundp)
-                                 (func functionp)
-                                 (callable callable-p))
-    
-      "alist of types used in pyel-call-transform for the switch-type
+  (set (defvar pyel-type-test-funcs nil  
+         "alist of types used in pyel-call-transform for the switch-type
         and the function used to test for that type")
+       '((string stringp)
+         (number numberp)
+         (integer integerp)
+         (int integerp)
+         (float floatp)
+         (vector vectorp)
+         (list listp)
+         (cons consp)
+         (hash hash-table-p)
+         (hash-table hash-table-p)
+         (symbol symbolp)
+         (array arrayp)
+         (object object-p)
+         (function functionp)
+         (func fboundp)
+         (func functionp)
+         (callable callable-p)))
     
     
     (defvar pyel-defined-classes nil
