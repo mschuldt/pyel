@@ -704,17 +704,17 @@ This will have to be removed after the code is generated
   ;;transforms result in different tests but func/function still kind of mean the
   ;;same thing when it comes to python. if func is known type, function should
   ;;also be know. need some kind of an alias mechanism
-  (setq known-types '((number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)
-                      (number list vector string object hash function func symbol)))
-
+  (setq known-types
+        '((number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)
+          (number list vector string object hash function func symbol vfunc)))
   (push (list 'known-types known-types) test-variable-values)
   
   (defun pyel-get-possible-types (&rest args)
