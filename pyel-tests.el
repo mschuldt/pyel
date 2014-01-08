@@ -105,45 +105,10 @@ assert a == b == c == 9.3"
                    "(a, (b, (c,d)))"
                    "((((((((a))))))))")
 
-(ert-deftest pyel-str-full-transform nil
-  (should
-   (equal
-    (pyel "'a'")
-    '"a"))
-  (should
-   (equal
-    (pyel "x = 'a'")
-    '(pyel-set x "a")))
-  (should
-   (equal
-    (pyel "['a','b']")
-    '(list "a" "b"))))
-(ert-deftest pyel-str-py-ast nil
-  (should
-   (equal
-    (py-ast "'a'")
-    "Module(body=[Expr(value=Str(s='a'))])\n"))
-  (should
-   (equal
-    (py-ast "x = 'a'")
-    "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='a'))])\n"))
-  (should
-   (equal
-    (py-ast "['a','b']")
-    "Module(body=[Expr(value=List(elts=[Str(s='a'), Str(s='b')], ctx=Load()))])\n")))
-(ert-deftest pyel-str-el-ast nil
-  (should
-   (string=
-    (pyel "'a'" t)
-    "(str \"a\")\n"))
-  (should
-   (string=
-    (pyel "x = 'a'" t)
-    "(assign  ((name  \"x\" 'store)) (str \"a\"))\n"))
-  (should
-   (string=
-    (pyel "['a','b']" t)
-    "(list ((str \"a\") (str \"b\")) 'load)\n")))
+(pyel-create-tests string
+                   "'a'"
+                   "x = 'a'"
+                   "['a','b']")
 
 ;;
 
@@ -449,9 +414,46 @@ assert len(a) == 2"
 
 ;;
 
-;;
+(pyel-create-tests
+ str
+ ("str('somestring')" "\"somestring\"")
+ ("str(\"'dstring'\")" "\"'dstring'\"")
+ ("str(342)" "342")
+ ("x = [1,2,'hi']
+str(x)"
+  "[1, 2, \"hi\"]")
+ ("x = (1,'two',3)
+str(x)"
+  "(1, \"two\", 3)")
+ ("x = {1: 'one', 5: 'five', 12: 'telve'};
+str(x)"
+  "{1: \"one\", 5: \"five\", 12: \"telve\"}")
+ ("f = lambda : False
+str(f)"
+  "<function <lambda> at 0x18b071>")
+ ("def __ff_(): pass
+str(__ff_)"
+  "<function --ff- at 0x18b071>"))
 
-;;
+(pyel-create-tests
+ repr
+ ("repr('somestring')" "\"\\\"somestring\\\"\"")
+ ("repr(342)" "342")
+ ("x = [1,2,'hi']
+repr(x)"
+  "[1, 2, \"hi\"]")
+ ("x = (1,'two',3)
+repr(x)"
+  "(1, \"two\", 3)")
+ ("x = {1: 'one', 5: 'five', 12: 'telve'}
+repr(x)"
+  "{1: \"one\", 5: \"five\", 12: \"telve\"}")
+ ("f = lambda : False
+repr(f)"
+  "<function <lambda> at 0x18b071>")
+ ("def __ff_(): pass
+repr(__ff_)"
+  "<function --ff- at 0x18b071>"))
 
 ;;
 

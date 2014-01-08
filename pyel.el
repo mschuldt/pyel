@@ -343,26 +343,50 @@ This is used when the ast form is needed by a transform that is manually
 (defvar pyel-directory ""
     "Path to pyel files. must include py-ast.py, pyel.el etc")
 
-(defvar pyel-type-test-funcs '((string stringp)
-                               (number numberp)
-                               (integer integerp)
-                               (int integerp)
-                               (float floatp)
-                               (vector vectorp)
-                               (list listp)
-                               (cons consp)
-                               (hash hash-table-p)
-                               (hash-table hash-table-p)
-                               (symbol symbolp)
-                               (array arrayp)
-                               (object object-p)
-                               (function functionp)
-                               (func fboundp)
-                               (func functionp)
-                               (callable callable-p))
-  
-    "alist of types used in pyel-call-transform for the switch-type
+(defmacro vfunction-p (f)
+  `(and (boundp ',f)
+        (functionp ,f)))
+
+(set (defvar pyel-type-test-funcs nil  
+       "alist of types used in pyel-call-transform for the switch-type
       and the function used to test for that type")
+     '((string stringp)
+       (number numberp)
+       (integer integerp)
+       (int integerp)
+       (float floatp)
+       (vector vectorp)
+       (list listp)
+       (cons consp)
+       (hash hash-table-p)
+       (hash-table hash-table-p)
+       (symbol symbolp)
+       (array arrayp)
+       (object object-p)
+       (function functionp)
+       (func fboundp)
+       (vfunction vfunction-p)
+       (vfunc vfunction-p)
+       (callable callable-p)))
+
+(defvar pyel-negated-function-tests nil
+  "A list of automatically created negated functions from `pyel-type-test-funcs'
+stored here just for convenient inspection")
+
+;;create negated test functions
+(let (new func fname)
+  (setq pyel-negated-function-tests nil)
+  (mapc (lambda (x)
+          (setq name (cadr x)
+                !name (intern (concat "!" (symbol-name name)))
+                func `(defsubst ,!name (x) (not (,name x))))
+          (add-to-list 'pyel-negated-function-tests func)
+          (eval func)
+          (push (list (intern (concat "!" (symbol-name (car x))))
+                      !name)
+                new))
+        pyel-type-test-funcs)
+  (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
   
   
   (defvar pyel-defined-classes nil
@@ -436,7 +460,7 @@ This is used when the ast form is needed by a transform that is manually
   (defvar test-variable-values nil
     "variables values for running tests")
   
-  
+
   (setq test-variable-values
         '((pyel-defined-classes nil)
           (pyel-function-definitions nil)
@@ -445,18 +469,7 @@ This is used when the ast form is needed by a transform that is manually
           (pyel-unique-obj-names nil)
           ;;(pyel-method-transforms nil)
           ;;(pyel-func-transforms nil)
-          (pyel-marker-counter 0)
-          (known-types ((number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)
-                        (number list vector string object hash function)))))
-  
+          (pyel-marker-counter 0)))    
   
   (defvar pyel-marker-counter 0)
   
@@ -554,16 +567,18 @@ This is used when the ast form is needed by a transform that is manually
 ;;transforms result in different tests but func/function still kind of mean the
 ;;same thing when it comes to python. if func is known type, function should
 ;;also be know. need some kind of an alias mechanism
-(setq known-types '((number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)
-                    (number list vector string object hash function func symbol)))
+(setq known-types
+      '((number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)
+        (number list vector string object hash function func symbol vfunc)))
+(push (list 'known-types known-types) test-variable-values)
 
 (defun pyel-get-possible-types (&rest args)
   "return a list in the form (arg types).
@@ -839,6 +854,13 @@ This is used when the ast form is needed by a transform that is manually
                                          (string-match-p "\\(^_\\)\\(.+\\)"
                                                          (symbol-name a))) nil
                                      (intern (format "__%s__" (symbol-name a))))))
+         (arg-replacements4 (let (ar)
+                              (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
+                                                                      (symbol-name x))
+                                                      (push (list (strip_ x) (list '\, (strip_ x))) ar)))
+                                      
+                                      args)
+                              ar))
          ;;list of symbols to replace
          ;;format: (symbol replace)
          (let-vars (let (lv) (mapcar* (lambda (a b) (if b
@@ -935,7 +957,8 @@ This is used when the ast form is needed by a transform that is manually
 
            ;;bug fix maybe...
            (get-replacement-OLD (arg) ;;returns arg replacement
-                                (cadr (assoc arg arg-replacements)))
+                                (or (cadr (assoc arg arg-replacements))
+                                    (cadr (assoc arg arg-replacements4))))
 
            ;;replaces the vars, one type at a time
            (replace-vars (code)
@@ -1056,6 +1079,7 @@ and compared to expected values")
         ert-tests
         tests
         trans)
+    (message "creating tests for '%s'" name)
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
@@ -1073,11 +1097,23 @@ and compared to expected values")
                    
                    (push (setq _x (pyel-functionize (concat (car test)
                                                                   (if (= (length test) 2)
-                                                                      (concat "return " (caadr test))
-                                                                      (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
-                                                                                                 " return " (car x)))
-                                                                             (cdr test) "\n")))
-                                                          test-name "n"))
+                                                                      (if (and (listp (cadr test))
+                                                                               ;;form:  ("setup" ("test" expect))
+                                                                               (not (eq (cadr test) 'lambda)))
+                                                                                  (concat "\nreturn " (caadr test))
+                                                                          ;;form: ("test" expect)
+                                                                          (concat "return " (caaddr (cdr test))))
+                                                                    ;;form ("setup" ("test1setup" ("test1" result1)) ...)
+                                                                    (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
+                                                                                                   (if (and (listp (cadr x))
+                                                                                                            ;;form:  ("setup" ("test" expect))
+                                                                                                            (not (eq (caadr x) 'lambda)))
+                                                                                                       (concat (pyel-indent-py-code (car x)) "\n"
+                                                                                                               (concat " return " (caadr x)))
+                                                                                                     ;;form: ("test" expect)
+                                                                                                       (concat " return " (car x)))))
+                                                                               (cdr test) "\n")))
+                                                    test-name (if (= (length test) 2) nil "n")))
                          pyel-test-py-functions)
                    (setq d 0)
                    (mapc (lambda (x)
@@ -1160,7 +1196,13 @@ and compared to expected values")
                                       () ,@el-ast)) nil)
       (message "Tests copied to kill ring"))))
 
-  
+(defun pyel-indent-py-code (code &optional indent)
+  "Indent CODE by INDENT. CODE is a string. INDENT defaults to one space"
+  (let ((indent (or indent " ")))
+    (mapconcat 'identity (mapcar (lambda (x) (concat indent x))
+                                 (split-string code "\n"))
+               "\n")))
+
 (defun pyel-generate-tests ()
   (interactive)
   ;;read in tests from pyel-tests.el
@@ -1176,21 +1218,32 @@ and compared to expected values")
 
     (load-file (file-path-concat pyel-directory "pyel-tests.el"))
     (with-temp-buffer
-      ;;insert header stuff
-      (mapc (lambda (x) (insert (prin1-to-string x) "\n"))
-            '((setq pyel-transform-tests nil)
-              (setq pyel-py-ast-tests nil)
-              (setq pyel-el-ast-tests nil)
-              ))
-      ;;insert main tests
-      (mapc (lambda (x) (insert (prin1-to-string x) "\n"))
-            _pyel-tests)
+      
       ;;save py test functions
       (insert (format "(setq pyel-test-py-functions '%s)"
                       (prin1-to-string pyel-test-py-functions)))
+      
+
+      ;;insert ert tests and collect the others
+      (mapc (lambda (x)
+              (if (eq (car x) 'ert-deftest)
+                  (insert (prin1-to-string x) "\n")
+                (eval x))) 
+            _pyel-tests)
+
+      ;;how insert the other tests
+      (mapc 
+       (lambda (x) (insert (format "(setq %s '%s)"
+                                   (symbol-name x)
+                                   (prin1-to-string (eval x)))))
+       '(pyel-transform-tests
+         pyel-py-ast-tests
+         pyel-el-ast-tests
+         ))
+      
       (insert "\n(provide 'pyel-tests-generated)")
-      (write-file (file-path-concat pyel-directory "pyel-tests-generated.el"))
-      (eval-buffer))))
+      
+      (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
 
 (defalias 'pyel-verify 'pyel-run-tests)
 (defun pyel-run-tests ()
@@ -1199,16 +1252,19 @@ and compared to expected values")
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
-      (let ((transform-passed (reduce '+ (mapcar (lambda (test)
+      (let ((_ (message "Running transform tests..."))
+            (transform-passed (reduce '+ (mapcar (lambda (test)
                                                    (if (condition-case nil
                                                            (eval test)
                                                          (error nil)) 1 0))
                                                  pyel-transform-tests)))
+            (_ (message "Running python AST tests..."))
             (py-ast-passed (reduce '+ (mapcar (lambda (test)
                                                 (if (condition-case nil
                                                         (eval test)
                                                       (error nil)) 1 0))
                                               pyel-py-ast-tests)))
+            (_ (message "Running lisp AST tests..."))
             (el-ast-passed (reduce '+ (mapcar (lambda (test)
                                                 (if (condition-case nil
                                                         (eval test)
@@ -1218,8 +1274,21 @@ and compared to expected values")
                  transform-passed (length pyel-transform-tests)
                  py-ast-passed (length pyel-py-ast-tests)
                  el-ast-passed (length pyel-el-ast-tests))
+        (message "Evaluating test functions...")
+        (mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+        (message "Running ert tests...")
         (ert-run-tests-interactively "pyel")
         ))))
+
+(defun pyel-run-ert-tests ()
+  (interactive)
+  (flet ((pyel-create-new-marker () "test_marker"))
+    (progv
+        (mapcar 'car test-variable-values)
+        (mapcar 'cadr test-variable-values)
+      
+        (mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+        (ert-run-tests-interactively "pyel"))))
 
 (defun pyel-functionize (py-code &optional func-name &rest args)
   "wrap PY-CODE in a function definition

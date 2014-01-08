@@ -3,6 +3,47 @@
 
 (make-transform-table 'pyel)
 
+(ert-deftest pyel-create-tests () 
+  (let ((pyel-test-func-counter 0)
+         pyel-test-py-functions
+        _pyel-tests)
+    (pyel-create-tests
+     test
+     "test1\na\nb"
+     ("test2 setup"
+      ("test2_1" expect2_1)
+      ("test2_2setup\na\nb" ("test2_2" expect2_2)))
+     ("test3" expect3)
+     ("test4setup\na\nb" ("test4" expect4)))
+    (should (equal pyel-test-py-functions '("def pyel_test_test_2(n):
+ test2 setup
+ if n == 1:
+  return test2_1
+ 
+ if n == 2:
+  test2_2setup
+  a
+  b
+  return test2_2" "def pyel_test_test_1():
+ test4setup
+ a
+ b
+ return test4")))
+    (should (equal _pyel-tests '((push (quote (should (string= (pyel "test1
+a
+b" t) "(name  \"test1\" 'load)
+(name  \"a\" 'load)
+(name  \"b\" 'load)
+"))) pyel-el-ast-tests) (push (quote (should (equal (py-ast "test1
+a
+b") "Module(body=[Expr(value=Name(id='test1', ctx=Load())), Expr(value=Name(id='a', ctx=Load())), Expr(value=Name(id='b', ctx=Load()))])
+"))) pyel-py-ast-tests) (push (quote (should (equal (pyel "test1
+a
+b") (quote (progn test1 a b))))) pyel-transform-tests) (ert-deftest pyel-test2 nil (should (equal (eval (pyel "def f():
+ test3
+f()")) expect3))) (ert-deftest pyel-test1 nil (should (equal (eval (pyel "pyel_test_test_1()")) expect4))) (ert-deftest pyel-test3 nil (should (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1))) (ert-deftest pyel-test4 nil (should (equal (eval (pyel "pyel_test_test_2(2)")) ("test2_2" expect2_2)))))
+ ))))
+
 ;; should not fset functions because the effect takes place globally
 ;; even when the name being set is let bound.  
 (pyel-create-py-func set (_sym _val)
@@ -342,9 +383,16 @@
       (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
     "obj"))
 
+;; (pyel-create-py-func fcall (_func &rest args)
+;;                      ($func _) -> ($func ,@args)
+;;                      (_ _) -> (funcall $func ,@args))
+
+;; functions set to variables override those defined with `defun'
+;; this allows locally defined functions to override their global
+;; counterparts without defining themselves globally
 (pyel-create-py-func fcall (_func &rest args)
-                     ($func _) -> ($func ,@args)
-                     (_ _) -> (funcall $func ,@args))
+                     (vfunc _) -> (funcall $func ,@args)
+                     (_ _) -> ($func ,@args))
 
 (def-transform call pyel ()
   ;;TODO: some cases funcall will need to be used, how to handle that?
@@ -770,25 +818,31 @@
     ;;will store its methods and slots in class-def-methods and class-def-slots
     ;;respectively.
     (setq _x body)
-    (using-context class-def
+    
+    (if (context-p 'function-def)
+        (push name let-arglist))
+    (remove-context
+     function-def
+     
+     (using-context class-def
 
-                   (add-to-list 'pyel-defined-classes name)
+                    (add-to-list 'pyel-defined-classes name)
 
-                   `(define-class ,name ,(mapcar 'transform bases)
-                      ,@(mapcar 'transform body)
-                      )
+                    `(define-class ,name ,(mapcar 'transform bases)
+                       ,@(mapcar 'transform body)
+                       )
 
-                   ;; ;;add default initializer if one has not been defined
-                   ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
-                   ;;   (push (read (format pyel-default--init--method name))
-                   ;;         class-def-methods))
-                   
-                   ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
-                   ;;       (,@(reverse class-def-slots))
-                   ;;       "pyel class")
-                   
-                   ;;     ,@(reverse class-def-methods))
-                   )))
+                    ;; ;;add default initializer if one has not been defined
+                    ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
+                    ;;   (push (read (format pyel-default--init--method name))
+                    ;;         class-def-methods))
+                    
+                    ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
+                    ;;       (,@(reverse class-def-slots))
+                    ;;       "pyel class")
+                    
+                    ;;     ,@(reverse class-def-methods))
+                    ))))
 
 (def-transform assert pyel ()
   (lambda (test msg) 
@@ -839,8 +893,10 @@
                      (list) -> (py-list-repr thing)
                      (object) -> (call-method thing --repr--)
                      (vector) -> (py-vector-str thing)
-                     (hash-table) -> (py-hash-str thing)
+                     (hash) -> (py-hash-str thing)
                      (symbol) -> (symbol-name thing))
+
+(pyel-translate-function-name 'repr 'pyel-repr)
 
 (pyel-translate-function-name 'hex 'py-hex)
 

@@ -62,8 +62,30 @@
           ))
     (list 'pyel-str-function thing)))
 
+
+;;Currently, the repr and str transforms are not not called directly
+;;so they never have the change to expand.
+;;The expanded functions are used so we force expansion here.
+;;required functions are `pyel-str-function' and `pyel-repr-function'
+(call-transform (pyel-func-transform-name 'repr) nil)
+(call-transform (pyel-func-transform-name 'str) nil)
+
+;;temp function. see `pyel-str' for details
+
+(defmacro pyel-repr (thing)
+  (if (stringp thing)
+      (py-repr-string (py-repr-string thing))
+    (if (symbolp thing)
+        (if (boundp thing)
+            (list 'pyel-repr-function thing)
+          (if (functionp thing)
+              `(py-function-str (quote ,thing))
+            thing;;error
+            ))
+      (list 'pyel-repr-function thing))))
+
 (defsubst py-repr-string (thing)
-  (prin1-to-string (prin1-to-string thing)))
+  (prin1-to-string thing))
 
 (defun _py-repr-sequence (seq)
   (mapconcat (lambda (x) (pyel-repr-function x)) seq ", "))
