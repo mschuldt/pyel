@@ -15,7 +15,7 @@ the rest are in `special-method-names'")
 	   
 	   '(obj-symbol-index
 	     obj-dict-index
-	     obj-bases-index ;;for instances, this contains their class
+	     obj-bases-index 
 	     setatter-index
 	     getattribute-index
 	     getattr-index
@@ -270,17 +270,18 @@ this does not create bound methods"
 	       (nbases (length bases))
 	       (i 0)
 	       done)
-	  (while (not done)
-	    (setq done (condition-case nil
-			   (progn (setq val
-					(_find-attr (aref bases i)
-						    object name))
-				  t)
-			 (AttributeError nil)))
+	  (if (> nbases 0)
+	      (while (not done)
+		(setq done (condition-case nil
+			       (progn (setq val
+					    (_find-attr (aref bases i)
+							object name))
+				      t)
+			     (AttributeError nil)))
 
-	    (setq i (1+ i))
-	    (if (and (not done)
-		     (>= i nbases)) (signal 'AttributeError nil)))))
+		(setq i (1+ i))
+		(if (and (not done)
+			 (>= i nbases)) (signal 'AttributeError nil))))))
     (if val
 	(if (descriptor-p val) 
 	    (call-method val __get__ object object)
@@ -298,16 +299,17 @@ if it is a descriptor, return its value"
 	       (nbases (length bases))
 	       (i 0)
 	       done)
-	  (while (not done)
-	    (setq done
-		  (condition-case nil
-		      (progn (setq val (_find-non-data-descriptor (aref bases i) object name))
-			     t)
-		    (AttributeError nil)))
+	  (if (> nbases 0)
+	      (while (not done)
+		(setq done
+		      (condition-case nil
+			  (progn (setq val (_find-non-data-descriptor (aref bases i) object name))
+				 t)
+			(AttributeError nil)))
 
-	    (setq i (1+ i))
-	    (if (and (not done)
-		     (>= i nbases)) (signal 'AttributeError nil)))))
+		(setq i (1+ i))
+		(if (and (not done)
+			 (>= i nbases)) (signal 'AttributeError nil))))))
 
     
     (if val
