@@ -1456,8 +1456,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                  (push `(ert-deftest
                               ,(intern (concat "pyel-" (symbol-name name)
                                                (number-to-string (setq c (1+ c))))) ()
-                            (equal (eval (pyel ,(concat (pyel-functionize (car test))
-                                                                "\nf()")))
+                            (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
+                                                        "\n_pyel21312()")))
                                            ,(cadr test)))
   
                          _pyel-tests))
