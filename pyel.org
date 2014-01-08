@@ -1595,12 +1595,14 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           (message "Evaluating test functions...")
           ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
           (let ((tmp-file "~/tmp/pyel-test-functions.el"))
-            (with-temp-buffer
-              (mapc (lambda (x)
-                      ;;macroexpand so edebug-defun can be used on it
-                      (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
-                    pyel-test-py-functions)
-              (write-file tmp-file))
+            (find-file tmp-file)
+            (erase-buffer)
+            (mapc (lambda (x)
+                    ;;macroexpand so edebug-defun can be used on it
+                    (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
+                  pyel-test-py-functions)
+            (save-buffer)
+            (kill-buffer)
             (load-file tmp-file))
           (message "Running ert tests...")
           (ert-run-tests-interactively "pyel")
