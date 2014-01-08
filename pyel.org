@@ -501,7 +501,7 @@ main
                   func `(defsubst ,!name (x) (not (,name x))))
             (add-to-list 'pyel-negated-function-tests func)
             (eval func)
-            (push (cons (intern (concat "!" (symbol-name (car x))))
+            (push (list (intern (concat "!" (symbol-name (car x))))
                         !name)
                   new))
           pyel-type-test-funcs)
