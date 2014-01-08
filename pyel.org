@@ -487,7 +487,7 @@ main
          (hash-table hash-table-p)
          (symbol symbolp)
          (array arrayp)
-         (object object-p)
+         (object py-object-p)
          (function functionp)
          (func fboundp)
          (vfunction vfunction-p)
