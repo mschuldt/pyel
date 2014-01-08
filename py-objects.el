@@ -146,21 +146,19 @@ These names will be set globally to their index in this list")
     ;;for users and provides this implementation quicker access
     (setattr new --bases-- bases)
     (aset new obj-bases-index bases)
-
-    `(progn
-       (setq ,name ',new)
-       ,(if (context-p 'function-def)
-	    ;;we cannnot use defun because the effect is global
-	    ;;so we assign a lambda function instead, Usually
-	    ;;the class vector is assigned to the name, now it 
-	    ;;will be stored as a property of the name symbol 
-	    (progn (put name 'pyel-class-def new)
-		   `(setq ,name (lambda (&rest args)
-				  (obj-make-instance (get ',name 'pyel-class-def)
-						     args))))
-	  `(defun ,name (&rest args)
-	     (obj-make-instance ,name args))))))
-
+    
+    (if (context-p 'function-def)
+	;;we cannnot use defun because the effect is global
+	;;so we assign a lambda function instead, Usually
+	;;the class vector is assigned to the name, now it 
+	;;will be stored as a property of the name symbol 
+	`(progn (put ',name 'pyel-class-def ,new)
+		(setq ,name (lambda (&rest args)
+			      (obj-make-instance (get ',name 'pyel-class-def)
+						 args))))
+      `(progn (setq ,name ',new)
+	      (defun ,name (&rest args)
+		(obj-make-instance ,name args))))))
 
 (defun add-to-end (list thing)
   "add THING to the end of LIST"
