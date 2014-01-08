@@ -3463,7 +3463,7 @@ TODO: tests!
                        (list) -> (py-list-repr thing)
                        (object) -> (call-method thing --repr--)
                        (vector) -> (py-vector-str thing)
-                       (hash-table) -> (py-hash-str thing)
+                       (hash) -> (py-hash-str thing)
                        (symbol) -> (symbol-name thing))
 #+END_SRC
 *** python el lib
