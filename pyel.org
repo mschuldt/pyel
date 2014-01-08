@@ -3449,9 +3449,27 @@ TODO: tests!
   
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+(pyel-create-tests
+ str
+ ("str('somestring')" "\"somestring\"")
+ ("str(\"'dstring'\")" "\"'dstring'\"")
+ ("str(342)" "342")
+ ("x = [1,2,'hi']
+str(x)"
+  "[1, 2, \"hi\"]")
+ ("x = (1,'two',3)
+str(x)"
+  "(1, \"two\", 3)")
+ ("x = {1: 'one', 5: 'five', 12: 'telve'};
+str(x)"
+  "{1: \"one\", 5: \"five\", 12: \"telve\"}")
+ ("f = lambda : False
+str(f)"
+  "<function <lambda> at 0x18b071>")
+ ("def __ff_(): pass
+str(__ff_)"
+  "<function --ff- at 0x18b071>"))
 #+END_SRC
 ** repr
 *** transform
@@ -3495,7 +3513,7 @@ TODO: tests!
   
   
 #+END_SRC
-
+    
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
