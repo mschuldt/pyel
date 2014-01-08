@@ -2313,9 +2313,16 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
       "obj"))
   
+  ;; (pyel-create-py-func fcall (_func &rest args)
+  ;;                      ($func _) -> ($func ,@args)
+  ;;                      (_ _) -> (funcall $func ,@args))
+  
+  ;; functions set to variables override those defined with `defun'
+  ;; this allows locally defined functions to override their global
+  ;; counterparts without defining themselves globally
   (pyel-create-py-func fcall (_func &rest args)
-                       ($func _) -> ($func ,@args)
-                       (_ _) -> (funcall $func ,@args))
+                       (vfunc _) -> (funcall $func ,@args)
+                       (_ _) -> ($func ,@args))
   
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
