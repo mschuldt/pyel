@@ -1634,7 +1634,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
 #+END_SRC
 ** tests
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-create-tests () 
     (let ((pyel-test-func-counter 0)
            pyel-test-py-functions
