@@ -1384,6 +1384,10 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   (defun pyel-make-test-func-name ()
     (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
   
+  (defun cl-prettyprint-to-string (form)
+    (with-temp-buffer
+      (cl-prettyprint form)
+      (buffer-string)))
   
   (defmacro pyel-create-tests (name &rest py-tests)
     (let ((complete nil)
