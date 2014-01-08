@@ -1376,7 +1376,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   when `pyel-run-tests' is run, these are translated to e-lisp
   and compared to expected values")
   
-  (setq _pyel-tests nil)    
+  (setq _pyel-tests nil)
   
   (defvar pyel-test-func-counter 0
     "just another counter")
@@ -1439,9 +1439,14 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                         ,(intern (concat "pyel-" name-str
                                                          (number-to-string (setq c (1+ c))))) ()
                                       (should (equal (eval (pyel ,(if (= (length test) 2)
+  
+                                                                          
                                                                       (format "%s()" test-name)
                                                                     (format "%s(%s)" test-name (setq d (1+ d))))))
-                                                     ,(cadr x))))
+                                                     ,(if (and (listp (cadr x))
+                                                              (not (eq (caadr x) 'lambda)))
+                                                          (cadr (cadr x)) ;;form: ("setup" ("test" expect))
+                                                        (cadr x))))) ;;;;form: ("test" expect)
                                    tests))
                            (cdr test))
                      (setq _pyel-tests (append _pyel-tests (reverse tests)))
@@ -1454,6 +1459,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                             (should (equal (eval (pyel ,(concat (pyel-functionize (car test))
                                                                 "\nf()")))
                                            ,(cadr test))))
+  
                          _pyel-tests))
               
                 (t (progn ;;form "test"
@@ -3426,6 +3432,7 @@ TODO: tests!
   ;;so they never have the change to expand.
   ;;The expanded functions are used so we force expansion here.
   ;;required functions are `pyel-str-function' and `pyel-repr-function'
+  ;;;NOTE: this is also done in `pyel-run-tests'
   (let ((current-transform-table (get-transform-table 'pyel)))
     (call-transform (pyel-func-transform-name 'repr) nil)
     (call-transform (pyel-func-transform-name 'str) nil))
