@@ -1438,7 +1438,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                              (push `(ert-deftest
                                         ,(intern (concat "pyel-" name-str
                                                          (number-to-string (setq c (1+ c))))) ()
-                                      (should (equal (eval (pyel ,(if (= (length test) 2)
+                                      (equal (eval (pyel ,(if (= (length test) 2)
   
                                                                           
                                                                       (format "%s()" test-name)
@@ -1446,7 +1446,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                                      ,(if (and (listp (cadr x))
                                                               (not (eq (caadr x) 'lambda)))
                                                           (cadr (cadr x)) ;;form: ("setup" ("test" expect))
-                                                        (cadr x))))) ;;;;form: ("test" expect)
+                                                        (cadr x)))) ;;;;form: ("test" expect)
                                    tests))
                            (cdr test))
                      (setq _pyel-tests (append _pyel-tests (reverse tests)))
@@ -1456,29 +1456,29 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                  (push `(ert-deftest
                               ,(intern (concat "pyel-" (symbol-name name)
                                                (number-to-string (setq c (1+ c))))) ()
-                            (should (equal (eval (pyel ,(concat (pyel-functionize (car test))
+                            (equal (eval (pyel ,(concat (pyel-functionize (car test))
                                                                 "\nf()")))
-                                           ,(cadr test))))
+                                           ,(cadr test)))
   
                          _pyel-tests))
               
                 (t (progn ;;form "test"
                      ;;check complete code transformation
                      (setq trans (pyel test))
-                     (push `(push '(should (equal
+                     (push `(push '(equal
                                             (pyel ,test)
-                                            ',trans))
+                                            ',trans)
                                   pyel-transform-tests)
                            _pyel-tests)
                      ;;check python ast
-                     (push `(push '(should (equal (py-ast ,test)
-                                                  ,(py-ast test)))
+                     (push `(push '(equal (py-ast ,test)
+                                                  ,(py-ast test))
                                   pyel-py-ast-tests)
                            _pyel-tests)
                      
                      ;;check transformed .py syntax tree
-                     (push `(push '(should (string= (pyel ,test t)
-                                                    ,(pyel test t)))
+                     (push `(push '(string= (pyel ,test t)
+                                                    ,(pyel test t))
                                   pyel-el-ast-tests)
                            _pyel-tests))
             )))))))
