@@ -585,7 +585,7 @@ main
     (defvar test-variable-values nil
       "variables values for running tests")
     
-    
+  
     (setq test-variable-values
           '((pyel-defined-classes nil)
             (pyel-function-definitions nil)
@@ -594,10 +594,7 @@ main
             (pyel-unique-obj-names nil)
             ;;(pyel-method-transforms nil)
             ;;(pyel-func-transforms nil)
-            (pyel-marker-counter 0)))
-  
-  (push (list 'known-types known-types) test-variable-values)
-    
+            (pyel-marker-counter 0)))    
     
     (defvar pyel-marker-counter 0)
     
@@ -717,6 +714,8 @@ This will have to be removed after the code is generated
                       (number list vector string object hash function func symbol)
                       (number list vector string object hash function func symbol)
                       (number list vector string object hash function func symbol)))
+
+  (push (list 'known-types known-types) test-variable-values)
   
   (defun pyel-get-possible-types (&rest args)
     "return a list in the form (arg types).
