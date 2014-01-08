@@ -1647,7 +1647,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         ("test2_2setup\na\nb" ("test2_2" expect2_2)))
        ("test3" expect3)
        ("test4setup\na\nb" ("test4" expect4)))
-      (should (equal pyel-test-py-functions '("def pyel_test_test_2(n):
+      (equal pyel-test-py-functions '("def pyel_test_test_2(n):
    test2 setup
    if n == 1:
     return test2_1
@@ -1660,21 +1660,23 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
    test4setup
    a
    b
-   return test4")))
-      (should (equal _pyel-tests '((push (quote (should (string= (pyel "test1
+   return test4"))
+      
+      (equal _pyel-tests 
+             '((push (quote (string= (pyel "test1
   a
   b" t) "(name  \"test1\" 'load)
   (name  \"a\" 'load)
   (name  \"b\" 'load)
-  "))) pyel-el-ast-tests) (push (quote (should (equal (py-ast "test1
+  ")) pyel-el-ast-tests) (push (quote (equal (py-ast "test1
   a
   b") "Module(body=[Expr(value=Name(id='test1', ctx=Load())), Expr(value=Name(id='a', ctx=Load())), Expr(value=Name(id='b', ctx=Load()))])
-  "))) pyel-py-ast-tests) (push (quote (should (equal (pyel "test1
+  ")) pyel-py-ast-tests) (push (quote (equal (pyel "test1
   a
-  b") (quote (progn test1 a b))))) pyel-transform-tests) (ert-deftest pyel-test2 nil (should (equal (eval (pyel "def f():
-   test3
-  f()")) expect3))) (ert-deftest pyel-test1 nil (should (equal (eval (pyel "pyel_test_test_1()")) expect4))) (ert-deftest pyel-test3 nil (should (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1))) (ert-deftest pyel-test4 nil (should (equal (eval (pyel "pyel_test_test_2(2)")) ("test2_2" expect2_2)))))
-   ))))
+  b") (quote (progn test1 a b)))) pyel-transform-tests) (ert-deftest pyel-test2 nil (equal (eval (pyel "def _pyel21312():
+  test3
+  _pyel21312()")) expect3)) (ert-deftest pyel-test1 nil (equal (eval (pyel "pyel_test_test_1()")) expect4)) (ert-deftest pyel-test3 nil (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1)) (ert-deftest pyel-test4 nil (equal (eval (pyel "pyel_test_test_2(2)")) expect2_2))))
+   ))
 #+END_SRC
 * ---------------------
 * assign
