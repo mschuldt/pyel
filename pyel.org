@@ -486,7 +486,6 @@ main
          (object object-p)
          (function functionp)
          (func fboundp)
-         (func functionp)
          (callable callable-p)))
   
   (defvar pyel-negated-function-tests nil
