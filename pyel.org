@@ -2077,50 +2077,11 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       return "(str \"" + str(s) +"\")"
 #+END_SRC
 *** tests
-(pyel-create-tests str
-		   "'a'"
-		   "x = 'a'"
-		   "['a','b']")
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-str-full-transform nil
-    (should
-     (equal
-      (pyel "'a'")
-      '"a"))
-    (should
-     (equal
-      (pyel "x = 'a'")
-      '(pyel-set x "a")))
-    (should
-     (equal
-      (pyel "['a','b']")
-      '(list "a" "b"))))
-  (ert-deftest pyel-str-py-ast nil
-    (should
-     (equal
-      (py-ast "'a'")
-      "Module(body=[Expr(value=Str(s='a'))])\n"))
-    (should
-     (equal
-      (py-ast "x = 'a'")
-      "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='a'))])\n"))
-    (should
-     (equal
-      (py-ast "['a','b']")
-      "Module(body=[Expr(value=List(elts=[Str(s='a'), Str(s='b')], ctx=Load()))])\n")))
-  (ert-deftest pyel-str-el-ast nil
-    (should
-     (string=
-      (pyel "'a'" t)
-      "(str \"a\")\n"))
-    (should
-     (string=
-      (pyel "x = 'a'" t)
-      "(assign  ((name  \"x\" 'store)) (str \"a\"))\n"))
-    (should
-     (string=
-      (pyel "['a','b']" t)
-      "(list ((str \"a\") (str \"b\")) 'load)\n")))
+  (pyel-create-tests string
+                     "'a'"
+                     "x = 'a'"
+                     "['a','b']")
   
 #+END_SRC
 
