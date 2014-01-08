@@ -1634,7 +1634,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
 #+END_SRC
 ** tests
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+this test is disabled. It pollutes global variables 
+# #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-create-tests () 
     (let ((pyel-test-func-counter 0)
           pyel-test-py-functions
@@ -1676,7 +1677,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   b") (quote (progn test1 a b)))) pyel-transform-tests) (ert-deftest pyel-test2 nil (equal (eval (pyel "def _pyel21312():
   test3
   _pyel21312()")) expect3)) (ert-deftest pyel-test1 nil (equal (eval (pyel "pyel_test_test_1()")) expect4)) (ert-deftest pyel-test3 nil (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1)) (ert-deftest pyel-test4 nil (equal (eval (pyel "pyel_test_test_2(2)")) expect2_2))))))
-#+END_SRC
+# #+END_SRC
 * ---------------------
 * assign
 ** transform
