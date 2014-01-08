@@ -3123,26 +3123,28 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       
       (if (context-p 'function-def)
           (push name let-arglist))
-         
-      (using-context class-def
+      (remove-context
+       function-def
+       
+       (using-context class-def
   
-                     (add-to-list 'pyel-defined-classes name)
+                      (add-to-list 'pyel-defined-classes name)
   
-                     `(define-class ,name ,(mapcar 'transform bases)
-                        ,@(mapcar 'transform body)
-                        )
+                      `(define-class ,name ,(mapcar 'transform bases)
+                         ,@(mapcar 'transform body)
+                         )
   
-                     ;; ;;add default initializer if one has not been defined
-                     ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
-                     ;;   (push (read (format pyel-default--init--method name))
-                     ;;         class-def-methods))
-                     
-                     ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
-                     ;;       (,@(reverse class-def-slots))
-                     ;;       "pyel class")
-                     
-                     ;;     ,@(reverse class-def-methods))
-                     )))
+                      ;; ;;add default initializer if one has not been defined
+                      ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
+                      ;;   (push (read (format pyel-default--init--method name))
+                      ;;         class-def-methods))
+                      
+                      ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
+                      ;;       (,@(reverse class-def-slots))
+                      ;;       "pyel class")
+                      
+                      ;;     ,@(reverse class-def-methods))
+                      ))))
   
 #+END_SRC
 ** python ast
