@@ -468,6 +468,10 @@ main
     (defvar pyel-directory ""
       "Path to pyel files. must include py-ast.py, pyel.el etc")
   
+  (defmacro vfunction-p (f)
+    `(and (boundp ',f)
+          (functionp ,f)))
+  
   (set (defvar pyel-type-test-funcs nil  
          "alist of types used in pyel-call-transform for the switch-type
         and the function used to test for that type")
@@ -486,6 +490,8 @@ main
          (object object-p)
          (function functionp)
          (func fboundp)
+         (vfunction vfunction-p)
+         (vfunc vfunction-p)
          (callable callable-p)))
   
   (defvar pyel-negated-function-tests nil
