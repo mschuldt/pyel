@@ -424,10 +424,9 @@ if it is a descriptor, return its value"
 
 (pyel-def-error AttributeError)
 
-
 (define-class object ()
   "The most base type"
-  (def --init-- () ()
+  (def --init-- (self) ()
        "x.__init__(...) initializes x; see help(type(x)) for signature"
        nil)
   (def --getattribute-- (self name) ()
@@ -442,4 +441,4 @@ if it is a descriptor, return its value"
   (def --repr-- (self) ()
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
-  ) 
+  )
