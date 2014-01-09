@@ -792,22 +792,32 @@ This will have to be removed after the code is generated
     ;;of defined method transforms, if it found, this transform will override
     ;;the normal transform.
     (add-to-list 'pyel-method-transforms name)
-    ;;TODO: should name be modified to avoid conflicts ?
+  
+    ;;temp solution: does not check types etc
+    (let* ((striped-args (mapcar 'strip_ args))
+           (args-just-vars (pyel-filter-non-args striped-args))
+           (rest-arg (if (eq (car (last striped-args 2)) '&rest)
+                         (car (last striped-args)) nil)))
+  
     `(def-transform ,(pyel-method-transform-name name) pyel () 
-       (lambda ,args
+       (lambda ,striped-args
          (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
-               (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
+               (body (pyel-do-call-transform (pyel-get-possible-types
+                                              ,@args-just-vars)
                                              ',args
                                              ',type-switches))
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
            
            (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
+             (push (list 'defmacro fsym ',striped-args
                          body)
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
-           (cons fsym (mapcar 'eval ',args))))))
+           (cons fsym ,(if rest-arg
+                           `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                         (cons 'list args-just-vars)))
+           )))))
   
   (defmacro pyel-func-transform (name args &rest type-switches)
     "define transforms for function calls"
