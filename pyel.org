@@ -4665,15 +4665,16 @@ prevents multiple/none '/' seporating file names"
 * EOF
 ** main
 #+Begin_SRC emacs-lisp :tangle pyel.el
-  (require 'transformer)
-  (require 'pyel-transforms)
-  (require 'pyel-tests-generated)
-  (require 'pyel-preprocessor)  
-  
-  (require 'pyel-mode)
-  
-  (provide 'pyel)
-  ;;pyel.el ends here
+    (require 'transformer)
+    (require 'pyel-transforms)
+    (require 'pyel-tests-generated)
+    (require 'pyel-preprocessor)  
+    
+    (require 'pyel-mode)
+    (require 'py-objects)
+    
+    (provide 'pyel)
+    ;;pyel.el ends here
 #+END_SRC
 ** transforms
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

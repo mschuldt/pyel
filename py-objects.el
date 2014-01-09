@@ -440,3 +440,6 @@ if it is a descriptor, return its value"
        "x.__repr__() <==> repr(x)"
        "<class 'object'>")
   )
+
+(
+ provide 'py-objects)
