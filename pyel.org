@@ -1022,7 +1022,10 @@ This will have to be removed after the code is generated
                                         (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
                                       args-just-vars))
            (arg-replacements (append arg-replacements1 arg-replacements2))
-  
+           
+           (arg-quote-replacements (mapcar (lambda (x)
+                                        (list x (list '\, x)))
+                                      args-just-vars))
            (current-replace-list nil)
            ;; (arg-replacements (append let-vars
            ;;                           (mapcar (lambda (x)
@@ -1146,7 +1149,9 @@ This will have to be removed after the code is generated
                    ;;; (eval (caddar valid))
                    (caddar valid)
                  ;;;(eval  (cadar valid))
-                 (cadar valid)
+                 ;;there is only one possibility, so replace the args with their quoted counterpart
+                 ;;instead of replacing with the let bound vars
+                 (list 'backquote (replace (cadar valid) arg-quote-replacements))
                  ))
               ;;?TODO: are there possible problems with evaluating the arguments
               ;;       multiple times? Maybe they should be put in a list
@@ -2189,6 +2194,7 @@ this test is disabled. It pollutes global variables
                        (string string) -> (not (string= l r))
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
+
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
