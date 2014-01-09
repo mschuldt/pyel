@@ -2194,7 +2194,9 @@ this test is disabled. It pollutes global variables
                        (string string) -> (not (string= l r))
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
-
+  
+  (pyel-create-py-func is (l r)
+                       (_ _) -> (eq l r))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
