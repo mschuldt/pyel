@@ -368,9 +368,9 @@ if it is a descriptor, return its value"
 	    (setq method (_obj-get-special (aref bases i) method-index))
 	    (setq i (1+ i))
 	    (if (and (not method)
-		     (>= i nbases)) (error "attr does not exist")))
+		     (>= i nbases)) (signal 'AttributeError nil)))
 	  method)
-	(error "method not found"))
+	(signal 'AttributeError nil))
     ;;TODO: inheritance
     ))
 
