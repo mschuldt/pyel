@@ -106,6 +106,8 @@ def In():
       return "\"in\"";
 def NotIn():
       return "\"not-in\"";
+def Is():
+      return "\"is\"";
 
 def If (test, body, orelse):
     return l_str(["if ",test, ll_str(body), ll_str(orelse)])

@@ -34,48 +34,6 @@
   (should (equal (pyel-do-splices '(@)) nil))
 )
 
-(ert-deftest pyel-create-tests () 
-  (let ((pyel-test-func-counter 0)
-        pyel-test-py-functions
-        _pyel-tests)
-    (pyel-create-tests
-     test
-     "test1\na\nb"
-     ("test2 setup"
-      ("test2_1" expect2_1)
-      ("test2_2setup\na\nb" ("test2_2" expect2_2)))
-     ("test3" expect3)
-     ("test4setup\na\nb" ("test4" expect4)))
-    (equal pyel-test-py-functions '("def pyel_test_test_2(n):
- test2 setup
- if n == 1:
-  return test2_1
- 
- if n == 2:
-  test2_2setup
-  a
-  b
-  return test2_2" "def pyel_test_test_1():
- test4setup
- a
- b
- return test4"))
-    
-    (equal _pyel-tests
-           '((push (quote (string= (pyel "test1
-a
-b" t) "(name  \"test1\" 'load)
-(name  \"a\" 'load)
-(name  \"b\" 'load)
-")) pyel-el-ast-tests) (push (quote (equal (py-ast "test1
-a
-b") "Module(body=[Expr(value=Name(id='test1', ctx=Load())), Expr(value=Name(id='a', ctx=Load())), Expr(value=Name(id='b', ctx=Load()))])
-")) pyel-py-ast-tests) (push (quote (equal (pyel "test1
-a
-b") (quote (progn test1 a b)))) pyel-transform-tests) (ert-deftest pyel-test2 nil (equal (eval (pyel "def _pyel21312():
-test3
-_pyel21312()")) expect3)) (ert-deftest pyel-test1 nil (equal (eval (pyel "pyel_test_test_1()")) expect4)) (ert-deftest pyel-test3 nil (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1)) (ert-deftest pyel-test4 nil (equal (eval (pyel "pyel_test_test_2(2)")) expect2_2))))))
-
 (pyel-create-tests assign
                    "a = 1"
                    "a.b = 1"
@@ -532,7 +490,16 @@ repr(__ff_)"
 
 ;;
 
-;;
+(pyel-create-tests
+ append
+ ("a = [1,2,3]
+c = ['a','a']
+b = a
+a.append('hi')"
+  ("a" '(1 2 3 "hi"))
+  ("a is b" t)
+  ("a.append(c)" ("a is b" t))
+  ("a.append(c)" ("a[3] is c" t))))
 
 ;;
 

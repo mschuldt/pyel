@@ -653,22 +653,32 @@ stored here just for convenient inspection")
   ;;of defined method transforms, if it found, this transform will override
   ;;the normal transform.
   (add-to-list 'pyel-method-transforms name)
-  ;;TODO: should name be modified to avoid conflicts ?
+
+  ;;temp solution: does not check types etc
+  (let* ((striped-args (mapcar 'strip_ args))
+         (args-just-vars (pyel-filter-non-args striped-args))
+         (rest-arg (if (eq (car (last striped-args 2)) '&rest)
+                       (car (last striped-args)) nil)))
+
   `(def-transform ,(pyel-method-transform-name name) pyel () 
-     (lambda ,args
+     (lambda ,striped-args
        (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
-             (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
+             (body (pyel-do-call-transform (pyel-get-possible-types
+                                            ,@args-just-vars)
                                            ',args
                                            ',type-switches))
              (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
          
          (unless (member fsym pyel-defined-functions)
-           (push (list 'defmacro fsym ',(mapcar 'strip_ args)
+           (push (list 'defmacro fsym ',striped-args
                        body)
                  pyel-function-definitions)
            (push fsym pyel-defined-functions)
            (fset fsym (lambda () nil)))
-         (cons fsym (mapcar 'eval ',args))))))
+         (cons fsym ,(if rest-arg
+                         `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                       (cons 'list args-just-vars)))
+         )))))
 
 (defmacro pyel-func-transform (name args &rest type-switches)
   "define transforms for function calls"
@@ -883,7 +893,10 @@ stored here just for convenient inspection")
                                       (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
                                     args-just-vars))
          (arg-replacements (append arg-replacements1 arg-replacements2))
-
+         
+         (arg-quote-replacements (mapcar (lambda (x)
+                                      (list x (list '\, x)))
+                                    args-just-vars))
          (current-replace-list nil)
          ;; (arg-replacements (append let-vars
          ;;                           (mapcar (lambda (x)
@@ -1007,7 +1020,9 @@ stored here just for convenient inspection")
                  ;;; (eval (caddar valid))
                  (caddar valid)
                ;;;(eval  (cadar valid))
-               (cadar valid)
+               ;;there is only one possibility, so replace the args with their quoted counterpart
+               ;;instead of replacing with the let bound vars
+               (list 'backquote (replace (cadar valid) arg-quote-replacements))
                ))
             ;;?TODO: are there possible problems with evaluating the arguments
             ;;       multiple times? Maybe they should be put in a list
@@ -1111,7 +1126,8 @@ and compared to expected values")
                                                                     (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
                                                                                                    (if (and (listp (cadr x))
                                                                                                             ;;form:  ("setup" ("test" expect))
-                                                                                                            (not (eq (caadr x) 'lambda)))
+                                                                                                            (not (or (eq (caadr x) 'lambda)
+                                                                                                                     (eq (caadr x) 'quote))))
                                                                                                        (concat (pyel-indent-py-code (car x)) "\n"
                                                                                                                (concat " return " (caadr x)))
                                                                                                      ;;form: ("test" expect)
@@ -1296,6 +1312,7 @@ and compared to expected values")
           (save-buffer)
           (kill-buffer)
           (load-file tmp-file))
+        ;;(mapc 'eval pyel-function-definitions)
         (message "Running ert tests...")
         (ert-run-tests-interactively "pyel")
         ))))
@@ -1359,6 +1376,10 @@ prevents multiple/none '/' seporating file names"
 (require 'pyel-preprocessor)  
 
 (require 'pyel-mode)
+(require 'py-objects)
+
+(pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
+;;...I'm so sorry
 
 (provide 'pyel)
 ;;pyel.el ends here

@@ -253,12 +253,6 @@
 
 
 
-;; (def-transform compare pyel ()
-;;   (lambda (left ops comparators)
-;;     ;;what if comparators has multiple items?
-;;     `(,(read (car ops)) ,(transform left) ,(transform (car comparators)))))
-
-
 (def-transform compare pyel ()
   (lambda (left ops comparators)
     ;;what if comparators has multiple items?
@@ -274,7 +268,6 @@
     
     (call-transform (read (car ops)) left (car comparators))))
 
-
 (pyel-create-py-func == (l r)
                      (number number) -> (= l r)
                      (string string) -> (string= l r)
@@ -287,13 +280,14 @@
                      ;;TODO: macro for this
                      (string string) -> (and (not (string< l r)) (not (string= l r)))
                      (object _) -> (__gt__ l r))
+
 ;;TODO: other py types?
+
 ;;::Q does `string<' behave like < for strings in python?
 (pyel-create-py-func < (l r)
                      (number number) -> (< l r)
                      (string string) -> (string< l r)
                      (object _) -> (__lt__ l r))
-;;TODO: other py types?
 
 (pyel-create-py-func >= (l r)
                      (number number) -> (>= l r)
@@ -310,7 +304,11 @@
                      (string string) -> (not (string= l r))
                      (object _) -> (__ne__ l r)
                      (_ _) -> (not (equal l r)))
-                                        ;
+
+;;this is defined as a transform because `pyel-compare' expects
+;;all comparison functions to be transforms
+(pyel-create-py-func is (l r)
+                     (_ _) -> (eq l r))
 
 (def-transform if pyel ()
   (lambda (test body orelse)
@@ -863,9 +861,9 @@
 
 ;;
 
-(pyel-method-transform extend(obj thing)
-                  (list _) -> (setq $obj (append obj thing))
-                  (_ _)    -> (append obj thing))
+(pyel-method-transform append (obj thing)
+                  (list _) -> (py-append-list obj thing)
+                  (_ _)    -> (call-method obj append thing))
 
 (pyel-method-transform insert (obj i x)
                        (list _) -> (let () (setq $obj (append (subseq obj 0 i)

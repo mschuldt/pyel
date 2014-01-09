@@ -1,4 +1,21 @@
-(setq pyel-test-py-functions '("def pyel_test_objects_4(n):
+(setq pyel-test-py-functions '("def pyel_test_append_3(n):
+ a = [1,2,3]
+ c = ['a','a']
+ b = a
+ a.append('hi')
+ if n == 1:
+  return a
+ 
+ if n == 2:
+  return a is b
+ 
+ if n == 3:
+  a.append(c)
+  return a is b
+ 
+ if n == 4:
+  a.append(c)
+  return a[3] is c" "def pyel_test_objects_2(n):
  class tclass():
   '''a test class'''
   cvar = 12
@@ -65,7 +82,7 @@
   tclass.sixmore = lambda self: self.a + 6
   y = x.sixmore
   x.a = 2
-  return y()" "def pyel_test_objects_3(n):
+  return y()" "def pyel_test_objects_1(n):
  class one:
   def __init__(self,x):
    self.n = x
@@ -79,20 +96,7 @@
   return x.other.n
  
  if n == 2:
-  return x.other.m()" "def pyel_test_test_2(n):
- test2 setup
- if n == 1:
-  return test2_1
- 
- if n == 2:
-  test2_2setup
-  a
-  b
-  return test2_2" "def pyel_test_test_1():
- test4setup
- a
- b
- return test4"))(ert-deftest pyel-repr7 nil (equal (eval (pyel "def _pyel21312():
+  return x.other.m()"))(ert-deftest pyel-repr7 nil (equal (eval (pyel "def _pyel21312():
  repr('somestring')
 _pyel21312()")) "\"\\\"somestring\\\"\""))
 (ert-deftest pyel-repr6 nil (equal (eval (pyel "def _pyel21312():
@@ -147,33 +151,29 @@ _pyel21312()")) "<function <lambda> at 0x18b071>"))
  def __ff_(): pass
  str(__ff_)
 _pyel21312()")) "<function --ff- at 0x18b071>"))
-(ert-deftest pyel-test2 nil (equal (eval (pyel "def _pyel21312():
- test3
-_pyel21312()")) expect3))
-(ert-deftest pyel-test1 nil (equal (eval (pyel "pyel_test_test_1()")) expect4))
-(ert-deftest pyel-test3 nil (equal (eval (pyel "pyel_test_test_2(1)")) expect2_1))
-(ert-deftest pyel-test4 nil (equal (eval (pyel "pyel_test_test_2(2)")) expect2_2))
-(ert-deftest pyel-objects1 nil (equal (eval (pyel "pyel_test_objects_3(1)")) 5))
-(ert-deftest pyel-objects2 nil (equal (eval (pyel "pyel_test_objects_3(2)")) 6))
-(ert-deftest pyel-objects3 nil (equal (eval (pyel "pyel_test_objects_4(1)")) "tclass"))
-(ert-deftest pyel-objects4 nil (equal (eval (pyel "pyel_test_objects_4(2)")) (lambda (self) (getattr self a))))
-(ert-deftest pyel-objects5 nil (equal (eval (pyel "pyel_test_objects_4(3)")) (lambda (self n) (setattr self a n))))
-(ert-deftest pyel-objects6 nil (equal (eval (pyel "pyel_test_objects_4(4)")) 12))
-(ert-deftest pyel-objects7 nil (equal (eval (pyel "pyel_test_objects_4(5)")) "hi"))
-(ert-deftest pyel-objects8 nil (equal (eval (pyel "pyel_test_objects_4(6)")) 23))
-(ert-deftest pyel-objects9 nil (equal (eval (pyel "pyel_test_objects_4(7)")) 19))
-(ert-deftest pyel-objects10 nil (equal (eval (pyel "pyel_test_objects_4(8)")) (lambda (self) nil (pyel-+ (getattr self cvar) 5))))
-(ert-deftest pyel-objects11 nil (equal (eval (pyel "pyel_test_objects_4(9)")) "<class 'object'>"))
-(ert-deftest pyel-objects12 nil (equal (eval (pyel "pyel_test_objects_4(10)")) t))
-(ert-deftest pyel-objects13 nil (equal (eval (pyel "pyel_test_objects_4(11)")) "tclass"))
-(ert-deftest pyel-objects14 nil (equal (eval (pyel "pyel_test_objects_4(12)")) 14))
-(ert-deftest pyel-objects15 nil (equal (eval (pyel "pyel_test_objects_4(13)")) 2))
-(ert-deftest pyel-objects16 nil (equal (eval (pyel "pyel_test_objects_4(14)")) [4 12]))
-(ert-deftest pyel-objects17 nil (equal (eval (pyel "pyel_test_objects_4(15)")) 10))
-(ert-deftest pyel-objects18 nil (equal (eval (pyel "pyel_test_objects_4(16)")) 8))
-(setq pyel-transform-tests '((equal (pyel "test1
-a
-b") (quote (progn test1 a b))) (equal (pyel "a = b = c = 9.3
+(ert-deftest pyel-objects1 nil (equal (eval (pyel "pyel_test_objects_1(1)")) 5))
+(ert-deftest pyel-objects2 nil (equal (eval (pyel "pyel_test_objects_1(2)")) 6))
+(ert-deftest pyel-objects3 nil (equal (eval (pyel "pyel_test_objects_2(1)")) "tclass"))
+(ert-deftest pyel-objects4 nil (equal (eval (pyel "pyel_test_objects_2(2)")) (lambda (self) (getattr self a))))
+(ert-deftest pyel-objects5 nil (equal (eval (pyel "pyel_test_objects_2(3)")) (lambda (self n) (setattr self a n))))
+(ert-deftest pyel-objects6 nil (equal (eval (pyel "pyel_test_objects_2(4)")) 12))
+(ert-deftest pyel-objects7 nil (equal (eval (pyel "pyel_test_objects_2(5)")) "hi"))
+(ert-deftest pyel-objects8 nil (equal (eval (pyel "pyel_test_objects_2(6)")) 23))
+(ert-deftest pyel-objects9 nil (equal (eval (pyel "pyel_test_objects_2(7)")) 19))
+(ert-deftest pyel-objects10 nil (equal (eval (pyel "pyel_test_objects_2(8)")) (lambda (self) nil (pyel-+ (getattr self cvar) 5))))
+(ert-deftest pyel-objects11 nil (equal (eval (pyel "pyel_test_objects_2(9)")) "<class 'object'>"))
+(ert-deftest pyel-objects12 nil (equal (eval (pyel "pyel_test_objects_2(10)")) t))
+(ert-deftest pyel-objects13 nil (equal (eval (pyel "pyel_test_objects_2(11)")) "tclass"))
+(ert-deftest pyel-objects14 nil (equal (eval (pyel "pyel_test_objects_2(12)")) 14))
+(ert-deftest pyel-objects15 nil (equal (eval (pyel "pyel_test_objects_2(13)")) 2))
+(ert-deftest pyel-objects16 nil (equal (eval (pyel "pyel_test_objects_2(14)")) [4 12]))
+(ert-deftest pyel-objects17 nil (equal (eval (pyel "pyel_test_objects_2(15)")) 10))
+(ert-deftest pyel-objects18 nil (equal (eval (pyel "pyel_test_objects_2(16)")) 8))
+(ert-deftest pyel-append1 nil (equal (eval (pyel "pyel_test_append_3(1)")) (quote (1 2 3 "hi"))))
+(ert-deftest pyel-append2 nil (equal (eval (pyel "pyel_test_append_3(2)")) t))
+(ert-deftest pyel-append3 nil (equal (eval (pyel "pyel_test_append_3(3)")) t))
+(ert-deftest pyel-append4 nil (equal (eval (pyel "pyel_test_append_3(4)")) t))
+(setq pyel-transform-tests '((equal (pyel "a = b = c = 9.3
 assert a == b == c == 9.3") (quote (progn (pyel-set c 9.3) (pyel-set b c) (pyel-set a b) (assert (and (pyel-== a b) (pyel-== b c) (pyel-== c 9.3)) t nil)))) (equal (pyel "a = b = c = 9.3") (quote (progn (pyel-set c 9.3) (pyel-set b c) (pyel-set a b)))) (equal (pyel "a = b = c.e()") (quote (progn (pyel-set b (call-method c e)) (pyel-set a b)))) (equal (pyel "a = b = c.e") (quote (progn (pyel-set b (getattr c e)) (pyel-set a b)))) (equal (pyel "a = b = c") (quote (progn (pyel-set b c) (pyel-set a b)))) (equal (pyel "a[1:4], b[2], a.c = c") (quote (let ((__value__ c)) (pyel-subscript-store-slice a 1 4 nil (pyel-subscript-load-index __value__ 0)) (pyel-subscript-store-index b 2 (pyel-subscript-load-index __value__ 1)) (setattr a c (pyel-subscript-load-index __value__ 2))))) (equal (pyel "a,b = a.e.e()") (quote (let ((__value__ (call-method (getattr a e) e))) (pyel-set a (pyel-subscript-load-index __value__ 0)) (pyel-set b (pyel-subscript-load-index __value__ 1))))) (equal (pyel "a,b = c") (quote (let ((__value__ c)) (pyel-set a (pyel-subscript-load-index __value__ 0)) (pyel-set b (pyel-subscript-load-index __value__ 1))))) (equal (pyel "a,b = c.a()") (quote (let ((__value__ (call-method c a))) (pyel-set a (pyel-subscript-load-index __value__ 0)) (pyel-set b (pyel-subscript-load-index __value__ 1))))) (equal (pyel "a,b,c = c.a") (quote (let ((__value__ (getattr c a))) (pyel-set a (pyel-subscript-load-index __value__ 0)) (pyel-set b (pyel-subscript-load-index __value__ 1)) (pyel-set c (pyel-subscript-load-index __value__ 2))))) (equal (pyel "a,b = c") (quote (let ((__value__ c)) (pyel-set a (pyel-subscript-load-index __value__ 0)) (pyel-set b (pyel-subscript-load-index __value__ 1))))) (equal (pyel "a = 1
 b = 2
 a,b= b,a
@@ -363,10 +363,7 @@ assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 ") (quote (progn (pyel-set transposed (list)) (py-for i in (pyel-fcall py-range 4) (pyel-append-method transposed (let ((__list__ nil)) (loop for row in (py-list matrix) do (setq __list__ (cons (pyel-subscript-load-index row i) __list__))) (reverse __list__)))) (assert (pyel-== transposed (list (list 1 5 9) (list 2 6 10) (list 3 7 11) (list 4 8 12))) t nil)))) (equal (pyel "
 matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
 _x = [[row[i] for row in matrix] for i in range(4)]
-assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]") (quote (progn (pyel-set matrix (list (list 1 2 3 4) (list 5 6 7 8) (list 9 10 11 12))) (pyel-set -x (let ((__list__ nil)) (loop for i in (py-list (pyel-fcall py-range 4)) do (setq __list__ (cons (let ((__list__ nil)) (loop for row in (py-list matrix) do (setq __list__ (cons (pyel-subscript-load-index row i) __list__))) (reverse __list__)) __list__))) (reverse __list__))) (assert (pyel-== -x (list (list 1 5 9) (list 2 6 10) (list 3 7 11) (list 4 8 12))) t nil)))) (equal (pyel "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]") (quote (assert (pyel-== (let ((__list__ nil)) (loop for x in (py-list (list 1 2 3)) do (loop for y in (py-list (list 3 1 4)) if (pyel-!= x y) do (setq __list__ (cons (vector x y) __list__)))) (reverse __list__)) (list (vector 1 3) (vector 1 4) (vector 2 3) (vector 2 1) (vector 2 4) (vector 3 1) (vector 3 4))) t nil))) (equal (pyel "[x*x for x in range(10) if x > 5 if x < 8]") (quote (let ((__list__ nil)) (loop for x in (py-list (pyel-fcall py-range 10)) if (and (pyel-> x 5) (pyel-< x 8)) do (setq __list__ (cons (pyel-* x x) __list__))) (reverse __list__)))) (equal (pyel "[x*x for x in range(10) if x > 5]") (quote (let ((__list__ nil)) (loop for x in (py-list (pyel-fcall py-range 10)) if (pyel-> x 5) do (setq __list__ (cons (pyel-* x x) __list__))) (reverse __list__)))) (equal (pyel "[x*x for x in range(10)]") (quote (let ((__list__ nil)) (loop for x in (py-list (pyel-fcall py-range 10)) do (setq __list__ (cons (pyel-* x x) __list__))) (reverse __list__)))) (equal (pyel "a.e and b[2] or c.e() and 2 ") (quote (or (and (getattr a e) (pyel-subscript-load-index b 2)) (and (call-method c e) 2)))) (equal (pyel "a[2] and b.f() or c.e") (quote (or (and (pyel-subscript-load-index a 2) (call-method b f)) (getattr c e)))) (equal (pyel "a and b or c") (quote (or (and a b) c))) (equal (pyel "a and b") (quote (and a b))) (equal (pyel "a.c or b.c() or a[2]") (quote (or (getattr a c) (call-method b c) (pyel-subscript-load-index a 2)))) (equal (pyel "a or b or c") (quote (or a b c))) (equal (pyel "a or b") (quote (or a b))) (equal (pyel "a[1] if a[2:2] else a[2]") (quote (if (pyel-subscript-load-slice a 2 2 nil) (pyel-subscript-load-index a 1) (pyel-subscript-load-index a 2)))) (equal (pyel "true() if tst() else false()") (quote (if (pyel-fcall tst) (pyel-fcall true) (pyel-fcall false)))) (equal (pyel "1 if True else 0") (quote (if t 1 0)))))(setq pyel-py-ast-tests '((equal (py-ast "test1
-a
-b") "Module(body=[Expr(value=Name(id='test1', ctx=Load())), Expr(value=Name(id='a', ctx=Load())), Expr(value=Name(id='b', ctx=Load()))])
-") (equal (py-ast "a = b = c = 9.3
+assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]") (quote (progn (pyel-set matrix (list (list 1 2 3 4) (list 5 6 7 8) (list 9 10 11 12))) (pyel-set -x (let ((__list__ nil)) (loop for i in (py-list (pyel-fcall py-range 4)) do (setq __list__ (cons (let ((__list__ nil)) (loop for row in (py-list matrix) do (setq __list__ (cons (pyel-subscript-load-index row i) __list__))) (reverse __list__)) __list__))) (reverse __list__))) (assert (pyel-== -x (list (list 1 5 9) (list 2 6 10) (list 3 7 11) (list 4 8 12))) t nil)))) (equal (pyel "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]") (quote (assert (pyel-== (let ((__list__ nil)) (loop for x in (py-list (list 1 2 3)) do (loop for y in (py-list (list 3 1 4)) if (pyel-!= x y) do (setq __list__ (cons (vector x y) __list__)))) (reverse __list__)) (list (vector 1 3) (vector 1 4) (vector 2 3) (vector 2 1) (vector 2 4) (vector 3 1) (vector 3 4))) t nil))) (equal (pyel "[x*x for x in range(10) if x > 5 if x < 8]") (quote (let ((__list__ nil)) (loop for x in (py-list (pyel-fcall py-range 10)) if (and (pyel-> x 5) (pyel-< x 8)) do (setq __list__ (cons (pyel-* x x) __list__))) (reverse __list__)))) (equal (pyel "[x*x for x in range(10) if x > 5]") (quote (let ((__list__ nil)) (loop for x in (py-list (pyel-fcall py-range 10)) if (pyel-> x 5) do (setq __list__ (cons (pyel-* x x) __list__))) (reverse __list__)))) (equal (pyel "[x*x for x in range(10)]") (quote (let ((__list__ nil)) (loop for x in (py-list (pyel-fcall py-range 10)) do (setq __list__ (cons (pyel-* x x) __list__))) (reverse __list__)))) (equal (pyel "a.e and b[2] or c.e() and 2 ") (quote (or (and (getattr a e) (pyel-subscript-load-index b 2)) (and (call-method c e) 2)))) (equal (pyel "a[2] and b.f() or c.e") (quote (or (and (pyel-subscript-load-index a 2) (call-method b f)) (getattr c e)))) (equal (pyel "a and b or c") (quote (or (and a b) c))) (equal (pyel "a and b") (quote (and a b))) (equal (pyel "a.c or b.c() or a[2]") (quote (or (getattr a c) (call-method b c) (pyel-subscript-load-index a 2)))) (equal (pyel "a or b or c") (quote (or a b c))) (equal (pyel "a or b") (quote (or a b))) (equal (pyel "a[1] if a[2:2] else a[2]") (quote (if (pyel-subscript-load-slice a 2 2 nil) (pyel-subscript-load-index a 1) (pyel-subscript-load-index a 2)))) (equal (pyel "true() if tst() else false()") (quote (if (pyel-fcall tst) (pyel-fcall true) (pyel-fcall false)))) (equal (pyel "1 if True else 0") (quote (if t 1 0)))))(setq pyel-py-ast-tests '((equal (py-ast "a = b = c = 9.3
 assert a == b == c == 9.3") "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], value=Num(n=9.3)), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq(), Eq(), Eq()], comparators=[Name(id='b', ctx=Load()), Name(id='c', ctx=Load()), Num(n=9.3)]), msg=None)])
 ") (equal (py-ast "a = b = c = 9.3") "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store()), Name(id='c', ctx=Store())], value=Num(n=9.3))])
 ") (equal (py-ast "a = b = c.e()") "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])
@@ -736,12 +733,7 @@ assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]") "Module(body=[Ass
 ") (equal (py-ast "a[1] if a[2:2] else a[2]") "Module(body=[Expr(value=IfExp(test=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=2), step=None), ctx=Load()), body=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), orelse=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())))])
 ") (equal (py-ast "true() if tst() else false()") "Module(body=[Expr(value=IfExp(test=Call(func=Name(id='tst', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), body=Call(func=Name(id='true', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), orelse=Call(func=Name(id='false', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)))])
 ") (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])
-")))(setq pyel-el-ast-tests '((string= (pyel "test1
-a
-b" t) "(name  \"test1\" 'load)
-(name  \"a\" 'load)
-(name  \"b\" 'load)
-") (string= (pyel "a = b = c = 9.3
+")))(setq pyel-el-ast-tests '((string= (pyel "a = b = c = 9.3
 assert a == b == c == 9.3" t) "(assign  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) (num 9.3))
 (assert  (compare  (name  \"a\" 'load) (\"==\" \"==\" \"==\") ((name  \"b\" 'load) (name  \"c\" 'load) (num 9.3))) nil)
 ") (string= (pyel "a = b = c = 9.3" t) "(assign  ((name  \"a\" 'store) (name  \"b\" 'store) (name  \"c\" 'store)) (num 9.3))
