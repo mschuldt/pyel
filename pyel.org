@@ -2135,14 +2135,6 @@ this test is disabled. It pollutes global variables
 * comparisons: >, <, ==, !=, <=, >= 
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  
-  
-  ;; (def-transform compare pyel ()
-  ;;   (lambda (left ops comparators)
-  ;;     ;;what if comparators has multiple items?
-  ;;     `(,(read (car ops)) ,(transform left) ,(transform (car comparators)))))
-  
-  
   (def-transform compare pyel ()
     (lambda (left ops comparators)
       ;;what if comparators has multiple items?
@@ -2158,7 +2150,6 @@ this test is disabled. It pollutes global variables
       
       (call-transform (read (car ops)) left (car comparators))))
   
-  
   (pyel-create-py-func == (l r)
                        (number number) -> (= l r)
                        (string string) -> (string= l r)
@@ -2171,13 +2162,14 @@ this test is disabled. It pollutes global variables
                        ;;TODO: macro for this
                        (string string) -> (and (not (string< l r)) (not (string= l r)))
                        (object _) -> (__gt__ l r))
+  
   ;;TODO: other py types?
+  
   ;;::Q does `string<' behave like < for strings in python?
   (pyel-create-py-func < (l r)
                        (number number) -> (< l r)
                        (string string) -> (string< l r)
                        (object _) -> (__lt__ l r))
-  ;;TODO: other py types?
   
   (pyel-create-py-func >= (l r)
                        (number number) -> (>= l r)
@@ -2195,6 +2187,8 @@ this test is disabled. It pollutes global variables
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
   
+  ;;this is defined as a transform because `pyel-compare' expects
+  ;;all comparison functions to be transforms
   (pyel-create-py-func is (l r)
                        (_ _) -> (eq l r))
 #+END_SRC
