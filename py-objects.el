@@ -16,7 +16,7 @@ the rest are in `special-method-names'")
 	   '(obj-symbol-index
 	     obj-dict-index
 	     obj-bases-index 
-	     setatter-index
+	     setattr-index
 	     getattribute-index
 	     getattr-index
 	     ))))
@@ -38,7 +38,7 @@ the rest are in `special-method-names'")
 ;;add the special methods whose indexes are explicitly defined 
 ;;in `object-indexes-alist' instead of `special-method-names'
 (mapc (lambda (x) (push (cons (cadr x) (eval (car x))) special-method-names))
-      '((setatter-index  --setattr--)
+      '((setattr-index  --setattr--)
 	(getattribute-index --getattribute--)
 	(getattr-index --getattr--)))
 
@@ -78,7 +78,7 @@ These names will be set globally to their index in this list")
 	 methods non-method)
 
     (when (eq name 'object) ;;give the first one some help...
-      (aset new setatter-index 
+      (aset new setattr-index 
 	    (list (list (lambda (self attr value)
 			  (_obj-setattr self attr value))))))
 
@@ -86,7 +86,7 @@ These names will be set globally to their index in this list")
 	(let ((base (aref bases 0)))
 	  ;;TODO: proper MRO -- currently just picking the first class
 	  
-	  (aset new setatter-index (aref base setatter-index))
+	  (aset new setattr-index (aref base setattr-index))
 	  (aset new getattribute-index (aref base getattribute-index))
 	  ;;TODO: copy all special methods from the base classes
 	  ))
@@ -172,7 +172,7 @@ These names will be set globally to their index in this list")
     ;;each instance has its own reference to the getter and setter methods
     ;;for faster lookup
     ;;This must also be done before any calls to `setattr'
-    (aset new setatter-index (aref (setq _x class) setatter-index))
+    (aset new setattr-index (aref (setq _x class) setattr-index))
     (aset new getattribute-index (aref class getattribute-index))
     (dolist (special special-method-names)
       (let* ((class-ref (aref class (cdr special)))
@@ -388,7 +388,7 @@ if it is a descriptor, return its value"
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 
 (defun setattr-1 (obj attr value)
-  (funcall (caar (aref obj setatter-index)) obj attr value))
+  (funcall (caar (aref obj setattr-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
   ;;TODO: if attr is a data-descriptor, use that to set it
