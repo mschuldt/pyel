@@ -1440,7 +1440,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                                                       (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
                                                                                                      (if (and (listp (cadr x))
                                                                                                               ;;form:  ("setup" ("test" expect))
-                                                                                                              (not (eq (caadr x) 'lambda)))
+                                                                                                              (not (or (eq (caadr x) 'lambda)
+                                                                                                                       (eq (caadr x) 'quote))))
                                                                                                          (concat (pyel-indent-py-code (car x)) "\n"
                                                                                                                  (concat " return " (caadr x)))
                                                                                                        ;;form: ("test" expect)
@@ -3652,9 +3653,8 @@ TODO: tests!
 #+END_SRC
 
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+
 #+END_SRC
 
 ** insert
