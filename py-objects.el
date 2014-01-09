@@ -160,7 +160,7 @@ These names will be set globally to their index in this list")
 	      (defun ,name (&rest args)
 		(obj-make-instance ,name args))))))
 
-(defun add-to-end (list thing)
+(defun py-append-list (list thing)
   "add THING to the end of LIST"
   (while (not (null (cdr list)))
     (setq list (cdr list)))
@@ -178,7 +178,7 @@ These names will be set globally to their index in this list")
       (let* ((class-ref (aref class (cdr special)))
 	     (instance-ref (list (car (car class-ref)))))
 	(when class-ref
-	  (add-to-end class-ref instance-ref)
+	  (py-append-list class-ref instance-ref)
 	  (aset new (cdr special) (list instance-ref)))))
     
     (aset new obj-bases-index (vector class)) ;;TODO: nesseary to vectorize again?
