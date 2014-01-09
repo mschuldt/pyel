@@ -1610,6 +1610,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
             (save-buffer)
             (kill-buffer)
             (load-file tmp-file))
+          ;;(mapc 'eval pyel-function-definitions)
           (message "Running ert tests...")
           (ert-run-tests-interactively "pyel")
           ))))
@@ -4665,16 +4666,19 @@ prevents multiple/none '/' seporating file names"
 * EOF
 ** main
 #+Begin_SRC emacs-lisp :tangle pyel.el
-    (require 'transformer)
-    (require 'pyel-transforms)
-    (require 'pyel-tests-generated)
-    (require 'pyel-preprocessor)  
-    
-    (require 'pyel-mode)
-    (require 'py-objects)
-    
-    (provide 'pyel)
-    ;;pyel.el ends here
+  (require 'transformer)
+  (require 'pyel-transforms)
+  (require 'pyel-tests-generated)
+  (require 'pyel-preprocessor)  
+  
+  (require 'pyel-mode)
+  (require 'py-objects)
+  
+  (pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
+  ;;...I'm so sorry
+  
+  (provide 'pyel)
+  ;;pyel.el ends here
 #+END_SRC
 ** transforms
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
