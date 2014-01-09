@@ -441,5 +441,4 @@ if it is a descriptor, return its value"
        "<class 'object'>")
   )
 
-(
- provide 'py-objects)
+(provide 'py-objects)
