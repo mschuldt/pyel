@@ -3638,9 +3638,9 @@ TODO: tests!
 ** append
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-method-transform extend(obj thing)
-                  (list _) -> (setq $obj (append obj thing))
-                  (_ _)    -> (append obj thing))
+(pyel-method-transform append (obj thing)
+                  (list _) -> (py-append-list obj thing)
+                  (_ _)    -> (call-method obj append thing))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
