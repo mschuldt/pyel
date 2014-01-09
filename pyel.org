@@ -2189,7 +2189,6 @@ this test is disabled. It pollutes global variables
                        (string string) -> (not (string= l r))
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
-                                          ;
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2212,7 +2211,10 @@ this test is disabled. It pollutes global variables
   def In():
         return "\"in\"";
   def NotIn():
-        return "\"not-in\"";      
+        return "\"not-in\"";
+  def Is():
+        return "\"is\"";
+  
 #+END_SRC
 ** tests   
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
