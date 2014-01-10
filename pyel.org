@@ -2352,6 +2352,10 @@ this test is disabled. It pollutes global variables
                        (vfunc _) -> (funcall $func ,@args)
                        (_ _) -> ($func ,@args))
   
+  (def-transform keyword pyel ()
+    (lambda (arg value)
+      (list arg (transform value))))
+  
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
     (lambda (func args keywords starargs kwargs)
@@ -2360,7 +2364,9 @@ this test is disabled. It pollutes global variables
   
   (defun pyel-call-transform (func args keywords starargs kwargs)
     (let ((t-func (transform func))
-          new-func m-name  f-name )
+          (keyword-args (mapcar (lambda (x) (transform (car x)))
+                                keywords))
+          new-func m-name  f-name keyword-args star-args kw-args)
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
@@ -2371,9 +2377,14 @@ this test is disabled. It pollutes global variables
             (if (member (setq m-name (read (caddr func)))
                         pyel-method-transforms)
                 ;;this methods transform is overridden
+                (progn
+                  ;;dynamic scoping saves the day again!
+                  (setq keyword-args keywords
+                        star-args starargs
+                        kw-args kwargs)
                 (eval `(call-transform ',(pyel-method-transform-name m-name)
                                        ',(transform (cadr func))
-                                       ,@(mapcar '(lambda (x) `(quote ,x)) args)))
+                                       ,@(mapcar '(lambda (x) `(quote ,x)) args))))
               ;;normal method call
               (remove-context method-call-override
                               (using-context method-call
