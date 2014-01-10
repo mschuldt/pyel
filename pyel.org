@@ -2570,8 +2570,12 @@ this test is disabled. It pollutes global variables
         (when (and (not pyel-use-list-for-varargs)
                    (context-p 'function-def))
           (push `(setq, vararg (list-to-vector ,vararg)) assign-defaults)))
+      ;;&kwarg
+      (when kwarg
+        (setq args (append args (list '&kwarg kwarg))))
       
       args))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
