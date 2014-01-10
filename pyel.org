@@ -3643,6 +3643,22 @@ repr(__ff_)"
 ;;
 #+END_SRC
 
+** print
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-translate-function-name 'print 'py-print)
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+(defmacro py-print (&rest args)
+  `(mapc 'print ,(cons 'list args)))
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3855,7 +3871,6 @@ a.append('hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 
 * macro transforms
 macros and macroish primitives
