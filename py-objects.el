@@ -408,13 +408,6 @@ if it is a descriptor, return its value"
        (py-class-p class)
        (eq (aref (aref object obj-bases-index) 0) class)))
 
-(defmacro def (name args decorator-list doc &rest body)
-  (using-context function-def
-		 `(defun ,name ,args
-		    ,doc
-		    ,@body
-		    )))
-
 (defmacro pyel-def-error (name)
   `(progn
      (put ',name 'error-conditions '(error ,name))
