@@ -2838,7 +2838,9 @@ FunctionDef(name='a',
                               
                               (apply (lambda (,@positional ,@optional ,rest ,kwarg)
                                        ,@(setq _x body))
-                                     (append pos+optional (list rest kwargs))))))
+                                     (append pos+optional
+                                             (list rest
+                                                   (pyel-alist-to-hash kwargs)))))))
                      ;;else (no &kwarg)
                      `(defun ,name ,args
                         ,@body)
