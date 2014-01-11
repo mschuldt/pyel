@@ -2355,7 +2355,7 @@ this test is disabled. It pollutes global variables
   
   (def-transform keyword pyel ()
     (lambda (arg value)
-      (list arg (transform value))))
+      (list '@ arg  '= (transform value))))
   
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
@@ -2406,10 +2406,13 @@ this test is disabled. It pollutes global variables
             ;;normal function call
             ;;`(,t-func ,@(mapcar 'transform args))
             ;;TODO: this is dumb, convert `call-transform' to a macro?
-            (eval `(call-transform 'fcall ,@(cons 't-func (mapcar (lambda (x)
-                                                                    `(quote ,x))
-                                                                   args))))
-            ))))
+            (eval `(call-transform 'fcall ,@(cons 't-func
+                                                  (mapcar (lambda (x)
+                                                            `(quote ,x))
+                                                          (append args
+                                                                  (mapcar 'car
+                                                                          keywords))
+                                                          ))))))))
   
 #+END_SRC
 ** python ast
