@@ -691,3 +691,62 @@ assert x[9] == '9'
 ;;pyel-tests.el ends here
 
 ;;
+
+
+(pyel-create-tests
+ assign
+ ("a = 1" ("a" 1))
+ ("class a: pass
+a.b = 1" ("a.b" 1))
+ "a.b = c"
+ "a.b.c = 1"
+ "a.b = d.c"
+ ("a,b = 1,2"
+  ("a" 1)
+  ("b" 2))
+ ("x = [1,0,9]
+f = lambda: 3
+class C: pass
+C.a = 3
+a, C.v, x[2] = c.a,1.1, x[x[1]]"
+  ("a" 3)
+  ("C.v" 1.1)
+  ("x[2]" 1))
+ 
+ ("a = 1
+b = 2
+a,b= b,a"
+  ("a" 2)
+  ("b" 1))
+ ("a = [1,2]
+b = (3,4)
+x,y = a
+xx,yy = b"
+  ("x" 1)
+  ("y" 2)
+  ("xx" 3)
+  ("yy" 3))
+ ("class C:
+ a = [11,22,33]
+x,y,z = C.a"
+  ("x" 11)
+  ("y" 22)
+  ("z" 33))
+ ("a = 1
+b = 2
+c = 3
+d = a,b,c"
+  ("d" [1 2 3]))
+
+ "a,b = a.e.e()"
+ 
+ "a[1:4], b[2], a.c = c"
+ 
+ "a = b = c"
+ "a = b = c.e"
+ "a = b = c.e()"
+ ("a = b = c = 9"
+  ("a" 9)
+  ("b" 9)
+  ("c" 9))
+ )
