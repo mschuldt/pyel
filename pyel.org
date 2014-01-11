@@ -2749,9 +2749,10 @@ FunctionDef(name='a',
   
   
   (defun pyel-sort-kwargs (args)
-    "Organize args in the format expected by functions that except keyword args
-  Returns a list whose first element is a list of all non-keyword args
-  and whose second element is an alist containing the keyword args
+    "Organize args in the format required by functions that except keyword args
+  Returns a list whose first element has an alist containing the keyword args
+  in the cdr and ':kwargs' in the car position.
+  and whose second element is a list of all non-keyword args 
   Recognizes keyword args in the form 'arg = value'."
     ;;for use in the 'fcall' transform
     (if (member '= args)
@@ -2767,9 +2768,8 @@ FunctionDef(name='a',
                   (setq current (cddr current)))
               (push (car current) normal)
               (setq current (cdr current))))
-          (list (list 'quote (reverse normal))  (list 'quote kwargs)))
+          (list (list 'quote (cons :kwargs kwargs)) (list 'quote (reverse normal))))
       args))
-  
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
