@@ -2847,6 +2847,8 @@ FunctionDef(name='a',
                     (setq tmp pos+optional)
                     (while tmp
                       (when (setq iv (assoc index index-value))
+                        (when (< (car iv) len)
+                          (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv))))
                         (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
                         (setcar tmp (cadr iv)))
                       (setq tmp (cdr tmp))
