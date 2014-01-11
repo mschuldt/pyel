@@ -591,6 +591,7 @@ main
             (pyel-defined-functions nil)
             (pyel-obj-counter 0)
             (pyel-unique-obj-names nil)
+            (pyel-fully-functional-functions nil)
             ;;(pyel-method-transforms nil)
             ;;(pyel-func-transforms nil)
             (pyel-marker-counter 0)))    
