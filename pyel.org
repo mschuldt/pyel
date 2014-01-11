@@ -2672,7 +2672,7 @@ FunctionDef(name='a',
                
                 ;;;
                (ret pyel-nothing)
-               (args (using-context function-def (transform (car args))))
+               (args (_to- (using-context function-def (transform (car args)))))
                (inner-defun (context-p 'function-def))
                (orig-name name)
                setq-code
