@@ -2773,10 +2773,11 @@ FunctionDef(name='a',
     "Turn ALIST a hash table."
     (let ((ht (make-hash-table
                :test 'equal
-               :size (length list))))
+               :size (length alist))))
       (mapc (lambda (x)
               (puthash (car x) (cdr x) ht))
-            list)))
+            alist)
+      ht))
   
   (defmacro def (name args decorator-list &rest body)
     (using-context function-def
