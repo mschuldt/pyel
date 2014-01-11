@@ -2747,7 +2747,25 @@ FunctionDef(name='a',
                ))))))
   
   
-  
+  (defun pyel-sort-kwargs (args)
+    "Organize args in the format expected by functions that except keyword args
+  Returns a list whose first element is a list of all non-keyword args
+  and whose second element is an alist containing the keyword args
+  Recognizes keyword args in the form 'arg = value'."
+    ;;for use in the 'fcall' transform
+    (let ((current args)
+          kwargs
+          normal)
+      (when (eq (car current) '=) (error "invalid keyword arg syntax"))
+      (while current
+        (if (eq (car current) '=)
+            (progn
+              (when (null (cdr current)) (error "invalid keyword arg syntax"))
+              (push (cons (pop normal) (cadr current)) kwargs)
+              (setq current (cddr current)))
+          (push (car current) normal)
+          (setq current (cdr current))))
+      (list (list 'quote (reverse normal))  (list 'quote kwargs))))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
