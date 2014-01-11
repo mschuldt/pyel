@@ -2783,10 +2783,6 @@ FunctionDef(name='a',
             alist)
       ht))
   
-  (defvar pyel-fully-functional-functions nil
-    "list of function names that can except keyword arguments
-  these function have been defined with the `def' macro")
-  
   (defmacro def (name args decorator-list &rest body)
     (using-context
      function-def
@@ -2795,11 +2791,10 @@ FunctionDef(name='a',
                pos+optional rest kwarg
                npositional nargs arg-index)
            
-           (push name pyel-fully-functional-functions)
-           
            (when (member '&kwarg args)
              (setq kwarg (car (last args))
-                   args (subseq args 0 -2)))
+                   args (subseq args 0 -2)
+                   args-without-kwarg args))
            (when (member '&rest args)
              (setq rest (car (last args))
                    args (subseq args 0 -2)))
@@ -2815,45 +2810,56 @@ FunctionDef(name='a',
                                            (setq n (1+ n))
                                            (cons x n))
                                          (append positional optional)))
-           
-           `(defun ,name (args kwargs)
-              ;;kwargs is an alist at this point
-              ;;args contains positional,optional and &rest args
-              (let ((len (length args))
-                    (index 0)
-                    pos+optional rest arg-index index-value tmp)
-                (cond ((= len ,nargs)
-                       nil)
-                      ((> len ,nargs)
-                       (setq pos+optional (subseq args 0 ,nargs)
-                             rest (subseq args ,nargs)))
-                      (t ;;(< len ,nargs)
-                       (setq pos+optional
-                             (append args (make-list (- ,nargs len) nil)))))
   
-                ;;make alist of index value pairs
-                (setq index-value
-                      (mapcar (lambda (kw) 
-                                (if (setq arg-index
-                                          (assoc (car kw) ',arg-index-alist))
-                                    (cons (cdr arg-index) (cdr kw))))
-                              kwargs))
-                ;;set the keyword args values in arg list
-                (setq tmp pos+optional)
-                (while tmp
-                  (when (setq iv (assoc index index-value))
-                    (setcar tmp (cdr iv)))
-                  (setq tmp (cdr tmp))
-                  (setq index (1+ index)))
-                
-                (apply (lambda (,@positional ,@optional ,rest ,kwarg)
-                         ,@(setq _x body))
-                       (append pos+optional
-                               (list rest (pyel-alist-to-hash kwargs)))))))
-       ;;else (no &kwarg)
+           `(defun ,name (&rest args)
+              ;;if this is called with keyword args they will be
+              ;;the in an alist in the car position.
+              (if (and (listp (car args))
+                       (eq (caar args) :kwargs))
+                  (let* ((kwargs (cdar args))
+                         (args (cdr args))
+                         (len (length args))
+                         (index 0)
+                         pos+optional rest arg-index index-value tmp)
+                    (cond ((= len ,nargs)
+                           nil)
+                          ((> len ,nargs)
+                           (setq pos+optional (subseq args 0 ,nargs)
+                                 rest (subseq args ,nargs)))
+                          (t ;;(< len ,nargs)
+                           (setq pos+optional
+                                 (append args (make-list (- ,nargs len) nil)))))
+  
+                    ;;make alist of index value pairs
+                    (setq index-value
+                          (mapcar (lambda (kw) 
+                                    (if (setq arg-index
+                                              (assoc (car kw) ',arg-index-alist))
+                                        (cons (cdr arg-index) (cdr kw))))
+                                  kwargs))
+                    ;;set the keyword args values in arg list
+                    (setq tmp pos+optional)
+                    (while tmp
+                      (when (setq iv (assoc index index-value))
+                        (setcar tmp (cdr iv)))
+                      (setq tmp (cdr tmp))
+                      (setq index (1+ index)))
+                    
+                    (apply (lambda (,@positional ,@optional ,rest ,kwarg)
+                             ,@body)
+                           (append pos+optional
+                                   (list rest (pyel-alist-to-hash kwargs)))))
+                ;;else: called without keyword args
+                (let ((kwargs (make-hash-table :size 0)))
+                  (apply (lambda ,args-without-kwarg
+                           ,@body)
+                         args)))))
+       
+       ;;else: no &kwarg
        `(defun ,name ,args
           ,@body)
        )))
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
