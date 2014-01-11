@@ -2782,6 +2782,9 @@ FunctionDef(name='a',
             alist)
       ht))
   
+  (defvar pyel-fully-functional-functions nil
+    "list of function names that can except keyword arguments")
+  
   (defmacro def (name args decorator-list &rest body)
     (using-context
      function-def
