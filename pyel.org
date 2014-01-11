@@ -2753,19 +2753,21 @@ FunctionDef(name='a',
   and whose second element is an alist containing the keyword args
   Recognizes keyword args in the form 'arg = value'."
     ;;for use in the 'fcall' transform
-    (let ((current args)
-          kwargs
-          normal)
-      (when (eq (car current) '=) (error "invalid keyword arg syntax"))
-      (while current
-        (if (eq (car current) '=)
-            (progn
-              (when (null (cdr current)) (error "invalid keyword arg syntax"))
-              (push (cons (pop normal) (cadr current)) kwargs)
-              (setq current (cddr current)))
-          (push (car current) normal)
-          (setq current (cdr current))))
-      (list (list 'quote (reverse normal))  (list 'quote kwargs))))
+    (if (member '= args)
+        (let ((current args)
+              kwargs
+              normal)
+          (when (eq (car current) '=) (error "invalid keyword arg syntax"))
+          (while current
+            (if (eq (car current) '=)
+                (progn
+                  (when (null (cdr current)) (error "invalid keyword arg syntax"))
+                  (push (cons (pop normal) (cadr current)) kwargs)
+                  (setq current (cddr current)))
+              (push (car current) normal)
+              (setq current (cdr current))))
+          (list (list 'quote (reverse normal))  (list 'quote kwargs)))
+      args))
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -2780,72 +2782,70 @@ FunctionDef(name='a',
       ht))
   
   (defmacro def (name args decorator-list &rest body)
-    (using-context function-def
-                   (if (member '&kwarg args)
-                       (let ((n -1)
-                             pos+optional rest kwarg
-                             npositional nargs arg-index)
-                         
-                         (when (member '&kwarg args)
-                           (setq kwarg (car (last args))
-                                 args (subseq args 0 -2)))
-                         (when (member '&rest args)
-                           (setq rest (car (last args))
-                                 args (subseq args 0 -2)))
-                         (if (member '&optional args)
-                             (setq optional (pyel-split-list args '&optional)
-                                   positional (car optional)
-                                   optional (cdr optional))
-                           (setq positional args))
+    (using-context
+     function-def
+     (if (member '&kwarg args)
+         (let ((n -1)
+               pos+optional rest kwarg
+               npositional nargs arg-index)
+           
+           (when (member '&kwarg args)
+             (setq kwarg (car (last args))
+                   args (subseq args 0 -2)))
+           (when (member '&rest args)
+             (setq rest (car (last args))
+                   args (subseq args 0 -2)))
+           (if (member '&optional args)
+               (setq optional (pyel-split-list args '&optional)
+                     positional (car optional)
+                     optional (cdr optional))
+             (setq positional args))
   
-                         (setq npositional (length positional)
-                               nargs (+ (length positional) (length optional))
-                               arg-index-alist (mapcar (lambda (x)
-                                                         (setq n (1+ n))
-                                                         (cons x n))
-                                                       (append positional optional)))
-                         
-                         `(defun ,name (args kwargs)
-                            ;;kwargs is an alist at this point
-                            ;;args contains positional,optional and &rest args
-                            (let ((len (length args))
-                                  (index 0)
-                                  pos+optional rest arg-index index-value tmp)
-                              (cond ((= len ,nargs)
-                                     nil)
-                                    ((> len ,nargs)
-                                     (setq pos+optional (subseq args 0 ,nargs)
-                                           rest (subseq args ,nargs)))
-                                    (t ;;(< len ,nargs)
-                                     (setq pos+optional
-                                           (append args (make-list (- ,nargs len)
-                                                                   nil)))))
+           (setq npositional (length positional)
+                 nargs (+ (length positional) (length optional))
+                 arg-index-alist (mapcar (lambda (x)
+                                           (setq n (1+ n))
+                                           (cons x n))
+                                         (append positional optional)))
+           
+           `(defun ,name (args kwargs)
+              ;;kwargs is an alist at this point
+              ;;args contains positional,optional and &rest args
+              (let ((len (length args))
+                    (index 0)
+                    pos+optional rest arg-index index-value tmp)
+                (cond ((= len ,nargs)
+                       nil)
+                      ((> len ,nargs)
+                       (setq pos+optional (subseq args 0 ,nargs)
+                             rest (subseq args ,nargs)))
+                      (t ;;(< len ,nargs)
+                       (setq pos+optional
+                             (append args (make-list (- ,nargs len) nil)))))
   
-                              ;;make alist of index value pairs
-                              (setq index-value
-                                    (mapcar (lambda (kw) 
-                                              (if (setq arg-index
-                                                        (assoc (car kw)
-                                                               ',arg-index-alist))
-                                                  (cons (cdr arg-index) (cdr kw))))
-                                            kwargs))
-                              ;;set the keyword args values in arg list
-                              (setq tmp pos+optional)
-                              (while tmp
-                                (when (setq iv (assoc index index-value))
-                                  (setcar tmp (cdr iv)))
-                                (setq tmp (cdr tmp))
-                                (setq index (1+ index)))
-                              
-                              (apply (lambda (,@positional ,@optional ,rest ,kwarg)
-                                       ,@(setq _x body))
-                                     (append pos+optional
-                                             (list rest
-                                                   (pyel-alist-to-hash kwargs)))))))
-                     ;;else (no &kwarg)
-                     `(defun ,name ,args
-                        ,@body)
-                     )))
+                ;;make alist of index value pairs
+                (setq index-value
+                      (mapcar (lambda (kw) 
+                                (if (setq arg-index
+                                          (assoc (car kw) ',arg-index-alist))
+                                    (cons (cdr arg-index) (cdr kw))))
+                              kwargs))
+                ;;set the keyword args values in arg list
+                (setq tmp pos+optional)
+                (while tmp
+                  (when (setq iv (assoc index index-value))
+                    (setcar tmp (cdr iv)))
+                  (setq tmp (cdr tmp))
+                  (setq index (1+ index)))
+                
+                (apply (lambda (,@positional ,@optional ,rest ,kwarg)
+                         ,@(setq _x body))
+                       (append pos+optional
+                               (list rest (pyel-alist-to-hash kwargs)))))))
+       ;;else (no &kwarg)
+       `(defun ,name ,args
+          ,@body)
+       )))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
