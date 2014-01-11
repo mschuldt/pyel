@@ -2838,13 +2838,17 @@ FunctionDef(name='a',
                           (mapcar (lambda (kw) 
                                     (if (setq arg-index
                                               (assoc (car kw) ',arg-index-alist))
-                                        (cons (cdr arg-index) (cdr kw))))
+                                        (list (cdr arg-index)
+                                              (cdr kw)
+                                              ;;need reference to remove arg later
+                                              (car arg-index))))
                                   kwargs))
                     ;;set the keyword args values in arg list
                     (setq tmp pos+optional)
                     (while tmp
                       (when (setq iv (assoc index index-value))
-                        (setcar tmp (cdr iv)))
+                        (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
+                        (setcar tmp (cadr iv)))
                       (setq tmp (cdr tmp))
                       (setq index (1+ index)))
                     
