@@ -2769,6 +2769,15 @@ FunctionDef(name='a',
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-alist-to-hash (alist)
+    "Turn ALIST a hash table."
+    (let ((ht (make-hash-table
+               :test 'equal
+               :size (length list))))
+      (mapc (lambda (x)
+              (puthash (car x) (cdr x) ht))
+            list)))
+  
   (defmacro def (name args decorator-list &rest body)
     (using-context function-def
                    (if (member '&kwarg args)
