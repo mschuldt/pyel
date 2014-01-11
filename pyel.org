@@ -2793,6 +2793,8 @@ FunctionDef(name='a',
                pos+optional rest kwarg
                npositional nargs arg-index)
            
+           (push name pyel-fully-functional-functions)
+           
            (when (member '&kwarg args)
              (setq kwarg (car (last args))
                    args (subseq args 0 -2)))
