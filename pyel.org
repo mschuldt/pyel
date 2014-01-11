@@ -2820,7 +2820,7 @@ FunctionDef(name='a',
               (if (and (listp (car args))
                        (eq (caar args) :kwargs))
                   (let* ((kwargs (cdar args))
-                         (args (cdr args))
+                         (args (cadr args))
                          (len (length args))
                          (index 0)
                          pos+optional rest arg-index index-value tmp)
