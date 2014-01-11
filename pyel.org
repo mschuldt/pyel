@@ -2355,7 +2355,7 @@ this test is disabled. It pollutes global variables
   
   (def-transform keyword pyel ()
     (lambda (arg value)
-      (list '@ arg  '= (transform value))))
+      (list '@ (_to- arg)  '= (transform value))))
   
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
