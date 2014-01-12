@@ -2818,7 +2818,7 @@ FunctionDef(name='a',
                    args (subseq args 0 -2)
                    args-without-kwarg args))
            (when (member '&rest args)
-             (setq rest (car (last args))
+             (setq rest (last args)
                    args (subseq args 0 -2)))
            (if (member '&optional args)
                (setq optional (pyel-split-list args '&optional)
@@ -2877,8 +2877,7 @@ FunctionDef(name='a',
                       (setq index (1+ index)))
                     (if (< (+ kwargs-used len) ,npositional)
                         (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
-                    
-                    (apply (lambda (,@positional ,@optional ,rest ,kwarg)
+                    (apply (lambda (,@(append positional optional rest) ,kwarg)
                              ,@body)
                            (append pos+optional
                                    (list rest (pyel-alist-to-hash kwargs)))))
