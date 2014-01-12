@@ -221,6 +221,11 @@ These names will be set globally to their index in this list")
 (defun getattr-1 (object attr)
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"
+  ;;in the case that OBJECT is a class, it will be a lambda function
+  ;;if it was defined in a function (because defun has global effect)
+  ;;here the actual class vector is retrieved from that lambda function
+  (if (functionp object)
+      (setq object (nth 1 (nth 2 object))))
   (condition-case nil
       (funcall (caar (aref object getattribute-index)) object attr)  ;;__getattribute__
     (AttributeError
@@ -394,6 +399,8 @@ if it is a descriptor, return its value"
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 
 (defun setattr-1 (obj attr value)
+  (if (functionp obj) ;;explanation in `getattr-1'
+      (setq obj (nth 1 (nth 2 obj))))
   (funcall (caar (aref obj setattr-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
