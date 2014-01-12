@@ -2883,11 +2883,10 @@ FunctionDef(name='a',
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def FunctionDef(name, args, body, decorator_list, returns):
-       return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), ll_str(decorator_list) or "nil",returns or "nil",")"]))
+      return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), ll_str(decorator_list) or "nil",returns or "nil",")"]))
   
   def arg(arg,annotation):
       return "(arg \"" + arg + "\" " + " " + (annotation or "nil") + ")"
-  
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
