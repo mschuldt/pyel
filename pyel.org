@@ -2921,10 +2921,28 @@ FunctionDef(name='a',
     x = a+b
    y = 3
    _a_()
-   z.a = 4"
-                     )
+   z.a = 4")
   
-  
+  (pyel-create-tests
+   function-arguments
+   ("repr(func(1,2))"
+    "[1, 2, 1, \"two\", [], {}]")
+   ("repr(func(1,2,3))"
+    "[1, 2, 3, \"two\", [], {}]")
+   ("repr(func(1,2,3,4))"
+    "[1, 2, 3, 4, [], {}]")
+   ("repr(func(1,2,3,4,5))"
+    "[1, 2, 3, 4, [5], {}]")
+   ("repr(func(1,2,3,4,5,6))"
+    "[1, 2, 3, 4, [5, 6], {}]")
+   ("repr(func(1,2,3,4,5,6,x = 's'))"
+    "[1, 2, 3, 4, [5, 6], {x: \"s\"}]")
+   ("repr(func(1,2,3,4,5,6,x = 's',y = 23))"
+    "[1, 2, 3, 4, [5, 6], {y: 23, x: \"s\"}]")
+   ("repr(func(x = 's',__b = 324,__a = 'n',))"
+    "[\"n\", 324, 1, \"two\", [], {x: \"s\"}]")
+   ("repr(func(x = 's',__b = 324,__a = 'n',d = 2))"
+    "[\"n\", 324, 1, 2, [], {x: \"s\"}]"))
   
   (ert-deftest pyel-pyel-sort-kwargs ()
     (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
