@@ -2884,12 +2884,13 @@ FunctionDef(name='a',
                 ;;else: called without keyword args
                 (let ((kwargs (make-hash-table :size 0)))
                   (apply (lambda ,args-without-kwarg
-                           ,@body)
+                           (let (,kwarg)
+                           ,@body))
                          args)))))
        
        ;;else: no &kwarg
        `(defun ,name ,args
-          ,@body)
+            ,@body)
        )))
 #+END_SRC
 ** python ast
