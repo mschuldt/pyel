@@ -411,7 +411,7 @@ if it is a descriptor, return its value"
 (defmacro pyel-def-error (name)
   `(progn
      (put ',name 'error-conditions '(error ,name))
-     (put ',name 'error-message '(concat "Error: " (symbol-name name)))))
+     (put ',name 'error-message ,(concat "Error: " (symbol-name name)))))
 
 (pyel-def-error AttributeError)
 
