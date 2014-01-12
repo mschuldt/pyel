@@ -2734,8 +2734,8 @@ FunctionDef(name='a',
                          (pop t-body)
                        pyel-nothing))
                
-               (when return-middle
-                 (setq ret '(catch '__return__)))
+               (setq ret (if return-middle '(catch '__return__)
+                           '(@))) 
     
                (if let-arglist
                    (setq let-arglist (list '@ 'let let-arglist))
@@ -2752,7 +2752,6 @@ FunctionDef(name='a',
                                     (,@ret
                                      ,@t-body
                                      ))))
-               
                ))))))
   
   
@@ -3859,16 +3858,16 @@ TODO: tests!
 
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(pyel-create-tests
- append
- ("a = [1,2,3]
-c = ['a','a']
-b = a
-a.append('hi')"
-  ("a" '(1 2 3 "hi"))
-  ("a is b" t)
-  ("a.append(c)" ("a is b" t))
-  ("a.append(c)" ("a[3] is c" t))))
+  (pyel-create-tests
+   append
+   ("a = [1,2,3]
+  c = ['a','a']
+  b = a
+  a.append('hi')"
+    ("a" '(1 2 3 "hi"))
+    ("a is b" t)
+    ("a.append(c)" ("a is b" t))
+    ("a.append(c)" ("a[3] is c" t))))
 #+END_SRC
 
 ** insert
