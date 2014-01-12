@@ -68,6 +68,12 @@ These names will be set globally to their index in this list")
 
 (defmacro define-class (name bases &rest attributes)
   (let* ((new (make-empty-class))
+	 (in-function-p (if (member '__defined-in-function-body bases)
+			    (progn
+			      (setq bases
+				    (remove '__defined-in-function-body bases))
+			      t)
+			  nil))
 	 (bases (if (eq name 'object)
 		    nil
 		  (or bases '(object)))) ;;everything inherits from object
@@ -147,14 +153,14 @@ These names will be set globally to their index in this list")
     (setattr new --bases-- bases)
     (aset new obj-bases-index bases)
     
-    (if (context-p 'function-def)
+    (if in-function-p
 	;;we cannnot use defun because the effect is global
 	;;so we assign a lambda function instead, Usually
 	;;the class vector is assigned to the name, now it 
 	;;will be stored as a property of the name symbol 
 	`(progn (put ',name 'pyel-class-def ,new)
 		(setq ,name (lambda (&rest args)
-			      (obj-make-instance (get ',name 'pyel-class-def)
+			      (obj-make-instance ,new
 						 args))))
       `(progn (setq ,name ',new)
 	      (defun ,name (&rest args)
