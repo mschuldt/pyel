@@ -2680,6 +2680,7 @@ FunctionDef(name='a',
                (args (_to- (using-context function-def (transform (car args)))))
                (inner-defun (context-p 'function-def))
                (orig-name name)
+               (decorators (mapcar 'transform decoratorlist))
                setq-code
                )
     
@@ -2745,7 +2746,7 @@ FunctionDef(name='a',
                    (setq setq-code (list '@ 'setq orig-name))
                  (setq setq-code '@))
     
-               `(,setq-code (,func ,name ,args () ;;TODO: decorators
+               `(,setq-code (,func ,name ,args ,decorators
                                    ,docstring
                                    ,@assign-defaults
                                    (,let-arglist
@@ -2881,13 +2882,12 @@ FunctionDef(name='a',
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-   def FunctionDef(name, args, body, decorator_list, returns):
-       return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), decorator_list or "nil",returns or "nil",")"]))
-  
-      
+  def FunctionDef(name, args, body, decorator_list, returns):
+       return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), ll_str(decorator_list) or "nil",returns or "nil",")"]))
   
   def arg(arg,annotation):
       return "(arg \"" + arg + "\" " + " " + (annotation or "nil") + ")"
+  
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
