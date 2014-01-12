@@ -3333,15 +3333,17 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   (defun pyel-defclass (name bases keywords starargs kwargs body decorator_list)
     (let ((class-def-methods nil) ;; list of methods that are part of this class
           (class-def-slots nil) ;;list of slots that are part of this class
-          (class-def-name (transform name)))
+          (class-def-name (transform name))
+          (t-bases (mapcar 'transform bases)))
   
       ;;transform body with the class-def context, the transformed code
       ;;will store its methods and slots in class-def-methods and class-def-slots
       ;;respectively.
       (setq _x body)
       
-      (if (context-p 'function-def)
-          (push name let-arglist))
+      (when (context-p 'function-def)
+          (push name let-arglist)
+          (push '__defined-in-function-body t-bases))
       (remove-context
        function-def
        
@@ -3349,7 +3351,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   
                       (add-to-list 'pyel-defined-classes name)
   
-                      `(define-class ,name ,(mapcar 'transform bases)
+                      `(define-class ,name ,t-bases
                          ,@(mapcar 'transform body)
                          )
   
