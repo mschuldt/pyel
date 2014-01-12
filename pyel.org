@@ -2686,7 +2686,9 @@ FunctionDef(name='a',
     
           
           (when (or (context-p 'lambda-def)
-                    inner-defun)
+                    (and inner-defun
+                         (not (member '&kwarg args))))
+                     
             (setq func 'lambda
                   name pyel-nothing))
     
@@ -2743,7 +2745,11 @@ FunctionDef(name='a',
                  (setq let-arglist '@))
     
                (if inner-defun
-                   (setq setq-code (list '@ 'setq orig-name))
+                   (progn
+                     (if (member '&kwarg args)
+                         (setq decorators
+                               (cons 'pyel-inner-function-def decorators)))
+                     (setq setq-code (list '@ 'setq orig-name)))
                  (setq setq-code '@))
     
                `(,setq-code (,func ,name ,args ,decorators
@@ -2755,9 +2761,8 @@ FunctionDef(name='a',
                                      ))))
                ))))))
   
-  
   (defun pyel-sort-kwargs (args)
-    "Organize args in the format required by functions that except keyword args
+    "Organize args in the format required by functions that accept keyword args
   Returns a list whose first element has an alist containing the keyword args
   in the cdr and ':kwargs' in the car position.
   and whose second element is a list of all non-keyword args 
@@ -2792,10 +2797,19 @@ FunctionDef(name='a',
       ht))
   
   (defmacro def (name args decorator-list &rest body)
+    ;;TODO: apply decorators
     (using-context
      function-def
      (if (member '&kwarg args)
          (let ((n -1)
+               (func-name (if (member 'pyel-inner-function-def decorator-list)
+                              (progn
+                                (setq decorator-list
+                                      (remove 'pyel-inner-function-def
+                                              decorator-list))
+                                '(lambda))
+                            (list 'defun name)))
+               optional 
                pos+optional rest kwarg
                npositional nargs arg-index)
            
@@ -2819,7 +2833,7 @@ FunctionDef(name='a',
                                            (cons x n))
                                          (append positional optional)))
   
-           `(defun ,name (&rest args)
+           `(,@func-name (&rest args)
               ;;if this is called with keyword args they will be
               ;;the in an alist in the car position.
               (if (and (listp (car args))
@@ -2878,7 +2892,6 @@ FunctionDef(name='a',
        `(defun ,name ,args
           ,@body)
        )))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
