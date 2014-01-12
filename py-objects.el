@@ -414,6 +414,7 @@ if it is a descriptor, return its value"
      (put ',name 'error-message ,(concat "Error: " (symbol-name name)))))
 
 (pyel-def-error AttributeError)
+(pyel-def-error TypeError)
 
 (define-class object ()
   "The most base type"
