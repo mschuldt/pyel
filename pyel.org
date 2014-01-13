@@ -1492,21 +1492,22 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                 (t (progn ;;form "test"
                      ;;check complete code transformation
                      (setq trans (pyel test))
-                     (push `(push '(equal
-                                            (pyel ,test)
-                                            ',trans)
-                                  pyel-transform-tests)
-                           _pyel-tests)
+                     (push `(ert-deftest ,(intern (format "pyel-transform-test-%s-%s"  name (pyel-make-test-func-name))) ()
+                              (equal (pyel ,test)
+                                     ',trans))
+                              _pyel-tests)
                      ;;check python ast
-                     (push `(push '(equal (py-ast ,test)
-                                                  ,(py-ast test))
-                                  pyel-py-ast-tests)
+                     (push `(ert-deftest ,(intern (format "pyel-py-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
+                              (equal (py-ast ,test)
+                                     ,(py-ast test))
+                              pyel-py-ast-tests)
                            _pyel-tests)
                      
                      ;;check transformed .py syntax tree
-                     (push `(push '(string= (pyel ,test t)
-                                                    ,(pyel test t))
-                                  pyel-el-ast-tests)
+                     (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
+                              (string= (pyel ,test t)
+                                       ,(pyel test t))
+                              pyel-el-ast-tests)
                            _pyel-tests))
             )))))))
   
@@ -1547,6 +1548,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                         () ,@el-ast)) nil)
         (message "Tests copied to kill ring"))))
   
+  
   (defun pyel-indent-py-code (code &optional indent)
     "Indent CODE by INDENT. CODE is a string. INDENT defaults to one space"
     (let ((indent (or indent " ")))
@@ -1560,9 +1562,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     ;;save resulting tests in  pyel-tests-generated.el
     ;;evaluate all the tests
     (let ((pyel-test-func-counter 0)
-          pyel-transform-tests
-          pyel-py-ast-tests
-          pyel-el-ast-tests
           pyel-test-py-functions
           _pyel-tests
           )
@@ -1582,16 +1581,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                   (eval x))) 
               _pyel-tests)
   
-        ;;how insert the other tests
-        (mapc 
-         (lambda (x) (insert (format "(setq %s '%s)"
-                                     (symbol-name x)
-                                     (prin1-to-string (eval x)))))
-         '(pyel-transform-tests
-           pyel-py-ast-tests
-           pyel-el-ast-tests
-           ))
-        
         (insert "\n(provide 'pyel-tests-generated)")
         
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
