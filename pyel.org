@@ -1650,7 +1650,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
                                           (split-string py-code "\n"))
                         "\n")))
-
+  
 #+END_SRC
 ** tests
 this test is disabled. It pollutes global variables 
@@ -2355,7 +2355,9 @@ this test is disabled. It pollutes global variables
   
   (def-transform keyword pyel ()
     (lambda (arg value)
-      (list '@ (_to- arg)  '= (transform value))))
+      (if (context-p 'keywords-alist)
+          (list (_to- arg) (transform value))
+        (list '@ (_to- arg)  '= (transform value)))))
   
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
@@ -2365,8 +2367,9 @@ this test is disabled. It pollutes global variables
   
   (defun pyel-call-transform (func args keywords starargs kwargs)
     (let ((t-func (transform func))
-          (keyword-args (mapcar (lambda (x) (transform (car x)))
-                                keywords))
+          (keyword-args (using-context keywords-alist
+                                       (mapcar (lambda (x) (transform (car x)))
+                                keywords)))
           new-func m-name f-name star-args kw-args)
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
