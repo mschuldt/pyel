@@ -1596,6 +1596,13 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
   
+  (defvar pyel-failed-python-ast-tests nil
+    "python ast tests that failed in the last test run")
+  (defvar pyel-failed-lisp-ast-tests nil
+    "lisp ast tests that failed in the last test run")
+  (defvar pyel-failed-transform-tests nil
+    "python ast tests that failed in the last test run")
+  
   (defalias 'pyel-verify 'pyel-run-tests)
   (defun pyel-run-tests ()
     (interactive)
@@ -2660,7 +2667,6 @@ FunctionDef(name='a',
   
   
   (defun pyel-def (name args body decoratorlist returns)
-    
       (let ((name (read (_to- name))))
         
         (when (context-p 'function-def)
