@@ -2355,7 +2355,7 @@ this test is disabled. It pollutes global variables
   (def-transform keyword pyel ()
     (lambda (arg value)
       (if (context-p 'keywords-alist)
-          (cons (_to- arg) (transform value))
+          (list (_to- arg) (transform value))
         (list '@ (_to- arg)  '= (transform value)))))
   
   (def-transform call pyel ()
@@ -3847,23 +3847,26 @@ repr(__ff_)"
   ;;(pyel-translate-function-name 'print 'py-print)
   (pyel-define-function-translation
    print
-   `(py-print ,(cdr (assoc 'sep kwargs))
-              ,(cdr (assoc 'end kwargs))
+   `(py-print ,(cadr (assoc 'sep kwargs))
+              ,(cadr (assoc 'end kwargs))
               nil ;;TODO: file=sys.stdout
               ,@args))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defvar pyel-print-function 'prin1
+    "function that is used for printing by `py-print'")
+  
   (defun py-print (sep end file &rest args)
     (let ((sep (or sep " "))
           (end (or end "\n")))
       (progn (mapc (lambda (x)
-                     (prin1 x)
-                     (prin1 sep))
+                     (funcall pyel-print-function x)
+                     (funcall pyel-print-function sep))
                    (butlast args))
-             (prin1 (car (last args)))
-             (prin1 end)
-             nil)))  
+             (funcall pyel-print-function (car (last args)))
+             (funcall pyel-print-function end)
+             nil)))
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
