@@ -1583,13 +1583,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
   
-  (defvar pyel-failed-python-ast-tests nil
-    "python ast tests that failed in the last test run")
-  (defvar pyel-failed-lisp-ast-tests nil
-    "lisp ast tests that failed in the last test run")
-  (defvar pyel-failed-transform-tests nil
-    "python ast tests that failed in the last test run")
-  
   (defalias 'pyel-verify 'pyel-run-tests)
   (defun pyel-run-tests (&optional selector)
     "setup and run pyel test. 
@@ -1635,16 +1628,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
           (ert-run-tests-interactively selector)
           )))
-  
-  (defun pyel-run-ert-tests ()
-    (interactive)
-    (flet ((pyel-create-new-marker () "test_marker"))
-      (progv
-          (mapcar 'car test-variable-values)
-          (mapcar 'cadr test-variable-values)
-        
-          (mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
-          (ert-run-tests-interactively "pyel"))))
   
   (defun pyel-functionize (py-code &optional func-name &rest args)
     "wrap PY-CODE in a function definition
