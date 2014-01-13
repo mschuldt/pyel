@@ -3844,12 +3844,26 @@ repr(__ff_)"
 ** print
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'print 'py-print)
+  ;;(pyel-translate-function-name 'print 'py-print)
+  (pyel-define-function-translation
+   print
+   `(py-print ,(cdr (assoc 'sep kwargs))
+              ,(cdr (assoc 'end kwargs))
+              nil ;;TODO: file=sys.stdout
+              ,@args))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun py-print (sep end file &rest args)
-    (progn (mapc 'print args) nil))
+    (let ((sep (or sep " "))
+          (end (or end "\n")))
+      (progn (mapc (lambda (x)
+                     (prin1 x)
+                     (prin1 sep))
+                   (butlast args))
+             (prin1 (car (last args)))
+             (prin1 end)
+             nil)))  
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
