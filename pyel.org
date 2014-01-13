@@ -3886,9 +3886,13 @@ repr(__ff_)"
      ))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   pow
+   ("pow(2,5,5)" 2)
+   ("pow(3,7,20)" 7)
+   ("pow(3,7)" 2187)
+   ("pow(2,2)" 4))
 #+END_SRC
 
 ** transform template
