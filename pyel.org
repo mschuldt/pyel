@@ -1462,7 +1462,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      (setq d 0)
                      (mapc (lambda (x)
                              (push `(ert-deftest
-                                        ,(intern (concat "pyel-" name-str
+                                        ,(intern (format "pyel-test-%s-%s" name-str
                                                          (number-to-string (setq c (1+ c))))) ()
                                       (equal (eval (pyel ,(if (= (length test) 2)
   
