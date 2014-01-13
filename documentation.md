@@ -52,13 +52,23 @@ Their are several kinds transformations, here are examples for each of them.
                   (_ _)    -> (append obj thing))
 ```		  
 
-## Function translation
+## Function type-switch translation
 ```cl
 (pyel-func-transform len (thing)
                        (object) -> (__len__ ,thing)
                        (_)      -> (length ,thing))
 ```		       
 
+## Function direct translation
+
+```cl
+(pyel-define-function-translation
+   print
+   `(py-print ,(cadr (assoc 'sep kwargs))
+              ,(cadr (assoc 'end kwargs))
+              nil ;;TODO: file=sys.stdout
+              ,@args))
+```	      
 ## Declare a name to be a macro
 
 ```cl
