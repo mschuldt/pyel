@@ -3894,6 +3894,23 @@ repr(__ff_)"
    ("pow(3,7)" 2187)
    ("pow(2,2)" 4))
 #+END_SRC
+  
+** eval
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+(pyel-translate-function-name 'eval 'py-eval)
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-eval (source)
+    (if (stringp source)
+        `(eval (pyel ,source))
+      `(eval ,source)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 
 ** transform template
 *** transform
