@@ -2355,7 +2355,7 @@ this test is disabled. It pollutes global variables
   (def-transform keyword pyel ()
     (lambda (arg value)
       (if (context-p 'keywords-alist)
-          (list (_to- arg) (transform value))
+          (cons (_to- arg) (transform value))
         (list '@ (_to- arg)  '= (transform value)))))
   
   (def-transform call pyel ()
