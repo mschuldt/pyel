@@ -860,7 +860,7 @@ This will have to be removed after the code is generated
   (defmacro pyel-define-function-translation (name &rest body)
     "BODY will form the body of a function that is called during transform time
   to tranlate a call to NAME, variables 'args' and 'kwargs'  are available at
-  this point.
+  this point. 'args' will be a list and 'kwargs will be an alist
   This is called at the same time `pyel-func-transform' would be called"
     (add-to-list 'pyel-func-transforms2 name)
     
