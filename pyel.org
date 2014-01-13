@@ -490,7 +490,7 @@ main
          (hash-table hash-table-p)
          (symbol symbolp)
          (array arrayp)
-         (object object-p)
+         (object py-object-p)
          (function functionp)
          (func fboundp)
          (vfunction vfunction-p)
@@ -3929,7 +3929,6 @@ eval('x')" 23))
 #+END_SRC
 
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4940,7 +4939,6 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
