@@ -3843,8 +3843,8 @@ repr(__ff_)"
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-(defmacro py-print (&rest args)
-  `(mapc 'print ,(cons 'list args)))
+  (defun py-print (&rest args)
+    (progn (mapc 'print args) nil))
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
