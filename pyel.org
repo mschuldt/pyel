@@ -853,12 +853,16 @@ This will have to be removed after the code is generated
              (fset fsym (lambda () nil)))
            (cons fsym (mapcar 'eval ',args))))))
   
+  (defvar pyel-func-transforms2 nil
+    "list of functions whose translations are defined
+  with the macro `pyel-define-function-translation'")
+    
   (defmacro pyel-define-function-translation (name &rest body)
     "BODY will form the body of a function that is called during transform time
   to tranlate a call to NAME, variables 'args' and 'kwargs'  are available at
   this point.
   This is called at the same time `pyel-func-transform' would be called"
-    (add-to-list 'pyel-func-transforms name)
+    (add-to-list 'pyel-func-transforms2 name)
     
     `(def-transform (pyel-func-transform-name name) pyel () 
        (lambda args kwargs
