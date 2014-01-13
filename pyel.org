@@ -1402,6 +1402,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   and compared to expected values")
   
   (setq _pyel-tests nil)
+  (setq _pyel-structure-tests nil)
   
   (defvar pyel-test-func-counter 0
     "just another counter")
@@ -1495,19 +1496,19 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      (push `(ert-deftest ,(intern (format "pyel-transform-test-%s-%s"  name (pyel-make-test-func-name))) ()
                               (equal (pyel ,test)
                                      ',trans))
-                              _pyel-tests)
+                           _pyel-structure-tests)
                      ;;check python ast
                      (push `(ert-deftest ,(intern (format "pyel-py-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
                               (equal (py-ast ,test)
                                      ,(py-ast test))
                               pyel-py-ast-tests)
-                           _pyel-tests)
+                           _pyel-structure-tests)
                      ;;check transformed .py syntax tree
                      (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
                               (string= (pyel ,test t)
                                        ,(pyel test t))
                               pyel-el-ast-tests)
-                           _pyel-tests))
+                           _pyel-structure-tests))
             )))))))
   
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
@@ -1562,25 +1563,23 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     (let ((pyel-test-func-counter 0)
           pyel-test-py-functions
           _pyel-tests
-          )
-  
+          _pyel-structure-tests)
+      
       (load-file (file-path-concat pyel-directory "pyel-tests.el"))
       (with-temp-buffer
-        
         ;;save py test functions
         (insert (format "(setq pyel-test-py-functions '%s)"
                         (prin1-to-string pyel-test-py-functions)))
-        
-  
-        ;;insert ert tests and collect the others
+        ;;insert normal tests
         (mapc (lambda (x)
-                (if (eq (car x) 'ert-deftest)
-                    (insert (prin1-to-string x) "\n")
-                  (eval x))) 
+                    (insert (prin1-to-string x) "\n"))
               _pyel-tests)
-  
-        (insert "\n(provide 'pyel-tests-generated)")
+        ;;insert the other tests
+        (mapc (lambda (x)
+                (insert (prin1-to-string x) "\n"))
+              _pyel-structure-tests)
         
+        (insert "\n(provide 'pyel-tests-generated)")
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
   
   (defalias 'pyel-verify 'pyel-run-tests)
