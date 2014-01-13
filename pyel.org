@@ -3848,7 +3848,7 @@ repr(__ff_)"
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun py-print (&rest args)
+  (defun py-print (sep end file &rest args)
     (progn (mapc 'print args) nil))
 #+END_SRC
 *** tests
