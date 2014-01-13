@@ -379,6 +379,16 @@ main
      ((listp thing) (mapcar '_to- thing))
      (t (error "ERROR in _to-. invalid thing"))))
   
+  (defun _to- (thing)
+    (cond
+     ((stringp thing)
+  
+      (replace-regexp-in-string  "-" "_"  thing))
+     ((symbolp thing)
+      (intern (replace-regexp-in-string  "-" "_"  (symbol-name thing))))
+     ((listp thing) (mapcar '_to- thing))
+     (t (error "ERROR in -to_. invalid thing"))))
+  
   
   (defun pyel-change-ctx (form ctx)
     "change ctx of form to CTX"
@@ -3669,6 +3679,9 @@ TODO: tests!
                                             "<lambda>"
                                           (symbol-name func))))
   
+  ;; (defun py-symbol-str (thing)
+  ;;   (symbol-name (-to_ thing)))
+  
   (defun py-hash-str (ht)
     (let (str)
       (maphash (lambda (key value)
@@ -3771,8 +3784,7 @@ str(__ff_)"
   
   (defun py-vector-repr (thing)
     (concat "(" (_py-repr-sequence thing) ")"))
-  
-  
+    
 #+END_SRC
     
 *** tests
