@@ -368,27 +368,21 @@ main
   (defun list-to-vector (list)
     (eval `(vector ,@list))) ;;this is gross
   
-  
-  (defun _to- (thing)
+  (defun pyel-replace-in-thing (from to thing)
+    "replace character FROM to TO in THING
+  THING may be a symbol, string or list"
     (cond
      ((stringp thing)
-  
-      (replace-regexp-in-string "_" "-"  thing))
+      (replace-regexp-in-string from to  thing))
      ((symbolp thing)
-      (intern (replace-regexp-in-string "_" "-"  (symbol-name thing))))
-     ((listp thing) (mapcar '_to- thing))
-     (t (error "ERROR in _to-. invalid thing"))))
-  
+      (intern (replace-regexp-in-string from to  (symbol-name thing))))
+     ((listp thing) (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
+     (t (error "invalid thing"))))
+    
   (defun _to- (thing)
-    (cond
-     ((stringp thing)
-  
-      (replace-regexp-in-string  "-" "_"  thing))
-     ((symbolp thing)
-      (intern (replace-regexp-in-string  "-" "_"  (symbol-name thing))))
-     ((listp thing) (mapcar '_to- thing))
-     (t (error "ERROR in -to_. invalid thing"))))
-  
+    (pyel-replace-in-thing "_" "-" thing))
+  (defun -to_ (thing)
+    (pyel-replace-in-thing "-" "_" thing))
   
   (defun pyel-change-ctx (form ctx)
     "change ctx of form to CTX"
