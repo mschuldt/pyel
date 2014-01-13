@@ -853,6 +853,18 @@ This will have to be removed after the code is generated
              (fset fsym (lambda () nil)))
            (cons fsym (mapcar 'eval ',args))))))
   
+  (defmacro pyel-define-function-translation (name &rest body)
+    "BODY will form the body of a function that is called during transform time
+  to tranlate a call to NAME, variables 'args' and 'kwargs'  are available at
+  this point.
+  This is called at the same time `pyel-func-transform' would be called"
+    (add-to-list 'pyel-func-transforms name)
+    
+    `(def-transform (pyel-func-transform-name name) pyel () 
+       (lambda args kwargs
+         ,body
+         )))
+  
   
   ;;TODO: this should be more general to allow for things like subscript to use it
   
@@ -1635,7 +1647,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
                                           (split-string py-code "\n"))
                         "\n")))
-  
+
 #+END_SRC
 ** tests
 this test is disabled. It pollutes global variables 
