@@ -3874,6 +3874,23 @@ repr(__ff_)"
 ;;
 #+END_SRC
 
+** pow
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-define-function-translation
+   pow
+   (case (length args)
+     (3 (list 'mod (list 'expt (car args) (cadr args)) (caddr args)))
+     (2 (list 'expt (car args) (cadr args)))
+     (t "ERROR") ;;TODO
+     ))
+#+END_SRC
+*** tests
+(pyel-create-tests '<name>
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
