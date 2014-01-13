@@ -1502,7 +1502,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                      ,(py-ast test))
                               pyel-py-ast-tests)
                            _pyel-tests)
-                     
                      ;;check transformed .py syntax tree
                      (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
                               (string= (pyel ,test t)
@@ -1521,7 +1520,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-  
         
         (dolist (code (reverse py-code))
           ;;check complete code transformation
@@ -1593,50 +1591,50 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     "python ast tests that failed in the last test run")
   
   (defalias 'pyel-verify 'pyel-run-tests)
-  (defun pyel-run-tests ()
+  (defun pyel-run-tests (&optional selector)
+    "setup and run pyel test. 
+  SELECTOR may be any of the following:
+  'pyel-test' all normal tests. This is the default
+  The following tests check code structure, but do not eval
+  generated lisp code.
+  'pyel-transform-test' check full code transform 
+  'pyel-py-ast-test' check python AST
+  'pyel-el-ast-test' check lisp AST
+  
+  'pyel' will run all tests'" 
     (interactive)
+    (setq selector (or selector
+                       (let ((tests '(("all" . "pyel")
+                                      ("normal" . "pyel-test")
+                                      ("python AST" . "pyel-py-ast-test")
+                                      ("lisp AST" . "pyel-el-ast-test")
+                                      ("transform" . "pyel-transform-test"))))
+                         (cdr (assoc (completing-read "select tests> "
+                                                      (mapcar 'car tests)
+                                                      nil t)
+                                     tests)))))
     (flet ((pyel-create-new-marker () "test_marker"))
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-        (let ((_ (message "Running transform tests..."))
-              (transform-passed (reduce '+ (mapcar (lambda (test)
-                                                     (if (condition-case nil
-                                                             (eval test)
-                                                           (error nil)) 1 0))
-                                                   pyel-transform-tests)))
-              (_ (message "Running python AST tests..."))
-              (py-ast-passed (reduce '+ (mapcar (lambda (test)
-                                                  (if (condition-case nil
-                                                          (eval test)
-                                                        (error nil)) 1 0))
-                                                pyel-py-ast-tests)))
-              (_ (message "Running lisp AST tests..."))
-              (el-ast-passed (reduce '+ (mapcar (lambda (test)
-                                                  (if (condition-case nil
-                                                          (eval test)
-                                                        (error nil)) 1 0))
-                                                pyel-el-ast-tests))))
-          (message "transform: %s/%s\npy-ast: %s/%s\nel-ast: %s/%s\n"
-                   transform-passed (length pyel-transform-tests)
-                   py-ast-passed (length pyel-py-ast-tests)
-                   el-ast-passed (length pyel-el-ast-tests))
-          (message "Evaluating test functions...")
-          ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
-          (let ((tmp-file "~/tmp/pyel-test-functions.el"))
-            (find-file tmp-file)
-            (erase-buffer)
-            (mapc (lambda (x)
-                    ;;macroexpand so edebug-defun can be used on it
-                    (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
-                  pyel-test-py-functions)
-            (save-buffer)
-            (kill-buffer)
-            (load-file tmp-file))
-          ;;(mapc 'eval pyel-function-definitions)
-          (message "Running ert tests...")
-          (ert-run-tests-interactively "pyel")
-          ))))
+        
+        (if (or (string= selector "pyel-test")
+                (string= selector "pyel"))
+            (let ((tmp-file "~/tmp/pyel-test-functions.el"))
+              (message "Evaluating test functions...")
+              ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+              (find-file tmp-file)
+              (erase-buffer)
+              (mapc (lambda (x)
+                      ;;macroexpand so edebug-defun can be used on it
+                      (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
+                    pyel-test-py-functions)
+              (save-buffer)
+              (kill-buffer)
+              (load-file tmp-file)))
+  
+          (ert-run-tests-interactively selector)
+          )))
   
   (defun pyel-run-ert-tests ()
     (interactive)
