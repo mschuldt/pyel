@@ -2350,6 +2350,8 @@ this test is disabled. It pollutes global variables
   ;; counterparts without defining themselves globally
   (pyel-create-py-func fcall (_func &rest args)
                        (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
+                       (object) -> (call-method $func --call--
+                                                ,@(pyel-sort-kwargs args))
                        (_ _) -> ($func ,@(pyel-sort-kwargs args)))
   
   (def-transform keyword pyel ()
