@@ -395,8 +395,7 @@ if it is a descriptor, return its value"
 	`(funcall (_obj-get-special ,object ,(cdr special)) ,object ,@args)
       
       `(funcall (getattr-1 ,object ',method)
-		,object ,@args))))
-
+		,@args))))
 
 (defmacro setattr (obj attr value)
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
