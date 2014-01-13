@@ -864,9 +864,9 @@ This will have to be removed after the code is generated
   This is called at the same time `pyel-func-transform' would be called"
     (add-to-list 'pyel-func-transforms2 name)
     
-    `(def-transform (pyel-func-transform-name name) pyel () 
+    `(def-transform ,(pyel-func-transform-name name) pyel () 
        (lambda args kwargs
-         ,body
+         ,@body
          )))
   
   
@@ -905,7 +905,6 @@ This will have to be removed after the code is generated
   ;;      (pyel-do-call-transform (pyel-get-possible-types ,@args)
   ;;                              ',args
   ;;                              ',type-switches)))
-  
   
   (defun pyel-expand-type-switch (type-switch)
     "expands the types switch form to a list of cond clauses"
@@ -2397,23 +2396,30 @@ this test is disabled. It pollutes global variables
             ;;translate name 
             (setq t-func (cadr new-func)))
           
-          ;;TODO: check if there is a function transform defined
-          (if (member t-func pyel-func-transforms)
-              ;;this function transform is overridden
-              (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                     ;;',(transform (cadr func))
-                                     ,@(mapcar '(lambda (x) `(quote ,x)) args)))
+          ;;call function transform if one was defined
+          (cond ((member t-func pyel-func-transforms) 
+                 ;;transform defined with `pyel-func-transform'
+                 (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                        ;;',(transform (cadr func))
+                                        ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+  
+                ((member t-func pyel-func-transforms2)
+                 ;;transform defined with `pyel-define-function-translation'
+                 (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                        ;;,(mapcar '(lambda (x) `(quote ,x)) args)
+                                        (mapcar 'transform args)
+                                        keyword-args)))
             
             ;;normal function call
             ;;`(,t-func ,@(mapcar 'transform args))
             ;;TODO: this is dumb, convert `call-transform' to a macro?
-            (eval `(call-transform 'fcall ,@(cons 't-func
-                                                  (mapcar (lambda (x)
-                                                            `(quote ,x))
-                                                          (append args
-                                                                  (mapcar 'car
-                                                                          keywords))
-                                                          ))))))))
+                (t (eval `(call-transform 'fcall ,@(cons 't-func
+                                                         (mapcar (lambda (x)
+                                                                   `(quote ,x))
+                                                                 (append args
+                                                                         (mapcar 'car
+                                                                                 keywords))
+                                                                 )))))))))
   
 #+END_SRC
 ** python ast
