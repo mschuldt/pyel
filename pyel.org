@@ -2367,7 +2367,7 @@ this test is disabled. It pollutes global variables
     (let ((t-func (transform func))
           (keyword-args (mapcar (lambda (x) (transform (car x)))
                                 keywords))
-          new-func m-name  f-name keyword-args star-args kw-args)
+          new-func m-name f-name star-args kw-args)
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
