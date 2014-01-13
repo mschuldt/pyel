@@ -865,10 +865,9 @@ This will have to be removed after the code is generated
     (add-to-list 'pyel-func-transforms2 name)
     
     `(def-transform ,(pyel-func-transform-name name) pyel () 
-       (lambda args kwargs
+       (lambda (args kwargs)
          ,@body
          )))
-  
   
   ;;TODO: this should be more general to allow for things like subscript to use it
   
