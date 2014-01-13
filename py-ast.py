@@ -132,9 +132,7 @@ def arguments(args=None, vararg=None, varargannotation=None, kwonlyargs=None,
     #return l_str(["_arguments ",ll_str(args) or "nil",vararg or "nil",varargannotation or "nil", kwonlyargs or "nil", kwarg or "nil", kwargannotation or "nil", defaults or "nil", kw_defaults or "nil"])
 
 def FunctionDef(name, args, body, decorator_list, returns):
-     return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), decorator_list or "nil",returns or "nil",")"]))
-
-    
+    return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), ll_str(decorator_list) or "nil",returns or "nil",")"]))
 
 def arg(arg,annotation):
     return "(arg \"" + arg + "\" " + " " + (annotation or "nil") + ")"

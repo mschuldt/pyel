@@ -348,8 +348,12 @@
 ;; this allows locally defined functions to override their global
 ;; counterparts without defining themselves globally
 (pyel-create-py-func fcall (_func &rest args)
-                     (vfunc _) -> (funcall $func ,@args)
-                     (_ _) -> ($func ,@args))
+                     (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
+                     (_ _) -> ($func ,@(pyel-sort-kwargs args)))
+
+(def-transform keyword pyel ()
+  (lambda (arg value)
+    (list '@ (_to- arg)  '= (transform value))))
 
 (def-transform call pyel ()
   ;;TODO: some cases funcall will need to be used, how to handle that?
@@ -359,7 +363,9 @@
 
 (defun pyel-call-transform (func args keywords starargs kwargs)
   (let ((t-func (transform func))
-        new-func m-name  f-name )
+        (keyword-args (mapcar (lambda (x) (transform (car x)))
+                              keywords))
+        new-func m-name  f-name keyword-args star-args kw-args)
     ;; (if (member t-func pyel-defined-classes)
     ;;     ;;instantiate an object and call its initializer
     ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
@@ -370,9 +376,14 @@
           (if (member (setq m-name (read (caddr func)))
                       pyel-method-transforms)
               ;;this methods transform is overridden
+              (progn
+                ;;dynamic scoping saves the day again!
+                (setq keyword-args keywords
+                      star-args starargs
+                      kw-args kwargs)
               (eval `(call-transform ',(pyel-method-transform-name m-name)
                                      ',(transform (cadr func))
-                                     ,@(mapcar '(lambda (x) `(quote ,x)) args)))
+                                     ,@(mapcar '(lambda (x) `(quote ,x)) args))))
             ;;normal method call
             (remove-context method-call-override
                             (using-context method-call
@@ -393,10 +404,13 @@
           ;;normal function call
           ;;`(,t-func ,@(mapcar 'transform args))
           ;;TODO: this is dumb, convert `call-transform' to a macro?
-          (eval `(call-transform 'fcall ,@(cons 't-func (mapcar (lambda (x)
-                                                                  `(quote ,x))
-                                                                 args))))
-          ))))
+          (eval `(call-transform 'fcall ,@(cons 't-func
+                                                (mapcar (lambda (x)
+                                                          `(quote ,x))
+                                                        (append args
+                                                                (mapcar 'car
+                                                                        keywords))
+                                                        ))))))))
 
 ;;doc: context macro-call
 (defun pyel-while (test body orelse)
@@ -486,6 +500,9 @@
       (when (and (not pyel-use-list-for-varargs)
                  (context-p 'function-def))
         (push `(setq, vararg (list-to-vector ,vararg)) assign-defaults)))
+    ;;&kwarg
+    (when kwarg
+      (setq args (append args (list '&kwarg kwarg))))
     
     args))
 
@@ -528,15 +545,18 @@
              
               ;;;
              (ret pyel-nothing)
-             (args (using-context function-def (transform (car args))))
+             (args (_to- (using-context function-def (transform (car args)))))
              (inner-defun (context-p 'function-def))
              (orig-name name)
+             (decorators (mapcar 'transform decoratorlist))
              setq-code
              )
   
         
         (when (or (context-p 'lambda-def)
-                  inner-defun)
+                  (and inner-defun
+                       (not (member '&kwarg args))))
+                   
           (setq func 'lambda
                 name pyel-nothing))
   
@@ -585,26 +605,52 @@
                        (pop t-body)
                      pyel-nothing))
              
-             (when return-middle
-               (setq ret '(catch '__return__)))
+             (setq ret (if return-middle '(catch '__return__)
+                         '(@))) 
   
              (if let-arglist
                  (setq let-arglist (list '@ 'let let-arglist))
                (setq let-arglist '@))
   
              (if inner-defun
-                 (setq setq-code (list '@ 'setq orig-name))
+                 (progn
+                   (if (member '&kwarg args)
+                       (setq decorators
+                             (cons 'pyel-inner-function-def decorators)))
+                   (setq setq-code (list '@ 'setq orig-name)))
                (setq setq-code '@))
   
-             `(,setq-code (,func ,name ,args () ;;TODO: decorators
+             `(,setq-code (,func ,name ,args ,decorators
                                  ,docstring
                                  ,@assign-defaults
                                  (,let-arglist
                                   (,@ret
                                    ,@t-body
                                    ))))
-             
              ))))))
+
+(defun pyel-sort-kwargs (args)
+  "Organize args in the format required by functions that accept keyword args
+Returns a list whose first element has an alist containing the keyword args
+in the cdr and ':kwargs' in the car position.
+and whose second element is a list of all non-keyword args 
+Recognizes keyword args in the form 'arg = value'."
+  ;;for use in the 'fcall' transform
+  (if (member '= args)
+      (let ((current args)
+            kwargs
+            normal)
+        (when (eq (car current) '=) (error "invalid keyword arg syntax"))
+        (while current
+          (if (eq (car current) '=)
+              (progn
+                (when (null (cdr current)) (error "invalid keyword arg syntax"))
+                (push (cons (pop normal) (cadr current)) kwargs)
+                (setq current (cddr current)))
+            (push (car current) normal)
+            (setq current (cdr current))))
+        (list (list 'quote (cons :kwargs kwargs)) (list 'quote (reverse normal))))
+    args))
 
 (def-transform bin-op pyel ()
     (lambda (left op right)
@@ -769,15 +815,17 @@
 (defun pyel-defclass (name bases keywords starargs kwargs body decorator_list)
   (let ((class-def-methods nil) ;; list of methods that are part of this class
         (class-def-slots nil) ;;list of slots that are part of this class
-        (class-def-name (transform name)))
+        (class-def-name (transform name))
+        (t-bases (mapcar 'transform bases)))
 
     ;;transform body with the class-def context, the transformed code
     ;;will store its methods and slots in class-def-methods and class-def-slots
     ;;respectively.
     (setq _x body)
     
-    (if (context-p 'function-def)
-        (push name let-arglist))
+    (when (context-p 'function-def)
+        (push name let-arglist)
+        (push '__defined-in-function-body t-bases))
     (remove-context
      function-def
      
@@ -785,7 +833,7 @@
 
                     (add-to-list 'pyel-defined-classes name)
 
-                    `(define-class ,name ,(mapcar 'transform bases)
+                    `(define-class ,name ,t-bases
                        ,@(mapcar 'transform body)
                        )
 
@@ -858,6 +906,8 @@
 (pyel-translate-function-name 'hex 'py-hex)
 
 (pyel-translate-function-name 'bin 'py-bin)
+
+(pyel-translate-function-name 'print 'py-print)
 
 ;;
 

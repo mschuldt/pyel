@@ -248,17 +248,21 @@ value."
 (defun list-to-vector (list)
   (eval `(vector ,@list))) ;;this is gross
 
-
-(defun _to- (thing)
+(defun pyel-replace-in-thing (from to thing)
+  "replace character FROM to TO in THING
+THING may be a symbol, string or list"
   (cond
    ((stringp thing)
-
-    (replace-regexp-in-string "_" "-"  thing))
+    (replace-regexp-in-string from to  thing))
    ((symbolp thing)
-    (intern (replace-regexp-in-string "_" "-"  (symbol-name thing))))
-   ((listp thing) (mapcar '_to- thing))
-   (t (error "ERROR in _to-. invalid thing"))))
-
+    (intern (replace-regexp-in-string from to  (symbol-name thing))))
+   ((listp thing) (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
+   (t (error "invalid thing"))))
+  
+(defun _to- (thing)
+  (pyel-replace-in-thing "_" "-" thing))
+(defun -to_ (thing)
+  (pyel-replace-in-thing "-" "_" thing))
 
 (defun pyel-change-ctx (form ctx)
   "change ctx of form to CTX"
@@ -467,6 +471,7 @@ stored here just for convenient inspection")
           (pyel-defined-functions nil)
           (pyel-obj-counter 0)
           (pyel-unique-obj-names nil)
+          (pyel-fully-functional-functions nil)
           ;;(pyel-method-transforms nil)
           ;;(pyel-func-transforms nil)
           (pyel-marker-counter 0)))    
@@ -500,9 +505,14 @@ stored here just for convenient inspection")
 (defmacro using-context (context &rest code)
   `(progn
      (push ',context pyel-context)
-     (let ((ret (progn ,@code)))
+     (let (ret)
+       (condition-case err
+           (setq ret (progn ,@code))
+         (error (pop pyel-context)
+                (error (format "using-context: %s" err))))
        (pop pyel-context)
        ret)))
+
 (def-edebug-spec using-context (symbolp &rest form))
 
 
@@ -1146,7 +1156,8 @@ and compared to expected values")
                                                                     (format "%s()" test-name)
                                                                   (format "%s(%s)" test-name (setq d (1+ d))))))
                                                    ,(if (and (listp (cadr x))
-                                                            (not (eq (caadr x) 'lambda)))
+                                                            (not (or (eq (caadr x) 'lambda)
+                                                                     (eq (caadr x) 'quote))))
                                                         (cadr (cadr x)) ;;form: ("setup" ("test" expect))
                                                       (cadr x)))) ;;;;form: ("test" expect)
                                  tests))

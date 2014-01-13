@@ -34,35 +34,63 @@
   (should (equal (pyel-do-splices '(@)) nil))
 )
 
-(pyel-create-tests assign
-                   "a = 1"
-                   "a.b = 1"
-                   "a.b = c"
-                   "a.b.c = 1"
-                   "a.b = d.c"
-                   "a,b = 1,2"
-                   "a,b.c,x[2] = 1,a.c(),x[x()+y]"
-                   "a = 1
+(pyel-create-tests
+ assign
+ ("a = 1" ("a" 1))
+ ("class a: pass
+a.b = 1" ("a.b" 1))
+ "a.b = c"
+ "a.b.c = 1"
+ "a.b = d.c"
+ ("a,b = 1,2"
+  ("a" 1)
+  ("b" 2))
+ ("x = [1,0,9]
+f = lambda: 3
+class C: pass
+C.a = 3
+a, C.v, x[2] = C.a,1.1, x[x[1]]"
+  ("a" 3)
+  ("C.v" 1.1)
+  ("x[2]" 1))
+ 
+ ("a = 1
 b = 2
-a,b= b,a
-assert a == 2
-assert b == 1"
+a,b= b,a"
+  ("a" 2)
+  ("b" 1))
+ ("a = [1,2]
+b = (3,4)
+x,y = a
+xx,yy = b"
+  ("x" 1)
+  ("y" 2)
+  ("xx" 3)
+  ("yy" 3))
+ ("class C:
+ a = [11,22,33]
+x,y,z = C.a"
+  ("x" 11)
+  ("y" 22)
+  ("z" 33))
+ ("a = 1
+b = 2
+c = 3
+d = a,b,c"
+  ("d" [1 2 3]))
 
-                   "a,b = c"
-                   "a,b,c = c.a"
-                   "a,b = c.a()"
-                   "a,b = c"
-                   "a,b = a.e.e()"
-                   "a[1:4], b[2], a.c = c"
-
-                   "a = b = c"
-                   "a = b = c.e"
-                   "a = b = c.e()"
-                   "a = b = c = 9.3"
-                   "a = b = c = 9.3
-assert a == b == c == 9.3"
-
-                   )
+ "a,b = a.e.e()"
+ 
+ "a[1:4], b[2], a.c = c"
+ 
+ "a = b = c"
+ "a = b = c.e"
+ "a = b = c.e()"
+ ("a = b = c = 9"
+  ("a" 9)
+  ("b" 9)
+  ("c" 9))
+ )
 
 (pyel-create-tests attribute
                    "a.b"
@@ -231,8 +259,42 @@ else:
   x = a+b
  y = 3
  _a_()
- z.a = 4"
-                   )
+ z.a = 4")
+
+(pyel-create-tests
+ function-arguments
+ ("def func(__a,__b,c=1,d='two',*rest,**kwargs):
+ return [__a,__b,c,d,rest,kwargs]"
+  ("repr(func(1,2))"
+   "[1, 2, 1, \"two\", [], {}]")
+  ("repr(func(1,2,3))"
+   "[1, 2, 3, \"two\", [], {}]")
+  ("repr(func(1,2,3,4))"
+   "[1, 2, 3, 4, [], {}]")
+  ("repr(func(1,2,3,4,5))"
+   "[1, 2, 3, 4, [5], {}]")
+  ("repr(func(1,2,3,4,5,6))"
+   "[1, 2, 3, 4, [5, 6], {}]")
+  ("repr(func(1,2,3,4,5,6,x = 's'))"
+   "[1, 2, 3, 4, [5, 6], {x: \"s\"}]")
+  ("repr(func(1,2,3,4,5,6,x = 's',y = 23))"
+   "[1, 2, 3, 4, [5, 6], {y: 23, x: \"s\"}]")
+  ("repr(func(x = 's',__b = 324,__a = 'n',))"
+   "[\"n\", 324, 1, \"two\", [], {x: \"s\"}]")
+  ("repr(func(x = 's',__b = 324,__a = 'n',d = 2))"
+   "[\"n\", 324, 1, 2, [], {x: \"s\"}]")))
+
+(ert-deftest pyel-pyel-sort-kwargs ()
+  (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
+         '((a 5 12 3) ((x . 1) (b . 1))))
+  (equal (pyel-sort-kwargs '(b = 1 x = 1))
+         '(nil ((x . 1) (b . 1))))
+  (equal (pyel-sort-kwargs '(b = 1))
+         '(nil ((b . 1))))
+  (equal (pyel-sort-kwargs '(a b c d))
+         '((a b c d) nil))
+  (equal (pyel-sort-kwargs '(a b = (b 1 2) 5 12 x = 1 (+ 1 3 ) y = "s"))
+         '((a 5 12 (+ 1 3)) ((y . "s") (x . 1) (b b 1 2)))))
 
 (pyel-create-tests binop
                    "assert 1//2 == 0"
@@ -490,6 +552,8 @@ repr(__ff_)"
 
 ;;
 
+;;
+
 (pyel-create-tests
  append
  ("a = [1,2,3]
@@ -691,62 +755,3 @@ assert x[9] == '9'
 ;;pyel-tests.el ends here
 
 ;;
-
-
-(pyel-create-tests
- assign
- ("a = 1" ("a" 1))
- ("class a: pass
-a.b = 1" ("a.b" 1))
- "a.b = c"
- "a.b.c = 1"
- "a.b = d.c"
- ("a,b = 1,2"
-  ("a" 1)
-  ("b" 2))
- ("x = [1,0,9]
-f = lambda: 3
-class C: pass
-C.a = 3
-a, C.v, x[2] = c.a,1.1, x[x[1]]"
-  ("a" 3)
-  ("C.v" 1.1)
-  ("x[2]" 1))
- 
- ("a = 1
-b = 2
-a,b= b,a"
-  ("a" 2)
-  ("b" 1))
- ("a = [1,2]
-b = (3,4)
-x,y = a
-xx,yy = b"
-  ("x" 1)
-  ("y" 2)
-  ("xx" 3)
-  ("yy" 3))
- ("class C:
- a = [11,22,33]
-x,y,z = C.a"
-  ("x" 11)
-  ("y" 22)
-  ("z" 33))
- ("a = 1
-b = 2
-c = 3
-d = a,b,c"
-  ("d" [1 2 3]))
-
- "a,b = a.e.e()"
- 
- "a[1:4], b[2], a.c = c"
- 
- "a = b = c"
- "a = b = c.e"
- "a = b = c.e()"
- ("a = b = c = 9"
-  ("a" 9)
-  ("b" 9)
-  ("c" 9))
- )

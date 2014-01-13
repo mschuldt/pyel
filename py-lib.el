@@ -1,6 +1,113 @@
 
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
+(defun pyel-alist-to-hash (alist)
+  "Turn ALIST a hash table."
+  (let ((ht (make-hash-table
+             :test 'equal
+             :size (length alist))))
+    (mapc (lambda (x)
+            (puthash (car x) (cdr x) ht))
+          alist)
+    ht))
+
+(defmacro def (name args decorator-list &rest body)
+  ;;TODO: apply decorators
+  (using-context
+   function-def
+   (if (member '&kwarg args)
+       (let ((n -1)
+             (func-name (if (member 'pyel-inner-function-def decorator-list)
+                            (progn
+                              (setq decorator-list
+                                    (remove 'pyel-inner-function-def
+                                            decorator-list))
+                              '(lambda))
+                          (list 'defun name)))
+             optional 
+             pos+optional rest kwarg
+             npositional nargs arg-index)
+         
+         (when (member '&kwarg args)
+           (setq kwarg (car (last args))
+                 args (subseq args 0 -2)
+                 args-without-kwarg args))
+         (when (member '&rest args)
+           (setq rest (last args)
+                 args (subseq args 0 -2)))
+         (if (member '&optional args)
+             (setq optional (pyel-split-list args '&optional)
+                   positional (car optional)
+                   optional (cdr optional))
+           (setq positional args))
+
+         (setq npositional (length positional)
+               nargs (+ (length positional) (length optional))
+               arg-index-alist (mapcar (lambda (x)
+                                         (setq n (1+ n))
+                                         (cons x n))
+                                       (append positional optional)))
+
+         `(,@func-name (&rest args)
+            ;;if this is called with keyword args they will be
+            ;;the in an alist in the car position.
+            (if (and (listp (car args))
+                     (eq (caar args) :kwargs))
+                (let* ((kwargs (cdar args))
+                       (args (cadr args))
+                       (len (length args))
+                       (index 0)
+                       (kwargs-used 0)
+                       pos+optional rest arg-index index-value tmp)
+                  (cond ((= len ,nargs)
+                         nil)
+                        ((> len ,nargs)
+                         (setq pos+optional (subseq args 0 ,nargs)
+                               rest (subseq args ,nargs)))
+                        (t ;;(< len ,nargs)
+                         (setq pos+optional
+                               (append args (make-list (- ,nargs len) nil)))))
+
+                  ;;make alist of index value pairs
+                  (setq index-value
+                        (mapcar (lambda (kw) 
+                                  (if (setq arg-index
+                                            (assoc (car kw) ',arg-index-alist))
+                                      (list (cdr arg-index)
+                                            (cdr kw)
+                                            ;;need reference to remove arg later
+                                            (car arg-index))))
+                                kwargs))
+                  ;;set the keyword args values in arg list
+                  (setq tmp pos+optional)
+                  (while tmp
+                    (when (setq iv (assoc index index-value))
+                      (if (< (car iv) len)
+                        (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv)))
+                        )
+                      (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
+                      (setcar tmp (cadr iv))
+                      (setq kwargs-used (1+ kwargs-used)))
+                    (setq tmp (cdr tmp))
+                    (setq index (1+ index)))
+                  (if (< (+ kwargs-used len) ,npositional)
+                      (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
+                  (apply (lambda (,@(append positional optional rest) ,kwarg)
+                           ,@body)
+                         (append pos+optional
+                                 (list rest (pyel-alist-to-hash kwargs)))))
+              ;;else: called without keyword args
+              (let ((kwargs (make-hash-table :size 0)))
+                (apply (lambda ,args-without-kwarg
+                         (let (,kwarg)
+                         ,@body))
+                       args)))))
+     
+     ;;else: no &kwarg
+     `(defun ,name ,args
+          ,@body)
+     )))
+
 (defun py-list (&rest things)
   "tries to be like python's list function"
   (if (> (length things) 1)
@@ -34,6 +141,9 @@
                                                (or (eq (car func) 'lambda)))
                                           "<lambda>"
                                         (symbol-name func))))
+
+;; (defun py-symbol-str (thing)
+;;   (symbol-name (-to_ thing)))
 
 (defun py-hash-str (ht)
   (let (str)
@@ -107,6 +217,9 @@
       (push (number-to-string (% n 2)) bin)
       (setq n (/ n 2)))
     (mapconcat 'identity (cons "0b" bin) "")))
+
+(defun py-print (&rest args)
+  (progn (mapc 'print args) nil))
 
 
 
