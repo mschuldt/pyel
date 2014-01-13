@@ -3909,7 +3909,9 @@ repr(__ff_)"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+(pyel-create-tests eval
+		   ("x = 23
+eval('x')" 23))
 #+END_SRC
 
 ** transform template
