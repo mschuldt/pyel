@@ -160,6 +160,9 @@ These names will be set globally to their index in this list")
 	;;will be stored as a property of the name symbol 
 	`(progn (put ',name 'pyel-class-def ,new)
 		(setq ,name (lambda (&rest args)
+			      ;;NOTE: `getattr-1' and `setattr-1' both assume that
+			      ;;that this lambda will be in this form. If it
+			      ;;is changed, they must be changed as well.
 			      (obj-make-instance ,new
 						 args))))
       `(progn (setq ,name ',new)
