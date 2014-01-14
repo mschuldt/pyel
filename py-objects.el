@@ -169,6 +169,7 @@ These names will be set globally to their index in this list")
 	      (defun ,name (&rest args)
 		(obj-make-instance ,name args))))))
 
+
 (defun py-append-list (list thing)
   "add THING to the end of LIST"
   (while (not (null (cdr list)))
@@ -450,7 +451,8 @@ if it is a descriptor, return its value"
        "<class 'object'>")
   (def --repr-- (self) ()
        "x.__repr__() <==> repr(x)"
-       "<class 'object'>")
+       (format (if (py-class-p self) "<class '%s'>" "<%s object at 0x18b071>")
+	       (getattr self --name--)))
   )
 
 (provide 'py-objects)
