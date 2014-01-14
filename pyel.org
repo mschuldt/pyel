@@ -1449,8 +1449,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
             (cond ((and (consp test)
                         (>= (length test) 2)
                         (and (consp (cadr test))
-                             (or (eq (cadr test) 'lambda)
-                                      (eq (cadr test) 'quote))))
+                             (not (or (eq (caadr test) 'lambda)
+                                      (eq (caadr test) 'quote))))
+                        )
                    (let* ((tests)  ;;form: ("test" ("test1" result1) ("test2" result2) ...)
                           (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
                           (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
@@ -1458,10 +1459,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      
                      (push (setq _x (pyel-functionize (concat (car test)
                                                                     (if (= (length test) 2)
-                                                                        (if (and (listp (cadr test))
+                                                                        (if (listp (cadr test))
                                                                                  ;;form:  ("setup" ("test" expect))
-                                                                                 (not (or (eq (cadr test) 'lambda)
-                                                                                          (eq (cadr test) 'quote))))
                                                                                     (concat "\nreturn " (caadr test))
                                                                             ;;form: ("test" expect)
                                                                             (concat "return " (caaddr (cdr test))))
@@ -1528,7 +1527,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                               pyel-el-ast-tests)
                            _pyel-structure-tests))
             )))))))
-  
   
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
@@ -3962,7 +3960,7 @@ eval('x')" 23))
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
    type
-  ; ("type(t)" "<class 'bool'>")
+   ("type(t)" "<class 'bool'>")
    ("type(3)" 'integer)
    ("type(3.3)" 'float)
    ("type('3')" 'string)
