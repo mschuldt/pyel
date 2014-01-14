@@ -387,6 +387,12 @@ if it is a descriptor, return its value"
 	     (eq (aref thing obj-symbol-index) obj-class-symbol)))
      (error nil)))
 
+(defun _getattr-special-explicit (object attr)
+  (condition-case nil
+      (getattr-1 object attr)
+    (AttributeError
+     (_getattr-special-implicit object attr))))
+
 (defun _obj-get-special-implicit (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
   (let ((method (caar (aref object method-index))))
