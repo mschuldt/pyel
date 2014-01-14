@@ -369,7 +369,7 @@ if it is a descriptor, return its value"
 	     m)
 	 (and (and (eq (car obj) 'lambda)
 		   (= (length obj) 3)
-		   (py-object-p (setq m (third (third obj)))))
+		   (py-object-p (setq m (fourth (fourthobj)))))
 	      m))
      (error nil)))
 
@@ -406,7 +406,7 @@ if it is a descriptor, return its value"
        (if index
 	   (let ((val (_getattr-special-implicit object index)))
 	     (cond ((functionp val)
-		    (bind-method object val name))
+		    (bind-method object val attr))
 		   ((non-data-descriptor-p val)
 		    (call-method val __get__ class object))
 		   (t val)))
