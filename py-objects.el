@@ -355,21 +355,24 @@ if it is a descriptor, return its value"
     `(lambda ,args
        (funcall ,method ,object ,@args))))
 
-(defun py-class-p (thing)
-  (and (vectorp thing)
-       (= (length thing) py-class-vector-length)
-       (eq (aref thing obj-symbol-index) obj-class-symbol)))
+(defmacro py-class-p (thing)
+  `(and (boundp ',thing)
+       (vectorp ,thing)
+       (= (length ,thing) py-class-vector-length)
+       (eq (aref ,thing obj-symbol-index) obj-class-symbol)))
 
-(defun py-instance-p (thing)
-  (and (vectorp thing)
-       (= (length thing) py-class-vector-length)
-       (eq (aref thing obj-symbol-index) obj-instance-symbol)))
+(defmacro py-instance-p (thing)
+  `(and (boundp ',thing)
+       (vectorp ,thing)
+       (= (length ,thing) py-class-vector-length)
+       (eq (aref ,thing obj-symbol-index) obj-instance-symbol)))
 
-(defun py-object-p (thing)
-  (and (vectorp thing)
-       (= (length thing) py-class-vector-length)
-       (or (eq (aref thing obj-symbol-index) obj-instance-symbol)
-	   (eq (aref thing obj-symbol-index) obj-class-symbol))))
+(defmacro py-object-p (thing)
+  `(and (boundp ',thing)
+       (vectorp ,thing)
+       (= (length ,thing) py-class-vector-length)
+       (or (eq (aref ,thing obj-symbol-index) obj-instance-symbol)
+	   (eq (aref ,thing obj-symbol-index) obj-class-symbol))))
 
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
