@@ -170,7 +170,6 @@ These names will be set globally to their index in this list")
 	      (defun ,name (&rest args)
 		(obj-make-instance ,name args))))))
 
-
 (defun py-append-list (list thing)
   "add THING to the end of LIST"
   (while (not (null (cdr list)))
@@ -361,23 +360,29 @@ if it is a descriptor, return its value"
        (funcall ,method ,object ,@args))))
 
 (defmacro py-class-p (thing)
-  `(and (boundp ',thing)
-       (vectorp ,thing)
-       (= (length ,thing) py-class-vector-length)
-       (eq (aref ,thing obj-symbol-index) obj-class-symbol)))
+  `(condition-case nil
+       (let ((thing ,thing))
+	 (if (consp thing)
+	     (setq thing (nth 1 (nth 2 thing))))
+	 (eq (aref thing obj-symbol-index) obj-class-symbol))
+     (error nil)))
 
 (defmacro py-instance-p (thing)
-  `(and (boundp ',thing)
-       (vectorp ,thing)
-       (= (length ,thing) py-class-vector-length)
-       (eq (aref ,thing obj-symbol-index) obj-instance-symbol)))
-
+  `(condition-case nil
+       (let ((thing ,thing))
+	 (if (consp thing)
+	     (setq thing (nth 1 (nth 2 thing))))
+	 (eq (aref thing obj-symbol-index) obj-instance-symbol))
+     (error nil)))
+  
 (defmacro py-object-p (thing)
-  `(and (boundp ',thing)
-       (vectorp ,thing)
-       (= (length ,thing) py-class-vector-length)
-       (or (eq (aref ,thing obj-symbol-index) obj-instance-symbol)
-	   (eq (aref ,thing obj-symbol-index) obj-class-symbol))))
+  `(condition-case nil
+       (let ((thing ,thing))
+	 (if (consp thing)
+	     (setq thing (nth 1 (nth 2 thing))))
+	 (or (eq (aref thing obj-symbol-index) obj-instance-symbol)
+	     (eq (aref thing obj-symbol-index) obj-class-symbol)))
+     (error nil)))
 
 (defun _obj-get-special (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
