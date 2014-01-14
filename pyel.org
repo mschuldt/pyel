@@ -3960,7 +3960,20 @@ eval('x')" 23))
 
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   type
+  ; ("type(t)" "<class 'bool'>")
+   ("type(3)" 'integer)
+   ("type(3.3)" 'float)
+   ("type('3')" 'string)
+   ("type([3])" 'cons)
+   ("type((3,))" 'vector)
+   ("type({3:'3'})" 'hash-table)
+   ("class testc: pass
+  x = testc()
+  y = type(x)"
+    ("repr(type(x))" "<class 'testc'>")
+    ("y is testc" t)))
 #+END_SRC
 
 ** transform template
