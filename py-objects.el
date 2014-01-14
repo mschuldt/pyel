@@ -364,10 +364,12 @@ if it is a descriptor, return its value"
 
 (defmacro bound-method-p (object)
   `(condition-case nil
-       (let ((obj ,object))
-	 (and (eq (car obj) 'lambda)
-	      (= (length obj) 3)
-	      (py-object-p (third (third obj)))))
+       (let ((obj ,object)
+	     m)
+	 (and (and (eq (car obj) 'lambda)
+		   (= (length obj) 3)
+		   (py-object-p (setq m (third (third obj)))))
+	      m))
      (error nil)))
 
 (defmacro py-class-p (thing)
