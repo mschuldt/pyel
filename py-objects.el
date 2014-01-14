@@ -4,7 +4,7 @@
 (defconst obj-class-symbol 'pyel-class)
 
 (set
- (defvar object-indexes-alist nil 
+ (defvar object-slot-indexes nil 
    "alist of name and corresponding indexes
 the rest are in `special-method-names'")
  (let ((n -1))
@@ -26,7 +26,7 @@ the rest are in `special-method-names'")
 (set
  (defvar special-method-names nil
    "alist of speical method names and their corresponding indexes")
- (let ((n (- (length object-indexes-alist) 1)))
+ (let ((n (- (length object-slot-indexes) 1)))
    (mapcar (lambda (x) (cons x (setq n (1+ n))))
 	   
 	   '(--init--
@@ -38,16 +38,16 @@ the rest are in `special-method-names'")
 	     ))))
 
 ;;add the special methods whose indexes are explicitly defined 
-;;in `object-indexes-alist' instead of `special-method-names'
+;;in `object-slot-indexes' instead of `special-method-names'
 (mapc (lambda (x) (push (cons (cadr x) (eval (car x))) special-method-names))
       '((setattr-index  --setattr--)
 	(getattribute-index --getattribute--)
 	(getattr-index --getattr--)))
 
 
-;;TODO: add spcial-method-names to object-indexes-alist
+;;TODO: add spcial-method-names to object-slot-indexes
 (setq py-class-vector-length (+ (length special-method-names)
-				(length object-indexes-alist)))
+				(length object-slot-indexes)))
 
 (defvar setter-functions '(setq pset py-set pyel-set)
   "list of symbols of function that can bind values
@@ -148,12 +148,10 @@ These names will be set globally to their index in this list")
 
     (setattr new --doc-- doc)
 
-    (let ((base (unless (eq bases []) (aref bases 0) nil)))
+    (let ((base (unless (eq bases []) (aref bases 0) nil))) ;;?
       (setattr new --base-- base)
       (aset new obj-base-index base))
 
-    ;;This double reference makes the __bases__ attribute available
-    ;;for users and provides this implementation quicker access
     (setattr new --bases-- bases)
     (aset new obj-bases-index bases)
     
