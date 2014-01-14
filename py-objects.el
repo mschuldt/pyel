@@ -49,9 +49,7 @@ NAME can be a symbol or a string, return type will match"
 	     --set--
 	     ))))
 
-(set
- (defvar py-class-vector-length 0)
-   (length object-slot-indexes))
+(defconst py-class-vector-length (length object-slot-indexes))
 
 (defvar setter-functions '(setq pset py-set pyel-set)
   "list of symbols of function that can bind values
