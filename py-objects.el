@@ -3,14 +3,34 @@
 (defconst obj-instance-symbol 'pyel-obj)
 (defconst obj-class-symbol 'pyel-class)
 
+(set (defvar special-method-names nil
+  "alist of special method names and index pairs")
+     nil)
+
+(defun is-special-method (name)
+  "Return non-nil if NAME starts and ends with two dashes
+The Value is actually the NAME without the dashes
+NAME can be a symbol or a string, return type will match"
+  (let* ((sym (symbolp name))
+	 (name (if sym (symbol-name name) name)))
+    (if (string-match "--\\(.+\\)--" name)
+	(if sym (intern (match-string 1 name))
+	  (match-string 1 name))
+      nil)))
+
+;;Create an alist of all slot name index pairs.
+;;Indexes are also globally defined
+;;ex: The index of special method '--M--' will be set to the variable 'M-index'
 (set
  (defvar object-slot-indexes nil 
-   "alist of name and corresponding indexes
-the rest are in `special-method-names'")
- (let ((n -1))
+   "alist of all slot names and corresponding indexes")
+ (let ((n -1) m)
    (mapcar (lambda (x)
 	     (setq n (setq n (1+ n)))
-	     (eval (list 'setq x n))
+	     (if (setq m (is-special-method x))
+		 (progn (push (cons x n) special-method-names)
+			(set (intern (format "%s-index" m)) n))
+	       (set x n))
 	     (cons x n))
 	   
 	   '(obj-symbol-index
@@ -18,36 +38,20 @@ the rest are in `special-method-names'")
 	     obj-bases-index
 	     obj-base-index
 	     obj-class-index
-	     setattr-index
-	     getattribute-index
-	     getattr-index
-	     ))))
-
-(set
- (defvar special-method-names nil
-   "alist of speical method names and their corresponding indexes")
- (let ((n (- (length object-slot-indexes) 1)))
-   (mapcar (lambda (x) (cons x (setq n (1+ n))))
-	   
-	   '(--init--
+	     --getattribute--
+	     --setattr--
+	     --getattr--
+	     --init--
 	     --str--
 	     --repr--
 	     --call--
 	     --get--
-	     --set--	     
+	     --set--
 	     ))))
 
-;;add the special methods whose indexes are explicitly defined 
-;;in `object-slot-indexes' instead of `special-method-names'
-(mapc (lambda (x) (push (cons (cadr x) (eval (car x))) special-method-names))
-      '((setattr-index  --setattr--)
-	(getattribute-index --getattribute--)
-	(getattr-index --getattr--)))
-
-
-;;TODO: add spcial-method-names to object-slot-indexes
-(setq py-class-vector-length (+ (length special-method-names)
-				(length object-slot-indexes)))
+(set
+ (defvar py-class-vector-length 0)
+   (length object-slot-indexes))
 
 (defvar setter-functions '(setq pset py-set pyel-set)
   "list of symbols of function that can bind values
