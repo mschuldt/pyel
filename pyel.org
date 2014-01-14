@@ -3785,9 +3785,18 @@ str(__ff_)"
     (concat "(" (_py-repr-sequence thing) ")"))
   
   (defun pyel-symbol-str (sym)
-    (cond ((eq sym nil) "False")
-          ((eq sym t) "True")
-          (t (symbol-name sym))))
+    (if (eq sym t)
+        "True"
+      (case sym
+        (nil "False")
+        (integer "<class 'int'>")
+        (float "<class 'float'>")
+        (string "<class 'str'>")
+        (cons "<class 'list'>")
+        (vector "<class 'tuple'>")
+        (hash-table "<class 'dict'>")
+        (t (symbol-name sym)))))
+  
 #+END_SRC
     
 *** tests
