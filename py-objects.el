@@ -364,6 +364,9 @@ if it is a descriptor, return its value"
        (funcall ,method ,object ,@args))))
 
 (defmacro bound-method-p (object)
+  "return non-nil if object is a bound method
+the actual return value is the object bound to the method
+the name of the method may be accessed with `bound-method-name'"
   `(condition-case nil
        (let ((obj ,object)
 	     m)
@@ -373,8 +376,10 @@ if it is a descriptor, return its value"
 	      m))
      (error nil)))
 
-(defun bound-method-name (bmethod)
-  (caddr bmethod))
+(defun bound-method-name (bound-method)
+  "return the name of method in BOUND-METHOD
+BOUND-METHOD must test non-nil with `bound-method-p'"
+  (caddr bound-method))
 
 (defmacro py-class-p (thing)
   `(condition-case nil
