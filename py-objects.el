@@ -378,7 +378,8 @@ the name of the method may be accessed with `bound-method-name'"
 (defun bound-method-name (bound-method)
   "return the name of method in BOUND-METHOD
 BOUND-METHOD must test non-nil with `bound-method-p'"
-  (caddr bound-method))
+  ;;(caddr bound-method)
+  (car (cdaddr bound-method)))
 
 (defmacro py-class-p (thing)
   `(condition-case nil
