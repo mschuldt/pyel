@@ -16,6 +16,7 @@ the rest are in `special-method-names'")
 	   '(obj-symbol-index
 	     obj-dict-index
 	     obj-bases-index 
+	     obj-class-index
 	     setattr-index
 	     getattribute-index
 	     getattr-index
@@ -184,6 +185,7 @@ These names will be set globally to their index in this list")
     ;;This must also be done before any calls to `setattr'
     (aset new setattr-index (aref (setq _x class) setattr-index))
     (aset new getattribute-index (aref class getattribute-index))
+    
     (dolist (special special-method-names)
       (let* ((class-ref (aref class (cdr special)))
 	     (instance-ref (list (car (car class-ref)))))
@@ -191,7 +193,9 @@ These names will be set globally to their index in this list")
 	  (py-append-list class-ref instance-ref)
 	  (aset new (cdr special) (list instance-ref)))))
     
-    (aset new obj-bases-index (vector class)) ;;TODO: nesseary to vectorize again?
+    (aset new obj-class-index class)
+    ;;will eventually be fully replaced with obj-class-index
+    (aset new obj-bases-index (vector class))
     (setattr-1 new '--class-- class);;double reference
 
     (setq _x new)
@@ -379,7 +383,10 @@ if it is a descriptor, return its value"
   "get a special method of OBJECT indexed by METHOD-INDEX"
   (let ((method (caar (aref object method-index))))
     (or method
-	(let* ((bases (aref object obj-bases-index))
+	(let* ((bases (if (eq (aref object obj-symbol-index)
+			      obj-instance-symbol)
+			  (vector (aref object obj-class-index))
+			  (aref object obj-bases-index)))
 	       (nbases (length bases))
 	       (i 0))
 	  (while (not method) ;;TODO: proper MRO
