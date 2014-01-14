@@ -468,144 +468,144 @@ main
 
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
-      (defvar pyel-directory ""
-        "Path to pyel files. must include py-ast.py, pyel.el etc")
-    
-    (defmacro vfunction-p (f)
-      `(and (boundp ',f)
-            (functionp ,f)))
-    
-    (set (defvar pyel-type-test-funcs nil  
-           "alist of types used in pyel-call-transform for the switch-type
+  (defvar pyel-directory ""
+    "Path to pyel files. must include py-ast.py, pyel.el etc")
+  
+  (defmacro vfunction-p (f)
+    `(and (boundp ',f)
+          (functionp ,f)))
+  
+  (set (defvar pyel-type-test-funcs nil  
+         "alist of types used in pyel-call-transform for the switch-type
           and the function used to test for that type")
-         '((string stringp)
-           (number numberp)
-           (integer integerp)
-           (int integerp)
-           (float floatp)
-           (vector vectorp)
-           (list listp)
-           (cons consp)
-           (hash hash-table-p)
-           (hash-table hash-table-p)
-           (symbol symbolp)
-           (array arrayp)
-  ;;         (object object-p)
-           (object py-object-p)
-           (function functionp)
-           (func fboundp)
-           (vfunction vfunction-p)
-           (vfunc vfunction-p)
-           (callable callable-p)))
-    
-    (defvar pyel-negated-function-tests nil
-      "A list of automatically created negated functions from `pyel-type-test-funcs'
+       '((string stringp)
+         (number numberp)
+         (integer integerp)
+         (int integerp)
+         (float floatp)
+         (vector vectorp)
+         (list listp)
+         (cons consp)
+         (hash hash-table-p)
+         (hash-table hash-table-p)
+         (symbol symbolp)
+         (array arrayp)
+         ;;         (object object-p)
+         (object py-object-p)
+         (function functionp)
+         (func fboundp)
+         (vfunction vfunction-p)
+         (vfunc vfunction-p)
+         (callable callable-p)))
+  
+  (defvar pyel-negated-function-tests nil
+    "A list of automatically created negated functions from `pyel-type-test-funcs'
     stored here just for convenient inspection")
-    
-    ;;create negated test functions
-    (let (new func fname)
-      (setq pyel-negated-function-tests nil)
-      (mapc (lambda (x)
-              (setq name (cadr x)
-                    !name (intern (concat "!" (symbol-name name)))
-                    func `(defsubst ,!name (x) (not (,name x))))
-              (add-to-list 'pyel-negated-function-tests func)
-              (eval func)
-              (push (list (intern (concat "!" (symbol-name (car x))))
-                          !name)
-                    new))
-            pyel-type-test-funcs)
-      (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
-      
-      
-      (defvar pyel-defined-classes nil
-        "list of call class names defined by pyel")
-      
-      
-      
-      (defvar pyel-defined-functions nil
-        "list of some functions defined pyel
+  
+  ;;create negated test functions
+  (let (new func fname)
+    (setq pyel-negated-function-tests nil)
+    (mapc (lambda (x)
+            (setq name (cadr x)
+                  !name (intern (concat "!" (symbol-name name)))
+                  func `(defsubst ,!name (x) (not (,name x))))
+            (add-to-list 'pyel-negated-function-tests func)
+            (eval func)
+            (push (list (intern (concat "!" (symbol-name (car x))))
+                        !name)
+                  new))
+          pyel-type-test-funcs)
+    (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
+  
+  
+  (defvar pyel-defined-classes nil
+    "list of call class names defined by pyel")
+  
+  
+  
+  (defvar pyel-defined-functions nil
+    "list of some functions defined pyel
         used by some templates to determine if a needed function has been defined yet")
-      
-      (defvar pyel-function-definitions nil
-        "used to store function definitions created by pyel, not the user.")
-      
-      (defvar pyel-replace-args nil
-        "if non-nil, pyel-do-call-transform will replace the arg symbols with their
+  
+  (defvar pyel-function-definitions nil
+    "used to store function definitions created by pyel, not the user.")
+  
+  (defvar pyel-replace-args nil
+    "if non-nil, pyel-do-call-transform will replace the arg symbols with their
         value, used if the code is to be inlined
         TODO: the option to replace the args should probably be obsoletede")
-      
-      (defvar pyel-unique-obj-names nil
-        "if non-nil, uniquely name object instantces")
-      
-      
-      (defvar pyel-context-groups nil ;;TODO: still used?
-        "groups of contexts that cannot exist at the same time.
+  
+  (defvar pyel-unique-obj-names nil
+    "if non-nil, uniquely name object instantces")
+  
+  
+  (defvar pyel-context-groups nil ;;TODO: still used?
+    "groups of contexts that cannot exist at the same time.
       `context-p' will stop at the first one in the list,")
-      
-      (setq pyel-context-groups
-            '((assign-target assign-value)))
-      
-      (defvar pyel-function-name-translations nil
-        "alist of function name translations, python->e-lisp.
+  
+  (setq pyel-context-groups
+        '((assign-target assign-value)))
+  
+  (defvar pyel-function-name-translations nil
+    "alist of function name translations, python->e-lisp.
       
       Entries in `pyel-function-name-translations' are applied before
       checking for function transforms.
       If a translation len->length is defined then the function transform for
       'len' will not be detected because the name is now 'length'
       ")
-      
-      (defvar pyel-variable-name-translations nil
-        "alist of variable name translations, python->e-lisp.")
-      
-      (setq pyel-function-name-translations `(
-                                              
-                                              ))
-      ;;TODO: list, vector, etc
-      ;;      map?               
-      
-      (setq pyel-variable-name-translations '((True t)
-                                              (False nil)
-                                              (None nil)))
-      
-      (defvar pyel-method-transforms nil
-        "List of names of methods for which a transform has been defined
+  
+  (defvar pyel-variable-name-translations nil
+    "alist of variable name translations, python->e-lisp.")
+  
+  (setq pyel-function-name-translations `(
+                                          
+                                          ))
+  ;;TODO: list, vector, etc
+  ;;      map?               
+  
+  (setq pyel-variable-name-translations '((True t)
+                                          (False nil)
+                                          (None nil)))
+  
+  (defvar pyel-method-transforms nil
+    "List of names of methods for which a transform has been defined
       For internal use only--do not modify by hand"
-        )
-      
-      (defvar pyel-func-transforms nil
-        "list of function names that have transforms defined for them")
-      
-      
-      (defconst pyel-nothing '(@)
-        "value to return from a function/transform when it should
+    )
+  
+  (defvar pyel-func-transforms nil
+    "list of function names that have transforms defined for them")
+  
+  
+  (defconst pyel-nothing '(@)
+    "value to return from a function/transform when it should
       not contribute to the output code")
-      
-      (defconst pyel-python-version "3.2.3"
-        "python interpreter version whose ast pyel is written for")
-      
-      
-      
-      (defvar test-variable-values nil
-        "variables values for running tests")
-      
-    
-      (setq test-variable-values
-            '((pyel-defined-classes nil)
-              (pyel-function-definitions nil)
-              (pyel-defined-functions nil)
-              (pyel-obj-counter 0)
-              (pyel-unique-obj-names nil)
-              (pyel-fully-functional-functions nil)
-              ;;(pyel-method-transforms nil)
-              ;;(pyel-func-transforms nil)
-              (pyel-marker-counter 0)))    
-      
-      (defvar pyel-marker-counter 0)
-      
-    (defvar pyel-tmp-file  "/tmp/pyel-ast.py"
-      "Name of temp file to use for AST generation")
-      
+  
+  (defconst pyel-python-version "3.2.3"
+    "python interpreter version whose ast pyel is written for")
+  
+  
+  
+  (defvar test-variable-values nil
+    "variables values for running tests")
+  
+  
+  (setq test-variable-values
+        '((pyel-defined-classes nil)
+          (pyel-function-definitions nil)
+          (pyel-defined-functions nil)
+          (pyel-obj-counter 0)
+          (pyel-unique-obj-names nil)
+          (pyel-fully-functional-functions nil)
+          ;;(pyel-method-transforms nil)
+          ;;(pyel-func-transforms nil)
+          (pyel-marker-counter 0)))    
+  
+  (defvar pyel-marker-counter 0)
+  
+  (defvar pyel-tmp-file  "/tmp/pyel-ast.py"
+    "Name of temp file to use for AST generation")
+  
 #+END_SRC  
 ** syntax output variables
 variables that effect the form of the output code
@@ -2351,9 +2351,11 @@ this test is disabled. It pollutes global variables
   ;; counterparts without defining themselves globally
   (pyel-create-py-func fcall (_func &rest args)
                        (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
+                       ($function _) -> ($func ,@(pyel-sort-kwargs args))
                        (object) -> (call-method $func --call--
                                                 ,@(pyel-sort-kwargs args))
-                       (_ _) -> ($func ,@(pyel-sort-kwargs args)))
+                       (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
+                       )
   
   (def-transform keyword pyel ()
     (lambda (arg value)
