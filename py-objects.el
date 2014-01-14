@@ -373,6 +373,9 @@ if it is a descriptor, return its value"
 	      m))
      (error nil)))
 
+(defun bound-method-name (bmethod)
+  (caddr bmethod))
+
 (defmacro py-class-p (thing)
   `(condition-case nil
        (let ((thing ,thing))
