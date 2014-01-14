@@ -3950,7 +3950,7 @@ eval('x')" 23))
           ((py-class-p object)
            "<class 'type'>") ;;TODO
           ((py-instance-p object)
-           (aref (aref type obj-bases-index) 0)) ;;FIX: should special implicit lookup
+           (aref object obj-class-index)) ;;FIX: should special implicit lookup
           (t (type-of object))))
 #+END_SRC
 
