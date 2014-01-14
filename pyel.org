@@ -3743,15 +3743,16 @@ str(__ff_)"
 ** repr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  
   (pyel-func-transform repr (thing)
                        (number) -> (number-to-string thing)
                        (string) -> (py-repr-string thing)
                        (function) -> (py-function-str thing)
+                       (symbol) -> (pyel-symbol-str thing)
                        (list) -> (py-list-repr thing)
                        (object) -> (call-method thing --repr--)
                        (vector) -> (py-vector-str thing)
-                       (hash) -> (py-hash-str thing)
-                       (symbol) -> (symbol-name thing))
+                       (hash) -> (py-hash-str thing))
   
   (pyel-translate-function-name 'repr 'pyel-repr)
 #+END_SRC
@@ -3782,7 +3783,11 @@ str(__ff_)"
   
   (defun py-vector-repr (thing)
     (concat "(" (_py-repr-sequence thing) ")"))
-    
+  
+  (defun pyel-symbol-str (sym)
+    (cond ((eq sym nil) "False")
+          ((eq sym t) "True")
+          (t (symbol-name sym))))
 #+END_SRC
     
 *** tests
