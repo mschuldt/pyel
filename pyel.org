@@ -3440,6 +3440,21 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   x = two()"
     ("x.other.n" 5)
     ("x.other.m()" 6)))
+  
+  (pyel-create-tests
+   special-method-lookup
+   ( "class adder:
+   def __init__(self, n):
+    self.x = n
+   def __call__ (self, n):
+    return self.x + n
+  c = adder(10)
+  d = adder(10)
+  d.__call__ = lambda : 'hi'"
+     ("c(6)" 16)
+     ("repr(c.__call__)"
+      "<bound method adder.__call__ of adder object at 0x18b071>")
+     ("d.__call__" (lambda nil nil "hi"))))
 #+END_SRC
 
 * assert
