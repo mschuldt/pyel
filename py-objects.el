@@ -368,8 +368,8 @@ if it is a descriptor, return its value"
        (let ((obj ,object)
 	     m)
 	 (and (and (eq (car obj) 'lambda)
-		   (= (length obj) 3)
-		   (py-object-p (setq m (fourth (fourthobj)))))
+		   (= (length obj) 4)
+		   (py-object-p (setq m (third (fourth obj)))))
 	      m))
      (error nil)))
 
