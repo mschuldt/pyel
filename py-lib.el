@@ -137,13 +137,17 @@
 
 (defun py-function-str (func)
   "return a string representation of function FUNC"
-  (format "<function %s at 0x18b071>" (if (and (listp func)
-                                               (or (eq (car func) 'lambda)))
-                                          "<lambda>"
-                                        (symbol-name func))))
-
-;; (defun py-symbol-str (thing)
-;;   (symbol-name (-to_ thing)))
+  (let* ((obj (bound-method-p func))
+        (obj-name (-to_ (getattr obj --name--))))
+    (if obj
+        (format "<bound method %s.%s of %s object at 0x18b071>"
+                obj-name
+                (-to_ (bound-method-name func))
+                obj-name)
+      (format "<function %s at 0x18b071>" (if (and (listp func)
+                                                   (or (eq (car func) 'lambda)))
+                                              "<lambda>"
+                                            (symbol-name func))))))
 
 (defun py-hash-str (ht)
   (let (str)
@@ -208,6 +212,19 @@
 (defun py-vector-repr (thing)
   (concat "(" (_py-repr-sequence thing) ")"))
 
+(defun pyel-symbol-str (sym)
+  (if (eq sym t)
+      "True"
+    (case sym
+      (nil "False")
+      (integer "<class 'int'>")
+      (float "<class 'float'>")
+      (string "<class 'str'>")
+      (cons "<class 'list'>")
+      (vector "<class 'tuple'>")
+      (hash-table "<class 'dict'>")
+      (t (symbol-name sym)))))
+
 (defun py-hex (n)
   (format "%X" n))
 
@@ -218,8 +235,37 @@
       (setq n (/ n 2)))
     (mapconcat 'identity (cons "0b" bin) "")))
 
-(defun py-print (&rest args)
-  (progn (mapc 'print args) nil))
+(defvar pyel-print-function 'prin1
+  "function that is used for printing by `py-print'")
+
+(defun py-print (sep end file &rest args)
+  (let ((sep (or sep " "))
+        (end (or end "\n")))
+    (progn (mapc (lambda (x)
+                   (funcall pyel-print-function x)
+                   (funcall pyel-print-function sep))
+                 (butlast args))
+           (funcall pyel-print-function (car (last args)))
+           (funcall pyel-print-function end)
+           nil)))
+
+(defmacro py-eval (source)
+  (if (stringp source)
+      `(eval (pyel ,source))
+    `(eval ,source)))
+
+;;TODO: when the built in type classes are finished and `py-type'
+;;      returns them, the special cases for the types in
+;;      `pyel-symbol-str' should be removed
+(defun py-type (object)
+  (cond ((or (eq object nil)
+             (eq object t))
+         "<class 'bool'>") ;;TODO
+        ((py-class-p object)
+         "<class 'type'>") ;;TODO
+        ((py-instance-p object)
+         (aref object obj-class-index)) ;;FIX: should special implicit lookup
+        (t (type-of object))))
 
 
 

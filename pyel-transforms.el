@@ -349,11 +349,17 @@
 ;; counterparts without defining themselves globally
 (pyel-create-py-func fcall (_func &rest args)
                      (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
-                     (_ _) -> ($func ,@(pyel-sort-kwargs args)))
+                     ($function _) -> ($func ,@(pyel-sort-kwargs args))
+                     (object) -> (call-method $func --call--
+                                              ,@(pyel-sort-kwargs args))
+                     (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
+                     )
 
 (def-transform keyword pyel ()
   (lambda (arg value)
-    (list '@ (_to- arg)  '= (transform value))))
+    (if (context-p 'keywords-alist)
+        (list (_to- arg) (transform value))
+      (list '@ (_to- arg)  '= (transform value)))))
 
 (def-transform call pyel ()
   ;;TODO: some cases funcall will need to be used, how to handle that?
@@ -363,9 +369,10 @@
 
 (defun pyel-call-transform (func args keywords starargs kwargs)
   (let ((t-func (transform func))
-        (keyword-args (mapcar (lambda (x) (transform (car x)))
-                              keywords))
-        new-func m-name  f-name keyword-args star-args kw-args)
+        (keyword-args (using-context keywords-alist
+                                     (mapcar (lambda (x) (transform (car x)))
+                              keywords)))
+        new-func m-name f-name star-args kw-args)
     ;; (if (member t-func pyel-defined-classes)
     ;;     ;;instantiate an object and call its initializer
     ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
@@ -394,23 +401,30 @@
           ;;translate name 
           (setq t-func (cadr new-func)))
         
-        ;;TODO: check if there is a function transform defined
-        (if (member t-func pyel-func-transforms)
-            ;;this function transform is overridden
-            (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                   ;;',(transform (cadr func))
-                                   ,@(mapcar '(lambda (x) `(quote ,x)) args)))
+        ;;call function transform if one was defined
+        (cond ((member t-func pyel-func-transforms) 
+               ;;transform defined with `pyel-func-transform'
+               (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                      ;;',(transform (cadr func))
+                                      ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+
+              ((member t-func pyel-func-transforms2)
+               ;;transform defined with `pyel-define-function-translation'
+               (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                      ;;,(mapcar '(lambda (x) `(quote ,x)) args)
+                                      (mapcar 'transform args)
+                                      keyword-args)))
           
           ;;normal function call
           ;;`(,t-func ,@(mapcar 'transform args))
           ;;TODO: this is dumb, convert `call-transform' to a macro?
-          (eval `(call-transform 'fcall ,@(cons 't-func
-                                                (mapcar (lambda (x)
-                                                          `(quote ,x))
-                                                        (append args
-                                                                (mapcar 'car
-                                                                        keywords))
-                                                        ))))))))
+              (t (eval `(call-transform 'fcall ,@(cons 't-func
+                                                       (mapcar (lambda (x)
+                                                                 `(quote ,x))
+                                                               (append args
+                                                                       (mapcar 'car
+                                                                               keywords))
+                                                               )))))))))
 
 ;;doc: context macro-call
 (defun pyel-while (test body orelse)
@@ -524,7 +538,6 @@
 
 
 (defun pyel-def (name args body decoratorlist returns)
-  
     (let ((name (read (_to- name))))
       
       (when (context-p 'function-def)
@@ -895,11 +908,11 @@ Recognizes keyword args in the form 'arg = value'."
                      (number) -> (number-to-string thing)
                      (string) -> (py-repr-string thing)
                      (function) -> (py-function-str thing)
+                     (symbol) -> (pyel-symbol-str thing)
                      (list) -> (py-list-repr thing)
                      (object) -> (call-method thing --repr--)
                      (vector) -> (py-vector-str thing)
-                     (hash) -> (py-hash-str thing)
-                     (symbol) -> (symbol-name thing))
+                     (hash) -> (py-hash-str thing))
 
 (pyel-translate-function-name 'repr 'pyel-repr)
 
@@ -907,7 +920,25 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'bin 'py-bin)
 
-(pyel-translate-function-name 'print 'py-print)
+;;(pyel-translate-function-name 'print 'py-print)
+(pyel-define-function-translation
+ print
+ `(py-print ,(cadr (assoc 'sep kwargs))
+            ,(cadr (assoc 'end kwargs))
+            nil ;;TODO: file=sys.stdout
+            ,@args))
+
+(pyel-define-function-translation
+ pow
+ (case (length args)
+   (3 (list 'mod (list 'expt (car args) (cadr args)) (caddr args)))
+   (2 (list 'expt (car args) (cadr args)))
+   (t "ERROR") ;;TODO
+   ))
+
+(pyel-translate-function-name 'eval 'py-eval)
+
+(pyel-translate-function-name 'type 'py-type)
 
 ;;
 

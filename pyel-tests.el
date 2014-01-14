@@ -459,6 +459,21 @@ x = two()"
   ("x.other.n" 5)
   ("x.other.m()" 6)))
 
+(pyel-create-tests
+ special-method-lookup
+ ( "class adder:
+ def __init__(self, n):
+  self.x = n
+ def __call__ (self, n):
+  return self.x + n
+c = adder(10)
+d = adder(10)
+d.__call__ = lambda : 'hi'"
+   ("c(6)" 16)
+   ("repr(c.__call__)"
+    "<bound method adder.__call__ of adder object at 0x18b071>")
+   ("d.__call__" (lambda nil nil "hi"))))
+
 (pyel-create-tests assert
                    "assert sldk()"
                    "assert adk,'messsage'")
@@ -551,6 +566,32 @@ repr(__ff_)"
 ;;
 
 ;;
+
+(pyel-create-tests
+ pow
+ ("pow(2,5,5)" 2)
+ ("pow(3,7,20)" 7)
+ ("pow(3,7)" 2187)
+ ("pow(2,2)" 4))
+
+(pyel-create-tests eval
+                   ("x = 23
+eval('x')" 23))
+
+(pyel-create-tests
+ type
+ ("type(t)" "<class 'bool'>")
+ ("type(3)" 'integer)
+ ("type(3.3)" 'float)
+ ("type('3')" 'string)
+ ("type([3])" 'cons)
+ ("type((3,))" 'vector)
+ ("type({3:'3'})" 'hash-table)
+ ("class testc: pass
+x = testc()
+y = type(x)"
+  ("repr(type(x))" "<class 'testc'>")
+  ("y is testc" t)))
 
 ;;
 
