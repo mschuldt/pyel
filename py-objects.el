@@ -393,7 +393,12 @@ if it is a descriptor, return its value"
     (AttributeError
      (let ((index (cdr (assoc attr special-method-names))))
        (if index
-	   (_getattr-special-implicit object index)
+	   (let ((val (_getattr-special-implicit object index)))
+	     (cond ((functionp val)
+		    (bind-method object val))
+		   ((non-data-descriptor-p val)
+		    (call-method val __get__ class object))
+		   (t val)))
 	 (signal 'AttributeError nil))))))
 
 (defun _getattr-special-implicit (object method-index)
