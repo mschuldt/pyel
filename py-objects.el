@@ -225,7 +225,7 @@ These names will be set globally to their index in this list")
   (let* ((attr (if (stringp attr) (intern attr) attr))
 	 (special (assoc attr special-method-names)))
     (if special
-	`(_obj-get-special-implicit ,object ,(cdr special))
+	`(_getattr-special-explicit ,object ,(cdr special))
       `(getattr-1 ,object ',attr))))
 
 (defun getattr-1 (object attr)
