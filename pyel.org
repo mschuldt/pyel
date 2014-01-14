@@ -3940,15 +3940,18 @@ eval('x')" 23))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-(defun py-type (object)
-  (cond ((or (eq object nil)
-	     (eq object t))
-	 "<class 'bool'>") ;;TODO
-	((py-class-p object)
-	 "<class 'type'>") ;;TODO
-	((py-instance-p object)
-	 (aref (aref type obj-bases-index) 0)) ;;FIX: should special implicit lookup
-	(t (type-of object))))
+  ;;TODO: when the built in type classes are finished and `py-type'
+  ;;      returns them, the special cases for the types in
+  ;;      `pyel-symbol-str' should be removed
+  (defun py-type (object)
+    (cond ((or (eq object nil)
+               (eq object t))
+           "<class 'bool'>") ;;TODO
+          ((py-class-p object)
+           "<class 'type'>") ;;TODO
+          ((py-instance-p object)
+           (aref (aref type obj-bases-index) 0)) ;;FIX: should special implicit lookup
+          (t (type-of object))))
 #+END_SRC
 
 *** tests
