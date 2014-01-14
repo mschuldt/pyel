@@ -225,7 +225,7 @@ These names will be set globally to their index in this list")
   (let* ((attr (if (stringp attr) (intern attr) attr))
 	 (special (assoc attr special-method-names)))
     (if special
-	`(_getattr-special-explicit ,object ,(cdr special))
+	`(_getattr-special-explicit ,object ',attr)
       `(getattr-1 ,object ',attr))))
 
 (defun getattr-1 (object attr)
@@ -393,7 +393,7 @@ if it is a descriptor, return its value"
     (AttributeError
      (let ((index (cdr (assoc attr special-method-names))))
        (if index
-	   (_getattr-special-implicit index)
+	   (_getattr-special-implicit object index)
 	 (signal 'AttributeError nil))))))
 
 (defun _getattr-special-implicit (object method-index)
@@ -437,7 +437,6 @@ if it is a descriptor, return its value"
   ;;TODO: if attr is a data-descriptor, use that to set it
   (puthash attr value (aref obj obj-dict-index))
   nil)
-
 
 (defun obj-hasattr (object attr)
   (condition-case nil
