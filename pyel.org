@@ -311,8 +311,6 @@ main
               (if (listp ncode) (reverse ncode) ncode))))
       code))
   
-  
-  
   (defun pyel-reload ()
       (interactive)
       (dolist (f '(pyel
@@ -321,10 +319,10 @@ main
                    pyel-mode
                    pyel-pp
                    pyel-preprocessor
+                   pyel-tests-generated
                    transformer))
         (setq features (remove f features)))
       (require 'pyel))
-  
   
   (defun pyel-method-transform-name(method-name)
     "return the name of the temlate that transform the method METHOD-NAME.
