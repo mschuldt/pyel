@@ -343,7 +343,6 @@ if it is a descriptor, return its value"
 		(if (and (not done)
 			 (>= i nbases)) (signal 'AttributeError nil))))))
 
-    
     (if val
 	;;found the attr, now check if it is a data descriptor or method
 	(cond ((functionp val)
@@ -360,7 +359,7 @@ if it is a descriptor, return its value"
   ;;presumes that method is a lambda function
   (let ((args (cdadr method)))
     `(lambda ,args ;;note: if this changes, `bound-method-p' must be updated
-       ,name
+       ',name
        (funcall ,method ,object ,@args))))
 
 (defmacro bound-method-p (object)
