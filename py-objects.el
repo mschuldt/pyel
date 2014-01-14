@@ -15,7 +15,8 @@ the rest are in `special-method-names'")
 	   
 	   '(obj-symbol-index
 	     obj-dict-index
-	     obj-bases-index 
+	     obj-bases-index
+	     obj-base-index
 	     obj-class-index
 	     setattr-index
 	     getattribute-index
@@ -147,8 +148,10 @@ These names will be set globally to their index in this list")
 
     (setattr new --doc-- doc)
 
-    (setattr new --base-- (unless (eq bases []) (aref bases 0) nil)) ;;?
-    
+    (let ((base (unless (eq bases []) (aref bases 0) nil)))
+      (setattr new --base-- base)
+      (aset new obj-base-index base))
+
     ;;This double reference makes the __bases__ attribute available
     ;;for users and provides this implementation quicker access
     (setattr new --bases-- bases)
