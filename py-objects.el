@@ -359,8 +359,16 @@ if it is a descriptor, return its value"
   ;;      maybe this should return an object
   ;;presumes that method is a lambda function
   (let ((args (cdadr method)))
-    `(lambda ,args
+    `(lambda ,args ;;note: if this changes, `bound-method-p' must be updated
        (funcall ,method ,object ,@args))))
+
+(defmacro bound-method-p (object)
+  `(condition-case nil
+       (let ((obj ,object))
+	 (and (eq (car obj) 'lambda)
+	      (= (length obj) 3)
+	      (py-object-p (third (third obj)))))
+     (error nil)))
 
 (defmacro py-class-p (thing)
   `(condition-case nil
