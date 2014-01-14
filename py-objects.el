@@ -225,7 +225,7 @@ These names will be set globally to their index in this list")
   (let* ((attr (if (stringp attr) (intern attr) attr))
 	 (special (assoc attr special-method-names)))
     (if special
-	`(_obj-get-special ,object ,(cdr special))
+	`(_obj-get-special-implicit ,object ,(cdr special))
       `(getattr-1 ,object ',attr))))
 
 (defun getattr-1 (object attr)
@@ -387,7 +387,7 @@ if it is a descriptor, return its value"
 	     (eq (aref thing obj-symbol-index) obj-class-symbol)))
      (error nil)))
 
-(defun _obj-get-special (object method-index)
+(defun _obj-get-special-implicit (object method-index)
   "get a special method of OBJECT indexed by METHOD-INDEX"
   (let ((method (caar (aref object method-index))))
     (or method
@@ -398,7 +398,7 @@ if it is a descriptor, return its value"
 	       (nbases (length bases))
 	       (i 0))
 	  (while (not method) ;;TODO: proper MRO
-	    (setq method (_obj-get-special (aref bases i) method-index))
+	    (setq method (_obj-get-special-implicit (aref bases i) method-index))
 	    (setq i (1+ i))
 	    (if (and (not method)
 		     (>= i nbases)) (signal 'AttributeError nil)))
@@ -411,7 +411,7 @@ if it is a descriptor, return its value"
   ;;'bind' method and call it
   (let ((special (assoc method special-method-names)))
     (if special
-	`(funcall (_obj-get-special ,object ,(cdr special)) ,object ,@args)
+	`(funcall (_obj-get-special-implicit ,object ,(cdr special)) ,object ,@args)
       
       `(funcall (getattr-1 ,object ',method)
 		,@args))))
