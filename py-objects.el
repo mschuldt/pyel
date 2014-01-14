@@ -347,19 +347,20 @@ if it is a descriptor, return its value"
     (if val
 	;;found the attr, now check if it is a data descriptor or method
 	(cond ((functionp val)
-	       (bind-method object val))
+	       (bind-method object val name))
 	      ((non-data-descriptor-p val)
 	       (call-method val __get__ class object))
 	      (t val))
       (signal 'AttributeError nil))))
 
-(defun bind-method (object method)
+(defun bind-method (object method &optional name)
   "bind METHOD to OBJECT"
   ;;TODO: this is not fully compatible with python
   ;;      maybe this should return an object
   ;;presumes that method is a lambda function
   (let ((args (cdadr method)))
     `(lambda ,args ;;note: if this changes, `bound-method-p' must be updated
+       ,name
        (funcall ,method ,object ,@args))))
 
 (defmacro bound-method-p (object)
@@ -405,7 +406,7 @@ if it is a descriptor, return its value"
        (if index
 	   (let ((val (_getattr-special-implicit object index)))
 	     (cond ((functionp val)
-		    (bind-method object val))
+		    (bind-method object val name))
 		   ((non-data-descriptor-p val)
 		    (call-method val __get__ class object))
 		   (t val)))
