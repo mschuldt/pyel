@@ -2563,38 +2563,37 @@ FunctionDef(name='a',
   (def-transform arg pyel ()
     (lambda (arg annotation) ;;Ignoring annotation
       (read arg)))
-
+  
   (def-transform def pyel ()
-    (lambda (name args body decoratorlist returns)
-      (pyel-def name args body decoratorlist returns)))
-
+    (lambda (name args body decoratorlist returns &optional line col)
+      (pyel-def name args body decoratorlist returns line col)))
+  
   (defun transform-last-with-context (context code)
     ;;TODO: this does not work: fix and replace code in `pyel-def
     (let*  ((last-line (using-context context
                                       (transform (car (last code)))))
             (first (mapcar 'transform (subseq code 0 (1- (length code))))))
       (append first (list last-line))))
-
-
-  (defun pyel-def (name args body decoratorlist returns)
+  
+  (defun pyel-def (name args body decoratorlist returns &optional line col)
     (let ((name (read (_to- name))))
-
+  
       (when (context-p 'function-def)
         (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
-
+  
       (let* ((func 'def)
              t-body
              arglist
              first
              last-line
-
+  
              ;;trans-template vars
              (assign-defaults (list pyel-nothing));;holds assignment code set by the arguments transform
              return-middle
              let-arglist
              global-vars
              docstring
-
+  
                 ;;;
              (ret pyel-nothing)
              (args (_to- (using-context function-def (transform (car args)))))
@@ -2603,33 +2602,33 @@ FunctionDef(name='a',
              (decorators (mapcar 'transform decoratorlist))
              setq-code
              )
-
+  
         (when (or (context-p 'lambda-def)
                   (and inner-defun
                        (not (member '&kwarg args))))
-
+  
           (setq func 'lambda
                 name pyel-nothing))
-
+  
         (using-context
          function-def
          (cond
-
+  
           ;; ((context-p 'class-def) (using-context method-def
           ;;                           (setq last-line (using-context tail-context
           ;;                                                          (transform (car (last body))))
           ;;                                 first (mapcar 'transform (subseq body 0 (1- (length body))))
           ;;                                 t-body (append first (list last-line)))
-
+  
           ;;                           ;;TODO: let-arlist for methods like
           ;;                           ;;      and *args ...
           ;;                           (push `(defmethod ,name
           ;;                                    ((,(car args) ,class-def-name)
           ;;                                     ,@(cdr args))
-
+  
           ;;                                    ,@t-body)
           ;;                                 class-def-methods)))
-
+  
           (t (setq last-line (using-context tail-context
                                             (transform (car (last body))))
                    first (subseq body 0 (1- (length body)))
@@ -2637,10 +2636,10 @@ FunctionDef(name='a',
                              (mapcar 'transform first)
                            nil)
                    t-body (append first (list last-line)))
-
+  
              ;;(setq t-body (transform-last-with-context
              ;;                'tail-context body))
-
+  
              ;;remove variables from the let arglist that have been declared global
              (setq let-arglist (let (arglist) (mapcar (lambda (x)
                                                         (unless (or (member x global-vars)
@@ -2649,19 +2648,19 @@ FunctionDef(name='a',
                                                       let-arglist)
                                     arglist))
              ;;      ?remove variables that are defined in emacs?
-
+  
              (setq docstring
                    (if (stringp (car t-body))
                        (pop t-body)
                      pyel-nothing))
-
+  
              (setq ret (if return-middle '(catch '__return__)
                          '(@)))
-
+  
              (if let-arglist
                  (setq let-arglist (list '@ 'let let-arglist))
                (setq let-arglist '@))
-
+  
              (if inner-defun
                  (progn
                    (if (member '&kwarg args)
@@ -2669,7 +2668,7 @@ FunctionDef(name='a',
                              (cons 'pyel-inner-function-def decorators)))
                    (setq setq-code (list '@ 'setq orig-name)))
                (setq setq-code '@))
-
+  
              `(,setq-code (,func ,name ,args ,decorators
                                  ,docstring
                                  ,@assign-defaults
@@ -2678,7 +2677,7 @@ FunctionDef(name='a',
                                    ,@t-body
                                    ))))
              ))))))
-
+  
   (defun pyel-sort-kwargs (args)
     "Organize args in the format required by functions that accept keyword args
   Returns a list whose first element has an alist containing the keyword args
@@ -2815,8 +2814,8 @@ FunctionDef(name='a',
 #+Begin_SRC python :tangle py-ast.py
   def FunctionDef(name, args, body, decorator_list, returns, lineno=None, col_offset=None):
       return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), ll_str(decorator_list) or "nil",returns or "nil", lineno, col_offset, ")"]))
-
-  def arg(arg,annotation):
+  
+  def arg(arg, annotation):
       return "(arg \"" + arg + "\" " + " " + (annotation or "nil") + ")"
 #+END_SRC
 ** tests
