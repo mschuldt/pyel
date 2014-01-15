@@ -2075,7 +2075,7 @@ this test is disabled. It pollutes global variables
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform str pyel ()
-    (lambda (s)
+    (lambda (s &optional line col)
       ;;    (format "\"%s\"" s)
       s
       ))
