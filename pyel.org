@@ -2003,10 +2003,10 @@ this test is disabled. It pollutes global variables
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform list pyel ()
-    (lambda (elts ctx)
-      (pyel-list elts ctx)))
+    (lambda (elts ctx &optional line col)
+      (pyel-list elts ctx line col)))
   
-  (defun pyel-list (elts ctx)  ;;IGNORING CTX
+  (defun pyel-list (elts ctx &optional line col)  ;;IGNORING CTX
     (if (context-p 'macro-call)
         (mapcar 'transform elts)
       (cons 'list (mapcar 'transform elts))))
