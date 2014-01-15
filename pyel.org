@@ -1674,14 +1674,14 @@ this test is disabled. It pollutes global variables
   (pyel-create-py-func set (_sym _val)
                        (_ $function) -> (setq $sym $$val)
                        (_ _) -> (setq $sym $val)) ;;TODO: other?
-
+  
   (def-transform assign pyel ()
-    (lambda (targ val line col) (py-assign targ val line col)))
-
+    (lambda (targ val &optional line col) (py-assign targ val line col)))
+  
   ;;TODO: put all setq's in a single form: (setq a 1 b 2) etc
-
-  (defun py-assign (targets values line col)
-
+  
+  (defun py-assign (targets values &optional line col)
+  
     (let ((wrap-values t)
           unpack i)
       ;;make sure targets and lists are both in a list form
@@ -1690,53 +1690,53 @@ this test is disabled. It pollutes global variables
       (if (and (listp (car targets))
                (eq (caar targets) 'tuple))
           (progn
-
+  
             (if (eq (car values) 'tuple)
                 (progn
-
+  
                   (setq values (cadr values))
                   (setq wrap-values nil))
               (setq unpack t) ;;targets is a tuple and values is not
               ;;(setq values (list values))
               )
-
+  
             (setq targets (cadar targets)))
         )
-
+  
       (when wrap-values
         (setq values (list values)))
-
-
+  
+  
       ;;py-sssign2 does the main transforms
       ;;TODO: check for the special case a,b=b,a and create temp variables
       ;;TODO: check that legnth of the lists are the same
-
+  
       ;;TODO:
       (cond (unpack
              ;;TODO: pyel error unless: (and (> (length targets) 1)  (= (length values) 1)
-
+  
              (let ((code '(@)))
                `(let ((__value__ ,(transform (car values))))
-
+  
                   ,(dotimes (i (length targets) (reverse code))
                    ;;;TODO: will have to help the transform know what type __value__ is
                      (push (py-assign2 (nth i targets)
-
+  
                                        (pyel-make-ast 'subscript '__value__ i 'load))
                            code))
                   )))
-
+  
             ((= (length targets) 1)
              ;;form: a=b
              (py-assign2 (car targets)
                          (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
-
+  
             ;;form: a,b = c
             ((and (> (length targets) 1) (= (length values) 1))
              (list '@ (py-assign2 (car (last targets)) (car values))
                       (py-assign  (butlast targets)
                                   (pyel-change-ctx (car (last targets)) 'load))))
-
+  
             ;;form: a,b = x,y
             (t (let* ((tmp-vars (loop for i from 1 to (length targets)
                                       collect (intern (format "__%s__" i))))
@@ -1745,29 +1745,29 @@ this test is disabled. It pollutes global variables
                                          tmp-vars values)))
                  `(let ,let-vars
                     ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars))))))))
-
+  
   ;;DOC: tranforms must be carefull not to transform code multiple times
-
+  
   (defun py-assign2 (target value)
     ;;access line and col values from `py-assign' calling env.
     (let ((ctx (eval (car (last target))))
-
+  
           (assign-value value))
-
+  
       ;;the target code is responsible for providing the correct assign function
       ;;
-
+  
       ;;TODO:     is context-value still used?
       ;; (using-context assign-target
       ;;             (setq t-target (transform target)))
       ;; (using-context assign-value
       ;;             (setq t-value (transform value)))
-
+  
       ;;The target transform is responsible for generating the code
       ;;The value being assigned to the target is available to the
       ;;target transform via the variable assign-value.
       ;;assign-value is untransformed, the target transform must tranform it
-
+  
       ;; (using-context assign-value
       ;;             (setq assign-value (transform value)))
       ;;problem: code was being transformed multiple times
@@ -1775,7 +1775,7 @@ this test is disabled. It pollutes global variables
       (using-context assign-target
                      (transform target))
       ;;    (list assign-func t-target t-value)
-
+  
       ))
 #+END_SRC
 ** python ast
