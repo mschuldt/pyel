@@ -269,8 +269,7 @@ main
        
        (pyel ,@code)))
   
-  
-  (defun py-ast (code &optional pp)
+  (defun py-ast (code &optional pp include-attributes)
     "Return the python abstract syntax tree for python CODE"
     (let ((py-ast "")
           (el-code "")
@@ -278,7 +277,9 @@ main
       
       (with-temp-buffer
         (insert "import ast" "\n")
-        (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")))" code))
+        (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")%s))"
+                        code
+                        (if include-attributes ",include_attributes=True" "")))
         (write-region nil nil pyel-tmp-file nil 'silent))
       
       (setq ret (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
@@ -4476,7 +4477,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC python :tangle py-ast.py
   def Lambda(args, body):
       return ll_str(["lambda", ll_str(args),'('+ll_str(body)+')'])
-  
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
