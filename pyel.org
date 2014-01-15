@@ -1922,7 +1922,7 @@ this test is disabled. It pollutes global variables
                      "a.b(x.y(g.g()),y.y)")
 
 #+END_SRC
-* num ok
+* num
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform num pyel ()
@@ -1943,20 +1943,20 @@ this test is disabled. It pollutes global variables
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform name pyel ()
-    (lambda (id ctx line col)
+    (lambda (id ctx &optional line col)
       (pyel-name id ctx line col)))
-
-  (defun pyel-name (id ctx line col)
+  
+  (defun pyel-name (id ctx &optional line col)
     (let ((new-id)
           (id (read id))
           piece code)
-
+  
       ;;TODO: id should be string. verify?
       (setq ctx (cond ((context-p 'force-load) 'load)
                       ((context-p 'force-store) 'store)
                       (t (eval ctx))))
-
-
+  
+  
       (if (assoc id pyel-marked-ast-pieces)
           ;;this id is a marker, insert the corresponding macro
           (progn
@@ -1965,22 +1965,22 @@ this test is disabled. It pollutes global variables
             (using-context macro-call
                            (list (second piece)
                                  (pyel-transform-ast (third piece) :nosplice))))
-
+  
         ;;else: normal name
         (setq id (_to- id))
         (when (and (context-p 'assign-value) ;;checking assumption
                    (not (equal ctx 'load)))
           (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
             ctx = %s" ctx)))
-
+  
         (when (setq new-id (assoc id pyel-variable-name-translations))
           (setq id (cadr new-id)))
-
+  
         (when (and (eq ctx 'store)
                    (context-p 'function-def)
                    (context-p 'assign-target))
           (add-to-list 'let-arglist id))
-
+  
         (cond
          ((eq ctx 'load) id)
          ((eq ctx 'store)  (if (context-p 'for-loop-target)
