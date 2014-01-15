@@ -1340,8 +1340,8 @@ This is for all non template specific code.
   def Module(body):
       return "\n".join(body)
 
-  def keyword(arg, value):
-      return l_str(["(keyword ", arg, " ", value, ")"])
+  def keyword(arg, value, lineno=None, col_offset=None):
+      return l_str(["(keyword ", arg, " ", value, lineno, col_offset, ")"])
 
   def Print(dest, values, nl):
       print("Error: using python2, upgrade to python3")
@@ -1356,7 +1356,7 @@ This is for all non template specific code.
   def Store():
       return "'store"
 
-  def Expr(value): #?bug
+  def Expr(value, lineno=None, col_offset=None): #?
       return value
 
   def Import(names, lineno=None, col_offset='None'):
