@@ -160,11 +160,10 @@ main
     "return the full file name of py-ast.el"
     (file-path-concat pyel-directory "py-ast.py"))
   
-  
-  (defun pyel (python &optional line-and-col-nums include-defuns py-ast-only)
+  (defun pyel (python &optional no-line-and-col-nums include-defuns py-ast-only)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
-  if LINE-AND-COL-NUMS, include line and column information in output
+  include line and column nums in output unless NO-LINE-AND-COL-NUMS is non-nil
   If PY-AST-ONLY, return the un-evaled ast.
   If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
     this is ignored if PY-AST-ONLY is non-nil"
@@ -175,19 +174,19 @@ main
   
     (let* (;;Q general way of replacing backslashes?
            (python (replace-regexp-in-string "\"" "\\\\\"" python))
-           ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
+                                          ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
   
            ;; (pyel "x = 'x\n'")
-          (py-ast "")
-          (el-code "")
-          (current-transform-table (get-transform-table 'pyel))
-          (python (with-temp-buffer
-                    (insert python)
-                    (pyel-preprocess-buffer2)
-                    (buffer-string)))
-          (pyel-context nil)
-          line ret
-          )
+           (py-ast "")
+           (el-code "")
+           (current-transform-table (get-transform-table 'pyel))
+           (python (with-temp-buffer
+                     (insert python)
+                     (pyel-preprocess-buffer2)
+                     (buffer-string)))
+           (pyel-context nil)
+           line ret
+           )
   
       ;;?? setting the mark?
       (with-temp-buffer
@@ -199,7 +198,7 @@ main
         (setq line (line-number-at-pos))
         (insert (format "print(eval(ast.dump(ast.parse(\"\"\"%s\"\"\")%s)))"
                         python
-                        (if line-and-col-nums ",include_attributes=True" "")))
+                        (if no-line-and-col-nums "" ",include_attributes=True")))
         (write-region
          nil
          nil
@@ -211,31 +210,29 @@ main
           (progn
             (setq pyel-python-error-line py-error)
             pyel-error-string)
-          ;;else: no error
-      (if py-ast-only
-          py-ast
-        ;;      (pyel-do-splices (transform (read py-ast))))))
-        ;;read can only return one sexp so we need to put it in a progn or something
-        ;;similar
+        ;;else: no error
+        (if py-ast-only
+            py-ast
+          ;;      (pyel-do-splices (transform (read py-ast))))))
+          ;;read can only return one sexp so we need to put it in a progn or something
+          ;;similar
   
-        (setq ret (pyel-do-splices (if include-defuns
-                             (list '@ (cons '@ pyel-function-definitions)
-                                      (transform (read (format "(@ %s)" py-ast))))
-                           (transform (read  (format "(@ %s)" py-ast))))))
-        ;;TODO: this is a temp solution for convenience
-        (mapc 'eval pyel-function-definitions)
-        ret
-        ))))
-  
+          (setq ret (pyel-do-splices (if include-defuns
+                                         (list '@ (cons '@ pyel-function-definitions)
+                                                  (transform (read (format "(@ %s)" py-ast))))
+                                       (transform (read  (format "(@ %s)" py-ast))))))
+          ;;TODO: this is a temp solution for convenience
+          (mapc 'eval pyel-function-definitions)
+          ret
+          ))))
   
   (defun pyel-buffer-to-string (&optional ast-only)
     "transform python in current buffer and return a string"
     ;;THIS DOES NOT RETURN A STRING!
     (pyel (buffer-string) ast-only))
   
-  
   (defvar pyel-pp-function 'pp-to-string
-        "function that pretty prints pyel e-lisp code")
+    "function that pretty prints pyel e-lisp code")
   
   (defun pyel-buffer (&optional out-buff)
     "transform python in current buffer and display in OUT-BUFF,
@@ -255,7 +252,6 @@ main
                             (if no-splice
                                 code
                               (pyel-do-splices code)))))
-  
   
   (defun pyel-file-ast (file-name)
     "return the ast from .py file FILE-NAME"
@@ -316,23 +312,22 @@ main
       code))
   
   (defun pyel-reload ()
-      (interactive)
-      (dolist (f '(pyel
-                   pyel-tests
-                   pyel-transforms
-                   pyel-mode
-                   pyel-pp
-                   pyel-preprocessor
-                   pyel-tests-generated
-                   transformer))
-        (setq features (remove f features)))
-      (require 'pyel))
+    (interactive)
+    (dolist (f '(pyel
+                 pyel-tests
+                 pyel-transforms
+                 pyel-mode
+                 pyel-pp
+                 pyel-preprocessor
+                 pyel-tests-generated
+                 transformer))
+      (setq features (remove f features)))
+    (require 'pyel))
   
   (defun pyel-method-transform-name(method-name)
     "return the name of the temlate that transform the method METHOD-NAME.
   template names are modified to avoid potential conflict with other templates"
     (intern (format "_%s-method_" (symbol-name method-name))))
-  
   
   (defun pyel-func-transform-name (func-name)
     "like `pyel-method-transform-name' for functions"
@@ -426,7 +421,6 @@ main
                 (ctx (correct_ctx (car (last args)))))
   
            (list 'name name ctx)))
-  
         (load
          '(quote load))
         (store
