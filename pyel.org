@@ -4337,10 +4337,22 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   assert x2 == 35"
                      )
 #+END_SRC
-* unary op
+* unary op, not, usub
+TODO: tests!
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-;;
+  (def-transform unary-op pyel ()
+    (lambda (op operand)
+      (call-transform op operand)))
+
+  (pyel-create-py-func not (x)
+                       (object) -> (--not-- x) ;;?
+                       (_) -> (not x))
+
+  (pyel-create-py-func usub (x)
+                       (number) -> (- x)
+                       (object) -> (--usub-- x) ;;?
+                       )
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4362,7 +4374,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * augmented assignment
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4523,36 +4534,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
    except:
     _b()"
                      )
-#+END_SRC
-* unary op, not, usub
-TODO: tests!
-** transform
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (def-transform unary-op pyel ()
-    (lambda (op operand)
-      (call-transform op operand)))
-
-  (pyel-create-py-func not (x)
-                       (object) -> (--not-- x) ;;?
-                       (_) -> (not x))
-
-  (pyel-create-py-func usub (x)
-                       (number) -> (- x)
-                       (object) -> (--usub-- x) ;;?
-                       )
-#+END_SRC
-** python ast
-#+Begin_SRC python :tangle py-ast.py
-
-#+END_SRC
-** python el lib
-#+Begin_SRC python :tangle py-lib.el
-
-#+END_SRC
-** tests
-(pyel-create-tests '<name>
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
 #+END_SRC
 * in, not in
 TODO: tests!
