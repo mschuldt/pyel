@@ -2388,6 +2388,10 @@ this test is disabled. It pollutes global variables
 * while loop
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (def-transform while pyel ()
+    (lambda (test body orelse &optional line col)
+      (pyel-while test body orelse line col)))
+  
   ;;doc: context macro-call
   (defun pyel-while (test body orelse &optional line col)
     ;;pyel-while is special. it gets to handle the macro definitions
@@ -2429,20 +2433,6 @@ this test is disabled. It pollutes global variables
         (if else
             `(@ ,wile ,@else)
           wile))))
-  
-  ;; (defun pyel-while (test body orelse)
-  ;;   (let* ((tst (transform test))
-  ;;          (else (mapcar 'transform orelse))
-  ;;          (wile `(while ,(if (equal tst []) nil tst)
-  ;;                   ,@(mapcar 'transform body))))
-  
-  ;;     (if else
-  ;;         `(@ ,wile ,@else)
-  ;;       wile)))
-  
-  (def-transform while pyel ()
-    (lambda (test body orelse &optional line col)
-      (pyel-while test body orelse line col)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
