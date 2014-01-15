@@ -1935,7 +1935,8 @@ this test is disabled. It pollutes global variables
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Num(n, lineno=None, col_offset=None):
-      return "(num " + str(n) + str(lineno) + str(col_offset) + ")"
+      return "(num " + str(n) +" " + str(lineno) + " " + str(col_offset) + ")"
+      
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
