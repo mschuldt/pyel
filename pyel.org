@@ -2116,57 +2116,57 @@ this test is disabled. It pollutes global variables
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform compare pyel ()
-    (lambda (left ops comparators)
+    (lambda (left ops comparators &optional line col)
       ;;what if comparators has multiple items?
-      (pyel-compare left ops comparators :outer)))
-
+      (pyel-compare left ops comparators :outer line col)))
+  
   ;;TODO: assign comparators to temp variables to prevent repeated evaluation
-  (defun pyel-compare (left ops comparators &optional outer)
+  (defun pyel-compare (left ops comparators &optional outer line col)
     ;;if outer is non-nil, then we use 'and' to combine the seporate tests
     (if (> (length ops) 1)
         (list (if outer 'and '@)
               (pyel-compare left (list (car ops)) (list (car comparators)))
               (pyel-compare (car comparators) (cdr ops) (cdr comparators)))
-
+      
       (call-transform (read (car ops)) left (car comparators))))
-
+  
   (pyel-create-py-func == (l r)
                        (number number) -> (= l r)
                        (string string) -> (string= l r)
                        ;;                       (object _) -> (--eq-- l r)
-
+  
                        (_ _) -> (equal l r))
-
+  
   (pyel-create-py-func > (l r)
                        (number number) -> (> l r)
                        ;;TODO: macro for this
                        (string string) -> (and (not (string< l r)) (not (string= l r)))
                        (object _) -> (__gt__ l r))
-
+  
   ;;TODO: other py types?
-
+  
   ;;::Q does `string<' behave like < for strings in python?
   (pyel-create-py-func < (l r)
                        (number number) -> (< l r)
                        (string string) -> (string< l r)
                        (object _) -> (__lt__ l r))
-
+  
   (pyel-create-py-func >= (l r)
                        (number number) -> (>= l r)
                        (string string) -> (not (string< l r))
                        (object _) -> (__ge__ l r))
-
+  
   (pyel-create-py-func <= (l r)
                        (number number) -> (<= l r)
                        (string string) -> (or (string< l r) (string= l r))
                        (object _) -> (__le__ l r))
-
+  
   (pyel-create-py-func != (l r)
                        (number number) -> (not (= l r))
                        (string string) -> (not (string= l r))
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
-
+  
   ;;this is defined as a transform because `pyel-compare' expects
   ;;all comparison functions to be transforms
   (pyel-create-py-func is (l r)
