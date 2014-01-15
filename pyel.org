@@ -1848,34 +1848,33 @@ this test is disabled. It pollutes global variables
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform attribute pyel ()
-    (lambda (value attr ctx)
-      (pyel-attribute value attr ctx)))
-
-  (defun pyel-attribute (value attr ctx)
+    (lambda (value attr ctx &optional line col)
+      (pyel-attribute value attr ctx line col)))
+  
+  (defun pyel-attribute (value attr ctx &optional line col)
     (setq ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
     (let ((t-value (transform value))
           (attr (read (_to- (transform attr)))))
-
+  
       ;;create slot for this attribute if it does not already exist
       (when (and (context-p 'method-def)
                  (not (assoc attr class-def-slots)))
         (push `(,attr :initarg ,(intern (concat ":"
                                                 (symbol-name attr)))
                       :initform nil)
-
+  
               class-def-slots))
       (if (and (context-p 'method-call)
                (not (context-p 'method-call-override)))
           (using-context method-call-override
                          ;;ctx?
                          `(@ call-method ,(transform value) ,attr))
-
-
+  
         ;; (if (context-p 'assign-target)
         ;;          (setq assign-func 'oset))
-
+  
         ;;check the presumption:
         (when (and (eq ctx 'store)
                    (not (context-p 'assign-target))
@@ -1884,7 +1883,7 @@ this test is disabled. It pollutes global variables
         (when (and (eq ctx 'store)
                    (not (boundp 'assign-value)))
           (error "`pyel-attribute': Presumption failed: ctx==store but assign-value is unbound"))
-
+  
         (cond
          ((eq ctx 'store)
           ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
