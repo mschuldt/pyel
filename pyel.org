@@ -7,76 +7,76 @@ TODO: update most of this. tranforms have changed
  may be used. DO NOT UNQUOTE THE ARGUMENTS, they will be replaced later
 
 ** from py ast to e-lisp transform
-#+Begin_SRC emacs-lisp 
+#+Begin_SRC emacs-lisp
   ;;First, get the python ast:
   (py-ast "(a,b)")
   "Module(body=[Expr(value=Tuple(elts=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())], ctx=Load()))])
   "
-  
+
   ;;Second create any newly needed python AST interpretor.
   ;; Here we need Tuple(elts,ctx)
-  
+
   def Tuple(elts, ctx):
       return l_str(["tuple ", ll_str(elts), ctx])
-  
+
   ;;Third, define a tranform to convert the function to lisp
   (def-transform tuple pyel ()
     (lambda (elts ctx) ;;Ignoring ctx for now
       (concat "["
               (mapconcat 'transform elts " ")
               "]")))
-  
-  
+
+
   ;;Forth, create tests. Evaluate the expresstion, the test are sent to the kill ring
   (pyel-create-tests 'Tuple
                      "()"
                      "(a, b)"
                      "(a, (b, (c,d)))"
                      "((((((((a))))))))")
-#+END_SRC  
+#+END_SRC
 ** ways to define new transforms
 TODO:
  how to define a macro transform
 
 *** change a function name
 Example:
-#+Begin_SRC emacs-lisp 
+#+Begin_SRC emacs-lisp
 (pyel-translate-function-name 'range 'py-range)
 (pyel-translate-function-name 'map 'mapcar)o
-#+END_SRC 
+#+END_SRC
 *** change a variable name
 Example:
-#+Begin_SRC emacs-lisp 
+#+Begin_SRC emacs-lisp
 (pyel-translate-variable-name 'None 'nil)
-#+END_SRC 
+#+END_SRC
 *** define a general translation
 Example:
-#+Begin_SRC emacs-lisp 
+#+Begin_SRC emacs-lisp
 (def-transform assert pyel ()
-    (lambda (test msg) 
+    (lambda (test msg)
       `(assert ,(transform test) t ,(transform msg))))
-#+END_SRC 
+#+END_SRC
 
 *** define a method translation
 $var replaces var with name of the original var
-   (expands to ,var in the macro definition) 
+   (expands to ,var in the macro definition)
  other parameter references are evaluated and assigned to tmp variables
-#+Begin_SRC emacs-lisp 
+#+Begin_SRC emacs-lisp
 (pyel-method-transform append (obj thing)
                   (list _) -> (setq $obj (append obj (list thing)))
                   (_ _)    -> (append obj thing))
-#+END_SRC 
+#+END_SRC
 
 *** define a function translation
-#+Begin_SRC emacs-lisp 
+#+Begin_SRC emacs-lisp
   (pyel-func-transform len (thing)
                        (object) -> (__len__ ,thing)
                        (_)      -> (length ,thing))
-#+END_SRC 
+#+END_SRC
 *** type switching transforms
   (pyel-create-py-func ** (l r) ;;pow
                     (number number) -> (expt l r)
-                    (object _ ) 
+                    (object _ )
                     (_ object) -> (--pow-- l r))
 
 *** declare a name to be a macro
@@ -109,32 +109,30 @@ put the following line in your config:
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   # This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
-#+END_SRC  
+#+END_SRC
 
 * main
 header
-** require 
+** require
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (add-to-list 'load-path "~/programming/pyel/")
-  (add-to-list 'load-path "~/programming/code-transformer/")  
+  (add-to-list 'load-path "~/programming/code-transformer/")
   (require 'eieio)
-  (require 'cl) 
-;;other requires are at the end
+  (require 'cl)
+  ;;other requires are at the end
 #+END_SRC
-
 ** main
 #+Begin_SRC emacs-lisp :tangle pyel.el
-;; This is a tangled file  -- DO NOT HAND-EDIT -- 
+;; This is a tangled file  -- DO NOT HAND-EDIT --
 ;;PYEL -> translate PYthon to Emacs Lisp
-#+END_SRC  
+#+END_SRC
 
 main
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defun mpp (code)
     (let ((pp (pp-to-string code)))
       (insert "\n" pp)))
-  
-  
+
   ;;TODO: more robust checking, return type of error as well
   (defun pyel-is-error (code)
     "return the line of the error in CODE, else nil"
@@ -147,22 +145,22 @@ main
                 (setq line (match-string 1)))))
       ;;TODO: why is this the actual line number...it should be relative the a bunch of code it's appended to ...
       (and line (string-to-number line))))
-  
+
   (defvar pyel-transform-status nil
     "indicate status (success/fail) of last pyel transform
   status types:
   nil for no error
-  ('python ast transform error'  <line number>) 
+  ('python ast transform error'  <line number>)
   ")
-  
+
   (defvar pyel-error-string "PYEL ERROR"
     "string returned by `pyel' when it failed to transform")
-  
+
   (defun pyel-py-ast-file-name ()
     "return the full file name of py-ast.el"
     (file-path-concat pyel-directory "py-ast.py"))
-  
-  
+
+
   (defun pyel (python &optional py-ast-only include-defuns)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
@@ -170,14 +168,14 @@ main
   If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
     this is ignored if PY-AST-ONLY is non-nil"
     (assert (eq lexical-binding nil) "pyel requires dynamic scoping")
-    
+
     (setq pyel-marked-ast-pieces nil)
     (setq pyel-transform-status nil) ;;so far so good...
-  
+
     (let* (;;Q general way of replacing backslashes?
            (python (replace-regexp-in-string "\"" "\\\\\"" python))
            ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
-           
+
            ;; (pyel "x = 'x\n'")
           (py-ast "")
           (el-code "")
@@ -189,7 +187,7 @@ main
           (pyel-context nil)
           line ret
           )
-      
+
       ;;?? setting the mark?
       (with-temp-buffer
         ;;    (find-file file)
@@ -203,9 +201,9 @@ main
          nil
          nil
          pyel-tmp-file nil 'silent))
-      
+
       (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
-  
+
       (if (setq py-error (pyel-is-error py-ast))
           (progn
             (setq pyel-python-error-line py-error)
@@ -216,26 +214,26 @@ main
         ;;      (pyel-do-splices (transform (read py-ast))))))
         ;;read can only return one sexp so we need to put it in a progn or something
         ;;similar
-        
+
         (setq ret (pyel-do-splices (if include-defuns
                              (list '@ (cons '@ pyel-function-definitions)
                                       (transform (read (format "(@ %s)" py-ast))))
                            (transform (read  (format "(@ %s)" py-ast))))))
         ;;TODO: this is a temp solution for convenience
-        (mapc 'eval pyel-function-definitions) 
+        (mapc 'eval pyel-function-definitions)
         ret
         ))))
-  
-  
+
+
   (defun pyel-buffer-to-string (&optional ast-only)
     "transform python in current buffer and return a string"
     ;;THIS DOES NOT RETURN A STRING!
     (pyel (buffer-string) ast-only))
-  
-  
+
+
   (defvar pyel-pp-function 'pp-to-string
         "function that pretty prints pyel e-lisp code")
-        
+
   (defun pyel-buffer (&optional out-buff)
     "transform python in current buffer and display in OUT-BUFF,
   OUT-BUFF defaults to *pyel-output*"
@@ -245,7 +243,7 @@ main
       (erase-buffer)
       (insert (funcall 'pyel-pp-function out))
       (emacs-lisp-mode)))
-  
+
   (defun pyel-transform-ast (ast &optional no-splice)
     "transform a python AST to Emacs Lisp, AST must be a string
   AST can be generated by `pyel' with (pyel py-string t)"
@@ -254,50 +252,50 @@ main
                             (if no-splice
                                 code
                               (pyel-do-splices code)))))
-  
-  
+
+
   (defun pyel-file-ast (file-name)
     "return the ast from .py file FILE-NAME"
     )
-        
+
   (defmacro pyel-with-known-types (known-types &rest code)
     "translate CODE while faking the known types"
     `(flet ((pyel-get-possible-types
              (&rest args)
              (mapcar* (lambda (arg type) (cons arg type))
                       args ,known-types)))
-       
+
        (pyel ,@code)))
-  
+
   (defun py-ast (code &optional pp include-attributes)
     "Return the python abstract syntax tree for python CODE"
     (let ((py-ast "")
           (el-code "")
           ret)
-      
+
       (with-temp-buffer
         (insert "import ast" "\n")
         (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")%s))"
                         code
                         (if include-attributes ",include_attributes=True" "")))
         (write-region nil nil pyel-tmp-file nil 'silent))
-      
+
       (setq ret (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
       (if pp
           (mapconcat 'identity (split-string ret ",") ",\n")
         ret)))
-  
-  
+
+
   ;;'(a (@ b (c)))) => (a b (c))
   ;;'(a (@ b c)))   => (a b c)
   ;;'(@ a b c) => (progn a b c)
   ;;'(@ (a b)) = > (a b)
   ;;'(a (@) b) = > (a b)
-  
+
   (defun pyel-do-splices (code)
     (if (listp code)
         (let (c)
-          (if (eq (car code) '@) ;;special case: outer most list 
+          (if (eq (car code) '@) ;;special case: outer most list
               (if (> (length code) 2)
                   (pyel-do-splices `(progn ,code))
                 (pyel-do-splices (cadr code)))
@@ -311,7 +309,7 @@ main
                   (push c ncode)))
               (if (listp ncode) (reverse ncode) ncode))))
       code))
-  
+
   (defun pyel-reload ()
       (interactive)
       (dolist (f '(pyel
@@ -324,49 +322,48 @@ main
                    transformer))
         (setq features (remove f features)))
       (require 'pyel))
-  
+
   (defun pyel-method-transform-name(method-name)
     "return the name of the temlate that transform the method METHOD-NAME.
   template names are modified to avoid potential conflict with other templates"
     (intern (format "_%s-method_" (symbol-name method-name))))
-  
-  
+
+
   (defun pyel-func-transform-name (func-name)
     "like `pyel-method-transform-name' for functions"
     (intern (format "_%s-function_" (symbol-name func-name))))
-  
-  
-  
+
+
+
   (defmacro push-back (val place)
     "Add VAL to the end of the sequence stored in PLACE. Return the new
   value."
     `(setq ,place (append ,place (list ,val))))
-  
+
   (defun pyel-translate-function-name (name new-name)
     "translate python NAME to e-lisp NEW-NAME"
     (push (list name new-name) pyel-function-name-translations))
-  
+
   (defun pyel-translate-variable-name (name new-name)
     "translate python  NAME to e-lisp NEW-NAME"
     (push (list name new-name) pyel-variable-name-translations))
-  
-  
+
+
   (defun pyel-not-implemented (message)
     "signify that a feature is not implemented"
     ;;TODO
     (message message) ;;tmp
     )
-  
-  
+
   (defmacro insert-at (list nth value)
     "insert VALUE at NTH index in LIST"
     `(setq ,list (append (subseq ,list 0 ,nth)
                          (list ,value)
                          (subseq ,list  ,nth))))
-  
+
   (defun list-to-vector (list)
     (eval `(vector ,@list))) ;;this is gross
-  
+
   (defun pyel-replace-in-thing (from to thing)
     "replace character FROM to TO in THING
   THING may be a symbol, string or list"
@@ -377,12 +374,12 @@ main
       (intern (replace-regexp-in-string from to  (symbol-name thing))))
      ((listp thing) (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
      (t (error "invalid thing"))))
-    
+
   (defun _to- (thing)
     (pyel-replace-in-thing "_" "-" thing))
   (defun -to_ (thing)
     (pyel-replace-in-thing "-" "_" thing))
-  
+
   (defun pyel-change-ctx (form ctx)
     "change ctx of form to CTX"
     (let ((type (and (listp form) (car form))))
@@ -390,8 +387,7 @@ main
              (list (car form) (cadr form) (list 'quote ctx)))
             ;;TODO: attribute and other forms (if needed)
             (t form))))
-  
-  
+
   (defun pyel-make-ast (type &rest args)
     "Generate pyhon ast.
   This is used when the ast form is needed by a transform that is manually
@@ -409,37 +405,36 @@ main
                                 (if (symbolp name)
                                     (symbol-name name)
                                   (error "invalid type for 'name'")))))
-      
+
       ;;TODO: should have seporate functions to check
       ;;      the validity of the ast instead of having
       ;;      the correction functions do it
       (case type
-        
+
         (subscript ;;args: value slice ctx
          (assert_n_args 'subscript 3 (length args))
-         
+
          (let ((ctx (correct_ctx (car (last args)))))
            (list 'subscript (car args) (cadr args) ctx)))
-        
+
         (name ;;args: name ctx
          (assert_n_args 'name 2 (length args))
          (let* ((name (correct_to_string (car args)))
-                
+
                 (ctx (correct_ctx (car (last args)))))
-           
+
            (list 'name name ctx)))
-        
+
         (load
          '(quote load))
         (store
          '(quote store)))))
-  
-  
+
   (defmacro macrop (sym)
     (if (boundp sym)
         (list 'macrop-1 sym)
       `(macrop-1 (quote ,sym))))
-  
+
   (defun macrop-1 (function)
     ;;this is mostly taken from `describe-function-1'
     (let* ((advised (and (symbolp function) (featurep 'advice)
@@ -456,25 +451,23 @@ main
                     (symbol-function real-function)
                   function)))
       (eq (car-safe def) 'macro)))
-  
+
   (defun callable-p (object)
     (if (symbolp object)
         (or (fboundp object)
             (functionp object)) ;;necessary?
       (functionp object)))
 #+END_SRC
-
-
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defvar pyel-directory ""
     "Path to pyel files. must include py-ast.py, pyel.el etc")
-  
+
   (defmacro vfunction-p (f)
     `(and (boundp ',f)
           (functionp ,f)))
-  
-  (set (defvar pyel-type-test-funcs nil  
+
+  (set (defvar pyel-type-test-funcs nil
          "alist of types used in pyel-call-transform for the switch-type
           and the function used to test for that type")
        '((string stringp)
@@ -496,11 +489,11 @@ main
          (vfunction vfunction-p)
          (vfunc vfunction-p)
          (callable callable-p)))
-  
+
   (defvar pyel-negated-function-tests nil
     "A list of automatically created negated functions from `pyel-type-test-funcs'
     stored here just for convenient inspection")
-  
+
   ;;create negated test functions
   (let (new func fname)
     (setq pyel-negated-function-tests nil)
@@ -515,80 +508,72 @@ main
                   new))
           pyel-type-test-funcs)
     (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
-  
-  
+
   (defvar pyel-defined-classes nil
     "list of call class names defined by pyel")
-  
-  
-  
+
   (defvar pyel-defined-functions nil
     "list of some functions defined pyel
         used by some templates to determine if a needed function has been defined yet")
-  
+
   (defvar pyel-function-definitions nil
     "used to store function definitions created by pyel, not the user.")
-  
+
   (defvar pyel-replace-args nil
     "if non-nil, pyel-do-call-transform will replace the arg symbols with their
         value, used if the code is to be inlined
         TODO: the option to replace the args should probably be obsoletede")
-  
+
   (defvar pyel-unique-obj-names nil
     "if non-nil, uniquely name object instantces")
-  
-  
+
   (defvar pyel-context-groups nil ;;TODO: still used?
     "groups of contexts that cannot exist at the same time.
       `context-p' will stop at the first one in the list,")
-  
+
   (setq pyel-context-groups
         '((assign-target assign-value)))
-  
+
   (defvar pyel-function-name-translations nil
     "alist of function name translations, python->e-lisp.
-      
+
       Entries in `pyel-function-name-translations' are applied before
       checking for function transforms.
       If a translation len->length is defined then the function transform for
       'len' will not be detected because the name is now 'length'
       ")
-  
+
   (defvar pyel-variable-name-translations nil
     "alist of variable name translations, python->e-lisp.")
-  
+
   (setq pyel-function-name-translations `(
-                                          
+
                                           ))
   ;;TODO: list, vector, etc
-  ;;      map?               
-  
+  ;;      map?
+
   (setq pyel-variable-name-translations '((True t)
                                           (False nil)
                                           (None nil)))
-  
+
   (defvar pyel-method-transforms nil
     "List of names of methods for which a transform has been defined
       For internal use only--do not modify by hand"
     )
-  
+
   (defvar pyel-func-transforms nil
     "list of function names that have transforms defined for them")
-  
-  
+
   (defconst pyel-nothing '(@)
     "value to return from a function/transform when it should
       not contribute to the output code")
-  
+
   (defconst pyel-python-version "3.2.3"
     "python interpreter version whose ast pyel is written for")
-  
-  
-  
+
   (defvar test-variable-values nil
     "variables values for running tests")
-  
-  
+
   (setq test-variable-values
         '((pyel-defined-classes nil)
           (pyel-function-definitions nil)
@@ -598,26 +583,25 @@ main
           (pyel-fully-functional-functions nil)
           ;;(pyel-method-transforms nil)
           ;;(pyel-func-transforms nil)
-          (pyel-marker-counter 0)))    
-  
+          (pyel-marker-counter 0)))
+
   (defvar pyel-marker-counter 0)
-  
+
   (defvar pyel-tmp-file  "/tmp/pyel-ast.py"
     "Name of temp file to use for AST generation")
-  
-#+END_SRC  
+#+END_SRC
 ** syntax output variables
 variables that effect the form of the output code
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defvar pyel-default--init--method
-      "(defmethod --init-- ((self %s))
+    "(defmethod --init-- ((self %s))
        \"Default initializer\"
       )"
-      
-      "default initializer for pyel objects.")
-  
-    (defvar pyel-use-list-for-varargs nil
-        "Determines if *varargs will be passed to function as a list or a vector,
+
+    "default initializer for pyel objects.")
+
+  (defvar pyel-use-list-for-varargs nil
+    "Determines if *varargs will be passed to function as a list or a vector,
     non-nil for list, otherwise vector.
     To be like python (vectors), this should be nil
     To be consistent with Emacs-Lisp (lists), this should be t.
@@ -628,13 +612,13 @@ This will have to be removed after the code is generated
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defmacro pyel-block (&rest code)
     `(progn ,@ code))
-#+END_SRC     
+#+END_SRC
 ** context
 #+Begin_SRC emacs-lisp :tangle pyel.el
   ;;TODO: this should be generalized and added to the transform code
   (defvar pyel-context nil
     "list of current expansion contexts")
-  
+
   (defmacro using-context (context &rest code)
     `(progn
        (push ',context pyel-context)
@@ -645,23 +629,22 @@ This will have to be removed after the code is generated
                   (error (format "using-context: %s" err))))
          (pop pyel-context)
          ret)))
-  
+
   (def-edebug-spec using-context (symbolp &rest form))
-  
-  
+
   (defmacro remove-context (context &rest code)
     "remove CONTEXT and translate CODE, then restore context"
     `(let ((pyel-context (remove ',context pyel-context)))
        ,@code))
   (def-edebug-spec remove-context (symbolp &rest form))
-  
+
   (defmacro context-switch (&rest forms)
     `(cond ,@(mapcar (lambda (x)
                        `(,(let ((context (car x)))
                             (if (eq context t) t
                               `(member ',context pyel-context))) ,@(cdr x)))
                      forms)))
-  
+
   (defun get-context-group (context)
     (let ((groups pyel-context-groups)
           (found nil)
@@ -674,7 +657,7 @@ This will have to be removed after the code is generated
             (setq found group
                   groups nil))))
       found))
-  
+
   ;; (defun context-p (context)
   ;;   (member context pyel-context))
   (defun context-p (context)
@@ -694,20 +677,17 @@ This will have to be removed after the code is generated
             (setq ret t
                   cont nil))))
       ret))
-  
-  
-  
+
   (defun context-depth (context)
     "get the depth of CONTEXT in `pyel-context'"
     ;;TODO:
     )
 #+end_src
-
 ** type inference
 #+Begin_SRC emacs-lisp :tangle pyel.el
   ;;this is all temp for testing
   (setq known-types '((number object ) (number string)))
-  
+
   ;;prevents error: "Wrong type argument: listp, string"
   ;;TODO: this is a bit of a mess now. types 'func' and 'function' in type
   ;;transforms result in different tests but func/function still kind of mean the
@@ -725,22 +705,21 @@ This will have to be removed after the code is generated
           (number list vector string object hash function func symbol vfunc)
           (number list vector string object hash function func symbol vfunc)))
   (push (list 'known-types known-types) test-variable-values)
-  
+
   (defun pyel-get-possible-types (&rest args)
     "return a list in the form (arg types).
     The car is the argument and the cdr is a list of possible types"
-    
+
     ;;FOR TESTING
     (let ((types (if (>= (length known-types) (length args))
                      known-types
                    (append known-types '(string number list vector integer float))))
           (args (filter (lambda (x) (not (or (eq x '&optional)
                                              (eq x '&rest)))) args)))
-      
+
       (mapcar* (lambda (arg type) (cons arg type))
                args types)))
 #+end_src
-
 ** pyel-def-funcall related
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defun pyel-filter-non-args(args)
@@ -748,28 +727,27 @@ This will have to be removed after the code is generated
     (filter (lambda (x) (not (or (eq x '&optional)
                                  (eq x '&rest))))
             args))
-  
-    
+
   ;;TODO: have functions saved in another file,
   ;;      instead of putting them all at the top of the file, have some type of
   ;;      require/import mechanism to functions are not constantly being redefined
   ;;    option to place insert function defs instead of requires
   (defmacro pyel-create-py-func (name args &rest type-switches)
     "return the function name"
-    ;;create a template that will resolve arg types and create a new function 
-    
+    ;;create a template that will resolve arg types and create a new function
+
     ;;-determine if enough type info is available to eliminate testing
     ;;-if testing is necessary, use `pyel-do-call-transform' like function to generate
     ;; the testing and calling structure and put that in a function
     ;;-create defun code if not yet defined
     ;;  add new func name to defined code list
-    
+
     ;;temp solution: does not check types etc
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
            (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                          (car (last striped-args)) nil)))
-  
+
       `(def-transform ,name pyel ()
          (lambda ,striped-args
            (let ((fsym ',(intern (concat "pyel-" (symbol-name name) "")))
@@ -786,7 +764,7 @@ This will have to be removed after the code is generated
                (push fsym pyel-defined-functions)
                (fset fsym (lambda () nil)))
              ;;(if (eq (car (last args 2)) '&rest)
-                 
+
              ;; (cons fsym (mapcar 'eval ,(if rest-arg
              ;;                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
              ;;                             `(quote ,args-just-vars))))
@@ -794,7 +772,7 @@ This will have to be removed after the code is generated
                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                           (cons 'list args-just-vars)))
              )))))
-  
+
   (defmacro pyel-method-transform (name args &rest type-switches)
     "define transforms for method calls on primative types"
     ;;method transforms are defined like normal type-transforms
@@ -802,14 +780,14 @@ This will have to be removed after the code is generated
     ;;of defined method transforms, if it found, this transform will override
     ;;the normal transform.
     (add-to-list 'pyel-method-transforms name)
-  
+
     ;;temp solution: does not check types etc
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
            (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                          (car (last striped-args)) nil)))
-  
-    `(def-transform ,(pyel-method-transform-name name) pyel () 
+
+    `(def-transform ,(pyel-method-transform-name name) pyel ()
        (lambda ,striped-args
          (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
                (body (pyel-do-call-transform (pyel-get-possible-types
@@ -817,7 +795,7 @@ This will have to be removed after the code is generated
                                              ',args
                                              ',type-switches))
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-           
+
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',striped-args
                          body)
@@ -828,7 +806,7 @@ This will have to be removed after the code is generated
                            `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                          (cons 'list args-just-vars)))
            )))))
-  
+
   (defmacro pyel-func-transform (name args &rest type-switches)
     "define transforms for function calls"
     ;;function transforms are defined like normal type-transforms
@@ -837,14 +815,14 @@ This will have to be removed after the code is generated
     ;;the normal function call transform.
     (add-to-list 'pyel-func-transforms name)
     ;;TODO: should name be modified to avoid conflicts ?
-    `(def-transform ,(pyel-func-transform-name name) pyel () 
+    `(def-transform ,(pyel-func-transform-name name) pyel ()
        (lambda ,args
          (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-function")))
                (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                              ',args
                                              ',type-switches))
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-           
+
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',(mapcar 'strip_ args)
                          body)
@@ -852,50 +830,50 @@ This will have to be removed after the code is generated
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
            (cons fsym (mapcar 'eval ',args))))))
-  
+
   (defvar pyel-func-transforms2 nil
     "list of functions whose translations are defined
   with the macro `pyel-define-function-translation'")
-    
+
   (defmacro pyel-define-function-translation (name &rest body)
     "BODY will form the body of a function that is called during transform time
   to tranlate a call to NAME, variables 'args' and 'kwargs'  are available at
   this point. 'args' will be a list and 'kwargs will be an alist
   This is called at the same time `pyel-func-transform' would be called"
     (add-to-list 'pyel-func-transforms2 name)
-    
-    `(def-transform ,(pyel-func-transform-name name) pyel () 
+
+    `(def-transform ,(pyel-func-transform-name name) pyel ()
        (lambda (args kwargs)
          ,@body
          )))
-  
+
   ;;TODO: this should be more general to allow for things like subscript to use it
-  
+
   ;;TODO: rename pyel-def-funcall -> pyel-create-py-func
   (defmacro pyel-def-funcall (name args &rest type-switches)
     "Define how to call the function NAME.
         NAME is a function that is called differently based on its argument types.
         An attempt will be made to test the least possible number of types.
-        
+
         This defines a transforms in the pyel transform table with NAME and ARGS"
     `(def-transform ,name pyel ()
        (lambda ,args
          (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                  ',args
                                  ',type-switches))))
-  
+
   ;;TODO: rename pyel-def-funcall -> pyel-def-type-transform
   (defmacro pyel-def-type-transform (name args &rest type-switches)
     "Define a transform NAME that produces code based on the types of ARGS
       TYPE-SWITCHES
-      
+
       This defines a transforms in the pyel transform table with NAME and ARGS"
     `(def-transform ,name pyel ()
        (lambda ,args
          (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                  ',args
                                  ',type-switches))))
-  
+
   ;; (defmacro pyel-def-call-func (name args &rest type-switches)
   ;;   "like `pyel-def-call-template' except that it generates a macro that
   ;; is called directly, because of this NAME must be unique"
@@ -904,7 +882,7 @@ This will have to be removed after the code is generated
   ;;      (pyel-do-call-transform (pyel-get-possible-types ,@args)
   ;;                              ',args
   ;;                              ',type-switches)))
-  
+
   (defun pyel-expand-type-switch (type-switch)
     "expands the types switch form to a list of cond clauses"
     (flet ((helper (arg form)
@@ -920,8 +898,7 @@ This will have to be removed after the code is generated
                            `(,and-or ,@(reverse ret)))
                        `((,arg ,type) ,varlist))))
            (expander (type-switch)
-                     
-                     
+
                      (let ((args (car type-switch))
                            (forms (cdr type-switch))
                            and-or ret inner tmp tests)
@@ -942,7 +919,7 @@ This will have to be removed after the code is generated
                                        (dolist (x (cdr tmp))
                                          (push x ret))
                                      (push (helper arg form) ret))))))
-                         
+
                          ;;else single arg
                          (dolist (form forms)
                            (setq tmp (helper args form))
@@ -956,40 +933,37 @@ This will have to be removed after the code is generated
           (dolist (e (expander ts))
             (push e ret)))
         (reverse ret))))
-  
-  
+
   ;;TODO: fix bug with  `pyel-expand-type-switch-2'
   ;;      the arg pattern (x x) should not expand unless
   ;;      x is a possible type of both args
-  
-  
+
   (defun pyel-expand-type-switch-2 (arglist patterns)
     "has output identical to `pyel-expand-type-switch' just translates
         different syntax"
-    (let ((group nil) 
+    (let ((group nil)
           (groups nil)
           (ngroups nil)
           (ret nil)
           code)
-      
-      
+
       ;;stage1: collect into groups
       (while patterns
         (setq p (pop patterns))
-        
+
         (if (not (eq p '->))
             (push-back p group)
           (push-back (pop patterns) group)
           (push-back group groups)
           (setq group nil)))
-      
+
       (dolist (g groups)
         (let* ((g (reverse g))
                (code (car g))
                (g (cdr g))
                ;;      (param-types (make-vector (length (car g)) nil))
                type)
-          
+
           (dolist (arg-pattern (reverse g)) ;;for each arg pattern
             (setq group-patterns nil)
             (dotimes (i (length arg-pattern)) ;;for each type or '_
@@ -1000,13 +974,12 @@ This will have to be removed after the code is generated
                 (setq ret (append ret (list (list t code))))
               (if (= (length group-patterns) 1)
                   (setq ret (append ret (reverse group-patterns)))
-                (setq ret (append ret (list (cons 'and 
+                (setq ret (append ret (list (cons 'and
                                                   (list (mapcar 'car
                                                                 (reverse group-patterns))
                                                         code))))))))))
       ret))
-  
-  
+
   (defun pyel-do-call-transform (possible-types args type-switch)
     "This is responsible for  producing a call to NAME in the most
         efficient way possible with the known types"
@@ -1019,7 +992,7 @@ This will have to be removed after the code is generated
                                  (push (cons arg type) ret)))
                              ret))
            (c 0)
-  
+
            (args-just-vars (pyel-filter-non-args (mapcar 'strip_ args)))
            (new-args (loop for a in args ;;doing: check for leading underscore
                            collect (if (or (eq a '&optional)
@@ -1031,7 +1004,7 @@ This will have to be removed after the code is generated
                                 (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
                                                                         (symbol-name x))
                                                         (push (list (strip_ x) (list '\, (strip_ x))) ar)))
-                                        
+
                                         args)
                                 ar))
            ;;list of symbols to replace
@@ -1045,7 +1018,7 @@ This will have to be removed after the code is generated
                               (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
                                 (intern (match-string 2 (symbol-name a))) a))
                                 args))
-                       
+
            ;;the __x__ type replacements interfere with the (\, x) type replacements
            ;;so they must be seporated and done one at a time
            (arg-replacements1 let-vars)
@@ -1056,7 +1029,7 @@ This will have to be removed after the code is generated
                                         (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
                                       args-just-vars))
            (arg-replacements (append arg-replacements1 arg-replacements2))
-           
+
            (arg-quote-replacements (mapcar (lambda (x)
                                         (list x (list '\, x)))
                                       args-just-vars))
@@ -1065,7 +1038,7 @@ This will have to be removed after the code is generated
            ;;                           (mapcar (lambda (x)
            ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
            ;;                                   args)))
-           
+
            (ts ) ;;??
            (valid nil) ;;list of valid arg--types
            (found nil)
@@ -1073,8 +1046,8 @@ This will have to be removed after the code is generated
            var value type all-good var-vals len)
       ;;        (print "possible types = ")
       ;;        (print possible-types)
-      
-      
+
+
       ;;collect all the arg-type--code pairs that are valid possibilities,
       ;;that is, members of possible-types.
       ;;This essentially throws out all the arg types that have been ruled out.
@@ -1084,7 +1057,7 @@ This will have to be removed after the code is generated
                          found nil)
                    (dolist  (x (cadr t-s)) ;;for each 'and' member type-switch
                      (dolist (pos-type possible-types) ;;for each arg type
-                       (if (and (equal (eval (car x)) (car pos-type)) 
+                       (if (and (equal (eval (car x)) (car pos-type))
                                 (equal (cadr x) (cdr pos-type)))
                            (setq found t)))
                      (setq all-good (if (and all-good found) t nil)))
@@ -1094,23 +1067,21 @@ This will have to be removed after the code is generated
           (if (eq (car t-s) t) ;;when all types are _
               (push t-s valid)
             ;;otherwise check if the type is one of the valid types
-                 
+
             (setq _xx t-s)
             (dolist(pos-type possible-types)
               (when (and (equal (eval (caar t-s)) (car pos-type))
                          (equal (strip$ (cadar t-s)) (cdr pos-type)))
                 (push t-s valid))))));;TODO: break if found?
-      
-      
-      
+
       ;;generate code to call NAME
       ;;if there is 2 posible types, use IF. For more use COND
       (setq len (length valid))
-      
+
       (flet ((replace (code replacements)
                       (let ((ret nil)
                             found)
-                        
+
                         (dolist (c code)
                           (setq found nil)
                           (dolist (r replacements)
@@ -1123,19 +1094,19 @@ This will have to be removed after the code is generated
                           (unless found
                             (push c ret)))
                         (reverse ret)))
-  
+
              (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
              (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
              ;;(get-replacement (arg) ;;returns arg replacement
              ;;                 (cadr (assoc arg arg-replacements)))
              (get-replacement (arg) ;;returns arg replacement
                               (cadr (assoc arg current-replace-list)))
-  
+
              ;;bug fix maybe...
              (get-replacement-OLD (arg) ;;returns arg replacement
                                   (or (cadr (assoc arg arg-replacements))
                                       (cadr (assoc arg arg-replacements4))))
-  
+
              ;;replaces the vars, one type at a time
              (replace-vars (code)
                            (let* ((current-replace-list arg-replacements1)
@@ -1144,7 +1115,7 @@ This will have to be removed after the code is generated
                                   (code (replace code arg-replacements2))
                                   (current-replace-list arg-replacements3))
                              (replace code arg-replacements3)))
-             
+
              (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                               (if (equal (car t-s--c) 'and)
                                   (progn (setq __x t-s--c)
@@ -1155,7 +1126,7 @@ This will have to be removed after the code is generated
                                                                  (car x))))
                                                           (cadr t-s--c)))
                                            ,(replace-vars (caddr t-s--c))))
-                                
+
                                 ;;TODO
                                 (progn (setq __x t-s--c)
                                        (if (equal (car t-s--c) t) ;;all types where _
@@ -1169,14 +1140,14 @@ This will have to be removed after the code is generated
                                                 (arg (get-replacement-OLD (caar t-s--c))))
                                            `((,tester ,(if quote-arg-p (list 'quote (list '\, (caar t-s--c))) arg))
                                              ,body))
-  
+
                                          ))))
-  
+
              (gen-varlist ()
                           (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
                                   let-vars)
                           ))
-        
+
         (cond ((<= len 0) "ERROR: no valid type")
               ((= len 1)
                (if (eq (caar valid) 'and)
@@ -1201,14 +1172,14 @@ This will have to be removed after the code is generated
                                      (cond ,@(reverse clauses)))
                                   `(cond ,@(reverse clauses)))
                                  )))))))
-  
-  
+
+
   (defun call-transform (template-name &rest args)
     "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
   if was called as (transform '(template-name args))
   NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
     (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
-  
+
   (defun strip$ (sym)
     (let ((str (symbol-name sym)))
       (if (string-match "\\(^\\$\\)\\(.+\\)" str)
@@ -1247,11 +1218,10 @@ TODO: describe alternative syntax
 ==> look at the bin-op heading for examples
 (pyel-def-funcall * (l r)
                     (number number) ->  (* l r)
-                    (object _)      
+                    (object _)
                     (_ object)  -> (--mul-- l r)
                     (_ string)
                     (string _)  -> (pyel-mul-num-str l r))
-
 
 *** tests
 auto generated tests
@@ -1264,20 +1234,20 @@ hand written
   ;;verify that both type expanders produce the same output
   (should (equal (pyel-expand-type-switch-2 '(l r)
 					    '((number number) ->  (* l r)
-					      (object _)      
+					      (object _)
 					      (_ object)  -> (--mul-- l r)
 					      (_ string)
 					      (string _)  -> (pyel-mul-num-str l r)))
 
 		 (pyel-expand-type-switch-2 '(l r)
 					    '((number number) ->  (* l r)
-					      (object _)      
+					      (object _)
 					      (_ object)  -> (--mul-- l r)
 					      (_ string)
 					      (string _) -> (pyel-mul-num-str l r))))))
 #+END_SRC
 
-** translation messages 
+** translation messages
 #+Begin_SRC emacs-lisp :tangle pyel.el
 (defvar pyel-translation-messages nil
   "collects messages during pyel translations")
@@ -1342,15 +1312,14 @@ preprocessor expand separately
 ** tests
 * python ast
 This is for all non template specific code.
-
 #+Begin_SRC python :tangle py-ast.py
   import ast
-  
+
   #TODO: use *args
-  
+
   def l_str(x):
       return "(" + " ".join(map(str,x)) + ")"
-  
+
   def ll_str(x):
       if x == []:
           return "nil"
@@ -1360,48 +1329,46 @@ This is for all non template specific code.
   #    return " ".join(map(str,x))
   #    return "(list " + " ".join(map(str,x)) + ")"
   # commented out for 'assign'. cause problems elsewhere?
-  
-  
+
   def untuple(x):
       return ll_str(x)
       if x == []:
           return "nil"
       elif type(x) == str:
           return x
-      
+
   def Module(body):
       return "\n".join(body)
-  
+
   def keyword(arg, value):
       return l_str(["(keyword ", arg, " ", value, ")"])
-        
+
   def Print(dest, values, nl):
       print("Error: using python2, upgrade to python3")
       exit()
-        
+
   def Param():
       return "'param"
-      
+
   def Load():
       return "'load"
-      
+
   def Store():
       return "'store"
-      
+
   def Expr(value): #?bug
       return value
-      
+
   def Import(names, lineno=None, col_offset='None'):
       return l_str(["import ",ll_str(names), lineno, col_offset])
-      
+
   def alias(name, asname):
       if asname: asname = "\"" + asname + "\""
-      return l_str(["alias ", "\"" + name + "\"", asname or "nil"]) 
-      
+      return l_str(["alias ", "\"" + name + "\"", asname or "nil"])
+
   def ImportFrom(module, names, level, lineno=None, col_offset='None'):
       return l_str(["import-from ","\"" + module + "\"", ll_str(names), level, lineno, col_offset])
-    
-#+END_SRC  
+#+END_SRC
 * runtime
 * testing
 ert tests
@@ -1412,21 +1379,21 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     "list of generated python test functions.
   when `pyel-run-tests' is run, these are translated to e-lisp
   and compared to expected values")
-  
+
   (setq _pyel-tests nil)
   (setq _pyel-structure-tests nil)
-  
+
   (defvar pyel-test-func-counter 0
     "just another counter")
-    
+
   (defun pyel-make-test-func-name ()
     (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
-  
+
   (defun cl-prettyprint-to-string (form)
     (with-temp-buffer
       (cl-prettyprint form)
       (buffer-string)))
-  
+
   (defmacro pyel-create-tests (name &rest py-tests)
     (let ((complete nil)
           (py-ast nil)
@@ -1439,9 +1406,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-        
+
         (flet ((pyel-create-new-marker () "test_marker"))
-          
+
           (dolist (test (reverse py-tests))
             (cond ((and (consp test)
                         (>= (length test) 2)
@@ -1453,7 +1420,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                           (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
                           (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
                           (d 0))
-                     
+
                      (push (setq _x (pyel-functionize (concat (car test)
                                                                     (if (= (length test) 2)
                                                                         (if (listp (cadr test))
@@ -1480,8 +1447,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                         ,(intern (format "pyel-test-%s-%s" name-str
                                                          (number-to-string (setq c (1+ c))))) ()
                                       (equal (eval (pyel ,(if (= (length test) 2)
-  
-                                                                          
+
+
                                                                       (format "%s()" test-name)
                                                                     (format "%s(%s)" test-name (setq d (1+ d))))))
                                                      ,(if (and (listp (cadr x))
@@ -1493,7 +1460,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                            (cdr test))
                      (setq _pyel-tests (append _pyel-tests (reverse tests)))
                      ))
-                  
+
                 ((consp test) ;;form: ("test" expect)
                  (push `(ert-deftest
                               ,(intern (concat "pyel-" (symbol-name name)
@@ -1501,9 +1468,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                             (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
                                                         "\n_pyel21312()")))
                                            ,(cadr test)))
-  
+
                          _pyel-tests))
-              
+
                 (t (progn ;;form "test"
                      ;;check complete code transformation
                      (setq trans (pyel test))
@@ -1512,30 +1479,30 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                      ',trans))
                            _pyel-structure-tests)
                      ;;check python ast
-                     (push `(ert-deftest ,(intern (format "pyel-py-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
+                     (push `(ert-deftest ,(intern (format "pyel-py-ast-test-%s-%s"  name (pyel-make-test-func-name))) ()
                               (equal (py-ast ,test)
                                      ,(py-ast test))
                               pyel-py-ast-tests)
                            _pyel-structure-tests)
                      ;;check transformed .py syntax tree
-                     (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
+                     (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) ()
                               (string= (pyel ,test t)
                                        ,(pyel test t))
                               pyel-el-ast-tests)
                            _pyel-structure-tests))
             )))))))
-  
+
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
     ;;99% of the code is the same...
     (let ((complete nil)
           (py-ast nil)
-          (el-ast nil)    
+          (el-ast nil)
           trans)
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-        
+
         (dolist (code (reverse py-code))
           ;;check complete code transformation
           (setq trans (pyel-with-known-types known-types code))
@@ -1551,24 +1518,24 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           (push `(should (string= (pyel ,code t)
                                   ,(pyel code t)))
                 el-ast))
-        
+
         (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
                                      () ,@complete)))
         (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
                                         () ,@py-ast)) nil)
-  
+
         (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
                                         () ,@el-ast)) nil)
         (message "Tests copied to kill ring"))))
-  
-  
+
+
   (defun pyel-indent-py-code (code &optional indent)
     "Indent CODE by INDENT. CODE is a string. INDENT defaults to one space"
     (let ((indent (or indent " ")))
       (mapconcat 'identity (mapcar (lambda (x) (concat indent x))
                                    (split-string code "\n"))
                  "\n")))
-  
+
   (defun pyel-generate-tests ()
     (interactive)
     ;;read in tests from pyel-tests.el
@@ -1578,7 +1545,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           pyel-test-py-functions
           _pyel-tests
           _pyel-structure-tests)
-      
+
       (load-file (file-path-concat pyel-directory "pyel-tests.el"))
       (with-temp-buffer
         ;;save py test functions
@@ -1592,22 +1559,22 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (mapc (lambda (x)
                 (insert (prin1-to-string x) "\n"))
               _pyel-structure-tests)
-        
+
         (insert "\n(provide 'pyel-tests-generated)")
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
-  
+
   (defalias 'pyel-verify 'pyel-run-tests)
   (defun pyel-run-tests (&optional selector)
-    "setup and run pyel test. 
+    "setup and run pyel test.
   SELECTOR may be any of the following:
   'pyel-test' all normal tests. This is the default
   The following tests check code structure, but do not eval
   generated lisp code.
-  'pyel-transform-test' check full code transform 
+  'pyel-transform-test' check full code transform
   'pyel-py-ast-test' check python AST
   'pyel-el-ast-test' check lisp AST
-  
-  'pyel' will run all tests'" 
+
+  'pyel' will run all tests'"
     (interactive)
     (setq selector (or selector
                        (let ((tests '(("all" . "pyel")
@@ -1623,7 +1590,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-        
+
         (if (or (string= selector "pyel-test")
                 (string= selector "pyel"))
             (let ((tmp-file "~/tmp/pyel-test-functions.el"))
@@ -1638,10 +1605,10 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
               (save-buffer)
               (kill-buffer)
               (load-file tmp-file)))
-  
+
           (ert-run-tests-interactively selector)
           )))
-  
+
   (defun pyel-functionize (py-code &optional func-name &rest args)
     "wrap PY-CODE in a function definition
   FUNC-NAME defaults to 'f'"
@@ -1649,12 +1616,12 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
                                           (split-string py-code "\n"))
                         "\n")))
-  
+
 #+END_SRC
 ** tests
-this test is disabled. It pollutes global variables 
+this test is disabled. It pollutes global variables
 # #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (ert-deftest pyel-create-tests () 
+  (ert-deftest pyel-create-tests ()
     (let ((pyel-test-func-counter 0)
           pyel-test-py-functions
           _pyel-tests)
@@ -1670,7 +1637,7 @@ this test is disabled. It pollutes global variables
    test2 setup
    if n == 1:
     return test2_1
-   
+
    if n == 2:
     test2_2setup
     a
@@ -1680,7 +1647,7 @@ this test is disabled. It pollutes global variables
    a
    b
    return test4"))
-      
+
       (equal _pyel-tests
              '((push (quote (string= (pyel "test1
   a
@@ -1701,103 +1668,103 @@ this test is disabled. It pollutes global variables
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   ;; should not fset functions because the effect takes place globally
-  ;; even when the name being set is let bound.  
+  ;; even when the name being set is let bound.
   (pyel-create-py-func set (_sym _val)
                        (_ $function) -> (setq $sym $$val)
                        (_ _) -> (setq $sym $val)) ;;TODO: other?
-  
+
   (def-transform assign pyel ()
-      (lambda (targ val) (py-assign targ val)))
-    
-   ;;TODO: put all setq's in a single form: (setq a 1 b 2) etc
-  
+    (lambda (targ val) (py-assign targ val)))
+
+  ;;TODO: put all setq's in a single form: (setq a 1 b 2) etc
+
   (defun py-assign (targets values)
-      
-      (let ((wrap-values t)
-            unpack i)
-        ;;make sure targets and lists are both in a list form
-        ;;the 'unpack' flag is needed because it leaves no difference
-        ;;between a,b=c and a=b=c
-        (if (and (listp (car targets))
-                 (eq (caar targets) 'tuple))
-            (progn
-              
-              (if (eq (car values) 'tuple)
-                  (progn
-                    
-                    (setq values (cadr values))
-                    (setq wrap-values nil))
-                (setq unpack t) ;;targets is a tuple and values is not
-                ;;(setq values (list values))
-                )
-              
-              (setq targets (cadar targets)))
-          )
-        
-        (when wrap-values
-          (setq values (list values)))
-        
-        
-        ;;py-sssign2 does the main transforms
-        ;;TODO: check for the special case a,b=b,a and create temp variables
-        ;;TODO: check that legnth of the lists are the same
-  
-        ;;TODO: 
-        (cond (unpack
-                ;;TODO: pyel error unless: (and (> (length targets) 1)  (= (length values) 1)
-  
-              (let ((code '(@)))
-                `(let ((__value__ ,(transform (car values))))
-                   
-                ,(dotimes (i (length targets) (reverse code))
+
+    (let ((wrap-values t)
+          unpack i)
+      ;;make sure targets and lists are both in a list form
+      ;;the 'unpack' flag is needed because it leaves no difference
+      ;;between a,b=c and a=b=c
+      (if (and (listp (car targets))
+               (eq (caar targets) 'tuple))
+          (progn
+
+            (if (eq (car values) 'tuple)
+                (progn
+
+                  (setq values (cadr values))
+                  (setq wrap-values nil))
+              (setq unpack t) ;;targets is a tuple and values is not
+              ;;(setq values (list values))
+              )
+
+            (setq targets (cadar targets)))
+        )
+
+      (when wrap-values
+        (setq values (list values)))
+
+
+      ;;py-sssign2 does the main transforms
+      ;;TODO: check for the special case a,b=b,a and create temp variables
+      ;;TODO: check that legnth of the lists are the same
+
+      ;;TODO:
+      (cond (unpack
+             ;;TODO: pyel error unless: (and (> (length targets) 1)  (= (length values) 1)
+
+             (let ((code '(@)))
+               `(let ((__value__ ,(transform (car values))))
+
+                  ,(dotimes (i (length targets) (reverse code))
                    ;;;TODO: will have to help the transform know what type __value__ is
-                  (push (py-assign2 (nth i targets)
-                                    
-                                    (pyel-make-ast 'subscript '__value__ i 'load))
-                        code))
-                )))
-  
-               ((= (length targets) 1)
-               ;;form: a=b
-               (py-assign2 (car targets)
-                           (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
-    
-              ;;form: a,b = c
-              ((and (> (length targets) 1) (= (length values) 1))
-               (list '@ (py-assign2 (car (last targets)) (car values))
-                        (py-assign  (butlast targets)
-                                    (pyel-change-ctx (car (last targets)) 'load))))
-              
-              ;;form: a,b = x,y
-              (t (let* ((tmp-vars (loop for i from 1 to (length targets)
-                                        collect (intern (format "__%s__" i))))
-                        (let-vars (mapcar* (lambda (a b)
-                                             (list a (transform b)))
-                                           tmp-vars values)))
-                   `(let ,let-vars
-                      ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars))))))))
-  
+                     (push (py-assign2 (nth i targets)
+
+                                       (pyel-make-ast 'subscript '__value__ i 'load))
+                           code))
+                  )))
+
+            ((= (length targets) 1)
+             ;;form: a=b
+             (py-assign2 (car targets)
+                         (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
+
+            ;;form: a,b = c
+            ((and (> (length targets) 1) (= (length values) 1))
+             (list '@ (py-assign2 (car (last targets)) (car values))
+                      (py-assign  (butlast targets)
+                                  (pyel-change-ctx (car (last targets)) 'load))))
+
+            ;;form: a,b = x,y
+            (t (let* ((tmp-vars (loop for i from 1 to (length targets)
+                                      collect (intern (format "__%s__" i))))
+                      (let-vars (mapcar* (lambda (a b)
+                                           (list a (transform b)))
+                                         tmp-vars values)))
+                 `(let ,let-vars
+                    ,(cons '@ (mapcar* 'py-assign2 targets tmp-vars))))))))
+
   ;;DOC: tranforms must be carefull not to transform code multiple times
-  
+
   (defun py-assign2 (target value)
-   (let ((ctx (eval (car (last target))))
-  
-          (assign-value value)) 
-  
+    (let ((ctx (eval (car (last target))))
+
+          (assign-value value))
+
       ;;the target code is responsible for providing the correct assign function
       ;;
-      
+
       ;;TODO:     is context-value still used?
       ;; (using-context assign-target
       ;;             (setq t-target (transform target)))
       ;; (using-context assign-value
       ;;             (setq t-value (transform value)))
-  
+
       ;;The target transform is responsible for generating the code
       ;;The value being assigned to the target is available to the
       ;;target transform via the variable assign-value.
       ;;assign-value is untransformed, the target transform must tranform it
-      
+
       ;; (using-context assign-value
       ;;             (setq assign-value (transform value)))
       ;;problem: code was being transformed multiple times
@@ -1805,7 +1772,7 @@ this test is disabled. It pollutes global variables
       (using-context assign-target
                      (transform target))
       ;;    (list assign-func t-target t-value)
-  
+
       ))
 #+END_SRC
 ** python ast
@@ -1814,9 +1781,8 @@ this test is disabled. It pollutes global variables
       #    print("targets: ", targets)
       return l_str(["assign ", untuple(targets), value])
 #+END_SRC
-
-** tests 
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el 
+** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
    assign
    ("a = 1" ("a" 1))
@@ -1836,7 +1802,7 @@ this test is disabled. It pollutes global variables
     ("a" 3)
     ("C.v" 1.1)
     ("x[2]" 1))
-   
+
    ("a = 1
   b = 2
   a,b= b,a"
@@ -1861,11 +1827,11 @@ this test is disabled. It pollutes global variables
   c = 3
   d = a,b,c"
     ("d" [1 2 3]))
-  
+
    "a,b = a.e.e()"
-   
+
    "a[1:4], b[2], a.c = c"
-   
+
    "a = b = c"
    "a = b = c.e"
    "a = b = c.e()"
@@ -1874,40 +1840,39 @@ this test is disabled. It pollutes global variables
     ("b" 9)
     ("c" 9))
    )
-#+END_SRC 
+#+END_SRC
 * attribute
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform attribute pyel ()
     (lambda (value attr ctx)
       (pyel-attribute value attr ctx)))
-  
-  
+
   (defun pyel-attribute (value attr ctx)
     (setq ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
     (let ((t-value (transform value))
           (attr (read (_to- (transform attr)))))
-      
+
       ;;create slot for this attribute if it does not already exist
       (when (and (context-p 'method-def)
                  (not (assoc attr class-def-slots)))
         (push `(,attr :initarg ,(intern (concat ":"
                                                 (symbol-name attr)))
                       :initform nil)
-              
+
               class-def-slots))
       (if (and (context-p 'method-call)
                (not (context-p 'method-call-override)))
           (using-context method-call-override
                          ;;ctx?
                          `(@ call-method ,(transform value) ,attr))
-        
-        
+
+
         ;; (if (context-p 'assign-target)
         ;;          (setq assign-func 'oset))
-        
+
         ;;check the presumption:
         (when (and (eq ctx 'store)
                    (not (context-p 'assign-target))
@@ -1916,7 +1881,7 @@ this test is disabled. It pollutes global variables
         (when (and (eq ctx 'store)
                    (not (boundp 'assign-value)))
           (error "`pyel-attribute': Presumption failed: ctx==store but assign-value is unbound"))
-        
+
         (cond
          ((eq ctx 'store)
           ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
@@ -1926,9 +1891,6 @@ this test is disabled. It pollutes global variables
           (list 'getattr t-value attr))
          (t "Error in attribute-- invalid ctx"))
         )))
-  
-  
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -1956,7 +1918,7 @@ this test is disabled. It pollutes global variables
                      "a.b, a.b.c = d.e.f(1,3), e.g.b"
                      "a.b(x.y,y)"
                      "a.b(x.y(g.g()),y.y)")
-  
+
 #+END_SRC
 * num ok
 ** transform
@@ -1975,25 +1937,24 @@ this test is disabled. It pollutes global variables
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests num "3" "4.23")
 #+END_SRC
-
-* name 
+* name
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform name pyel ()
     (lambda (id ctx)
       (pyel-name id ctx)))
-  
+
   (defun pyel-name (id ctx)
     (let ((new-id)
           (id (read id))
           piece code)
-      
+
       ;;TODO: id should be string. verify?
       (setq ctx (cond ((context-p 'force-load) 'load)
                       ((context-p 'force-store) 'store)
                       (t (eval ctx))))
-      
-      
+
+
       (if (assoc id pyel-marked-ast-pieces)
           ;;this id is a marker, insert the corresponding macro
           (progn
@@ -2002,31 +1963,29 @@ this test is disabled. It pollutes global variables
             (using-context macro-call
                            (list (second piece)
                                  (pyel-transform-ast (third piece) :nosplice))))
-        
+
         ;;else: normal name
         (setq id (_to- id))
         (when (and (context-p 'assign-value) ;;checking assumption
                    (not (equal ctx 'load)))
           (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
             ctx = %s" ctx)))
-        
+
         (when (setq new-id (assoc id pyel-variable-name-translations))
           (setq id (cadr new-id)))
-        
+
         (when (and (eq ctx 'store)
                    (context-p 'function-def)
                    (context-p 'assign-target))
           (add-to-list 'let-arglist id))
-        
-        (cond 
+
+        (cond
          ((eq ctx 'load) id)
          ((eq ctx 'store)  (if (context-p 'for-loop-target)
                                id
                              (call-transform 'set id assign-value)))
          (t  "<ERROR: name>"))
         )))
-  
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2038,7 +1997,6 @@ this test is disabled. It pollutes global variables
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests name "testName")
 #+END_SRC
-
 * literals
 ** list
 *** transform
@@ -2046,13 +2004,11 @@ this test is disabled. It pollutes global variables
     (def-transform list pyel ()
       (lambda (elts ctx)
         (pyel-list elts ctx)))
-    
-  
+
   (defun pyel-list (elts ctx)  ;;IGNORING CTX
     (if (context-p 'macro-call)
         (mapcar 'transform elts)
       (cons 'list (mapcar 'transform elts))))
-  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2072,25 +2028,22 @@ this test is disabled. It pollutes global variables
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (defvar pyel-dict-test 'equal "test function for dictionaries")
-  
+
   (def-transform dict pyel ()
     (lambda (keys values)
       (pyel-dict keys values)))
-  
-  
-  (defun pyel-dict (keys values) ;;TODO: move to lambda in template and create template vars 
+
+  (defun pyel-dict (keys values) ;;TODO: move to lambda in template and create template vars
     (if keys
-  
+
         `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
            ,(cons '@ (mapcar* (lambda (key value)
-                                         `(puthash ,key ,value __h__))
-                                       (mapcar 'transform  keys)
-                                       (mapcar 'transform  values)))
+                                `(puthash ,key ,value __h__))
+                              (mapcar 'transform  keys)
+                              (mapcar 'transform  values)))
            __h__)
-      
+
       `(make-hash-table :test ',pyel-dict-test)))
-  
-  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2111,8 +2064,6 @@ this test is disabled. It pollutes global variables
   (def-transform tuple pyel ()
     (lambda (elts ctx) ;;Ignoring ctx for now
       (cons 'vector (mapcar 'transform elts))))
-  
-  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2127,13 +2078,12 @@ this test is disabled. It pollutes global variables
                      "(a, (b, (c,d)))"
                      "((((((((a))))))))")
 #+END_SRC
-
 ** string
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (def-transform str pyel () 
+  (def-transform str pyel ()
     (lambda (s)
-  ;;    (format "\"%s\"" s)
+      ;;    (format "\"%s\"" s)
       s
       ))
 #+END_SRC
@@ -2148,9 +2098,7 @@ this test is disabled. It pollutes global variables
                      "'a'"
                      "x = 'a'"
                      "['a','b']")
-
 #+END_SRC
-
 ** ???
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -2171,14 +2119,14 @@ this test is disabled. It pollutes global variables
 ;;
 #+END_SRC
 
-* comparisons: >, <, ==, !=, <=, >= 
+* comparisons: >, <, ==, !=, <=, >=
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform compare pyel ()
     (lambda (left ops comparators)
       ;;what if comparators has multiple items?
       (pyel-compare left ops comparators :outer)))
-  
+
   ;;TODO: assign comparators to temp variables to prevent repeated evaluation
   (defun pyel-compare (left ops comparators &optional outer)
     ;;if outer is non-nil, then we use 'and' to combine the seporate tests
@@ -2186,46 +2134,46 @@ this test is disabled. It pollutes global variables
         (list (if outer 'and '@)
               (pyel-compare left (list (car ops)) (list (car comparators)))
               (pyel-compare (car comparators) (cdr ops) (cdr comparators)))
-      
+
       (call-transform (read (car ops)) left (car comparators))))
-  
+
   (pyel-create-py-func == (l r)
                        (number number) -> (= l r)
                        (string string) -> (string= l r)
                        ;;                       (object _) -> (--eq-- l r)
-                       
+
                        (_ _) -> (equal l r))
-  
+
   (pyel-create-py-func > (l r)
                        (number number) -> (> l r)
                        ;;TODO: macro for this
                        (string string) -> (and (not (string< l r)) (not (string= l r)))
                        (object _) -> (__gt__ l r))
-  
+
   ;;TODO: other py types?
-  
+
   ;;::Q does `string<' behave like < for strings in python?
   (pyel-create-py-func < (l r)
                        (number number) -> (< l r)
                        (string string) -> (string< l r)
                        (object _) -> (__lt__ l r))
-  
+
   (pyel-create-py-func >= (l r)
                        (number number) -> (>= l r)
                        (string string) -> (not (string< l r))
                        (object _) -> (__ge__ l r))
-  
+
   (pyel-create-py-func <= (l r)
                        (number number) -> (<= l r)
                        (string string) -> (or (string< l r) (string= l r))
                        (object _) -> (__le__ l r))
-  
+
   (pyel-create-py-func != (l r)
                        (number number) -> (not (= l r))
                        (string string) -> (not (string= l r))
                        (object _) -> (__ne__ l r)
                        (_ _) -> (not (equal l r)))
-  
+
   ;;this is defined as a transform because `pyel-compare' expects
   ;;all comparison functions to be transforms
   (pyel-create-py-func is (l r)
@@ -2233,10 +2181,9 @@ this test is disabled. It pollutes global variables
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-    
   def Compare (left, ops, comparators, lineno=None, col_offset=None):
         return l_str(["compare ", left, ll_str(ops), ll_str(comparators), lineno, col_offset ])
-        
+
   def Gt():
         return "\">\""
   def Lt():
@@ -2250,14 +2197,13 @@ this test is disabled. It pollutes global variables
   def GtE():
         return "\">=\""
   def In():
-        return "\"in\"";
+        return "\"in\""
   def NotIn():
-        return "\"not-in\"";
+        return "\"not-in\""
   def Is():
-        return "\"is\"";
-  
+        return "\"is\""
 #+END_SRC
-** tests   
+** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests compare
                      "a=='d'"
@@ -2273,9 +2219,7 @@ this test is disabled. It pollutes global variables
                      "a<b<c"
                      "a<=b<c<=d"
                      "a.b<=b.c()<c<=3")
-  
 #+END_SRC
-
 * if
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -2292,21 +2236,20 @@ this test is disabled. It pollutes global variables
              (progn-code (if (> (length true-body) 1)
                              '(@ progn)
                            '@)))
-  
+
         `(if  ,(if (equal tst []) nil tst)
-  
+
              (,progn-code ,@true-body)
            ,@(append (remove-context tail-context
                                      (mapcar 'transform
                                              (subseq orelse 0 -1)))
                      (when (> (length orelse) 1)
                             (list (transform (car (last orelse))))))))))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-    def If (test, body, orelse, lineno=None, col_offset=None):
-        return l_str(["if ",test, ll_str(body), ll_str(orelse), lineno, col_offset])
+  def If (test, body, orelse, lineno=None, col_offset=None):
+      return l_str(["if ",test, ll_str(body), ll_str(orelse), lineno, col_offset])
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -2315,35 +2258,34 @@ this test is disabled. It pollutes global variables
     b=c
   else:
     a = d"
-  
+
                      "if (a==b):
      b=c
      z=1
   else:
     a = 4
     b = a.b"
-  
+
                      "if (a.b <= a.e):
    a.b=(2.1,2)
   else:
    b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]"
                      )
 #+END_SRC
-
 * call
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (defvar pyel-obj-counter 0)
-  
+
   (defun pyel-next-obj-name ()
     (if pyel-unique-obj-names
         (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
       "obj"))
-  
+
   ;; (pyel-create-py-func fcall (_func &rest args)
   ;;                      ($func _) -> ($func ,@args)
   ;;                      (_ _) -> (funcall $func ,@args))
-  
+
   ;; functions set to variables override those defined with `defun'
   ;; this allows locally defined functions to override their global
   ;; counterparts without defining themselves globally
@@ -2354,84 +2296,82 @@ this test is disabled. It pollutes global variables
                                                 ,@(pyel-sort-kwargs args))
                        (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
                        )
-  
+
   (def-transform keyword pyel ()
     (lambda (arg value)
       (if (context-p 'keywords-alist)
           (list (_to- arg) (transform value))
         (list '@ (_to- arg)  '= (transform value)))))
-  
+
   (def-transform call pyel ()
     ;;TODO: some cases funcall will need to be used, how to handle that?
     (lambda (func args keywords starargs kwargs)
       (pyel-call-transform func args keywords starargs kwargs)))
-  
-  
+
+
   (defun pyel-call-transform (func args keywords starargs kwargs)
     (let ((t-func (transform func))
           (keyword-args (using-context keywords-alist
                                        (mapcar (lambda (x) (transform (car x)))
-                                keywords)))
+                                               keywords)))
           new-func m-name f-name star-args kw-args)
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
       ;;        (--init-- __c ,@(mapcar 'transform args))
       ;;        __c)
-        
-        (if (eq (car func) 'attribute);;method call
-            (if (member (setq m-name (read (caddr func)))
-                        pyel-method-transforms)
-                ;;this methods transform is overridden
-                (progn
-                  ;;dynamic scoping saves the day again!
-                  (setq keyword-args keywords
-                        star-args starargs
-                        kw-args kwargs)
+
+      (if (eq (car func) 'attribute);;method call
+          (if (member (setq m-name (read (caddr func)))
+                      pyel-method-transforms)
+              ;;this methods transform is overridden
+              (progn
+                ;;dynamic scoping saves the day again!
+                (setq keyword-args keywords
+                      star-args starargs
+                      kw-args kwargs)
                 (eval `(call-transform ',(pyel-method-transform-name m-name)
                                        ',(transform (cadr func))
                                        ,@(mapcar '(lambda (x) `(quote ,x)) args))))
-              ;;normal method call
-              (remove-context method-call-override
-                              (using-context method-call
-                                             `(,(transform func) ,@(remove-context method-call
-                                                                                   (mapcar 'transform args))))))
-          
-          (when (setq new-func (assoc t-func pyel-function-name-translations));;function call
-            ;;translate name 
-            (setq t-func (cadr new-func)))
-          
-          ;;call function transform if one was defined
-          (cond ((member t-func pyel-func-transforms) 
-                 ;;transform defined with `pyel-func-transform'
-                 (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                        ;;',(transform (cadr func))
-                                        ,@(mapcar '(lambda (x) `(quote ,x)) args))))
-  
-                ((member t-func pyel-func-transforms2)
-                 ;;transform defined with `pyel-define-function-translation'
-                 (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                        ;;,(mapcar '(lambda (x) `(quote ,x)) args)
-                                        (mapcar 'transform args)
-                                        keyword-args)))
-            
-            ;;normal function call
-            ;;`(,t-func ,@(mapcar 'transform args))
-            ;;TODO: this is dumb, convert `call-transform' to a macro?
-                (t (eval `(call-transform 'fcall ,@(cons 't-func
-                                                         (mapcar (lambda (x)
-                                                                   `(quote ,x))
-                                                                 (append args
-                                                                         (mapcar 'car
-                                                                                 keywords))
-                                                                 )))))))))
-  
+            ;;normal method call
+            (remove-context method-call-override
+                            (using-context method-call
+                                           `(,(transform func) ,@(remove-context method-call
+                                                                                 (mapcar 'transform args))))))
+
+        (when (setq new-func (assoc t-func pyel-function-name-translations));;function call
+          ;;translate name
+          (setq t-func (cadr new-func)))
+
+        ;;call function transform if one was defined
+        (cond ((member t-func pyel-func-transforms)
+               ;;transform defined with `pyel-func-transform'
+               (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                      ;;',(transform (cadr func))
+                                      ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+
+              ((member t-func pyel-func-transforms2)
+               ;;transform defined with `pyel-define-function-translation'
+               (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                      ;;,(mapcar '(lambda (x) `(quote ,x)) args)
+                                      (mapcar 'transform args)
+                                      keyword-args)))
+
+              ;;normal function call
+              ;;`(,t-func ,@(mapcar 'transform args))
+              ;;TODO: this is dumb, convert `call-transform' to a macro?
+              (t (eval `(call-transform 'fcall ,@(cons 't-func
+                                                       (mapcar (lambda (x)
+                                                                 `(quote ,x))
+                                                               (append args
+                                                                       (mapcar 'car
+                                                                               keywords))
+                                                               )))))))))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Call(func, args, keywords, starargs, kwargs, lineno=None, col_offset=None):
       return l_str(["call ", func, ll_str(args), ll_str(keywords), starargs or "nil" , kwargs or "nil", lineno, col_offset])
-    
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -2446,47 +2386,45 @@ this test is disabled. It pollutes global variables
                      "aa.b()"
                      "aa.b(1,2)"
                      "aa.b(1,a.b(1,2,3))"
-                     
+
                      "a.b().c()"
                      "a.b().c().d()"
                      "a.b(x.y().e()).c()"
-                     
+
                      )
 #+END_SRC
-
 * while loop
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  
   ;;doc: context macro-call
   (defun pyel-while (test body orelse)
     ;;pyel-while is special. it gets to handle the macro definitions
     (let* ((tst (transform test))
            (else (mapcar 'transform orelse))
-           break-code 
+           break-code
            continue-code
            macro-name
            ;;inter-transform variables
            continue-while
            break-while )
-      
+
       (if (and (symbolp tst)
                (string-match (format "^%s\\([A-Za-z0-9_]+\\)$" pyel-py-macro-prefix)
                              (symbol-name tst)))
           (using-context
            macro-call
            ;;expand as a macro call
-           `(,(intern (replace-regexp-in-string "_" "-" 
+           `(,(intern (replace-regexp-in-string "_" "-"
                                                 (match-string 1 (symbol-name tst))))
              ;;TODO: if macro name is an alias, replace with actual
              ,@(mapcar 'transform body)))
-        
+
         ;;expand as a normal while loop
         (setq t-body (remove-context tail-context
                                      (mapcar 'transform (subseq body 0 -1)))
               t-last (transform (car (last body)))
               code (append t-body (list t-last))
-  
+
               break-code (if break-while '(catch '__break__)
                            pyel-nothing)
               continue-code (if continue-while '(catch '__continue__)
@@ -2499,84 +2437,81 @@ this test is disabled. It pollutes global variables
         (if else
             `(@ ,wile ,@else)
           wile))))
-  
+
   ;; (defun pyel-while (test body orelse)
   ;;   (let* ((tst (transform test))
   ;;          (else (mapcar 'transform orelse))
   ;;          (wile `(while ,(if (equal tst []) nil tst)
   ;;                   ,@(mapcar 'transform body))))
-      
+
   ;;     (if else
   ;;         `(@ ,wile ,@else)
   ;;       wile)))
-  
+
   (def-transform while pyel ()
     (lambda (test body orelse)
       (pyel-while test body orelse)))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def While(test, body, orelse, lineno=None, col_offset=None):
-      return l_str(["while ", test, ll_str(body), ll_str(orelse), lineno, col_offset])      
+      return l_str(["while ", test, ll_str(body), ll_str(orelse), lineno, col_offset])
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests while
                      "while (a==b):
     print('hi')"
-  
+
                      "while (a==b):
     print('hi')
     a=b"
-  
+
                      "while (a==b):
     while (a>2):
       b(3,[a,2])
       b=c.e
     a=b"
-  
+
                      "while a:
    if b:
     break
    else:
     c()"
-  
+
                      "while a:
    if b:
     continue
    c()"
-  
+
                      )
 #+END_SRC
-
 * arguments
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  
   (def-transform arguments pyel ()
     (lambda (args vararg varargannotation kwonlyargs kwarg kwargannotation
                   defaults kw_defaults)
       (pyel-arguments args vararg varargannotation kwonlyargs kwarg kwargannotation
                       defaults kw_defaults)))
-  
+
   (defun pyel-arguments (args vararg varargannotation
                               kwonlyargs kwarg kwargannotation
                               defaults kw_defaults)
     ;;TODO: other args
-    
+
     (let* ((args (mapcar 'transform args))
            (defaults (mapcar 'transform defaults)))
-  
+
       ;;create default assignment code
       (when (and defaults
                  (context-p 'function-def))
-        
+
         ;;`assign-defaults' only exists under function-def context
         (setq assign-defaults (mapcar* (lambda (arg default)
                                          `(setq ,arg (or ,arg ,default)))
                                        (reverse args) (reverse defaults))))
-      
+
       ;;&optional
       (when defaults
         (insert-at args (- (length args) (length defaults)) '&optional))
@@ -2589,9 +2524,8 @@ this test is disabled. It pollutes global variables
       ;;&kwarg
       (when kwarg
         (setq args (append args (list '&kwarg kwarg))))
-      
+
       args))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2612,15 +2546,14 @@ this test is disabled. It pollutes global variables
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-arguments ()
     (with-transform-table 'pyel
-                          (and 
+                          (and
                            (should (equal (transform '(arguments ((arg "b" nil)
                                                                   (arg "c" nil)) nil nil nil nil nil nil nil))
-                                          
+
                                           '(b c)))
                            ;;other tests here
                            )))
 #+END_SRC
-
 * function def
 includes 'arg' transformation
 ** python ast expansion example
@@ -2637,9 +2570,9 @@ FunctionDef(name='a',
 				kwargannotation=None,
 				defaults=[],
 				kw_defaults=[]),
-	    
+
 	    body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Str(s='ok')], keywords=[], starargs=None, kwargs=None)), Return(value=BinOp(left=Name(id='c', ctx=Load()), op=Add(), right=Name(id='a', ctx=Load())))],
-	    
+
 	    decorator_list=[],
 	    returns=None)
 
@@ -2648,130 +2581,127 @@ FunctionDef(name='a',
   (def-transform arg pyel ()
     (lambda (arg annotation) ;;Ignoring annotation
       (read arg)))
-  
-  
+
   (def-transform def pyel ()
     (lambda (name args body decoratorlist returns)
       (pyel-def name args body decoratorlist returns)))
-  
+
   (defun transform-last-with-context (context code)
     ;;TODO: this does not work: fix and replace code in `pyel-def
     (let*  ((last-line (using-context context
-                             (transform (car (last code)))))
-             (first (mapcar 'transform (subseq code 0 (1- (length code))))))
-       (append first (list last-line))))
-  
-  
+                                      (transform (car (last code)))))
+            (first (mapcar 'transform (subseq code 0 (1- (length code))))))
+      (append first (list last-line))))
+
+
   (defun pyel-def (name args body decoratorlist returns)
-      (let ((name (read (_to- name))))
-        
-        (when (context-p 'function-def)
-          (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
-        
-        (let* ((func 'def)
-               t-body
-               arglist
-               first
-               last-line
-               
-               ;;trans-template vars
-               (assign-defaults (list pyel-nothing));;holds assignment code set by the arguments transform
-               return-middle 
-               let-arglist
-               global-vars
-               docstring
-               
+    (let ((name (read (_to- name))))
+
+      (when (context-p 'function-def)
+        (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
+
+      (let* ((func 'def)
+             t-body
+             arglist
+             first
+             last-line
+
+             ;;trans-template vars
+             (assign-defaults (list pyel-nothing));;holds assignment code set by the arguments transform
+             return-middle
+             let-arglist
+             global-vars
+             docstring
+
                 ;;;
-               (ret pyel-nothing)
-               (args (_to- (using-context function-def (transform (car args)))))
-               (inner-defun (context-p 'function-def))
-               (orig-name name)
-               (decorators (mapcar 'transform decoratorlist))
-               setq-code
-               )
-    
-          
-          (when (or (context-p 'lambda-def)
-                    (and inner-defun
-                         (not (member '&kwarg args))))
-                     
-            (setq func 'lambda
-                  name pyel-nothing))
-    
-          
-          (using-context
-           function-def
-           (cond
-            
-            ;; ((context-p 'class-def) (using-context method-def
-            ;;                           (setq last-line (using-context tail-context
-            ;;                                                          (transform (car (last body))))
-            ;;                                 first (mapcar 'transform (subseq body 0 (1- (length body))))
-            ;;                                 t-body (append first (list last-line)))
-                                      
-            ;;                           ;;TODO: let-arlist for methods like
-            ;;                           ;;      and *args ...
-            ;;                           (push `(defmethod ,name
-            ;;                                    ((,(car args) ,class-def-name)
-            ;;                                     ,@(cdr args))
-                                               
-            ;;                                    ,@t-body)
-            ;;                                 class-def-methods)))
-            
-            (t (setq last-line (using-context tail-context
-                                              (transform (car (last body))))
-                     first (subseq body 0 (1- (length body)))
-                     first (if first
-                               (mapcar 'transform first)
-                             nil)
-                     t-body (append first (list last-line)))
-               
-               ;;(setq t-body (transform-last-with-context
-               ;;                'tail-context body))
-               
-               ;;remove variables from the let arglist that have been declared global
-               (setq let-arglist (let (arglist) (mapcar (lambda (x)
-                                                          (unless (or (member x global-vars)
-                                                                      (member x args))
-                                                            (push x arglist)))
-                                                        let-arglist)
-                                      arglist))
-               ;;      ?remove variables that are defined in emacs?
-               
-               (setq docstring 
-                     (if (stringp (car t-body))
-                         (pop t-body)
-                       pyel-nothing))
-               
-               (setq ret (if return-middle '(catch '__return__)
-                           '(@))) 
-    
-               (if let-arglist
-                   (setq let-arglist (list '@ 'let let-arglist))
-                 (setq let-arglist '@))
-    
-               (if inner-defun
-                   (progn
-                     (if (member '&kwarg args)
-                         (setq decorators
-                               (cons 'pyel-inner-function-def decorators)))
-                     (setq setq-code (list '@ 'setq orig-name)))
-                 (setq setq-code '@))
-    
-               `(,setq-code (,func ,name ,args ,decorators
-                                   ,docstring
-                                   ,@assign-defaults
-                                   (,let-arglist
-                                    (,@ret
-                                     ,@t-body
-                                     ))))
-               ))))))
-  
+             (ret pyel-nothing)
+             (args (_to- (using-context function-def (transform (car args)))))
+             (inner-defun (context-p 'function-def))
+             (orig-name name)
+             (decorators (mapcar 'transform decoratorlist))
+             setq-code
+             )
+
+        (when (or (context-p 'lambda-def)
+                  (and inner-defun
+                       (not (member '&kwarg args))))
+
+          (setq func 'lambda
+                name pyel-nothing))
+
+        (using-context
+         function-def
+         (cond
+
+          ;; ((context-p 'class-def) (using-context method-def
+          ;;                           (setq last-line (using-context tail-context
+          ;;                                                          (transform (car (last body))))
+          ;;                                 first (mapcar 'transform (subseq body 0 (1- (length body))))
+          ;;                                 t-body (append first (list last-line)))
+
+          ;;                           ;;TODO: let-arlist for methods like
+          ;;                           ;;      and *args ...
+          ;;                           (push `(defmethod ,name
+          ;;                                    ((,(car args) ,class-def-name)
+          ;;                                     ,@(cdr args))
+
+          ;;                                    ,@t-body)
+          ;;                                 class-def-methods)))
+
+          (t (setq last-line (using-context tail-context
+                                            (transform (car (last body))))
+                   first (subseq body 0 (1- (length body)))
+                   first (if first
+                             (mapcar 'transform first)
+                           nil)
+                   t-body (append first (list last-line)))
+
+             ;;(setq t-body (transform-last-with-context
+             ;;                'tail-context body))
+
+             ;;remove variables from the let arglist that have been declared global
+             (setq let-arglist (let (arglist) (mapcar (lambda (x)
+                                                        (unless (or (member x global-vars)
+                                                                    (member x args))
+                                                          (push x arglist)))
+                                                      let-arglist)
+                                    arglist))
+             ;;      ?remove variables that are defined in emacs?
+
+             (setq docstring
+                   (if (stringp (car t-body))
+                       (pop t-body)
+                     pyel-nothing))
+
+             (setq ret (if return-middle '(catch '__return__)
+                         '(@)))
+
+             (if let-arglist
+                 (setq let-arglist (list '@ 'let let-arglist))
+               (setq let-arglist '@))
+
+             (if inner-defun
+                 (progn
+                   (if (member '&kwarg args)
+                       (setq decorators
+                             (cons 'pyel-inner-function-def decorators)))
+                   (setq setq-code (list '@ 'setq orig-name)))
+               (setq setq-code '@))
+
+             `(,setq-code (,func ,name ,args ,decorators
+                                 ,docstring
+                                 ,@assign-defaults
+                                 (,let-arglist
+                                  (,@ret
+                                   ,@t-body
+                                   ))))
+             ))))))
+
   (defun pyel-sort-kwargs (args)
     "Organize args in the format required by functions that accept keyword args
   Returns a list whose first element has an alist containing the keyword args
   in the cdr and ':kwargs' in the car position.
-  and whose second element is a list of all non-keyword args 
+  and whose second element is a list of all non-keyword args
   Recognizes keyword args in the form 'arg = value'."
     ;;for use in the 'fcall' transform
     (if (member '= args)
@@ -2801,7 +2731,7 @@ FunctionDef(name='a',
               (puthash (car x) (cdr x) ht))
             alist)
       ht))
-  
+
   (defmacro def (name args decorator-list &rest body)
     ;;TODO: apply decorators
     (using-context
@@ -2815,10 +2745,10 @@ FunctionDef(name='a',
                                               decorator-list))
                                 '(lambda))
                             (list 'defun name)))
-               optional 
+               optional
                pos+optional rest kwarg
                npositional nargs arg-index)
-           
+
            (when (member '&kwarg args)
              (setq kwarg (car (last args))
                    args (subseq args 0 -2)
@@ -2831,79 +2761,79 @@ FunctionDef(name='a',
                      positional (car optional)
                      optional (cdr optional))
              (setq positional args))
-  
+
            (setq npositional (length positional)
                  nargs (+ (length positional) (length optional))
                  arg-index-alist (mapcar (lambda (x)
                                            (setq n (1+ n))
                                            (cons x n))
                                          (append positional optional)))
-  
+
            `(,@func-name (&rest args)
-              ;;if this is called with keyword args they will be
-              ;;the in an alist in the car position.
-              (if (and (listp (car args))
-                       (eq (caar args) :kwargs))
-                  (let* ((kwargs (cdar args))
-                         (args (cadr args))
-                         (len (length args))
-                         (index 0)
-                         (kwargs-used 0)
-                         pos+optional rest arg-index index-value tmp)
-                    (cond ((= len ,nargs)
-                           nil)
-                          ((> len ,nargs)
-                           (setq pos+optional (subseq args 0 ,nargs)
-                                 rest (subseq args ,nargs)))
-                          (t ;;(< len ,nargs)
-                           (setq pos+optional
-                                 (append args (make-list (- ,nargs len) nil)))))
-  
-                    ;;make alist of index value pairs
-                    (setq index-value
-                          (mapcar (lambda (kw) 
-                                    (if (setq arg-index
-                                              (assoc (car kw) ',arg-index-alist))
-                                        (list (cdr arg-index)
-                                              (cdr kw)
-                                              ;;need reference to remove arg later
-                                              (car arg-index))))
-                                  kwargs))
-                    ;;set the keyword args values in arg list
-                    (setq tmp pos+optional)
-                    (while tmp
-                      (when (setq iv (assoc index index-value))
-                        (if (< (car iv) len)
-                          (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv)))
-                          )
-                        (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
-                        (setcar tmp (cadr iv))
-                        (setq kwargs-used (1+ kwargs-used)))
-                      (setq tmp (cdr tmp))
-                      (setq index (1+ index)))
-                    (if (< (+ kwargs-used len) ,npositional)
-                        (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
-                    (apply (lambda (,@(append positional optional rest) ,kwarg)
-                             ,@body)
-                           (append pos+optional
-                                   (list rest (pyel-alist-to-hash kwargs)))))
-                ;;else: called without keyword args
-                (let ((kwargs (make-hash-table :size 0)))
-                  (apply (lambda ,args-without-kwarg
-                           (let (,kwarg)
-                           ,@body))
-                         args)))))
-       
+                         ;;if this is called with keyword args they will be
+                         ;;the in an alist in the car position.
+                         (if (and (listp (car args))
+                                  (eq (caar args) :kwargs))
+                             (let* ((kwargs (cdar args))
+                                    (args (cadr args))
+                                    (len (length args))
+                                    (index 0)
+                                    (kwargs-used 0)
+                                    pos+optional rest arg-index index-value tmp)
+                               (cond ((= len ,nargs)
+                                      nil)
+                                     ((> len ,nargs)
+                                      (setq pos+optional (subseq args 0 ,nargs)
+                                            rest (subseq args ,nargs)))
+                                     (t ;;(< len ,nargs)
+                                      (setq pos+optional
+                                            (append args (make-list (- ,nargs len) nil)))))
+
+                               ;;make alist of index value pairs
+                               (setq index-value
+                                     (mapcar (lambda (kw)
+                                               (if (setq arg-index
+                                                         (assoc (car kw) ',arg-index-alist))
+                                                   (list (cdr arg-index)
+                                                         (cdr kw)
+                                                         ;;need reference to remove arg later
+                                                         (car arg-index))))
+                                             kwargs))
+                               ;;set the keyword args values in arg list
+                               (setq tmp pos+optional)
+                               (while tmp
+                                 (when (setq iv (assoc index index-value))
+                                   (if (< (car iv) len)
+                                       (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv)))
+                                     )
+                                   (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
+                                   (setcar tmp (cadr iv))
+                                   (setq kwargs-used (1+ kwargs-used)))
+                                 (setq tmp (cdr tmp))
+                                 (setq index (1+ index)))
+                               (if (< (+ kwargs-used len) ,npositional)
+                                   (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
+                               (apply (lambda (,@(append positional optional rest) ,kwarg)
+                                        ,@body)
+                                      (append pos+optional
+                                              (list rest (pyel-alist-to-hash kwargs)))))
+                           ;;else: called without keyword args
+                           (let ((kwargs (make-hash-table :size 0)))
+                             (apply (lambda ,args-without-kwarg
+                                      (let (,kwarg)
+                                        ,@body))
+                                    args)))))
+
        ;;else: no &kwarg
        `(defun ,name ,args
-            ,@body)
+          ,@body)
        )))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def FunctionDef(name, args, body, decorator_list, returns, lineno=None, col_offset=None):
       return " ".join(map(str, ["(def \"", name,"\"", ll_str(args), ll_str(body), ll_str(decorator_list) or "nil",returns or "nil", lineno, col_offset, ")"]))
-  
+
   def arg(arg,annotation):
       return "(arg \"" + arg + "\" " + " " + (annotation or "nil") + ")"
 #+END_SRC
@@ -2913,17 +2843,17 @@ FunctionDef(name='a',
                      "def a(b,c):
     print('ok')
     a=b"
-  
+
                      "def a(b,c):
     if (a==b()):
       c()
       while (a < d.b):
         b,c = 1,3
     a.b.c = [a,(2,2)]"
-  
+
                      "def a():
     return time()"
-  
+
                      "def a(x,y=2,z=4):
    print(z)"
                      "def a(x=1,y=2,z=4):
@@ -2932,15 +2862,15 @@ FunctionDef(name='a',
    print(z)"
                      "def a(x,y,z=4,*g):
    print(z)"
-  
-                     ;;optional and variable args 
+
+                     ;;optional and variable args
                      "def pyel_test(a,b=1,*c):
    if ab:
     x = a+b
    y = 3
    _a_()
    z.a = 4")
-  
+
   (pyel-create-tests
    function-arguments
    ("def func(__a,__b,c=1,d='two',*rest,**kwargs):
@@ -2963,7 +2893,7 @@ FunctionDef(name='a',
      "[\"n\", 324, 1, \"two\", [], {x: \"s\"}]")
     ("repr(func(x = 's',__b = 324,__a = 'n',d = 2))"
      "[\"n\", 324, 1, 2, [], {x: \"s\"}]")))
-  
+
   (ert-deftest pyel-pyel-sort-kwargs ()
     (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
            '((a 5 12 3) ((x . 1) (b . 1))))
@@ -2976,7 +2906,6 @@ FunctionDef(name='a',
     (equal (pyel-sort-kwargs '(a b = (b 1 2) 5 12 x = 1 (+ 1 3 ) y = "s"))
            '((a 5 12 (+ 1 3)) ((y . "s") (x . 1) (b b 1 2)))))
 #+END_SRC
-
 * bin-op, +, -, *, /, **, |, &
 ::Q can an overloaded + operator obj be used like:  3+obj
     these transforms assume you can
@@ -2991,15 +2920,14 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   (def-transform bin-op pyel ()
       (lambda (left op right)
         (call-transform op left right)))
-    
-    
+
   (pyel-create-py-func * (l r)
                       (number number) ->  (* l r)
-                      (object _)      
+                      (object _)
                       (_ object)      -> (--mul-- l r)
                       (_ string)
                       (string _)      -> (pyel-mul-num-str l r))
-    
+
     (pyel-create-py-func + (lhs rhs)
                       ;;this presumes that both args are the same type
                       (number number)  -> (+ lhs rhs)
@@ -3012,21 +2940,18 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                       ;;should the right side be checked if its an object?
                       (object _)
                       (_ object)       -> (--add-- lhs rhs));;correct way to call it?
-    
-  
+
   (pyel-create-py-func - (l r)
                     (number number) -> (- l r)
                     (object _)
                     (_ object) -> (--sub-- l r))
-  
-  
+
+
   (pyel-create-py-func ** (l r) ;;pow
                     (number number) -> (expt l r)
                     (object _)
                     (_ object) -> (--pow-- l r))
-  
-  
-  
+
   (pyel-create-py-func / (l r)
                        ;; (float _)
                        ;; (_ float) -> (/ l r)
@@ -3034,43 +2959,39 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                        (_ number) -> (/ (* l 1.0) r)
                        (object _) -> (--truediv-- l r))
   ;;                    (_ object) ;;?
-  
-  
-  (pyel-create-py-func // (l r) ;;floored (normal) division 
+
+  (pyel-create-py-func // (l r) ;;floored (normal) division
                        (number _)
                        (_ number) -> (/ l r)
                        (object _) -> (--floordiv-- l r))
   ;;                    (_ object) ;;?
-  
+
   (pyel-create-py-func ^ (l r) ;;bit xor
                     (number number) -> (logxor l r)
                     (object _)
                     (_ object) -> (--xor-- l r))
-  
+
   (pyel-create-py-func & (l r) ;;bit and
                     (number number) -> (logand l r)
                     (object _)
                     (_ object) -> (--and-- l r)) ;;?
-  
+
   (pyel-create-py-func | (l r) ;;bit or
                     (number number) -> (logior l r)
                     (object _)
                     (_ object) -> (--or-- l r));;?
-  
-  
+
   (pyel-create-py-func % (l r) ;;bit or
                        (number number) -> (% l r)
                        (object _) -> (--mod-- l r));;?
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def BinOp(left, op, right, lineno=None, col_offset=None):
       return l_str(["bin-op ", left, op, right, lineno, col_offset])
-        
+
   def Add():
       return "+"
-  
   def Mult():
       return "*"
   def Sub():
@@ -3094,56 +3015,50 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests TODO
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests binop
                      "assert 1//2 == 0"
                      "assert 1/2 == 0.5")
 #+END_SRC
-
 * subscript,index,slice
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  
   (defclass PySlice nil ;;TODO: name?
     ((start :initarg :start)
      (end :initarg :end)
      (step :initarg :step)))
-  
-  
+
   (def-transform index pyel ()
     (lambda (value)
       (transform value)))
-  
+
   (def-transform slice pyel ()
     (lambda (lower upper step)
       (PySlice "slice"
                :start (transform lower)
                :end (transform upper)
                :step (transform step))))
-  
-  
+
   (def-transform subscript pyel ()
     (lambda (value slice ctx)
       (pyel-subscript value slice ctx)))
-  
-  (pyel-create-py-func subscript-load-index (name value) 
+
+  (pyel-create-py-func subscript-load-index (name value)
                        (list _) -> (nth value name)
                        (object _) -> (--getitem-- name value)
                        (vector _) -> (aref name value)
                        (string _) -> (char-to-string (aref name value))
                        (hash _) -> (gethash value name))
-  
-  
+
   (pyel-create-py-func subscript-load-slice (name start end step)
                        (object _ _ _) -> (--getitem-- name (PySlice "slice"
-                                                                     :start start
-                                                                     :end  end
-                                                                     :step  step))
+                                                                    :start start
+                                                                    :end  end
+                                                                    :step  step))
                        ;;TODO implement step
                        (_ _ _ _) -> (subseq name start end))
-  
+
   (pyel-create-py-func subscript-store-slice (name start end step assign)
                        (object _ _ _) -> (--setitem-- name
                                                       (PySlice "slice"
@@ -3151,19 +3066,17 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                                                                :end  end
                                                                :step  step)
                                                       assign)
-                       
+
                        ;;TODO implement step
                        (_ _ _ _) -> (setf (subseq name start end) assign))
-  
-  (pyel-create-py-func subscript-store-index (name value assign) 
+
+  (pyel-create-py-func subscript-store-index (name value assign)
                        (list _) -> (setf (nth value name) assign)
                        (object _) -> (--setitem-- name value assign)
                        (vector _) -> (setf (aref name value) assign)
                        (hash _) -> (puthash value assign name))
   ;;                  (string _) -> not supported in python
-  
-  
-  
+
   (defun pyel-subscript (value slice ctx)
     (let* (;(value (transform value))
            (slice (transform slice))
@@ -3171,7 +3084,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                       ((context-p 'force-store) 'store)
                       (t (eval ctx))))
            start stop step)
-      
+
       (when (object-p slice)
         (setq start (oref slice start)
               stop (oref slice end)
@@ -3184,10 +3097,9 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
         (if (object-p slice)
             (call-transform 'subscript-store-slice value start stop step assign-value)
           (call-transform 'subscript-store-index value slice assign-value)) ;;load index
-        
+
         ;;      (test value start stop step assign-value)
         )))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -3196,21 +3108,17 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       lower = lower or 0
       upper = upper or "nil"
       return l_str(["slice", lower, upper, step])
-        
+
   def Index(value, lineno=None, col_offset=None):
       return "(index " + value + str(lineno) + str(col_offset) + ")"
-        
+
   def Subscript(value, slice, ctx, lineno=None, col_offset=None):
       return ll_str(["subscript", value, slice, ctx, lineno, col_offset])
-        
-    
-    
 #+END_SRC
 ** python el lib
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
@@ -3257,7 +3165,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   x = a()
   assert x[1:2] == 3
   assert x[5:7] == 12"
-  
+
    ;;store index
    ;; list
    "def __add(a,b):
@@ -3282,7 +3190,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   x[3] = 5
   assert x.index == 3
   assert x.value == 5"
-  
+
    ;;store slice
    ;;list
    "a = [1,2,3,4,5,6]
@@ -3320,10 +3228,10 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   assert x.start == 2
   assert x.end == 3
   assert x.value == [1,2,3]"
-  
+
   "a[2] += 3"
   "a[2] += b[3]"
-  
+
   "[2,3,3][2]"
   "assert [1,2,(3,2,8)][2][2] == 8"
    )
@@ -3332,69 +3240,65 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 * class
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-    (def-transform classdef pyel ()
-      (lambda (name bases keywords starargs kwargs body decorator_list)
-        (pyel-defclass name bases keywords starargs kwargs body decorator_list)))
-    
+  (def-transform classdef pyel ()
+    (lambda (name bases keywords starargs kwargs body decorator_list)
+      (pyel-defclass name bases keywords starargs kwargs body decorator_list)))
+
   (defun pyel-defclass (name bases keywords starargs kwargs body decorator_list)
     (let ((class-def-methods nil) ;; list of methods that are part of this class
           (class-def-slots nil) ;;list of slots that are part of this class
           (class-def-name (transform name))
           (t-bases (mapcar 'transform bases)))
-  
+
       ;;transform body with the class-def context, the transformed code
       ;;will store its methods and slots in class-def-methods and class-def-slots
       ;;respectively.
       (setq _x body)
-      
+
       (when (context-p 'function-def)
-          (push name let-arglist)
-          (push '__defined-in-function-body t-bases))
+        (push name let-arglist)
+        (push '__defined-in-function-body t-bases))
       (remove-context
        function-def
-       
+
        (using-context class-def
-  
+
                       (add-to-list 'pyel-defined-classes name)
-  
+
                       `(define-class ,name ,t-bases
                          ,@(mapcar 'transform body)
                          )
-  
+
                       ;; ;;add default initializer if one has not been defined
                       ;; (unless (member '--init-- (mapcar 'cadr class-def-methods))
                       ;;   (push (read (format pyel-default--init--method name))
                       ;;         class-def-methods))
-                      
+
                       ;; `(@ (defclass ,class-def-name  () ;; ,bases ??
                       ;;       (,@(reverse class-def-slots))
                       ;;       "pyel class")
-                      
+
                       ;;     ,@(reverse class-def-methods))
                       ))))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-    def ClassDef (name, bases, keywords, starargs, kwargs, body, decorator_list, lineno=None, col_offset=None):
-      return ll_str(["classdef",
-                     name,
-                     ll_str(bases),
-                     ll_str(keywords),
-                     starargs or "nil",
-                     kwargs or "nil",
-                     ll_str(body),
-                     ll_str(decorator_list),
-                     lineno, col_offset])
-                     
+  def ClassDef (name, bases, keywords, starargs, kwargs, body, decorator_list, lineno=None, col_offset=None):
+    return ll_str(["classdef",
+                   name,
+                   ll_str(bases),
+                   ll_str(keywords),
+                   starargs or "nil",
+                   kwargs or "nil",
+                   ll_str(body),
+                   ll_str(decorator_list),
+                   lineno, col_offset])
 #+END_SRC
 ** python el lib
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
    objects
@@ -3427,7 +3331,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   y = x.sixmore
   x.a = 2"
      ("y()" 8)))
-  
+
    ("class one:
    def __init__(self,x):
     self.n = x
@@ -3439,7 +3343,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   x = two()"
     ("x.other.n" 5)
     ("x.other.m()" 6)))
-  
+
   (pyel-create-tests
    special-method-lookup
    ( "class adder:
@@ -3455,7 +3359,6 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       "<bound method adder.__call__ of adder object at 0x18b071>")
      ("d.__call__" (lambda nil nil "hi"))))
 #+END_SRC
-
 * assert
 ** transform
 ;;TODO: have custom option for t/nil value of assert's 2nd parameter
@@ -3465,11 +3368,11 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
    -> (assert (vector True 1) t "message")
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform assert pyel ()
-    (lambda (test msg) 
+    (lambda (test msg)
       (pyel-assert test msg)))
-  
+
   (defun pyel-assert (test msg)
-      `(assert ,(transform test) t ,(transform msg)))
+    `(assert ,(transform test) t ,(transform msg)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -3477,17 +3380,15 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       return ll_str(["assert ", test , msg or "nil", lineno, col_offset])
 #+END_SRC
 ** tests
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests assert
                      "assert sldk()"
                      "assert adk,'messsage'")
 #+END_SRC
-
 * primitive type methods
-** doc  TODO: move or tangle 
+** doc  TODO: move or tangle
 *Defining method transforms for build in types*
-In python, primitive types such as the list and string are objects. We need to 
+In python, primitive types such as the list and string are objects. We need to
 define the way in which these method calls will be transformed to function
 calls in Emacs Lisp. The macro `pyel-method-transform' is used for this.
 
@@ -3498,17 +3399,16 @@ Definition form is just like normal type transforms, with a few extra requiremen
   this must always be last with the type selector (_ _ ... _ ) ->
 Example:
 #+Begin_SRC emacs-lisp
- (pyel-method-transform append (obj thing)
- 		(list _) -> (setq ,obj (append ,obj (list ,thing)))
- 		(_ _)    -> (append ,thing))
+  (pyel-method-transform append (obj thing)
+                         (list _) -> (setq ,obj (append ,obj (list ,thing)))
+                         (_ _)    -> (append ,thing))
 #+End_Src
 ** append
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-
-(pyel-method-transform append (obj thing)
-                  (list _) -> (setq $obj (append obj (list thing)))
-                  (_ _)    -> (append obj thing))
+  (pyel-method-transform append (obj thing)
+                         (list _) -> (setq $obj (append obj (list thing)))
+                         (_ _)    -> (append obj thing))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -3519,14 +3419,13 @@ Example:
   assert a[3] == 'str'"
                      )
 #+END_SRC
-
 * function transforms
 TODO: tests!
 ** simple name changes
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'map 'mapcar)
-(pyel-translate-function-name 'chr 'byte-to-string)
+  (pyel-translate-function-name 'map 'mapcar)
+  (pyel-translate-function-name 'chr 'byte-to-string)
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
@@ -3537,9 +3436,9 @@ TODO: tests!
 ** len
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-func-transform len (thing)
-		     (object) -> (--len-- thing)
-		     (_)      -> (length thing))
+  (pyel-func-transform len (thing)
+                       (object) -> (--len-- thing)
+                       (_)      -> (length thing))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -3555,7 +3454,6 @@ TODO: tests!
                      "assert len('')==0"
                      )
 #+END_SRC
-
 ** range
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3563,25 +3461,22 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC python :tangle py-lib.el
-(defun py-range (start &optional end step)
-  (unless end
+  (defun py-range (start &optional end step)
+   (unless end
     (setq end start
-	  start 0))
-  (number-sequence start (1- end) step))
+     start 0))
+   (number-sequence start (1- end) step))
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** input
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 (pyel-translate-function-name 'input 'read-string)
 #+END_SRC
-
 ** list
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3605,14 +3500,12 @@ TODO: tests!
                      (setq keys (cons key keys))) thing)
           keys))
        ((listp thing) (copy-list thing)))))
-  
 #+END_SRC
-
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(ert-deftest pyel-py-list nil
+  (ert-deftest pyel-py-list nil
     (should (equal (py-list "string")
-                    '("s" "t" "r" "i" "n" "g")))
+                   '("s" "t" "r" "i" "n" "g")))
     (should (equal (py-list [2 3 4 4])
                    '(2 3 4 4)))
     (should (equal  (py-list '(2 3 4 4))
@@ -3620,10 +3513,9 @@ TODO: tests!
     (should (equal (py-list 23 4 2 "h")
                    '(23 4 2 "h")))
     (should (equal (py-list (let ((__h__ (make-hash-table :test (quote equal)))) (puthash 1 "1" __h__) (puthash "3" 3 __h__) (puthash 23 2 __h__) __h__))
-                   '(23 "3" 1))))  
+                   '(23 "3" 1))))
   ;;(pyel "{1:'1','3':3,23:2}")
 #+END_SRC
-
 ** getattr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3634,7 +3526,6 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** hasattr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3645,7 +3536,6 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** isinstance
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3656,7 +3546,6 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** str
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3669,25 +3558,25 @@ TODO: tests!
                        (vector) -> (py-vector-str thing)
                        (hash) -> (py-hash-str thing)
                        (symbol) -> (symbol-name thing))
-  
+
   (pyel-translate-function-name 'str 'pyel-str)
 #+END_SRC
 *** python el lib
-#+Begin_SRC emacs-lisp :tangle py-lib.el  
+#+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun _py-str-sequence (seq)
     "convert SEQ to a string of its python representation
       does not include starting/ending parens or brackets"
     (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
-  
+
   (defun py-list-str (thing)
     (concat "[" (_py-str-sequence thing) "]"))
   (defun py-vector-str (thing)
     (concat "(" (_py-str-sequence thing) ")"))
-  
+
   (defun py-function-str (func)
     "return a string representation of function FUNC"
     (let* ((obj (bound-method-p func))
-          (obj-name (-to_ (getattr obj --name--))))
+           (obj-name (-to_ (getattr obj --name--))))
       (if obj
           (format "<bound method %s.%s of %s object at 0x18b071>"
                   obj-name
@@ -3697,7 +3586,7 @@ TODO: tests!
                                                      (or (eq (car func) 'lambda)))
                                                 "<lambda>"
                                               (symbol-name func))))))
-  
+
   (defun py-hash-str (ht)
     (let (str)
       (maphash (lambda (key value)
@@ -3706,9 +3595,9 @@ TODO: tests!
                                (pyel-str-function value))
                        str))
                ht)
-      
+
       (concat "{" (mapconcat 'identity (reverse str) ", ") "}")))
-  
+
   ;;temp fix for 'str' transform
   ;;The problem:
   ;; cannot pass a function name to the str transform because the tranform
@@ -3724,8 +3613,7 @@ TODO: tests!
             thing;;error
             ))
       (list 'pyel-str-function thing)))
-  
-  
+
   ;;Currently, the repr and str transforms are not not called directly
   ;;so they never have the change to expand.
   ;;The expanded functions are used so we force expansion here.
@@ -3737,31 +3625,30 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(pyel-create-tests
- str
- ("str('somestring')" "\"somestring\"")
- ("str(\"'dstring'\")" "\"'dstring'\"")
- ("str(342)" "342")
- ("x = [1,2,'hi']
-str(x)"
-  "[1, 2, \"hi\"]")
- ("x = (1,'two',3)
-str(x)"
-  "(1, \"two\", 3)")
- ("x = {1: 'one', 5: 'five', 12: 'telve'};
-str(x)"
-  "{1: \"one\", 5: \"five\", 12: \"telve\"}")
- ("f = lambda : False
-str(f)"
-  "<function <lambda> at 0x18b071>")
- ("def __ff_(): pass
-str(__ff_)"
-  "<function --ff- at 0x18b071>"))
+  (pyel-create-tests
+   str
+   ("str('somestring')" "\"somestring\"")
+   ("str(\"'dstring'\")" "\"'dstring'\"")
+   ("str(342)" "342")
+   ("x = [1,2,'hi']
+  str(x)"
+    "[1, 2, \"hi\"]")
+   ("x = (1,'two',3)
+  str(x)"
+    "(1, \"two\", 3)")
+   ("x = {1: 'one', 5: 'five', 12: 'telve'};
+  str(x)"
+    "{1: \"one\", 5: \"five\", 12: \"telve\"}")
+   ("f = lambda : False
+  str(f)"
+    "<function <lambda> at 0x18b071>")
+   ("def __ff_(): pass
+  str(__ff_)"
+    "<function --ff- at 0x18b071>"))
 #+END_SRC
 ** repr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  
   (pyel-func-transform repr (thing)
                        (number) -> (number-to-string thing)
                        (string) -> (py-repr-string thing)
@@ -3771,13 +3658,12 @@ str(__ff_)"
                        (object) -> (call-method thing --repr--)
                        (vector) -> (py-vector-str thing)
                        (hash) -> (py-hash-str thing))
-  
+
   (pyel-translate-function-name 'repr 'pyel-repr)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   ;;temp function. see `pyel-str' for details
-  
   (defmacro pyel-repr (thing)
     (if (stringp thing)
         (py-repr-string (py-repr-string thing))
@@ -3789,19 +3675,19 @@ str(__ff_)"
               thing;;error
               ))
         (list 'pyel-repr-function thing))))
-  
+
   (defsubst py-repr-string (thing)
     (prin1-to-string thing))
-  
+
   (defun _py-repr-sequence (seq)
     (mapconcat (lambda (x) (pyel-repr-function x)) seq ", "))
-  
+
   (defun py-list-repr (thing)
     (concat "[" (_py-repr-sequence thing) "]"))
-  
+
   (defun py-vector-repr (thing)
     (concat "(" (_py-repr-sequence thing) ")"))
-  
+
   (defun pyel-symbol-str (sym)
     (if (eq sym t)
         "True"
@@ -3814,32 +3700,30 @@ str(__ff_)"
         (vector "<class 'tuple'>")
         (hash-table "<class 'dict'>")
         (t (symbol-name sym)))))
-  
-#+END_SRC
-    
-*** tests
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(pyel-create-tests
- repr
- ("repr('somestring')" "\"\\\"somestring\\\"\"")
- ("repr(342)" "342")
- ("x = [1,2,'hi']
-repr(x)"
-  "[1, 2, \"hi\"]")
- ("x = (1,'two',3)
-repr(x)"
-  "(1, \"two\", 3)")
- ("x = {1: 'one', 5: 'five', 12: 'telve'}
-repr(x)"
-  "{1: \"one\", 5: \"five\", 12: \"telve\"}")
- ("f = lambda : False
-repr(f)"
-  "<function <lambda> at 0x18b071>")
- ("def __ff_(): pass
-repr(__ff_)"
-  "<function --ff- at 0x18b071>"))
 #+END_SRC
 
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   repr
+   ("repr('somestring')" "\"\\\"somestring\\\"\"")
+   ("repr(342)" "342")
+   ("x = [1,2,'hi']
+  repr(x)"
+    "[1, 2, \"hi\"]")
+   ("x = (1,'two',3)
+  repr(x)"
+    "(1, \"two\", 3)")
+   ("x = {1: 'one', 5: 'five', 12: 'telve'}
+  repr(x)"
+    "{1: \"one\", 5: \"five\", 12: \"telve\"}")
+   ("f = lambda : False
+  repr(f)"
+    "<function <lambda> at 0x18b071>")
+   ("def __ff_(): pass
+  repr(__ff_)"
+    "<function --ff- at 0x18b071>"))
+#+END_SRC
 ** hex
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3847,16 +3731,14 @@ repr(__ff_)"
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-(defun py-hex (n)
-  (format "%X" n))
+  (defun py-hex (n)
+    (format "%X" n))
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** bin
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3871,13 +3753,11 @@ repr(__ff_)"
         (setq n (/ n 2)))
       (mapconcat 'identity (cons "0b" bin) "")))
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** print
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3893,7 +3773,7 @@ repr(__ff_)"
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defvar pyel-print-function 'prin1
     "function that is used for printing by `py-print'")
-  
+
   (defun py-print (sep end file &rest args)
     (let ((sep (or sep " "))
           (end (or end "\n")))
@@ -3910,7 +3790,6 @@ repr(__ff_)"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** pow
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3931,7 +3810,6 @@ repr(__ff_)"
    ("pow(3,7)" 2187)
    ("pow(2,2)" 4))
 #+END_SRC
-  
 ** eval
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3946,11 +3824,10 @@ repr(__ff_)"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(pyel-create-tests eval
-		   ("x = 23
-eval('x')" 23))
+  (pyel-create-tests eval
+                     ("x = 23
+  eval('x')" 23))
 #+END_SRC
-
 ** type
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -3971,7 +3848,6 @@ eval('x')" 23))
            (aref object obj-class-index)) ;;FIX: should special implicit lookup
           (t (type-of object))))
 #+END_SRC
-
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
@@ -3989,7 +3865,6 @@ eval('x')" 23))
     ("repr(type(x))" "<class 'testc'>")
     ("y is testc" t)))
 #+END_SRC
-
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4014,9 +3889,9 @@ TODO: tests!
 ** append
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-method-transform append (obj thing)
-                  (list _) -> (py-append-list obj thing)
-                  (_ _)    -> (call-method obj append thing))
+  (pyel-method-transform append (obj thing)
+                         (list _) -> (py-append-list obj thing)
+                         (_ _)    -> (call-method obj append thing))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4026,7 +3901,6 @@ TODO: tests!
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
@@ -4040,36 +3914,33 @@ TODO: tests!
     ("a.append(c)" ("a is b" t))
     ("a.append(c)" ("a[3] is c" t))))
 #+END_SRC
-
 ** insert
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-method-transform insert (obj i x)
-		       (list _) -> (let () (setq $obj (append (subseq obj 0 i)
-							      (list x)
-							      (subseq obj i))))
-		       (object _) -> (insert obj i x))
+  (pyel-method-transform insert (obj i x)
+                         (list _) -> (let () (setq $obj (append (subseq obj 0 i)
+                                                                (list x)
+                                                                (subseq obj i))))
+                         (object _) -> (insert obj i x))
 #+END_SRC
 *** python el lib
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** index
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform index (obj elem)
-                    (list _) -> (list-index elem obj)
-                    (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
-                    (vector _) -> (vector-index elem obj)
-  
-                    (object _)    -> (__index__ obj thing)) ;;?
+                         (list _) -> (list-index elem obj)
+                         (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
+                         (vector _) -> (vector-index elem obj)
+
+                         (object _)    -> (__index__ obj thing)) ;;?
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -4078,29 +3949,25 @@ TODO: tests!
     (let ((m (member elem list)))
       (when m
         (- (length list) (length m)))))
-  
-  
-  
-  (defun vector-index (elem vector)
-   "return the index of ELEM in VECTOR"
-   (let ((i 0)
-         (len (length vector))
-         found)
-  
-      (while (and (< i len)
-              (not found))
-       (if (equal (aref vector i) elem)
-        (setq found i)
-        (setq i (1+ i))))
-    found))
-#+END_SRC
 
+  (defun vector-index (elem vector)
+    "return the index of ELEM in VECTOR"
+    (let ((i 0)
+          (len (length vector))
+          found)
+
+      (while (and (< i len)
+                  (not found))
+        (if (equal (aref vector i) elem)
+            (setq found i)
+          (setq i (1+ i))))
+      found))
+#+END_SRC
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** remove
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4116,7 +3983,6 @@ TODO: tests!
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -4127,10 +3993,10 @@ TODO: tests!
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform count (obj elem)
-                    (string _) -> (count-str-matches obj elem)
-                    (list _) -> (count-elems-list obj elem)
-                    (vector _) -> (count-elems-vector obj elem)
-                    (object _)  -> (count thing));;
+                         (string _) -> (count-str-matches obj elem)
+                         (list _) -> (count-elems-list obj elem)
+                         (vector _) -> (count-elems-vector obj elem)
+                         (object _)  -> (count thing));;
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -4140,7 +4006,7 @@ TODO: tests!
       (insert string)
       (goto-char 1)
       (how-many substr)))
-  
+
   (defun count-elems-list (list elem)
     "return how many times ELEM occurs in LIST"
     (let ((c 0))
@@ -4148,7 +4014,7 @@ TODO: tests!
         (if (equal x elem)
             (setq c (1+ c))))
       c))
-  
+
   (defun count-elems-vector (vector elem)
     "return how many times ELEM occurs in VECTOR"
     (let ((c 0)
@@ -4160,28 +4026,23 @@ TODO: tests!
         (setq i (1+ i)))
       c))
 #+END_SRC
-
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** join
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform join (obj elem)
-                    (string _) ->  (mapconcat 'identity elem obj) 
-                    (_ _)      -> (join obj thing))
+                         (string _) ->  (mapconcat 'identity elem obj)
+                         (_ _)      -> (join obj thing))
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
-
-
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4233,7 +4094,6 @@ macros and macroish primitives
   x=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])
   assert x == ['y', 'y', 'x', 'y', 'x']")
 #+END_SRC
-
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4260,10 +4120,10 @@ macros and macroish primitives
   (def-transform for pyel ()
     (lambda (target iter body orelse)
       (pyel-for target iter body orelse)))
-  
+
   ;;TODO: for a,y in thing: ...
   ;;TODO: check if iter is an object, then do the iterator thing
-  
+
   (defun pyel-for (target iter body orelse)
     (let ((target (using-context for-loop-target
                                  (if (eq (car target) 'tuple)
@@ -4273,67 +4133,64 @@ macros and macroish primitives
           (else (mapcar 'transform orelse))) ;;break/continue for else?
       (when else
         (setq body (append body (cons 'else else))))
-      
+
       `(py-for ,@target in ,(transform iter) ,@body)))
-  
-  
-    ;; (if (eq (car target) 'tuple)
-    ;;     "TODO: var unpacking"
-    ;;   ;;create a temp target variable
-    ;;   ;;in body, unpack that into the provided target variables
-      
-    ;;   (let* ((continue-for nil)
-    ;;          (break-for nil)
-    ;;          (code (using-context for (mapcar 'transform body)))
-    ;;          (break-code (if break-for '(catch '__break__)
-    ;;                        pyel-nothing))
-    ;;          (continue-code (if continue-for '(catch '__continue__)
-    ;;                           pyel-nothing)))
-    ;;     (setq _x break-for)
-    ;;     `(,@break-code
-    ;;       (loop for ,(using-context for-loop-target
-    ;;                                 (transform target))
-    ;;             in (py-list ,(transform iter))
-    ;;             do (,@continue-code
-    ;;                 ,@(mapcar 'transform body)))
-    ;;       ,@(mapcar 'transform orelse)))))
-  
-  
+
+  ;; (if (eq (car target) 'tuple)
+  ;;     "TODO: var unpacking"
+  ;;   ;;create a temp target variable
+  ;;   ;;in body, unpack that into the provided target variables
+
+  ;;   (let* ((continue-for nil)
+  ;;          (break-for nil)
+  ;;          (code (using-context for (mapcar 'transform body)))
+  ;;          (break-code (if break-for '(catch '__break__)
+  ;;                        pyel-nothing))
+  ;;          (continue-code (if continue-for '(catch '__continue__)
+  ;;                           pyel-nothing)))
+  ;;     (setq _x break-for)
+  ;;     `(,@break-code
+  ;;       (loop for ,(using-context for-loop-target
+  ;;                                 (transform target))
+  ;;             in (py-list ,(transform iter))
+  ;;             do (,@continue-code
+  ;;                 ,@(mapcar 'transform body)))
+  ;;       ,@(mapcar 'transform orelse)))))
+
   (defun pyel-split-list (lst sym)
     "split list LST into two sub-lists at separated by SYM
   The return value is the two sub-lists consed together"
     (let ((current (not sym))
           first)
-  
+
       (while (and (not (eq current sym))
                   lst)
         (setq current (pop lst))
         (push current first)
         )
-      
+
       (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
-  
-  
+
   (defmacro py-for (&rest args)
     "(for <targets> in <iter> <body> else <body>)
   else is optional"
-  
+
     ;;TODO: error checking for correct form
     (let* ((targets (pyel-split-list args 'in))
            (args (cdr targets))
            (targets (car targets))
            (iter (pop args)) ;;TODO: must iter be only one form?
-           
+
            (body (pyel-split-list args 'else))
            (else-body (cdr body))
            (body (car body))
-  
+
            (target (cond ((symbolp targets) ;;nil when there are multiple targets
                           targets)
                          ((= (length targets) 1)
                           (car targets))
                          (t nil)))
-           
+
            (unpack-code (unless target
                           (let (ret)
                             (dotimes (i (length targets) (reverse ret))
@@ -4341,31 +4198,31 @@ macros and macroish primitives
                                            (nth ,i __target__))
                                     ret)))))
            (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
-           
+
            (current-transform-table (get-transform-table 'for-macro))
            __for-continue ;;these are set by the for-macro transforms
            __for-break
            )
       ;;TODO: when multiple targets, check that all lists are the same size
       (setq body (transform (setq _x body)))
-  
+
       (setq body (cons '(setq __idx (1+ __idx))  body)
             body (if target
                      (cons `(setq ,target (nth __idx __tmp-list)) body)
                    (append unpack-code body)))
-      
+
       (when __for-continue
         (setq body `((catch '__continue__ ,@body))))
-  
+
       ;; ! This assumes that all iters are the same size
       (setq body `((while (< __idx __len)
                      ,@body)
                    ,@else-body))
-      
+
       (when __for-break
         (setq body `((catch '__break__ ,@body))))
-      
-      `(let* ((__tmp-list ,iter) 
+
+      `(let* ((__tmp-list ,iter)
               ;;      ,@iter-lets
               ;;      ,@next-function-lets
               (__len (length __tmp-list))
@@ -4382,7 +4239,6 @@ macros and macroish primitives
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests for-loop
@@ -4391,22 +4247,21 @@ macros and macroish primitives
   for a in b:
    c = c + a
   assert c==10"
-  
+
                      "for i in range(n):
    break"
-  
+
                      "for i in range(n):
    continue"
-  
+
                      "x = []
   for i in range(5):
    if i == 2:
     continue
    x.append(i)
   assert x == [0,1,3,4]"
-  )
+                     )
 #+END_SRC
-  
 * global
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4425,12 +4280,12 @@ macros and macroish primitives
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests global
-                     
+
                      "def a():
    global x
    x = 3
    y = 1"
-  
+
                      "x = 1
   y = 1
   def func():
@@ -4443,11 +4298,9 @@ macros and macroish primitives
   "
                      )
 #+END_SRC
-
 * nonlocal
 DOC: 'nonlocal' is currently equivalent to 'global'
      It seems to be working fine...
-
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 
@@ -4462,7 +4315,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * lambda
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4485,7 +4337,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   assert x2 == 35"
                      )
 #+END_SRC
-
 * unary op
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4493,13 +4344,12 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-  
   def UnaryOp(op, operand, lineno=None, col_offset=None):
       return l_str(["unary-op ", op, operand, lineno, col_offset])
-  
+
   def Not():
       return "not"
-  
+
   def USub():
       return "usub"
 #+END_SRC
@@ -4507,7 +4357,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -4520,15 +4369,15 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   (def-transform aug-assign pyel (target op value)
     (lambda (target op value)
       (call-transform 'assign
-                       `(,target)
-                       (call-transform  op
-                                        ;;TODO: what if this is something else
-                                        ;;other then a simple name?
-                                        ;;=> ok as long as nothing acknowledges
-                                        ;;   the  force-load context
-                                        (using-context force-load
-                                                       (transform target))
-                                        value))))
+                      `(,target)
+                      (call-transform  op
+                                       ;;TODO: what if this is something else
+                                       ;;other then a simple name?
+                                       ;;=> ok as long as nothing acknowledges
+                                       ;;   the  force-load context
+                                       (using-context force-load
+                                                      (transform target))
+                                       value))))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4553,19 +4402,18 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   b = 4
   a += b + 1
   assert a == 8"
-  
+
                      "a.b += a[2]"
                      "a.b += 4"
                      "a.b += d.e"
                      )
 #+END_SRC
-
 * return
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform return pyel ()
     (lambda (value)
-      
+
       (if (context-p 'tail-context)
           (transform value)
         (setq return-middle t)
@@ -4581,7 +4429,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * break and continue
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4593,7 +4440,7 @@ DOC: 'nonlocal' is currently equivalent to 'global'
          '(throw '__break__ nil))
        (for (setq break-for t)
             '(break)))))
-  
+
   (def-transform continue pyel ()
     (lambda ()
       ;;TODO verify that it is ok to just use one inter-template var for this
@@ -4607,17 +4454,15 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC python :tangle py-ast.py
   def Break(lineno=None, col_offset=None):
       return l_str(["break", lineno, col_offset])
-      
+
   def Continue(lineno=None, col_offset=None):
       return l_str(["continue", lineno, col_offset])
-  
 #+END_SRC
 ** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * exception handler
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4658,7 +4503,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -4670,7 +4514,7 @@ DOC: 'nonlocal' is currently equivalent to 'global'
   except:
    x = 'no'
   assert x == 'no'"
-  
+
                      "try:
    _a()
   except:
@@ -4680,7 +4524,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
     _b()"
                      )
 #+END_SRC
-
 * unary op, not, usub
 TODO: tests!
 ** transform
@@ -4688,11 +4531,11 @@ TODO: tests!
   (def-transform unary-op pyel ()
     (lambda (op operand)
       (call-transform op operand)))
-  
+
   (pyel-create-py-func not (x)
                        (object) -> (--not-- x) ;;?
                        (_) -> (not x))
-  
+
   (pyel-create-py-func usub (x)
                        (number) -> (- x)
                        (object) -> (--usub-- x) ;;?
@@ -4706,13 +4549,11 @@ TODO: tests!
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * in, not in
 TODO: tests!
 ** transform
@@ -4724,8 +4565,7 @@ TODO: tests!
                        (_ vector) -> (not (vector-member l r))
                        (_ object) -> (--not-in-- r l) ;;?
                        )
-  
-  
+
   ;;a in b
   ;; function:    is_(a, b)
   (pyel-create-py-func in (l r)
@@ -4748,23 +4588,18 @@ TODO: tests!
       (setq i (1+ i))))
     found))
 #+END_SRC
-
 ** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * comprehensions
 DOC: generator expressions are translated to list comprehensions
-
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform comprehension pyel (target iter ifs)
     (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
-  
-  
-  
+
   (defun pyel-comprehension (target iter ifs)
     ;;this uses the inter-transform var 'comprehension-body'
     (assert (boundp 'comprehension-body)
@@ -4774,18 +4609,17 @@ DOC: generator expressions are translated to list comprehensions
                                (transform target))
            in (py-list ,(transform iter))
            ,(if ifs
-                (list '@ 'if 
+                (list '@ 'if
                          (cons (if (> (length ifs) 1)
                                    'and
                                  '@)
                                (mapcar 'transform ifs)))
-              pyel-nothing) 
+              pyel-nothing)
            do ,comprehension-body))
-  
-  
+
   (def-transform list-comp pyel (elt generators)
     (lambda (elt generators) (pyel-list-comp elt generators)))
-  
+
   (defun pyel-list-comp (elt generators)
     (let* ((list-var '__list__)
            (comprehension-body `(setq ,list-var (cons ,(transform elt) ,list-var)))
@@ -4798,15 +4632,14 @@ DOC: generator expressions are translated to list comprehensions
         ;; is the inner code for the preceding generator in 'generators'
         ;; (loop ... collect ...) produces a list, so no additional work is needed
         (setq comprehension-body (transform (nth i generators))))
-      
+
       `(let ((,list-var nil))
          ,comprehension-body
          (reverse ,list-var))))
-  
-  
+
   (def-transform dict-comp pyel (key value generators)
     (lambda (key value generators) (pyel-dict-comp key value generators)))
-  
+
   (defun pyel-dict-comp (key value generators)
     (let* ((hash-var '__dict__)
            (comprehension-body (list 'puthash (transform key)
@@ -4817,7 +4650,7 @@ DOC: generator expressions are translated to list comprehensions
       (while (> i 0)
         (setq i (1- i))
         (setq comprehension-body (transform (nth i generators))))
-      
+
       `(let ((,hash-var (make-hash-table :test 'equal)))
          ,comprehension-body
          ,hash-var)))
@@ -4826,16 +4659,16 @@ DOC: generator expressions are translated to list comprehensions
 #+Begin_SRC python :tangle py-ast.py
   def comprehension(target, iter, ifs):
       return l_str(["comprehension", target, iter, l_str(ifs)])
-  
+
   def GeneratorExp(elt, generators, lineno=None, col_offset=None):
       return l_str(["list-comp", elt, l_str(generators), lineno, col_offset])
-      
+
   def ListComp(elt, generators, lineno=None, col_offset=None):
       return l_str(["list-comp", elt, l_str(generators), lineno, col_offset])
-  
+
   def DictComp(key, value, generators, lineno=None, col_offset=None):
-      return l_str(["dict-comp", key, value, l_str(generators), lineno, col_offset])    
-  
+      return l_str(["dict-comp", key, value, l_str(generators), lineno, col_offset])
+
   def SetComp(elt, generators, lineno=None, col_offset=None):
       return "(unimplemented \"set comprehension\")"
 #+END_SRC
@@ -4843,36 +4676,34 @@ DOC: generator expressions are translated to list comprehensions
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests list-comprehensions
                      "[x*x for x in range(10)]"
                      "[x*x for x in range(10) if x > 5]"
                      "[x*x for x in range(10) if x > 5 if x < 8]"
-  
+
                      "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]"
-  
+
                      "
   matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
   _x = [[row[i] for row in matrix] for i in range(4)]
   assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]"
-  
+
                      "
   transposed = []
   for i in range(4):
    transposed.append([row[i] for row in matrix])
   assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
   "
-  
+
                      "{x: [y*y for y in range(x)] for x in range(20)}"
-  
+
                      "x = {x: number_to_string(x) for x in range(10)}
   assert hash_table_count(x) == 10
   assert x[1] == '1'
   assert x[9] == '9'
   "
-  
                      )
 #+END_SRC
 
@@ -4882,7 +4713,6 @@ DOC: generator expressions are translated to list comprehensions
   (def-transform boolop pyel (op values)
     (lambda (op values)
       (cons op (mapcar 'transform values))))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4893,7 +4723,6 @@ DOC: generator expressions are translated to list comprehensions
   def And():
       return "and"
 #+END_SRC
-
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests boolop
@@ -4905,12 +4734,11 @@ DOC: generator expressions are translated to list comprehensions
                      "a[2] and b.f() or c.e"
                      "a.e and b[2] or c.e() and 2 ")
 #+END_SRC
-
 * pass
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
- (def-transform pass pyel ()
-   (lambda () nil))
+  (def-transform pass pyel ()
+    (lambda () nil))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4922,17 +4750,14 @@ DOC: generator expressions are translated to list comprehensions
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * unimplemented
 This will help notify the user when some syntax has not been implemented
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  
   (def-transform unimplemented pyel (name)
     (lambda (name)
       (pyel-notify-error "Set comprehensions have not been implemented")
       pyel-error-string))
-  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4942,24 +4767,21 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * conditional expressions
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(def-transform if-exp pyel ()
-  (lambda (test body orelse)
+  (def-transform if-exp pyel ()
+    (lambda (test body orelse)
       (let ((tst (transform test)))
         `(if ,(if (equal tst []) nil tst)
-	     ,(transform body)
- 	   ,(transform orelse)))))
+             ,(transform body)
+           ,(transform orelse)))))
 #+END_SRC
-
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def IfExp (test, body, orelse, lineno=None, col_offset=None):
@@ -4973,13 +4795,12 @@ This will help notify the user when some syntax has not been implemented
                      "a[1] if a[2:2] else a[2]"
                      )
 #+END_SRC
-
 * raise
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(def-transform raise pyel ()
-  (lambda (exc cause)
-    `(py-range ,(transform exc)))) ;;TODO: ignoring cause
+  (def-transform raise pyel ()
+    (lambda (exc cause)
+      `(py-range ,(transform exc)))) ;;TODO: ignoring cause
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4990,13 +4811,11 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC python :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 (pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * transform template
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -5037,7 +4856,7 @@ This will help notify the user when some syntax has not been implemented
   "if CHAR occurs at the beginning of STRING, remove all occurrences"
   (let ((split (char-split-string string))
 	(char (or char " ")))
-    
+
     (while (string= char (car split))
       (setq split (cdr split)))
     (mapconcat 'identity split "")))
@@ -5049,7 +4868,7 @@ prevents multiple/none '/' seporating file names"
   (let* ((first (strip-end (car dirs) "/"))
 	 (last (strip-start (car (last dirs)) "/"))
 	 (dirs (append (list first)
-		       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/")) 
+		       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/"))
 			       (cdr (butlast dirs)))
 		       (list last))))
     (mapconcat 'identity dirs "/")))
@@ -5062,14 +4881,14 @@ prevents multiple/none '/' seporating file names"
   (require 'transformer)
   (require 'pyel-transforms)
   (require 'pyel-tests-generated)
-  (require 'pyel-preprocessor)  
-  
+  (require 'pyel-preprocessor)
+
   (require 'pyel-mode)
   (require 'py-objects)
-  
+
   (pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
   ;;...I'm so sorry
-  
+
   (provide 'pyel)
   ;;pyel.el ends here
 #+END_SRC
@@ -5091,7 +4910,7 @@ prevents multiple/none '/' seporating file names"
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
 #py-ast.py ends here
-#+END_SRC  
+#+END_SRC
 
 * ------------------
 * transform template
