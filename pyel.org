@@ -2022,22 +2022,22 @@ this test is disabled. It pollutes global variables
 ** dict
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (defvar pyel-dict-test 'equal "test function for dictionaries")
-
+  (defvar pyel-dict-test 'equal "Test function for dictionaries")
+  
   (def-transform dict pyel ()
-    (lambda (keys values)
-      (pyel-dict keys values)))
-
-  (defun pyel-dict (keys values) ;;TODO: move to lambda in template and create template vars
+    (lambda (keys values &optional line col)
+      (pyel-dict keys values line col)))
+  
+  (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
     (if keys
-
+  
         `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
            ,(cons '@ (mapcar* (lambda (key value)
                                 `(puthash ,key ,value __h__))
                               (mapcar 'transform  keys)
                               (mapcar 'transform  values)))
            __h__)
-
+  
       `(make-hash-table :test ',pyel-dict-test)))
 #+END_SRC
 *** python ast
