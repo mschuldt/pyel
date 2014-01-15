@@ -2389,7 +2389,7 @@ this test is disabled. It pollutes global variables
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   ;;doc: context macro-call
-  (defun pyel-while (test body orelse)
+  (defun pyel-while (test body orelse &optional line col)
     ;;pyel-while is special. it gets to handle the macro definitions
     (let* ((tst (transform test))
            (else (mapcar 'transform orelse))
@@ -2399,7 +2399,7 @@ this test is disabled. It pollutes global variables
            ;;inter-transform variables
            continue-while
            break-while )
-
+  
       (if (and (symbolp tst)
                (string-match (format "^%s\\([A-Za-z0-9_]+\\)$" pyel-py-macro-prefix)
                              (symbol-name tst)))
@@ -2410,13 +2410,13 @@ this test is disabled. It pollutes global variables
                                                 (match-string 1 (symbol-name tst))))
              ;;TODO: if macro name is an alias, replace with actual
              ,@(mapcar 'transform body)))
-
+  
         ;;expand as a normal while loop
         (setq t-body (remove-context tail-context
                                      (mapcar 'transform (subseq body 0 -1)))
               t-last (transform (car (last body)))
               code (append t-body (list t-last))
-
+  
               break-code (if break-while '(catch '__break__)
                            pyel-nothing)
               continue-code (if continue-while '(catch '__continue__)
@@ -2429,20 +2429,20 @@ this test is disabled. It pollutes global variables
         (if else
             `(@ ,wile ,@else)
           wile))))
-
+  
   ;; (defun pyel-while (test body orelse)
   ;;   (let* ((tst (transform test))
   ;;          (else (mapcar 'transform orelse))
   ;;          (wile `(while ,(if (equal tst []) nil tst)
   ;;                   ,@(mapcar 'transform body))))
-
+  
   ;;     (if else
   ;;         `(@ ,wile ,@else)
   ;;       wile)))
-
+  
   (def-transform while pyel ()
-    (lambda (test body orelse)
-      (pyel-while test body orelse)))
+    (lambda (test body orelse &optional line col)
+      (pyel-while test body orelse line col)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
