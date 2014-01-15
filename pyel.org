@@ -291,7 +291,6 @@ main
           (mapconcat 'identity (split-string ret ",") ",\n")
         ret)))
   
-  
   ;;'(a (@ b (c)))) => (a b (c))
   ;;'(a (@ b c)))   => (a b c)
   ;;'(@ a b c) => (progn a b c)
@@ -1317,12 +1316,12 @@ preprocessor expand separately
 This is for all non template specific code.
 #+Begin_SRC python :tangle py-ast.py
   import ast
-
+  
   #TODO: use *args
-
+  
   def l_str(x):
       return "(" + " ".join(map(str,x)) + ")"
-
+  
   def ll_str(x):
       if x == []:
           return "nil"
@@ -1332,43 +1331,43 @@ This is for all non template specific code.
   #    return " ".join(map(str,x))
   #    return "(list " + " ".join(map(str,x)) + ")"
   # commented out for 'assign'. cause problems elsewhere?
-
+  
   def untuple(x):
       return ll_str(x)
       if x == []:
           return "nil"
       elif type(x) == str:
           return x
-
+  
   def Module(body):
       return "\n".join(body)
-
+  
   def keyword(arg, value, lineno=None, col_offset=None):
       return l_str(["(keyword ", arg, " ", value, lineno, col_offset, ")"])
-
-  def Print(dest, values, nl):
+  
+  def Print(dest, values, nl, lineno=None, col_offset=None):
       print("Error: using python2, upgrade to python3")
       exit()
-
+  
   def Param():
       return "'param"
-
+  
   def Load():
       return "'load"
-
+  
   def Store():
       return "'store"
-
+  
   def Expr(value, lineno=None, col_offset=None): #?
       return value
-
+  
   def Import(names, lineno=None, col_offset='None'):
       return l_str(["import ",ll_str(names), lineno, col_offset])
-
+  
   def alias(name, asname):
       if asname: asname = "\"" + asname + "\""
       return l_str(["alias ", "\"" + name + "\"", asname or "nil"])
-
+  
   def ImportFrom(module, names, level, lineno=None, col_offset='None'):
       return l_str(["import-from ","\"" + module + "\"", ll_str(names), level, lineno, col_offset])
 #+END_SRC
