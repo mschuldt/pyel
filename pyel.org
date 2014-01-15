@@ -2030,14 +2030,12 @@ this test is disabled. It pollutes global variables
   
   (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
     (if keys
-  
         `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
            ,(cons '@ (mapcar* (lambda (key value)
                                 `(puthash ,key ,value __h__))
                               (mapcar 'transform  keys)
                               (mapcar 'transform  values)))
            __h__)
-  
       `(make-hash-table :test ',pyel-dict-test)))
 #+END_SRC
 *** python ast
@@ -2057,7 +2055,7 @@ this test is disabled. It pollutes global variables
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform tuple pyel ()
-    (lambda (elts ctx) ;;Ignoring ctx for now
+    (lambda (elts ctx &optional line col) ;;Ignoring ctx for now
       (cons 'vector (mapcar 'transform elts))))
 #+END_SRC
 *** python ast
