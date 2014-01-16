@@ -4262,9 +4262,9 @@ DOC: 'nonlocal' is currently equivalent to 'global'
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform lambda pyel ()
-    (lambda (args body)
+    (lambda (args body &optional line col)
       (using-context lambda-def
-                     (pyel-def "dkl" args body nil nil))))
+                     (pyel-def "dkl" args body nil nil line col))))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
