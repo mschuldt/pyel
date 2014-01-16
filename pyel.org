@@ -4705,7 +4705,7 @@ DOC: generator expressions are translated to list comprehensions
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Pass(lineno=None, col_offset=None):
-      return l_str("pass", lineno, col_offset)
+      return l_str(["pass", lineno, col_offset])
 #+END_SRC
 ** tests
 (pyel-create-tests '<name>
