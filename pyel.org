@@ -4523,7 +4523,7 @@ DOC: generator expressions are translated to list comprehensions
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform comprehension pyel (target iter ifs)
     (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
-
+  
   (defun pyel-comprehension (target iter ifs)
     ;;this uses the inter-transform var 'comprehension-body'
     (assert (boundp 'comprehension-body)
@@ -4540,11 +4540,12 @@ DOC: generator expressions are translated to list comprehensions
                                (mapcar 'transform ifs)))
               pyel-nothing)
            do ,comprehension-body))
-
+  
   (def-transform list-comp pyel (elt generators)
-    (lambda (elt generators) (pyel-list-comp elt generators)))
-
-  (defun pyel-list-comp (elt generators)
+    (lambda (elt generators &optional line col)
+      (pyel-list-comp elt generators line col)))
+  
+  (defun pyel-list-comp (elt generators &optional line col)
     (let* ((list-var '__list__)
            (comprehension-body `(setq ,list-var (cons ,(transform elt) ,list-var)))
            (i (length generators))
@@ -4556,15 +4557,16 @@ DOC: generator expressions are translated to list comprehensions
         ;; is the inner code for the preceding generator in 'generators'
         ;; (loop ... collect ...) produces a list, so no additional work is needed
         (setq comprehension-body (transform (nth i generators))))
-
+  
       `(let ((,list-var nil))
          ,comprehension-body
          (reverse ,list-var))))
-
+  
   (def-transform dict-comp pyel (key value generators)
-    (lambda (key value generators) (pyel-dict-comp key value generators)))
-
-  (defun pyel-dict-comp (key value generators)
+    (lambda (key value generators &optional line col)
+      (pyel-dict-comp key value generators line col)))
+  
+  (defun pyel-dict-comp (key value generators &optional line col)
     (let* ((hash-var '__dict__)
            (comprehension-body (list 'puthash (transform key)
                                      (transform value)
@@ -4574,7 +4576,7 @@ DOC: generator expressions are translated to list comprehensions
       (while (> i 0)
         (setq i (1- i))
         (setq comprehension-body (transform (nth i generators))))
-
+  
       `(let ((,hash-var (make-hash-table :test 'equal)))
          ,comprehension-body
          ,hash-var)))
