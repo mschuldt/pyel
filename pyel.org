@@ -4321,7 +4321,7 @@ TODO: tests!
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform aug-assign pyel (target op value)
-    (lambda (target op value)
+    (lambda (target op value &optional line col)
       (call-transform 'assign
                       `(,target)
                       (call-transform  op
@@ -4366,8 +4366,8 @@ TODO: tests!
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform return pyel ()
-    (lambda (value)
-
+    (lambda (value &optional line col)
+  
       (if (context-p 'tail-context)
           (transform value)
         (setq return-middle t)
@@ -4387,16 +4387,16 @@ TODO: tests!
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform break pyel ()
-    (lambda ()
+    (lambda (&optional line col)
       ;;TODO verify that it is ok to just use one inter-template var for this
       (context-switch
        (while (setq break-while t)
          '(throw '__break__ nil))
        (for (setq break-for t)
             '(break)))))
-
+  
   (def-transform continue pyel ()
-    (lambda ()
+    (lambda (&optional line col)
       ;;TODO verify that it is ok to just use one inter-template var for this
       (context-switch
        (while (setq continue-while t)
