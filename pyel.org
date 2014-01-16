@@ -4422,7 +4422,7 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform except-handler pyel (type name body)
     ;;TODO: name?
-    (lambda (type name body)
+    (lambda (type name body &optional line col)
       `(,(or (transform type) 'error)
         ,@(mapcar 'transform body))))
 #+END_SRC
