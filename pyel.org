@@ -3009,29 +3009,29 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
     ((start :initarg :start)
      (end :initarg :end)
      (step :initarg :step)))
-
+  
   (def-transform index pyel ()
-    (lambda (value)
+    (lambda (value &optional line col)
       (transform value)))
-
+  
   (def-transform slice pyel ()
     (lambda (lower upper step)
       (PySlice "slice"
                :start (transform lower)
                :end (transform upper)
                :step (transform step))))
-
+  
   (def-transform subscript pyel ()
-    (lambda (value slice ctx)
-      (pyel-subscript value slice ctx)))
-
+    (lambda (value slice ctx &optional line col)
+      (pyel-subscript value slice ctx line col)))
+  
   (pyel-create-py-func subscript-load-index (name value)
                        (list _) -> (nth value name)
                        (object _) -> (--getitem-- name value)
                        (vector _) -> (aref name value)
                        (string _) -> (char-to-string (aref name value))
                        (hash _) -> (gethash value name))
-
+  
   (pyel-create-py-func subscript-load-slice (name start end step)
                        (object _ _ _) -> (--getitem-- name (PySlice "slice"
                                                                     :start start
@@ -3039,7 +3039,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                                                                     :step  step))
                        ;;TODO implement step
                        (_ _ _ _) -> (subseq name start end))
-
+  
   (pyel-create-py-func subscript-store-slice (name start end step assign)
                        (object _ _ _) -> (--setitem-- name
                                                       (PySlice "slice"
@@ -3047,25 +3047,25 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                                                                :end  end
                                                                :step  step)
                                                       assign)
-
+  
                        ;;TODO implement step
                        (_ _ _ _) -> (setf (subseq name start end) assign))
-
+  
   (pyel-create-py-func subscript-store-index (name value assign)
                        (list _) -> (setf (nth value name) assign)
                        (object _) -> (--setitem-- name value assign)
                        (vector _) -> (setf (aref name value) assign)
                        (hash _) -> (puthash value assign name))
   ;;                  (string _) -> not supported in python
-
-  (defun pyel-subscript (value slice ctx)
+  
+  (defun pyel-subscript (value slice ctx &optional line col)
     (let* (;(value (transform value))
            (slice (transform slice))
            (ctx (cond ((context-p 'force-load) 'load)
                       ((context-p 'force-store) 'store)
                       (t (eval ctx))))
            start stop step)
-
+  
       (when (object-p slice)
         (setq start (oref slice start)
               stop (oref slice end)
@@ -3078,7 +3078,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
         (if (object-p slice)
             (call-transform 'subscript-store-slice value start stop step assign-value)
           (call-transform 'subscript-store-index value slice assign-value)) ;;load index
-
+  
         ;;      (test value start stop step assign-value)
         )))
 #+END_SRC
