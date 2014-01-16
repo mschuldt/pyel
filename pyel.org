@@ -1375,21 +1375,21 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     "list of generated python test functions.
   when `pyel-run-tests' is run, these are translated to e-lisp
   and compared to expected values")
-
+  
   (setq _pyel-tests nil)
   (setq _pyel-structure-tests nil)
-
+  
   (defvar pyel-test-func-counter 0
     "just another counter")
-
+  
   (defun pyel-make-test-func-name ()
     (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
-
+  
   (defun cl-prettyprint-to-string (form)
     (with-temp-buffer
       (cl-prettyprint form)
       (buffer-string)))
-
+  
   (defmacro pyel-create-tests (name &rest py-tests)
     (let ((complete nil)
           (py-ast nil)
@@ -1402,9 +1402,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-
+  
         (flet ((pyel-create-new-marker () "test_marker"))
-
+  
           (dolist (test (reverse py-tests))
             (cond ((and (consp test)
                         (>= (length test) 2)
@@ -1416,7 +1416,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                           (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
                           (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
                           (d 0))
-
+  
                      (push (setq _x (pyel-functionize (concat (car test)
                                                                     (if (= (length test) 2)
                                                                         (if (listp (cadr test))
@@ -1443,8 +1443,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                         ,(intern (format "pyel-test-%s-%s" name-str
                                                          (number-to-string (setq c (1+ c))))) ()
                                       (equal (eval (pyel ,(if (= (length test) 2)
-
-
+  
+  
                                                                       (format "%s()" test-name)
                                                                     (format "%s(%s)" test-name (setq d (1+ d))))))
                                                      ,(if (and (listp (cadr x))
@@ -1456,7 +1456,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                            (cdr test))
                      (setq _pyel-tests (append _pyel-tests (reverse tests)))
                      ))
-
+  
                 ((consp test) ;;form: ("test" expect)
                  (push `(ert-deftest
                               ,(intern (concat "pyel-" (symbol-name name)
@@ -1464,9 +1464,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                             (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
                                                         "\n_pyel21312()")))
                                            ,(cadr test)))
-
+  
                          _pyel-tests))
-
+  
                 (t (progn ;;form "test"
                      ;;check complete code transformation
                      (setq trans (pyel test))
@@ -1483,11 +1483,11 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                      ;;check transformed .py syntax tree
                      (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) ()
                               (string= (pyel ,test t)
-                                       ,(pyel test t))
+                                       ,(pyel test nil nil t))
                               pyel-el-ast-tests)
                            _pyel-structure-tests))
             )))))))
-
+  
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
     ;;99% of the code is the same...
@@ -1498,7 +1498,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-
+  
         (dolist (code (reverse py-code))
           ;;check complete code transformation
           (setq trans (pyel-with-known-types known-types code))
@@ -1514,24 +1514,24 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           (push `(should (string= (pyel ,code t)
                                   ,(pyel code t)))
                 el-ast))
-
+  
         (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
                                      () ,@complete)))
         (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
                                         () ,@py-ast)) nil)
-
+  
         (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
                                         () ,@el-ast)) nil)
         (message "Tests copied to kill ring"))))
-
-
+  
+  
   (defun pyel-indent-py-code (code &optional indent)
     "Indent CODE by INDENT. CODE is a string. INDENT defaults to one space"
     (let ((indent (or indent " ")))
       (mapconcat 'identity (mapcar (lambda (x) (concat indent x))
                                    (split-string code "\n"))
                  "\n")))
-
+  
   (defun pyel-generate-tests ()
     (interactive)
     ;;read in tests from pyel-tests.el
@@ -1541,7 +1541,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           pyel-test-py-functions
           _pyel-tests
           _pyel-structure-tests)
-
+  
       (load-file (file-path-concat pyel-directory "pyel-tests.el"))
       (with-temp-buffer
         ;;save py test functions
@@ -1555,10 +1555,10 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (mapc (lambda (x)
                 (insert (prin1-to-string x) "\n"))
               _pyel-structure-tests)
-
+  
         (insert "\n(provide 'pyel-tests-generated)")
         (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
-
+  
   (defalias 'pyel-verify 'pyel-run-tests)
   (defun pyel-run-tests (&optional selector)
     "setup and run pyel test.
@@ -1569,7 +1569,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   'pyel-transform-test' check full code transform
   'pyel-py-ast-test' check python AST
   'pyel-el-ast-test' check lisp AST
-
+  
   'pyel' will run all tests'"
     (interactive)
     (setq selector (or selector
@@ -1586,7 +1586,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (progv
           (mapcar 'car test-variable-values)
           (mapcar 'cadr test-variable-values)
-
+  
         (if (or (string= selector "pyel-test")
                 (string= selector "pyel"))
             (let ((tmp-file "~/tmp/pyel-test-functions.el"))
@@ -1601,10 +1601,10 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
               (save-buffer)
               (kill-buffer)
               (load-file tmp-file)))
-
+  
           (ert-run-tests-interactively selector)
           )))
-
+  
   (defun pyel-functionize (py-code &optional func-name &rest args)
     "wrap PY-CODE in a function definition
   FUNC-NAME defaults to 'f'"
@@ -1612,7 +1612,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (mapconcat 'identity (mapcar (lambda (x) (concat " " x))
                                           (split-string py-code "\n"))
                         "\n")))
-
+  
 #+END_SRC
 ** tests
 this test is disabled. It pollutes global variables
