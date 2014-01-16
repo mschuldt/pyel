@@ -1261,6 +1261,32 @@ in `pyel-message-formats'"
 		msg) pyel-translation-messages))
 
 #+END_SRC
+** line/column numbers
+#+Begin_SRC emacs-lisp :tangle pyel.el
+(defun read-tree-positions ()
+  "Create a tree of buffer positions corresponding to the source tree at the point
+format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
+  (pyel-skip-whitespace)
+  (let ((start (point))
+	inner)
+    (goto-char (1+ start))
+    (setq inner (read-list-positions)) ;;asssumes we start on a list
+    (vector start (point) inner)))
+
+(defun read-list-positions ()
+  (let (start end elems)
+    (condition-case nil
+	(while t
+	  (pyel-skip-whitespace)
+	  (setq start (point))
+	  (if (string= (char-at-point) "(")
+	      (push (get-tree-positions) elems)
+	    (setq end (scan-sexps start 1))
+	    (push (vector start end nil) elems)
+	    (goto-char end)))
+      (scan-error (goto-char (1+ start))))
+      (reverse elems)))
+#+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 (ert-deftest pyel-do-splices ()
@@ -3497,12 +3523,12 @@ TODO: tests!
     "convert SEQ to a string of its python representation
       does not include starting/ending parens or brackets"
     (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
-
+  
   (defun py-list-str (thing)
     (concat "[" (_py-str-sequence thing) "]"))
   (defun py-vector-str (thing)
     (concat "(" (_py-str-sequence thing) ")"))
-
+  
   (defun py-function-str (func)
     "return a string representation of function FUNC"
     (let* ((obj (bound-method-p func))
@@ -3516,7 +3542,7 @@ TODO: tests!
                                                      (or (eq (car func) 'lambda)))
                                                 "<lambda>"
                                               (symbol-name func))))))
-
+  
   (defun py-hash-str (ht)
     (let (str)
       (maphash (lambda (key value)
@@ -3525,9 +3551,9 @@ TODO: tests!
                                (pyel-str-function value))
                        str))
                ht)
-
+  
       (concat "{" (mapconcat 'identity (reverse str) ", ") "}")))
-
+  
   ;;temp fix for 'str' transform
   ;;The problem:
   ;; cannot pass a function name to the str transform because the tranform
@@ -3543,7 +3569,7 @@ TODO: tests!
             thing;;error
             ))
       (list 'pyel-str-function thing)))
-
+  
   ;;Currently, the repr and str transforms are not not called directly
   ;;so they never have the change to expand.
   ;;The expanded functions are used so we force expansion here.
