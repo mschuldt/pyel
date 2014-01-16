@@ -4637,7 +4637,7 @@ DOC: generator expressions are translated to list comprehensions
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform boolop pyel (op values)
-    (lambda (op values)
+    (lambda (op values &optional line col)
       (cons op (mapcar 'transform values))))
 #+END_SRC
 ** python ast
