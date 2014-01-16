@@ -3351,40 +3351,6 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                      "assert sldk()"
                      "assert adk,'messsage'")
 #+END_SRC
-* primitive type methods
-** doc  TODO: move or tangle
-*Defining method transforms for build in types*
-In python, primitive types such as the list and string are objects. We need to
-define the way in which these method calls will be transformed to function
-calls in Emacs Lisp. The macro `pyel-method-transform' is used for this.
-
-Definition form is just like normal type transforms, with a few extra requirement
-- The first argument is the potential object
-- these transforms are responsible for creating the normal
-  method call if obj is actually an object and not a primative type
-  this must always be last with the type selector (_ _ ... _ ) ->
-Example:
-#+Begin_SRC emacs-lisp
-  (pyel-method-transform append (obj thing)
-                         (list _) -> (setq ,obj (append ,obj (list ,thing)))
-                         (_ _)    -> (append ,thing))
-#+End_Src
-** append
-*** transform
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform append (obj thing)
-                         (list _) -> (setq $obj (append obj (list thing)))
-                         (_ _)    -> (append obj thing))
-#+END_SRC
-*** tests
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests append
-                     "a=[1,2,3]
-  a.append('str')
-  assert len(a) == 4
-  assert a[3] == 'str'"
-                     )
-#+END_SRC
 * function transforms
 TODO: tests!
 ** simple name changes
@@ -3852,16 +3818,29 @@ TODO: tests!
 
 * built-in method transforms
 TODO: tests!
+** doc  TODO: move or tangle
+*Defining method transforms for build in types*
+In python, primitive types such as the list and string are objects. We need to
+define the way in which these method calls will be transformed to function
+calls in Emacs Lisp. The macro `pyel-method-transform' is used for this.
+
+Definition form is just like normal type transforms, with a few extra requirement
+- The first argument is the potential object
+- these transforms are responsible for creating the normal
+  method call if obj is actually an object and not a primative type
+  this must always be last with the type selector (_ _ ... _ ) ->
+Example:
+#+Begin_SRC emacs-lisp
+  (pyel-method-transform append (obj thing)
+                         (list _) -> (py-append-list obj thing)
+                         (_ _)    -> (call-method obj append thing))
+#+End_Src
 ** append
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform append (obj thing)
                          (list _) -> (py-append-list obj thing)
                          (_ _)    -> (call-method obj append thing))
-#+END_SRC
-*** python ast
-#+Begin_SRC python :tangle py-ast.py
-
 #+END_SRC
 *** python el lib
 #+Begin_SRC python :tangle py-lib.el
