@@ -3334,10 +3334,10 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
    -> (assert (vector True 1) t "message")
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform assert pyel ()
-    (lambda (test msg)
-      (pyel-assert test msg)))
-
-  (defun pyel-assert (test msg)
+    (lambda (test msg &optional line col)
+      (pyel-assert test msg line col)))
+  
+  (defun pyel-assert (test msg &optional line col)
     `(assert ,(transform test) t ,(transform msg)))
 #+END_SRC
 ** python ast
