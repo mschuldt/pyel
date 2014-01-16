@@ -205,7 +205,7 @@ main
          pyel-tmp-file nil 'silent))
   
       (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
-  
+      (setq _x py-ast)
       (if (setq py-error (pyel-is-error py-ast))
           (progn
             (setq pyel-python-error-line py-error)
@@ -4443,7 +4443,7 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform try pyel (body handlers orelse)
     ;;TODO: orelse
-    (lambda (body handlers orelse)
+    (lambda (body handlers orelse &optional line col)
       `(condition-case nil
            ,@(mapcar 'transform body)
          ,@(mapcar 'transform handlers))))
