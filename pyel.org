@@ -4115,7 +4115,14 @@ macros and macroish primitives
         )
   
       (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
-  
+#+END_SRC
+** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def For(target, iter, body, orelse, lineno=None, col_offset=None):
+      return l_str(["for ", target, iter, ll_str(body), ll_str(orelse), lineno, col_offset])
+#+END_SRC
+** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
   (defmacro py-for (&rest args)
     "(for <targets> in <iter> <body> else <body>)
   else is optional"
@@ -4174,15 +4181,6 @@ macros and macroish primitives
               (__idx 0)
               )
          ,@body)))
-#+END_SRC
-** python ast
-#+Begin_SRC python :tangle py-ast.py
-  def For(target, iter, body, orelse, lineno=None, col_offset=None):
-      return l_str(["for ", target, iter, ll_str(body), ll_str(orelse), lineno, col_offset])
-#+END_SRC
-** python el lib
-#+Begin_SRC python :tangle py-lib.el
-
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
