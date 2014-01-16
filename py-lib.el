@@ -24,10 +24,10 @@
                                             decorator-list))
                               '(lambda))
                           (list 'defun name)))
-             optional 
+             optional
              pos+optional rest kwarg
              npositional nargs arg-index)
-         
+
          (when (member '&kwarg args)
            (setq kwarg (car (last args))
                  args (subseq args 0 -2)
@@ -49,63 +49,63 @@
                                        (append positional optional)))
 
          `(,@func-name (&rest args)
-            ;;if this is called with keyword args they will be
-            ;;the in an alist in the car position.
-            (if (and (listp (car args))
-                     (eq (caar args) :kwargs))
-                (let* ((kwargs (cdar args))
-                       (args (cadr args))
-                       (len (length args))
-                       (index 0)
-                       (kwargs-used 0)
-                       pos+optional rest arg-index index-value tmp)
-                  (cond ((= len ,nargs)
-                         nil)
-                        ((> len ,nargs)
-                         (setq pos+optional (subseq args 0 ,nargs)
-                               rest (subseq args ,nargs)))
-                        (t ;;(< len ,nargs)
-                         (setq pos+optional
-                               (append args (make-list (- ,nargs len) nil)))))
+                       ;;if this is called with keyword args they will be
+                       ;;the in an alist in the car position.
+                       (if (and (listp (car args))
+                                (eq (caar args) :kwargs))
+                           (let* ((kwargs (cdar args))
+                                  (args (cadr args))
+                                  (len (length args))
+                                  (index 0)
+                                  (kwargs-used 0)
+                                  pos+optional rest arg-index index-value tmp)
+                             (cond ((= len ,nargs)
+                                    nil)
+                                   ((> len ,nargs)
+                                    (setq pos+optional (subseq args 0 ,nargs)
+                                          rest (subseq args ,nargs)))
+                                   (t ;;(< len ,nargs)
+                                    (setq pos+optional
+                                          (append args (make-list (- ,nargs len) nil)))))
 
-                  ;;make alist of index value pairs
-                  (setq index-value
-                        (mapcar (lambda (kw) 
-                                  (if (setq arg-index
-                                            (assoc (car kw) ',arg-index-alist))
-                                      (list (cdr arg-index)
-                                            (cdr kw)
-                                            ;;need reference to remove arg later
-                                            (car arg-index))))
-                                kwargs))
-                  ;;set the keyword args values in arg list
-                  (setq tmp pos+optional)
-                  (while tmp
-                    (when (setq iv (assoc index index-value))
-                      (if (< (car iv) len)
-                        (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv)))
-                        )
-                      (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
-                      (setcar tmp (cadr iv))
-                      (setq kwargs-used (1+ kwargs-used)))
-                    (setq tmp (cdr tmp))
-                    (setq index (1+ index)))
-                  (if (< (+ kwargs-used len) ,npositional)
-                      (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
-                  (apply (lambda (,@(append positional optional rest) ,kwarg)
-                           ,@body)
-                         (append pos+optional
-                                 (list rest (pyel-alist-to-hash kwargs)))))
-              ;;else: called without keyword args
-              (let ((kwargs (make-hash-table :size 0)))
-                (apply (lambda ,args-without-kwarg
-                         (let (,kwarg)
-                         ,@body))
-                       args)))))
-     
+                             ;;make alist of index value pairs
+                             (setq index-value
+                                   (mapcar (lambda (kw)
+                                             (if (setq arg-index
+                                                       (assoc (car kw) ',arg-index-alist))
+                                                 (list (cdr arg-index)
+                                                       (cdr kw)
+                                                       ;;need reference to remove arg later
+                                                       (car arg-index))))
+                                           kwargs))
+                             ;;set the keyword args values in arg list
+                             (setq tmp pos+optional)
+                             (while tmp
+                               (when (setq iv (assoc index index-value))
+                                 (if (< (car iv) len)
+                                     (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv)))
+                                   )
+                                 (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
+                                 (setcar tmp (cadr iv))
+                                 (setq kwargs-used (1+ kwargs-used)))
+                               (setq tmp (cdr tmp))
+                               (setq index (1+ index)))
+                             (if (< (+ kwargs-used len) ,npositional)
+                                 (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
+                             (apply (lambda (,@(append positional optional rest) ,kwarg)
+                                      ,@body)
+                                    (append pos+optional
+                                            (list rest (pyel-alist-to-hash kwargs)))))
+                         ;;else: called without keyword args
+                         (let ((kwargs (make-hash-table :size 0)))
+                           (apply (lambda ,args-without-kwarg
+                                    (let (,kwarg)
+                                      ,@body))
+                                  args)))))
+
      ;;else: no &kwarg
      `(defun ,name ,args
-          ,@body)
+        ,@body)
      )))
 
 (defun py-list (&rest things)
@@ -138,7 +138,7 @@
 (defun py-function-str (func)
   "return a string representation of function FUNC"
   (let* ((obj (bound-method-p func))
-        (obj-name (-to_ (getattr obj --name--))))
+         (obj-name (if obj (-to_ (getattr obj --name--)) nil)))
     (if obj
         (format "<bound method %s.%s of %s object at 0x18b071>"
                 obj-name
@@ -157,7 +157,7 @@
                              (pyel-str-function value))
                      str))
              ht)
-    
+
     (concat "{" (mapconcat 'identity (reverse str) ", ") "}")))
 
 ;;temp fix for 'str' transform
@@ -176,7 +176,6 @@
           ))
     (list 'pyel-str-function thing)))
 
-
 ;;Currently, the repr and str transforms are not not called directly
 ;;so they never have the change to expand.
 ;;The expanded functions are used so we force expansion here.
@@ -187,7 +186,6 @@
   (call-transform (pyel-func-transform-name 'str) nil))
 
 ;;temp function. see `pyel-str' for details
-
 (defmacro pyel-repr (thing)
   (if (stringp thing)
       (py-repr-string (py-repr-string thing))
@@ -275,20 +273,18 @@
     (when m
       (- (length list) (length m)))))
 
-
-
 (defun vector-index (elem vector)
- "return the index of ELEM in VECTOR"
- (let ((i 0)
-       (len (length vector))
-       found)
+  "return the index of ELEM in VECTOR"
+  (let ((i 0)
+        (len (length vector))
+        found)
 
     (while (and (< i len)
-            (not found))
-     (if (equal (aref vector i) elem)
-      (setq found i)
-      (setq i (1+ i))))
-  found))
+                (not found))
+      (if (equal (aref vector i) elem)
+          (setq found i)
+        (setq i (1+ i))))
+    found))
 
 (defun count-str-matches (string substr)
   "count number of occurrences of SUBSTR in STRING"
@@ -318,6 +314,65 @@
 
 
 
+(defmacro py-for (&rest args)
+  "(for <targets> in <iter> <body> else <body>)
+else is optional"
+
+  ;;TODO: error checking for correct form
+  (let* ((targets (pyel-split-list args 'in))
+         (args (cdr targets))
+         (targets (car targets))
+         (iter (pop args)) ;;TODO: must iter be only one form?
+
+         (body (pyel-split-list args 'else))
+         (else-body (cdr body))
+         (body (car body))
+
+         (target (cond ((symbolp targets) ;;nil when there are multiple targets
+                        targets)
+                       ((= (length targets) 1)
+                        (car targets))
+                       (t nil)))
+
+         (unpack-code (unless target
+                        (let (ret)
+                          (dotimes (i (length targets) (reverse ret))
+                            (push `(setq ,(nth i targets)
+                                         (nth ,i __target__))
+                                  ret)))))
+         (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
+
+         (current-transform-table (get-transform-table 'for-macro))
+         __for-continue ;;these are set by the for-macro transforms
+         __for-break
+         )
+    ;;TODO: when multiple targets, check that all lists are the same size
+    (setq body (transform (setq _x body)))
+
+    (setq body (cons '(setq __idx (1+ __idx))  body)
+          body (if target
+                   (cons `(setq ,target (nth __idx __tmp-list)) body)
+                 (append unpack-code body)))
+
+    (when __for-continue
+      (setq body `((catch '__continue__ ,@body))))
+
+    ;; ! This assumes that all iters are the same size
+    (setq body `((while (< __idx __len)
+                   ,@body)
+                 ,@else-body))
+
+    (when __for-break
+      (setq body `((catch '__break__ ,@body))))
+
+    `(let* ((__tmp-list ,iter)
+            ;;      ,@iter-lets
+            ;;      ,@next-function-lets
+            (__len (length __tmp-list))
+            (__idx 0)
+            )
+       ,@body)))
+
 (provide 'py-lib)
 ;;py-lib.el ends here
 
@@ -330,14 +385,10 @@
 
 
 (defun py-range (start &optional end step)
-  (unless end
-    (setq end start
-          start 0))
-  (number-sequence start (1- end) step))
-
-
-
-
+ (unless end
+  (setq end start
+   start 0))
+ (number-sequence start (1- end) step))
 
 
 
@@ -354,7 +405,7 @@
 
 
 (defun vector-member (elt vector)
- "Return non-nil if ELT is an element of VECTOR.  Comparison done with `equal'."
+ "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
  (let ((i 0)
        (len (length vector))
        found)

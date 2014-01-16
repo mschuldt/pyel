@@ -2,18 +2,17 @@
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
 (add-to-list 'load-path "~/programming/pyel/")
-  (add-to-list 'load-path "~/programming/code-transformer/")  
-  (require 'eieio)
-  (require 'cl) 
+(add-to-list 'load-path "~/programming/code-transformer/")
+(require 'eieio)
+(require 'cl)
 ;;other requires are at the end
 
-;; This is a tangled file  -- DO NOT HAND-EDIT -- 
+;; This is a tangled file  -- DO NOT HAND-EDIT --
 ;;PYEL -> translate PYthon to Emacs Lisp
 
 (defun mpp (code)
   (let ((pp (pp-to-string code)))
     (insert "\n" pp)))
-
 
 ;;TODO: more robust checking, return type of error as well
 (defun pyel-is-error (code)
@@ -32,7 +31,7 @@
   "indicate status (success/fail) of last pyel transform
 status types:
 nil for no error
-('python ast transform error'  <line number>) 
+('python ast transform error'  <line number>)
 ")
 
 (defvar pyel-error-string "PYEL ERROR"
@@ -42,34 +41,34 @@ nil for no error
   "return the full file name of py-ast.el"
   (file-path-concat pyel-directory "py-ast.py"))
 
-
-(defun pyel (python &optional py-ast-only include-defuns)
+(defun pyel (python &optional no-line-and-col-nums include-defuns py-ast-only)
   "translate PYTHON into Emacs Lisp.
 PYTHON is a string.
+include line and column nums in output unless NO-LINE-AND-COL-NUMS is non-nil
 If PY-AST-ONLY, return the un-evaled ast.
 If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
   this is ignored if PY-AST-ONLY is non-nil"
   (assert (eq lexical-binding nil) "pyel requires dynamic scoping")
-  
+
   (setq pyel-marked-ast-pieces nil)
   (setq pyel-transform-status nil) ;;so far so good...
 
   (let* (;;Q general way of replacing backslashes?
          (python (replace-regexp-in-string "\"" "\\\\\"" python))
-         ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
-         
+                                        ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
+
          ;; (pyel "x = 'x\n'")
-        (py-ast "")
-        (el-code "")
-        (current-transform-table (get-transform-table 'pyel))
-        (python (with-temp-buffer
-                  (insert python)
-                  (pyel-preprocess-buffer2)
-                  (buffer-string)))
-        (pyel-context nil)
-        line ret
-        )
-    
+         (py-ast "")
+         (el-code "")
+         (current-transform-table (get-transform-table 'pyel))
+         (python (with-temp-buffer
+                   (insert python)
+                   (pyel-preprocess-buffer2)
+                   (buffer-string)))
+         (pyel-context nil)
+         line ret
+         )
+
     ;;?? setting the mark?
     (with-temp-buffer
       ;;    (find-file file)
@@ -78,44 +77,44 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
       (goto-char (point-max))
       (insert "\n")
       (setq line (line-number-at-pos))
-      (insert (format "print(eval(ast.dump(ast.parse(\"\"\"%s\"\"\"))))" python))
+      (insert (format "print(eval(ast.dump(ast.parse(\"\"\"%s\"\"\")%s)))"
+                      python
+                      (if no-line-and-col-nums "" ",include_attributes=True")))
       (write-region
        nil
        nil
        pyel-tmp-file nil 'silent))
-    
-    (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
 
+    (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
+    (setq _x py-ast)
     (if (setq py-error (pyel-is-error py-ast))
         (progn
           (setq pyel-python-error-line py-error)
           pyel-error-string)
-        ;;else: no error
-    (if py-ast-only
-        py-ast
-      ;;      (pyel-do-splices (transform (read py-ast))))))
-      ;;read can only return one sexp so we need to put it in a progn or something
-      ;;similar
-      
-      (setq ret (pyel-do-splices (if include-defuns
-                           (list '@ (cons '@ pyel-function-definitions)
-                                    (transform (read (format "(@ %s)" py-ast))))
-                         (transform (read  (format "(@ %s)" py-ast))))))
-      ;;TODO: this is a temp solution for convenience
-      (mapc 'eval pyel-function-definitions) 
-      ret
-      ))))
+      ;;else: no error
+      (if py-ast-only
+          py-ast
+        ;;      (pyel-do-splices (transform (read py-ast))))))
+        ;;read can only return one sexp so we need to put it in a progn or something
+        ;;similar
 
+        (setq ret (pyel-do-splices (if include-defuns
+                                       (list '@ (cons '@ pyel-function-definitions)
+                                                (transform (read (format "(@ %s)" py-ast))))
+                                     (transform (read  (format "(@ %s)" py-ast))))))
+        ;;TODO: this is a temp solution for convenience
+        (mapc 'eval pyel-function-definitions)
+        ret
+        ))))
 
 (defun pyel-buffer-to-string (&optional ast-only)
   "transform python in current buffer and return a string"
   ;;THIS DOES NOT RETURN A STRING!
   (pyel (buffer-string) ast-only))
 
-
 (defvar pyel-pp-function 'pp-to-string
-      "function that pretty prints pyel e-lisp code")
-      
+  "function that pretty prints pyel e-lisp code")
+
 (defun pyel-buffer (&optional out-buff)
   "transform python in current buffer and display in OUT-BUFF,
 OUT-BUFF defaults to *pyel-output*"
@@ -135,37 +134,39 @@ AST can be generated by `pyel' with (pyel py-string t)"
                               code
                             (pyel-do-splices code)))))
 
-
 (defun pyel-file-ast (file-name)
   "return the ast from .py file FILE-NAME"
   )
-      
+
 (defmacro pyel-with-known-types (known-types &rest code)
   "translate CODE while faking the known types"
   `(flet ((pyel-get-possible-types
            (&rest args)
            (mapcar* (lambda (arg type) (cons arg type))
                     args ,known-types)))
-     
+
      (pyel ,@code)))
 
-
-(defun py-ast (code &optional pp)
-  "Return the python abstract syntax tree for python CODE"
+(defun py-ast (code &optional pp include-attributes python2)
+  "Return the python abstract syntax tree for python CODE
+useing python3 unless PYTHON2 is non-nil"
   (let ((py-ast "")
         (el-code "")
         ret)
-    
+
     (with-temp-buffer
       (insert "import ast" "\n")
-      (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")))" code))
+      (insert (format "print(ast.dump(ast.parse(\"\"\"%s\"\"\")%s))"
+                      code
+                      (if include-attributes ",include_attributes=True" "")))
       (write-region nil nil pyel-tmp-file nil 'silent))
-    
-    (setq ret (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
+
+    (setq ret (shell-command-to-string (format "python%s %s"
+                                               (if python2 "" "3")
+                                               pyel-tmp-file)))
     (if pp
         (mapconcat 'identity (split-string ret ",") ",\n")
       ret)))
-
 
 ;;'(a (@ b (c)))) => (a b (c))
 ;;'(a (@ b c)))   => (a b c)
@@ -176,7 +177,7 @@ AST can be generated by `pyel' with (pyel py-string t)"
 (defun pyel-do-splices (code)
   (if (listp code)
       (let (c)
-        (if (eq (car code) '@) ;;special case: outer most list 
+        (if (eq (car code) '@) ;;special case: outer most list
             (if (> (length code) 2)
                 (pyel-do-splices `(progn ,code))
               (pyel-do-splices (cadr code)))
@@ -192,29 +193,26 @@ AST can be generated by `pyel' with (pyel py-string t)"
     code))
 
 (defun pyel-reload ()
-    (interactive)
-    (dolist (f '(pyel
-                 pyel-tests
-                 pyel-transforms
-                 pyel-mode
-                 pyel-pp
-                 pyel-preprocessor
-                 pyel-tests-generated
-                 transformer))
-      (setq features (remove f features)))
-    (require 'pyel))
+  (interactive)
+  (dolist (f '(pyel
+               pyel-tests
+               pyel-transforms
+               pyel-mode
+               pyel-pp
+               pyel-preprocessor
+               pyel-tests-generated
+               transformer))
+    (setq features (remove f features)))
+  (require 'pyel))
 
 (defun pyel-method-transform-name(method-name)
   "return the name of the temlate that transform the method METHOD-NAME.
 template names are modified to avoid potential conflict with other templates"
   (intern (format "_%s-method_" (symbol-name method-name))))
 
-
 (defun pyel-func-transform-name (func-name)
   "like `pyel-method-transform-name' for functions"
   (intern (format "_%s-function_" (symbol-name func-name))))
-
-
 
 (defmacro push-back (val place)
   "Add VAL to the end of the sequence stored in PLACE. Return the new
@@ -229,13 +227,11 @@ value."
   "translate python  NAME to e-lisp NEW-NAME"
   (push (list name new-name) pyel-variable-name-translations))
 
-
 (defun pyel-not-implemented (message)
   "signify that a feature is not implemented"
   ;;TODO
   (message message) ;;tmp
   )
-
 
 (defmacro insert-at (list nth value)
   "insert VALUE at NTH index in LIST"
@@ -256,7 +252,7 @@ THING may be a symbol, string or list"
     (intern (replace-regexp-in-string from to  (symbol-name thing))))
    ((listp thing) (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
    (t (error "invalid thing"))))
-  
+
 (defun _to- (thing)
   (pyel-replace-in-thing "_" "-" thing))
 (defun -to_ (thing)
@@ -269,7 +265,6 @@ THING may be a symbol, string or list"
            (list (car form) (cadr form) (list 'quote ctx)))
           ;;TODO: attribute and other forms (if needed)
           (t form))))
-
 
 (defun pyel-make-ast (type &rest args)
   "Generate pyhon ast.
@@ -288,31 +283,29 @@ This is used when the ast form is needed by a transform that is manually
                               (if (symbolp name)
                                   (symbol-name name)
                                 (error "invalid type for 'name'")))))
-    
+
     ;;TODO: should have seporate functions to check
     ;;      the validity of the ast instead of having
     ;;      the correction functions do it
     (case type
-      
+
       (subscript ;;args: value slice ctx
        (assert_n_args 'subscript 3 (length args))
-       
+
        (let ((ctx (correct_ctx (car (last args)))))
          (list 'subscript (car args) (cadr args) ctx)))
-      
+
       (name ;;args: name ctx
        (assert_n_args 'name 2 (length args))
        (let* ((name (correct_to_string (car args)))
-              
+
               (ctx (correct_ctx (car (last args)))))
-         
+
          (list 'name name ctx)))
-      
       (load
        '(quote load))
       (store
        '(quote store)))))
-
 
 (defmacro macrop (sym)
   (if (boundp sym)
@@ -349,7 +342,7 @@ This is used when the ast form is needed by a transform that is manually
   `(and (boundp ',f)
         (functionp ,f)))
 
-(set (defvar pyel-type-test-funcs nil  
+(set (defvar pyel-type-test-funcs nil
        "alist of types used in pyel-call-transform for the switch-type
         and the function used to test for that type")
      '((string stringp)
@@ -391,11 +384,8 @@ This is used when the ast form is needed by a transform that is manually
         pyel-type-test-funcs)
   (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
 
-
 (defvar pyel-defined-classes nil
   "list of call class names defined by pyel")
-
-
 
 (defvar pyel-defined-functions nil
   "list of some functions defined pyel
@@ -412,7 +402,6 @@ This is used when the ast form is needed by a transform that is manually
 (defvar pyel-unique-obj-names nil
   "if non-nil, uniquely name object instantces")
 
-
 (defvar pyel-context-groups nil ;;TODO: still used?
   "groups of contexts that cannot exist at the same time.
     `context-p' will stop at the first one in the list,")
@@ -422,7 +411,7 @@ This is used when the ast form is needed by a transform that is manually
 
 (defvar pyel-function-name-translations nil
   "alist of function name translations, python->e-lisp.
-    
+
     Entries in `pyel-function-name-translations' are applied before
     checking for function transforms.
     If a translation len->length is defined then the function transform for
@@ -433,10 +422,10 @@ This is used when the ast form is needed by a transform that is manually
   "alist of variable name translations, python->e-lisp.")
 
 (setq pyel-function-name-translations `(
-                                        
+
                                         ))
 ;;TODO: list, vector, etc
-;;      map?               
+;;      map?
 
 (setq pyel-variable-name-translations '((True t)
                                         (False nil)
@@ -450,7 +439,6 @@ This is used when the ast form is needed by a transform that is manually
 (defvar pyel-func-transforms nil
   "list of function names that have transforms defined for them")
 
-
 (defconst pyel-nothing '(@)
   "value to return from a function/transform when it should
     not contribute to the output code")
@@ -458,11 +446,8 @@ This is used when the ast form is needed by a transform that is manually
 (defconst pyel-python-version "3.2.3"
   "python interpreter version whose ast pyel is written for")
 
-
-
 (defvar test-variable-values nil
   "variables values for running tests")
-
 
 (setq test-variable-values
       '((pyel-defined-classes nil)
@@ -473,7 +458,7 @@ This is used when the ast form is needed by a transform that is manually
         (pyel-fully-functional-functions nil)
         ;;(pyel-method-transforms nil)
         ;;(pyel-func-transforms nil)
-        (pyel-marker-counter 0)))    
+        (pyel-marker-counter 0)))
 
 (defvar pyel-marker-counter 0)
 
@@ -481,14 +466,14 @@ This is used when the ast form is needed by a transform that is manually
   "Name of temp file to use for AST generation")
 
 (defvar pyel-default--init--method
-    "(defmethod --init-- ((self %s))
+  "(defmethod --init-- ((self %s))
      \"Default initializer\"
     )"
-    
-    "default initializer for pyel objects.")
 
-  (defvar pyel-use-list-for-varargs nil
-      "Determines if *varargs will be passed to function as a list or a vector,
+  "default initializer for pyel objects.")
+
+(defvar pyel-use-list-for-varargs nil
+  "Determines if *varargs will be passed to function as a list or a vector,
   non-nil for list, otherwise vector.
   To be like python (vectors), this should be nil
   To be consistent with Emacs-Lisp (lists), this should be t.
@@ -513,7 +498,6 @@ This is used when the ast form is needed by a transform that is manually
        ret)))
 
 (def-edebug-spec using-context (symbolp &rest form))
-
 
 (defmacro remove-context (context &rest code)
   "remove CONTEXT and translate CODE, then restore context"
@@ -561,8 +545,6 @@ This is used when the ast form is needed by a transform that is manually
                 cont nil))))
     ret))
 
-
-
 (defun context-depth (context)
   "get the depth of CONTEXT in `pyel-context'"
   ;;TODO:
@@ -592,14 +574,14 @@ This is used when the ast form is needed by a transform that is manually
 (defun pyel-get-possible-types (&rest args)
   "return a list in the form (arg types).
   The car is the argument and the cdr is a list of possible types"
-  
+
   ;;FOR TESTING
   (let ((types (if (>= (length known-types) (length args))
                    known-types
                  (append known-types '(string number list vector integer float))))
         (args (filter (lambda (x) (not (or (eq x '&optional)
                                            (eq x '&rest)))) args)))
-    
+
     (mapcar* (lambda (arg type) (cons arg type))
              args types)))
 
@@ -609,21 +591,20 @@ This is used when the ast form is needed by a transform that is manually
                                (eq x '&rest))))
           args))
 
-  
 ;;TODO: have functions saved in another file,
 ;;      instead of putting them all at the top of the file, have some type of
 ;;      require/import mechanism to functions are not constantly being redefined
 ;;    option to place insert function defs instead of requires
 (defmacro pyel-create-py-func (name args &rest type-switches)
   "return the function name"
-  ;;create a template that will resolve arg types and create a new function 
-  
+  ;;create a template that will resolve arg types and create a new function
+
   ;;-determine if enough type info is available to eliminate testing
   ;;-if testing is necessary, use `pyel-do-call-transform' like function to generate
   ;; the testing and calling structure and put that in a function
   ;;-create defun code if not yet defined
   ;;  add new func name to defined code list
-  
+
   ;;temp solution: does not check types etc
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
@@ -646,7 +627,7 @@ This is used when the ast form is needed by a transform that is manually
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
            ;;(if (eq (car (last args 2)) '&rest)
-               
+
            ;; (cons fsym (mapcar 'eval ,(if rest-arg
            ;;                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
            ;;                             `(quote ,args-just-vars))))
@@ -669,7 +650,7 @@ This is used when the ast form is needed by a transform that is manually
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil)))
 
-  `(def-transform ,(pyel-method-transform-name name) pyel () 
+  `(def-transform ,(pyel-method-transform-name name) pyel ()
      (lambda ,striped-args
        (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
              (body (pyel-do-call-transform (pyel-get-possible-types
@@ -677,7 +658,7 @@ This is used when the ast form is needed by a transform that is manually
                                            ',args
                                            ',type-switches))
              (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-         
+
          (unless (member fsym pyel-defined-functions)
            (push (list 'defmacro fsym ',striped-args
                        body)
@@ -697,14 +678,14 @@ This is used when the ast form is needed by a transform that is manually
   ;;the normal function call transform.
   (add-to-list 'pyel-func-transforms name)
   ;;TODO: should name be modified to avoid conflicts ?
-  `(def-transform ,(pyel-func-transform-name name) pyel () 
+  `(def-transform ,(pyel-func-transform-name name) pyel ()
      (lambda ,args
        (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-function")))
              (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                            ',args
                                            ',type-switches))
              (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-         
+
          (unless (member fsym pyel-defined-functions)
            (push (list 'defmacro fsym ',(mapcar 'strip_ args)
                        body)
@@ -716,15 +697,15 @@ This is used when the ast form is needed by a transform that is manually
 (defvar pyel-func-transforms2 nil
   "list of functions whose translations are defined
 with the macro `pyel-define-function-translation'")
-  
+
 (defmacro pyel-define-function-translation (name &rest body)
   "BODY will form the body of a function that is called during transform time
 to tranlate a call to NAME, variables 'args' and 'kwargs'  are available at
 this point. 'args' will be a list and 'kwargs will be an alist
 This is called at the same time `pyel-func-transform' would be called"
   (add-to-list 'pyel-func-transforms2 name)
-  
-  `(def-transform ,(pyel-func-transform-name name) pyel () 
+
+  `(def-transform ,(pyel-func-transform-name name) pyel ()
      (lambda (args kwargs)
        ,@body
        )))
@@ -736,7 +717,7 @@ This is called at the same time `pyel-func-transform' would be called"
   "Define how to call the function NAME.
       NAME is a function that is called differently based on its argument types.
       An attempt will be made to test the least possible number of types.
-      
+
       This defines a transforms in the pyel transform table with NAME and ARGS"
   `(def-transform ,name pyel ()
      (lambda ,args
@@ -748,7 +729,7 @@ This is called at the same time `pyel-func-transform' would be called"
 (defmacro pyel-def-type-transform (name args &rest type-switches)
   "Define a transform NAME that produces code based on the types of ARGS
     TYPE-SWITCHES
-    
+
     This defines a transforms in the pyel transform table with NAME and ARGS"
   `(def-transform ,name pyel ()
      (lambda ,args
@@ -780,8 +761,7 @@ This is called at the same time `pyel-func-transform' would be called"
                          `(,and-or ,@(reverse ret)))
                      `((,arg ,type) ,varlist))))
          (expander (type-switch)
-                   
-                   
+
                    (let ((args (car type-switch))
                          (forms (cdr type-switch))
                          and-or ret inner tmp tests)
@@ -802,7 +782,7 @@ This is called at the same time `pyel-func-transform' would be called"
                                      (dolist (x (cdr tmp))
                                        (push x ret))
                                    (push (helper arg form) ret))))))
-                       
+
                        ;;else single arg
                        (dolist (form forms)
                          (setq tmp (helper args form))
@@ -817,39 +797,36 @@ This is called at the same time `pyel-func-transform' would be called"
           (push e ret)))
       (reverse ret))))
 
-
 ;;TODO: fix bug with  `pyel-expand-type-switch-2'
 ;;      the arg pattern (x x) should not expand unless
 ;;      x is a possible type of both args
 
-
 (defun pyel-expand-type-switch-2 (arglist patterns)
   "has output identical to `pyel-expand-type-switch' just translates
       different syntax"
-  (let ((group nil) 
+  (let ((group nil)
         (groups nil)
         (ngroups nil)
         (ret nil)
         code)
-    
-    
+
     ;;stage1: collect into groups
     (while patterns
       (setq p (pop patterns))
-      
+
       (if (not (eq p '->))
           (push-back p group)
         (push-back (pop patterns) group)
         (push-back group groups)
         (setq group nil)))
-    
+
     (dolist (g groups)
       (let* ((g (reverse g))
              (code (car g))
              (g (cdr g))
              ;;      (param-types (make-vector (length (car g)) nil))
              type)
-        
+
         (dolist (arg-pattern (reverse g)) ;;for each arg pattern
           (setq group-patterns nil)
           (dotimes (i (length arg-pattern)) ;;for each type or '_
@@ -860,12 +837,11 @@ This is called at the same time `pyel-func-transform' would be called"
               (setq ret (append ret (list (list t code))))
             (if (= (length group-patterns) 1)
                 (setq ret (append ret (reverse group-patterns)))
-              (setq ret (append ret (list (cons 'and 
+              (setq ret (append ret (list (cons 'and
                                                 (list (mapcar 'car
                                                               (reverse group-patterns))
                                                       code))))))))))
     ret))
-
 
 (defun pyel-do-call-transform (possible-types args type-switch)
   "This is responsible for  producing a call to NAME in the most
@@ -891,7 +867,7 @@ This is called at the same time `pyel-func-transform' would be called"
                               (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
                                                                       (symbol-name x))
                                                       (push (list (strip_ x) (list '\, (strip_ x))) ar)))
-                                      
+
                                       args)
                               ar))
          ;;list of symbols to replace
@@ -905,7 +881,7 @@ This is called at the same time `pyel-func-transform' would be called"
                             (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
                               (intern (match-string 2 (symbol-name a))) a))
                               args))
-                     
+
          ;;the __x__ type replacements interfere with the (\, x) type replacements
          ;;so they must be seporated and done one at a time
          (arg-replacements1 let-vars)
@@ -916,7 +892,7 @@ This is called at the same time `pyel-func-transform' would be called"
                                       (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
                                     args-just-vars))
          (arg-replacements (append arg-replacements1 arg-replacements2))
-         
+
          (arg-quote-replacements (mapcar (lambda (x)
                                       (list x (list '\, x)))
                                     args-just-vars))
@@ -925,7 +901,7 @@ This is called at the same time `pyel-func-transform' would be called"
          ;;                           (mapcar (lambda (x)
          ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
          ;;                                   args)))
-         
+
          (ts ) ;;??
          (valid nil) ;;list of valid arg--types
          (found nil)
@@ -933,8 +909,8 @@ This is called at the same time `pyel-func-transform' would be called"
          var value type all-good var-vals len)
     ;;        (print "possible types = ")
     ;;        (print possible-types)
-    
-    
+
+
     ;;collect all the arg-type--code pairs that are valid possibilities,
     ;;that is, members of possible-types.
     ;;This essentially throws out all the arg types that have been ruled out.
@@ -944,7 +920,7 @@ This is called at the same time `pyel-func-transform' would be called"
                        found nil)
                  (dolist  (x (cadr t-s)) ;;for each 'and' member type-switch
                    (dolist (pos-type possible-types) ;;for each arg type
-                     (if (and (equal (eval (car x)) (car pos-type)) 
+                     (if (and (equal (eval (car x)) (car pos-type))
                               (equal (cadr x) (cdr pos-type)))
                          (setq found t)))
                    (setq all-good (if (and all-good found) t nil)))
@@ -954,23 +930,21 @@ This is called at the same time `pyel-func-transform' would be called"
         (if (eq (car t-s) t) ;;when all types are _
             (push t-s valid)
           ;;otherwise check if the type is one of the valid types
-               
+
           (setq _xx t-s)
           (dolist(pos-type possible-types)
             (when (and (equal (eval (caar t-s)) (car pos-type))
                        (equal (strip$ (cadar t-s)) (cdr pos-type)))
               (push t-s valid))))));;TODO: break if found?
-    
-    
-    
+
     ;;generate code to call NAME
     ;;if there is 2 posible types, use IF. For more use COND
     (setq len (length valid))
-    
+
     (flet ((replace (code replacements)
                     (let ((ret nil)
                           found)
-                      
+
                       (dolist (c code)
                         (setq found nil)
                         (dolist (r replacements)
@@ -1004,7 +978,7 @@ This is called at the same time `pyel-func-transform' would be called"
                                 (code (replace code arg-replacements2))
                                 (current-replace-list arg-replacements3))
                            (replace code arg-replacements3)))
-           
+
            (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                             (if (equal (car t-s--c) 'and)
                                 (progn (setq __x t-s--c)
@@ -1015,7 +989,7 @@ This is called at the same time `pyel-func-transform' would be called"
                                                                (car x))))
                                                         (cadr t-s--c)))
                                          ,(replace-vars (caddr t-s--c))))
-                              
+
                               ;;TODO
                               (progn (setq __x t-s--c)
                                      (if (equal (car t-s--c) t) ;;all types where _
@@ -1036,7 +1010,7 @@ This is called at the same time `pyel-func-transform' would be called"
                         (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
                                 let-vars)
                         ))
-      
+
       (cond ((<= len 0) "ERROR: no valid type")
             ((= len 1)
              (if (eq (caar valid) 'and)
@@ -1095,6 +1069,36 @@ in `pyel-message-formats'"
                     (format "[%s]: %%s" (upcase (symbol-name type))))
                 msg) pyel-translation-messages))
 
+(defun pyel-skip-whitespace ()
+  (skip-chars-forward " \t\n\r"))
+
+(defun char-at-point ()
+  (buffer-substring-no-properties (point) (1+ (point))))
+
+(defun read-tree-positions ()
+  "Create a tree of buffer positions corresponding to the source tree at the point
+format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
+  (pyel-skip-whitespace)
+  (let ((start (point))
+        inner)
+    (goto-char (1+ start))
+    (setq inner (read-list-positions)) ;;asssumes we start on a list
+    (vector start (point) inner)))
+
+(defun read-list-positions ()
+  (let (start end elems)
+    (condition-case nil
+        (while t
+          (pyel-skip-whitespace)
+          (setq start (point))
+          (if (string= (char-at-point) "(")
+              (push (get-tree-positions) elems)
+            (setq end (scan-sexps start 1))
+            (push (vector start end nil) elems)
+            (goto-char end)))
+      (scan-error (goto-char (1+ start))))
+      (reverse elems)))
+
 (defvar pyel-test-py-functions nil
   "list of generated python test functions.
 when `pyel-run-tests' is run, these are translated to e-lisp
@@ -1105,7 +1109,7 @@ and compared to expected values")
 
 (defvar pyel-test-func-counter 0
   "just another counter")
-  
+
 (defun pyel-make-test-func-name ()
   (setq pyel-test-func-counter (1+ pyel-test-func-counter)))
 
@@ -1126,103 +1130,101 @@ and compared to expected values")
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
-      
+
       (flet ((pyel-create-new-marker () "test_marker"))
-        
-        (dolist (test (reverse py-tests))
-          (cond ((and (consp test)
-                      (>= (length test) 2)
-                      (and (consp (cadr test))
-                           (not (or (eq (caadr test) 'lambda)
-                                    (eq (caadr test) 'quote))))
-                      )
-                 (let* ((tests)  ;;form: ("test" ("test1" result1) ("test2" result2) ...)
-                        (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
-                        (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
-                        (d 0))
-                   
-                   (push (setq _x (pyel-functionize (concat (car test)
-                                                                  (if (= (length test) 2)
-                                                                      (if (listp (cadr test))
-                                                                               ;;form:  ("setup" ("test" expect))
-                                                                                  (concat "\nreturn " (caadr test))
-                                                                          ;;form: ("test" expect)
-                                                                          (concat "return " (caaddr (cdr test))))
-                                                                    ;;form ("setup" ("test1setup" ("test1" result1)) ...)
-                                                                    (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
-                                                                                                   (if (and (listp (cadr x))
-                                                                                                            ;;form:  ("setup" ("test" expect))
-                                                                                                            (not (or (eq (caadr x) 'lambda)
-                                                                                                                     (eq (caadr x) 'quote))))
-                                                                                                       (concat (pyel-indent-py-code (car x)) "\n"
-                                                                                                               (concat " return " (caadr x)))
-                                                                                                     ;;form: ("test" expect)
-                                                                                                       (concat " return " (car x)))))
-                                                                               (cdr test) "\n")))
-                                                    test-name (if (= (length test) 2) nil "n")))
-                         pyel-test-py-functions)
-                   (setq d 0)
-                   (mapc (lambda (x)
-                           (push `(ert-deftest
-                                      ,(intern (format "pyel-test-%s-%s" name-str
-                                                       (number-to-string (setq c (1+ c))))) ()
-                                    (equal (eval (pyel ,(if (= (length test) 2)
+        (condition-case err
+            (dolist (test (reverse py-tests))
+              (cond ((and (consp test)
+                          (>= (length test) 2)
+                          (and (consp (cadr test))
+                               (not (or (eq (caadr test) 'lambda)
+                                        (eq (caadr test) 'quote))))
+                          )
+                     (let* ((tests)  ;;form: ("test" ("test1" result1) ("test2" result2) ...)
+                            (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
+                            (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
+                            (d 0))
 
-                                                                        
-                                                                    (format "%s()" test-name)
-                                                                  (format "%s(%s)" test-name (setq d (1+ d))))))
-                                                   ,(if (and (listp (cadr x))
-                                                            (not (or (eq (caadr x) 'lambda)
-                                                                     (eq (caadr x) 'quote))))
-                                                        (cadr (cadr x)) ;;form: ("setup" ("test" expect))
-                                                      (cadr x)))) ;;;;form: ("test" expect)
-                                 tests))
-                         (cdr test))
-                   (setq _pyel-tests (append _pyel-tests (reverse tests)))
-                   ))
-                
-              ((consp test) ;;form: ("test" expect)
-               (push `(ert-deftest
-                            ,(intern (concat "pyel-" (symbol-name name)
-                                             (number-to-string (setq c (1+ c))))) ()
-                          (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
-                                                      "\n_pyel21312()")))
-                                         ,(cadr test)))
+                       (push (setq _x (pyel-functionize (concat (car test)
+                                                                (if (= (length test) 2)
+                                                                    (if (listp (cadr test))
+                                                                        ;;form:  ("setup" ("test" expect))
+                                                                        (concat "\nreturn " (caadr test))
+                                                                      ;;form: ("test" expect)
+                                                                      (concat "return " (caaddr (cdr test))))
+                                                                  ;;form ("setup" ("test1setup" ("test1" result1)) ...)
+                                                                  (mapconcat (lambda (x) (concat "\nif n == " (number-to-string (setq d (1+ d))) ":\n"
+                                                                                                 (if (and (listp (cadr x))
+                                                                                                          ;;form:  ("setup" ("test" expect))
+                                                                                                          (not (or (eq (caadr x) 'lambda)
+                                                                                                                   (eq (caadr x) 'quote))))
+                                                                                                     (concat (pyel-indent-py-code (car x)) "\n"
+                                                                                                             (concat " return " (caadr x)))
+                                                                                                   ;;form: ("test" expect)
+                                                                                                   (concat " return " (car x)))))
+                                                                             (cdr test) "\n")))
+                                                        test-name (if (= (length test) 2) nil "n")))
+                             pyel-test-py-functions)
+                       (setq d 0)
+                       (mapc (lambda (x)
+                               (push `(ert-deftest
+                                          ,(intern (format "pyel-test-%s-%s" name-str
+                                                           (number-to-string (setq c (1+ c))))) ()
+                                        (equal (eval (pyel ,(if (= (length test) 2)
 
-                       _pyel-tests))
-            
-              (t (progn ;;form "test"
-                   ;;check complete code transformation
-                   (setq trans (pyel test))
-                   (push `(ert-deftest ,(intern (format "pyel-transform-test-%s-%s"  name (pyel-make-test-func-name))) ()
-                            (equal (pyel ,test)
-                                   ',trans))
-                         _pyel-structure-tests)
-                   ;;check python ast
-                   (push `(ert-deftest ,(intern (format "pyel-py-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
-                            (equal (py-ast ,test)
-                                   ,(py-ast test))
-                            pyel-py-ast-tests)
-                         _pyel-structure-tests)
-                   ;;check transformed .py syntax tree
-                   (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) () 
-                            (string= (pyel ,test t)
-                                     ,(pyel test t))
-                            pyel-el-ast-tests)
-                         _pyel-structure-tests))
-          )))))))
+
+                                                                (format "%s()" test-name)
+                                                              (format "%s(%s)" test-name (setq d (1+ d))))))
+                                               ,(if (and (listp (cadr x))
+                                                         (not (or (eq (caadr x) 'lambda)
+                                                                  (eq (caadr x) 'quote))))
+                                                    (cadr (cadr x)) ;;form: ("setup" ("test" expect))
+                                                  (cadr x)))) ;;;;form: ("test" expect)
+                                     tests))
+                             (cdr test))
+                       (setq _pyel-tests (append _pyel-tests (reverse tests)))
+                       ))
+
+                    ((consp test) ;;form: ("test" expect)
+                     (push `(ert-deftest
+                                ,(intern (concat "pyel-" (symbol-name name)
+                                                 (number-to-string (setq c (1+ c))))) ()
+                              (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
+                                                          "\n_pyel21312()")))
+                                     ,(cadr test)))
+
+                           _pyel-tests))
+
+                    (t (progn ;;form "test"
+                         ;;check complete code transformation
+                         (setq trans (pyel test))
+                         (push `(ert-deftest ,(intern (format "pyel-transform-test-%s-%s"  name (pyel-make-test-func-name))) ()
+                                  (equal (pyel ,test)
+                                         ',trans))
+                               _pyel-structure-tests)
+                         ;;check python ast
+                         (push `(ert-deftest ,(intern (format "pyel-py-ast-test-%s-%s"  name (pyel-make-test-func-name))) ()
+                                  (equal (py-ast ,test)
+                                         ,(py-ast test)))
+                               _pyel-structure-tests)
+                         ;;check transformed .py syntax tree
+                         (push `(ert-deftest ,(intern (format "pyel-el-ast-test-%s-%s"  name (pyel-make-test-func-name))) ()
+                                  (string= (pyel ,test nil nil t)
+                                           ,(pyel test nil nil t)))
+                               _pyel-structure-tests)))))
+          (error (error "Error while creating test: '%s'. Error: " name err)))))))
 
 (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
   "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
   ;;99% of the code is the same...
   (let ((complete nil)
         (py-ast nil)
-        (el-ast nil)    
+        (el-ast nil)
         trans)
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
-      
+
       (dolist (code (reverse py-code))
         ;;check complete code transformation
         (setq trans (pyel-with-known-types known-types code))
@@ -1238,7 +1240,7 @@ and compared to expected values")
         (push `(should (string= (pyel ,code t)
                                 ,(pyel code t)))
               el-ast))
-      
+
       (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
                                    () ,@complete)))
       (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
@@ -1265,7 +1267,7 @@ and compared to expected values")
         pyel-test-py-functions
         _pyel-tests
         _pyel-structure-tests)
-    
+
     (load-file (file-path-concat pyel-directory "pyel-tests.el"))
     (with-temp-buffer
       ;;save py test functions
@@ -1279,22 +1281,22 @@ and compared to expected values")
       (mapc (lambda (x)
               (insert (prin1-to-string x) "\n"))
             _pyel-structure-tests)
-      
+
       (insert "\n(provide 'pyel-tests-generated)")
       (write-file (file-path-concat pyel-directory "pyel-tests-generated.el")))))
 
 (defalias 'pyel-verify 'pyel-run-tests)
 (defun pyel-run-tests (&optional selector)
-  "setup and run pyel test. 
+  "setup and run pyel test.
 SELECTOR may be any of the following:
 'pyel-test' all normal tests. This is the default
 The following tests check code structure, but do not eval
 generated lisp code.
-'pyel-transform-test' check full code transform 
+'pyel-transform-test' check full code transform
 'pyel-py-ast-test' check python AST
 'pyel-el-ast-test' check lisp AST
 
-'pyel' will run all tests'" 
+'pyel' will run all tests'"
   (interactive)
   (setq selector (or selector
                      (let ((tests '(("all" . "pyel")
@@ -1310,7 +1312,7 @@ generated lisp code.
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
-      
+
       (if (or (string= selector "pyel-test")
               (string= selector "pyel"))
           (let ((tmp-file "~/tmp/pyel-test-functions.el"))
@@ -1355,7 +1357,7 @@ FUNC-NAME defaults to 'f'"
   "if CHAR occurs at the beginning of STRING, remove all occurrences"
   (let ((split (char-split-string string))
         (char (or char " ")))
-    
+
     (while (string= char (car split))
       (setq split (cdr split)))
     (mapconcat 'identity split "")))
@@ -1367,7 +1369,7 @@ prevents multiple/none '/' seporating file names"
   (let* ((first (strip-end (car dirs) "/"))
          (last (strip-start (car (last dirs)) "/"))
          (dirs (append (list first)
-                       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/")) 
+                       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/"))
                                (cdr (butlast dirs)))
                        (list last))))
     (mapconcat 'identity dirs "/")))
@@ -1375,7 +1377,7 @@ prevents multiple/none '/' seporating file names"
 (require 'transformer)
 (require 'pyel-transforms)
 (require 'pyel-tests-generated)
-(require 'pyel-preprocessor)  
+(require 'pyel-preprocessor)
 
 (require 'pyel-mode)
 (require 'py-objects)
