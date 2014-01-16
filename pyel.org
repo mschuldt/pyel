@@ -4209,7 +4209,7 @@ macros and macroish primitives
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform global pyel ()
-    (lambda (names)
+    (lambda (names &optional line col)
       (if (context-p 'function-def)
           (progn (mapc (lambda (x) (add-to-list 'global-vars (_to- x))) names)
                  pyel-nothing)
