@@ -4063,13 +4063,13 @@ macros and macroish primitives
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform for pyel ()
-    (lambda (target iter body orelse)
-      (pyel-for target iter body orelse)))
-
+    (lambda (target iter body orelse &optional line col)
+      (pyel-for target iter body orelse line col)))
+  
   ;;TODO: for a,y in thing: ...
   ;;TODO: check if iter is an object, then do the iterator thing
-
-  (defun pyel-for (target iter body orelse)
+  
+  (defun pyel-for (target iter body orelse &optional line col)
     (let ((target (using-context for-loop-target
                                  (if (eq (car target) 'tuple)
                                      (mapcar 'transform (cadr target))
@@ -4078,14 +4078,14 @@ macros and macroish primitives
           (else (mapcar 'transform orelse))) ;;break/continue for else?
       (when else
         (setq body (append body (cons 'else else))))
-
+  
       `(py-for ,@target in ,(transform iter) ,@body)))
-
+  
   ;; (if (eq (car target) 'tuple)
   ;;     "TODO: var unpacking"
   ;;   ;;create a temp target variable
   ;;   ;;in body, unpack that into the provided target variables
-
+  
   ;;   (let* ((continue-for nil)
   ;;          (break-for nil)
   ;;          (code (using-context for (mapcar 'transform body)))
@@ -4101,41 +4101,41 @@ macros and macroish primitives
   ;;             do (,@continue-code
   ;;                 ,@(mapcar 'transform body)))
   ;;       ,@(mapcar 'transform orelse)))))
-
+  
   (defun pyel-split-list (lst sym)
     "split list LST into two sub-lists at separated by SYM
   The return value is the two sub-lists consed together"
     (let ((current (not sym))
           first)
-
+  
       (while (and (not (eq current sym))
                   lst)
         (setq current (pop lst))
         (push current first)
         )
-
+  
       (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
-
+  
   (defmacro py-for (&rest args)
     "(for <targets> in <iter> <body> else <body>)
   else is optional"
-
+  
     ;;TODO: error checking for correct form
     (let* ((targets (pyel-split-list args 'in))
            (args (cdr targets))
            (targets (car targets))
            (iter (pop args)) ;;TODO: must iter be only one form?
-
+  
            (body (pyel-split-list args 'else))
            (else-body (cdr body))
            (body (car body))
-
+  
            (target (cond ((symbolp targets) ;;nil when there are multiple targets
                           targets)
                          ((= (length targets) 1)
                           (car targets))
                          (t nil)))
-
+  
            (unpack-code (unless target
                           (let (ret)
                             (dotimes (i (length targets) (reverse ret))
@@ -4143,30 +4143,30 @@ macros and macroish primitives
                                            (nth ,i __target__))
                                     ret)))))
            (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
-
+  
            (current-transform-table (get-transform-table 'for-macro))
            __for-continue ;;these are set by the for-macro transforms
            __for-break
            )
       ;;TODO: when multiple targets, check that all lists are the same size
       (setq body (transform (setq _x body)))
-
+  
       (setq body (cons '(setq __idx (1+ __idx))  body)
             body (if target
                      (cons `(setq ,target (nth __idx __tmp-list)) body)
                    (append unpack-code body)))
-
+  
       (when __for-continue
         (setq body `((catch '__continue__ ,@body))))
-
+  
       ;; ! This assumes that all iters are the same size
       (setq body `((while (< __idx __len)
                      ,@body)
                    ,@else-body))
-
+  
       (when __for-break
         (setq body `((catch '__break__ ,@body))))
-
+  
       `(let* ((__tmp-list ,iter)
               ;;      ,@iter-lets
               ;;      ,@next-function-lets
