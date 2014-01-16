@@ -4285,13 +4285,13 @@ TODO: tests!
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform unary-op pyel ()
-    (lambda (op operand)
+    (lambda (op operand &optional line col)
       (call-transform op operand)))
-
+  
   (pyel-create-py-func not (x)
                        (object) -> (--not-- x) ;;?
                        (_) -> (not x))
-
+  
   (pyel-create-py-func usub (x)
                        (number) -> (- x)
                        (object) -> (--usub-- x) ;;?
