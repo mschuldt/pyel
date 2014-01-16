@@ -2041,7 +2041,7 @@ this test is disabled. It pollutes global variables
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Dict(keys, values, lineno=None, col_offset=None):
-      return "(dict " + ll_str(keys) + " " + ll_str(values) + str(lineno) + str(col_offset) + ")"
+      return "(dict " + ll_str(keys) + " " + ll_str(values) + " " + str(lineno) + " " + str(col_offset) + ")"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -2083,7 +2083,7 @@ this test is disabled. It pollutes global variables
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Str(s, lineno=None, col_offset=None):
-      return "(str \"" + str(s) +"\"" + str(lineno) + str(col_offset) + ")"
+      return "(str \"" + str(s) +"\"" + " " + str(lineno) + " " + str(col_offset) + ")"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -3091,7 +3091,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       return l_str(["slice", lower, upper, step])
 
   def Index(value, lineno=None, col_offset=None):
-      return "(index " + value + str(lineno) + str(col_offset) + ")"
+      return "(index " + value + " " + str(lineno) + " " + str(col_offset) + ")"
 
   def Subscript(value, slice, ctx, lineno=None, col_offset=None):
       return ll_str(["subscript", value, slice, ctx, lineno, col_offset])
@@ -4376,7 +4376,7 @@ TODO: tests!
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Return(value, lineno=None, col_offset=None):
-      return "(return " + str(value) + str(lineno) + str(col_offset)+ ")"
+      return "(return " + str(value) + " " + str(lineno) + " " + str(col_offset)+ ")"
 #+END_SRC
 ** tests
 (pyel-create-tests '<name>
