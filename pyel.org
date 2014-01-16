@@ -1266,6 +1266,9 @@ in `pyel-message-formats'"
 (defun pyel-skip-whitespace ()
   (skip-chars-forward " \t\n\r"))
 
+(defun char-at-point ()
+  (buffer-substring-no-properties (point) (1+ (point))))
+
 (defun read-tree-positions ()
   "Create a tree of buffer positions corresponding to the source tree at the point
 format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
@@ -3545,7 +3548,7 @@ TODO: tests!
                                                      (or (eq (car func) 'lambda)))
                                                 "<lambda>"
                                               (symbol-name func))))))
-  
+
   (defun py-hash-str (ht)
     (let (str)
       (maphash (lambda (key value)
