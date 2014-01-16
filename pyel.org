@@ -4685,10 +4685,6 @@ This will help notify the user when some syntax has not been implemented
       (pyel-notify-error "Set comprehensions have not been implemented")
       pyel-error-string))
 #+END_SRC
-** python ast
-#+Begin_SRC python :tangle py-ast.py
-
-#+END_SRC
 ** python el lib
 #+Begin_SRC python :tangle py-lib.el
 
@@ -4702,7 +4698,7 @@ This will help notify the user when some syntax has not been implemented
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform if-exp pyel ()
-    (lambda (test body orelse)
+    (lambda (test body orelse &optional line col)
       (let ((tst (transform test)))
         `(if ,(if (equal tst []) nil tst)
              ,(transform body)
