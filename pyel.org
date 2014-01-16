@@ -3535,7 +3535,7 @@ TODO: tests!
   (defun py-function-str (func)
     "return a string representation of function FUNC"
     (let* ((obj (bound-method-p func))
-           (obj-name (-to_ (getattr obj --name--))))
+           (obj-name (if obj (-to_ (getattr obj --name--)) nil)))
       (if obj
           (format "<bound method %s.%s of %s object at 0x18b071>"
                   obj-name
