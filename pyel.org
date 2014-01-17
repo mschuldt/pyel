@@ -3911,9 +3911,14 @@ Example:
   nil)
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+(pyel-create-tests
+ insert
+ ("x = [1,2,3]
+y = x
+x.insert(1,'hi')"
+  ("x" '(1 "hi" 2 3))
+  ("x is y" t)))
 #+END_SRC
 ** index
 *** transform
