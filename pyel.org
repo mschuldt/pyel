@@ -3925,9 +3925,9 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform index (obj elem)
                          (list _) -> (list-index elem obj)
-                         (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
+                         (string _) -> (py-string-index obj elem);;TODO: this uses regex, python does not
                          (vector _) -> (vector-index elem obj)
-
+  
                          (object _)    -> (__index__ obj thing)) ;;?
 #+END_SRC
 *** python el lib
@@ -3937,19 +3937,23 @@ x.insert(1,'hi')"
     (let ((m (member elem list)))
       (when m
         (- (length list) (length m)))))
-
+  
   (defun vector-index (elem vector)
     "return the index of ELEM in VECTOR"
     (let ((i 0)
           (len (length vector))
           found)
-
+  
       (while (and (< i len)
                   (not found))
         (if (equal (aref vector i) elem)
             (setq found i)
           (setq i (1+ i))))
       found))
+  
+  (defsubst py-string-index (obj str)
+    (string-match (regexp-quote str) obj))
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
