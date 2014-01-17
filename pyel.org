@@ -1263,34 +1263,34 @@ in `pyel-message-formats'"
 #+END_SRC
 ** line/column numbers
 #+Begin_SRC emacs-lisp :tangle pyel.el
-(defun pyel-skip-whitespace ()
-  (skip-chars-forward " \t\n\r"))
-
-(defun char-at-point ()
-  (buffer-substring-no-properties (point) (1+ (point))))
-
-(defun read-tree-positions ()
-  "Create a tree of buffer positions corresponding to the source tree at the point
-format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
-  (pyel-skip-whitespace)
-  (let ((start (point))
-	inner)
-    (goto-char (1+ start))
-    (setq inner (read-list-positions)) ;;asssumes we start on a list
-    (vector start (point) inner)))
-
-(defun read-list-positions ()
-  (let (start end elems)
-    (condition-case nil
-	(while t
-	  (pyel-skip-whitespace)
-	  (setq start (point))
-	  (if (string= (char-at-point) "(")
-	      (push (get-tree-positions) elems)
-	    (setq end (scan-sexps start 1))
-	    (push (vector start end nil) elems)
-	    (goto-char end)))
-      (scan-error (goto-char (1+ start))))
+  (defun pyel-skip-whitespace ()
+    (skip-chars-forward " \t\n\r"))
+  
+  (defun char-at-point ()
+    (buffer-substring-no-properties (point) (1+ (point))))
+  
+  (defun read-tree-positions ()
+    "Create a tree of buffer positions corresponding to the source tree at the point
+  format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
+    (pyel-skip-whitespace)
+    (let ((start (point))
+          inner)
+      (goto-char (1+ start))
+      (setq inner (read-list-positions)) ;;asssumes we start on a list
+      (vector start (point) inner)))
+  
+  (defun read-list-positions ()
+    (let (start end elems)
+      (condition-case nil
+          (while t
+            (pyel-skip-whitespace)
+            (setq start (point))
+            (if (string= (char-at-point) "(")
+                (push (get-tree-positions) elems)
+              (setq end (scan-sexps start 1))
+              (push (vector start end nil) elems)
+              (goto-char end)))
+        (scan-error (goto-char (1+ start))))
       (reverse elems)))
 #+END_SRC
 ** tests
