@@ -4097,7 +4097,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform join (obj elem)
                          (string _) ->  (mapconcat 'identity elem obj)
-                         (_ _)      -> (join obj thing))
+                         (_ _)      -> (call-method join obj thing))
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
