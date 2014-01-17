@@ -3893,10 +3893,8 @@ Example:
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform insert (obj i x)
-                         (list _) -> (let () (setq $obj (append (subseq obj 0 i)
-                                                                (list x)
-                                                                (subseq obj i))))
-                         (object _) -> (insert obj i x))
+                         (list _) -> (py-insert obj i x)
+                         (_ _) -> (call-method insert obj i x))
 #+END_SRC
 *** python el lib
 #+Begin_SRC python :tangle py-lib.el
