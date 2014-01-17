@@ -359,7 +359,7 @@ main
                          (subseq ,list  ,nth))))
   
   (defun list-to-vector (list)
-    (eval `(vector ,@list))) ;;this is gross
+    (eval `(vector ,@list)))
   
   (defun pyel-replace-in-thing (from to thing)
     "replace character FROM to TO in THING
@@ -4840,7 +4840,7 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform raise pyel ()
     (lambda (exc cause &optional line col)
-      `(py-range ,(transform exc)))) ;;TODO: ignoring cause
+      `(signal ,(transform exc)))) ;;TODO: ignoring cause
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -4848,8 +4848,18 @@ This will help notify the user when some syntax has not been implemented
       return l_str(["raise", exc, cause or "nil", lineno, col_offset])
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
-
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-raise (exc &optional cause)
+    "signal an error with the name of EXC, an class/object
+  EXC must be derived from BaseException"
+    (if (py-object-p exc)
+           ;;;;TODO: after `issubclass' is implemented
+        ;; (or (and (py-class-p exc)
+        ;;          (issubclass exc BaseException))
+        ;;     (and (py-instance-p exc)
+        ;;          (issubclass (py-type exc) BaseException)))
+        (signal (intern (getattr exc --name--)) exc)
+      (signal 'TypeError "TypeError: exceptions must derive from BaseException")))
 #+END_SRC
 ** tests
 (pyel-create-tests '<name>
