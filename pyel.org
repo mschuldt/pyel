@@ -320,6 +320,7 @@ main
                  pyel-pp
                  pyel-preprocessor
                  pyel-tests-generated
+                 py-lib
                  transformer))
       (setq features (remove f features)))
     (require 'pyel))
@@ -5113,7 +5114,6 @@ prevents multiple/none '/' seporating file names"
 			       (cdr (butlast dirs)))
 		       (list last))))
     (mapconcat 'identity dirs "/")))
-
 #+END_SRC
 
 * EOF
