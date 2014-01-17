@@ -4100,9 +4100,11 @@ x.insert(1,'hi')"
                          (_ _)      -> (call-method join obj thing))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   join-method
+   ("X".join(('f','g')) "fXg")
+   (" ".join([str(x) for x in range(3)]) "0 1 2"))
 #+END_SRC
 ** transform template
 *** transform
