@@ -4292,7 +4292,13 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   reverse-method
+   ("x = [1,2,3]
+  y = x
+  x.reverse()"
+    ("x" '(3 2 1))
+    ("x is y" t)))
 #+END_SRC
 ** transform template
 *** transform
