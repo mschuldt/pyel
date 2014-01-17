@@ -4272,6 +4272,26 @@ x.insert(1,'hi')"
     ("c" 1)
     ("x is y" t)))
 #+END_SRC
+** reverse
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform reverse (obj)
+                         (list) ->  (py-list-reverse obj)
+                         (_)    ->  (call-method obj reverse)))
+#+END_SRC
+*** python ast
+#+Begin_SRC python :tangle py-ast.py
+
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
