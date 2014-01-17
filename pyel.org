@@ -4005,7 +4005,7 @@ x.insert(1,'hi')"
                          (string _) -> (count-str-matches obj elem)
                          (list _) -> (count-elems-list obj elem)
                          (vector _) -> (count-elems-vector obj elem)
-                         (object _)  -> (count thing));;
+                         (object _)  -> (call-method count obj elem))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
