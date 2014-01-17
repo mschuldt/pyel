@@ -4223,37 +4223,39 @@ x.insert(1,'hi')"
 ** pop
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-
+  (pyel-method-transform pop (obj &optional index)
+                         (list _) -> (py-list-pop obj index)
+                         (_ _)    -> (call-method pop obj index))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-(defun py-list-pop (list &optional index)
-  "remove and return item at INDEX from LIST (default last)"
-  (let ((rest list)
-	(i 0)
-	last ret)
-    (if index
-	(if (= index 0)
-	    (progn
-	      (setq ret (car list))
-	      (setcar list (cadr list))
-	      (setcdr list (cddr list))
-	      ret)
-	  ;; 0 < index < len(list)
-	  (while (< i index)
-	    (setq last rest
-		  rest (cdr rest)
-		  i (1+ i)))
-	  (setq ret (car rest))
-	  (setcdr last (cdr rest))
-	  ret)
-      ;;pop last element
-      (while (cdr rest)
-	(setq prev rest
-	      rest (cdr rest)))
-      (setq ret (car rest))
-      (setcdr prev nil))
-    ret))
+  (defun py-list-pop (list &optional index)
+    "remove and return item at INDEX from LIST (default last)"
+    (let ((rest list)
+          (i 0)
+          last ret)
+      (if index
+          (if (= index 0)
+              (progn
+                (setq ret (car list))
+                (setcar list (cadr list))
+                (setcdr list (cddr list))
+                ret)
+            ;; 0 < index < len(list)
+            (while (< i index)
+              (setq last rest
+                    rest (cdr rest)
+                    i (1+ i)))
+            (setq ret (car rest))
+            (setcdr last (cdr rest))
+            ret)
+        ;;pop last element
+        (while (cdr rest)
+          (setq prev rest
+                rest (cdr rest)))
+        (setq ret (car rest))
+        (setcdr prev nil))
+      ret))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
