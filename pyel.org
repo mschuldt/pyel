@@ -2312,7 +2312,7 @@ this test is disabled. It pollutes global variables
   ;; functions set to variables override those defined with `defun'
   ;; this allows locally defined functions to override their global
   ;; counterparts without defining themselves globally
-  (pyel-create-py-func fcall (_func &rest args)
+  (pyel-create-py-func fcall (_func &rest _args)
                        (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
                        ($function _) -> ($func ,@(pyel-sort-kwargs args))
                        (object) -> (call-method $func --call--
