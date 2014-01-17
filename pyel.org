@@ -4160,12 +4160,18 @@ x.insert(1,'hi')"
       nil))
   
   (defun _py-list-extend-with-object (list object)
-    (condition-case nil
-        (while t
-          (setcdr list (list (call-method object --next--)))
-          (setq list (cdr list)))
-      (StopIteration nil)))
-  
+    "assumes that py-object(OBJECT) == t"
+    (let ((iter (condition-case nil
+                    (call-method object --iter--)
+                  (AttributeError
+                   (py-raise (TypeError (format
+                                         "'%s' object is not iterable"
+                                         (getattr object --name--))))))))
+      (condition-case nil
+          (while t
+            (setcdr list (list (call-method iter --next--)))
+            (setq list (cdr list)))
+        (StopIteration nil))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
