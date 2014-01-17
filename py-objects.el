@@ -475,6 +475,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 
 (pyel-def-error AttributeError)
 (pyel-def-error TypeError)
+(pyel-def-error StopIteration)
 
 (define-class object ()
   "The most base type"
