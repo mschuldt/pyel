@@ -4106,6 +4106,70 @@ x.insert(1,'hi')"
    ("X".join(('f','g')) "fXg")
    (" ".join([str(x) for x in range(3)]) "0 1 2"))
 #+END_SRC
+** extend
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+;;
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-list-extend (list iterable)
+    "Extend LIST by appending elements from the ITERABLE"
+    (let ((rest list)
+          prev)
+  
+      (while rest
+        (setq prev rest
+              rest (cdr rest)))
+      
+      (cond ((py-object-p iterable)
+             (_py-list-extend-with-object prev iterable))
+            ((listp iterable)
+             (_py-list-extend-with-list prev iterable))
+            ((stringp iterable)
+             (_py-list-extend-with-string prev iterable))
+            ((vectorp iterable)
+             (_py-list-extend-with-vector prev iterable))
+            (t (py-raise (TypeError (format "TypeError: '%s' object is not iterable"
+                                            (type-of iterable))))))))
+  
+  (defun _py-list-extend-with-list (list extendlist)
+    (while extendlist
+      (setcdr list (list (car extendlist)))
+      (setq list (cdr list)
+            extendlist (cdr extendlist))))
+  
+  (defun _py-list-extend-with-vector (list vector)
+    (let ((len (length vector))
+          (index 0))
+      (while (< index len)
+        (setcdr list (list (aref vector index)))
+        (setq list (cdr list)
+              index (1+ index)))
+      nil))
+  
+  (defun _py-list-extend-with-string (list string)
+    (let ((len (length string))
+          (index 0))
+      (while (< index len)
+        (setcdr list (list (char-to-string (aref string index))))
+        (setq list (cdr list)
+              index (1+ index)))
+      nil))
+  
+  (defun _py-list-extend-with-object (list object)
+    (condition-case nil
+        (while t
+          (setcdr list (list (call-method object --next--)))
+          (setq list (cdr list)))
+      (StopIteration nil)))
+  
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4840,7 +4904,7 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform raise pyel ()
     (lambda (exc cause &optional line col)
-      `(signal ,(transform exc)))) ;;TODO: ignoring cause
+      `(py-raise ,(transform exc)))) ;;TODO: ignoring cause
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
