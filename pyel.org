@@ -1226,21 +1226,14 @@ auto generated tests
 #+END_SRC
 hand written
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(ert-deftest pyel-expand-type-switch ()
-  ;;verify that both type expanders produce the same output
-  (should (equal (pyel-expand-type-switch-2 '(l r)
-					    '((number number) ->  (* l r)
-					      (object _)
-					      (_ object)  -> (--mul-- l r)
-					      (_ string)
-					      (string _)  -> (pyel-mul-num-str l r)))
-
-		 (pyel-expand-type-switch-2 '(l r)
-					    '((number number) ->  (* l r)
-					      (object _)
-					      (_ object)  -> (--mul-- l r)
-					      (_ string)
-					      (string _) -> (pyel-mul-num-str l r))))))
+  (ert-deftest pyel-expand-type-switch ()
+    (should (equal (pyel-expand-type-switch-2 '(l r)
+                                              '((number number) ->  (* l r)
+                                                (object _)
+                                                (_ object)  -> (--mul-- l r)
+                                                (_ string)
+                                                (string _)  -> (pyel-mul-num-str l r)))
+                   '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-mul-num-str l r)) ((l string) (pyel-mul-num-str l r))))))
 #+END_SRC
 
 ** translation messages
