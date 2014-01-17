@@ -497,4 +497,24 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 	       (getattr self --name--)))
   )
 
+
+(define-class BaseException ()
+  ;;TODO: these should be data descriptors
+  (setq --cause-- nil)
+  (setq --context-- nil)
+  (setq --traceback-- nil)
+  (setq args [])
+  
+  (def --init-- (self &rest args) ()
+       (setattr self args (list-to-vector args)))
+  (def --repr-- (self) ()
+       (format "%s(%s)"
+	       (getattr self --name--)
+	       (mapconcat (lambda (x) (pyel-repr x))
+			  (vector-to-list (getattr self args)) ", ")))
+  (def --str-- (self) ()
+       (format "(%s)"
+	       (mapconcat (lambda (x) (pyel-str x))
+			  (vector-to-list (getattr self args)) ", "))))
+
 (provide 'py-objects)
