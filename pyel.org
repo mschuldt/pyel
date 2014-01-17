@@ -3982,8 +3982,21 @@ x.insert(1,'hi')"
                          (object _) -> (remove obj x))
 #+END_SRC
 *** python el lib
-#+Begin_SRC python :tangle py-lib.el
-
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-list-remove (list item)
+    "remove ITEM from LIST"
+    (when (equal (car list) item)
+      (setcar list (cadr list))
+      (setcdr list (cddr list)))
+    (let ((rest list)
+          first)
+      (while rest
+        (if (equal (car rest) item)
+            (progn (setcdr first (cdr rest))
+                   (setq rest nil))
+          (setq first rest
+                rest (cdr rest))))
+      nil))
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
