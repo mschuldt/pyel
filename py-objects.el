@@ -497,8 +497,6 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 	       (getattr self --name--)))
   )
 
-
-
 (define-class BaseException ()
   ;;TODO: these should be data descriptors
   (setq --cause-- nil)
@@ -517,5 +515,10 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
        (format "(%s)"
 	       (mapconcat (lambda (x) (pyel-str x))
 			  (mapcar 'identity (getattr self args)) ", "))))
+
+(define-class AttributeError (BaseException))
+(define-class TypeError (BaseException))
+(define-class StopIteration (BaseException))
+
 
 (provide 'py-objects)
