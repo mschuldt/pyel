@@ -2138,7 +2138,6 @@ this test is disabled. It pollutes global variables
 #+END_SRC
 
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3391,7 +3390,6 @@ TODO: tests!
   (pyel-translate-function-name 'chr 'byte-to-string)
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3431,7 +3429,6 @@ TODO: tests!
    (number-sequence start (1- end) step))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3485,7 +3482,6 @@ TODO: tests!
 (pyel-translate-function-name 'getattr 'obj-get)
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3495,7 +3491,6 @@ TODO: tests!
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3505,7 +3500,6 @@ TODO: tests!
 (pyel-translate-function-name 'isinstance 'obj-isinstance)
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3698,7 +3692,6 @@ TODO: tests!
     (format "%X" n))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3717,7 +3710,6 @@ TODO: tests!
       (mapconcat 'identity (cons "0b" bin) "")))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -3749,7 +3741,6 @@ TODO: tests!
              nil)))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4565,7 +4556,6 @@ DOC: 'nonlocal' is currently equivalent to 'global'
     return l_str(['global', l_str(names), lineno, col_offset])
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4624,7 +4614,6 @@ TODO: tests!
 
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4690,7 +4679,6 @@ TODO: tests!
       return "(return " + str(value) + " " + str(lineno) + " " + str(col_offset)+ ")"
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4724,7 +4712,6 @@ TODO: tests!
       return l_str(["continue", lineno, col_offset])
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4744,7 +4731,6 @@ TODO: tests!
 #+END_SRC
 
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4769,7 +4755,6 @@ TODO: tests!
 
 #+END_SRC
 ** tests
-
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests try
                      "x = ''
@@ -4824,7 +4809,6 @@ TODO: tests!
     found))
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4983,7 +4967,6 @@ DOC: generator expressions are translated to list comprehensions
       return l_str(["pass", lineno, col_offset])
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -5001,7 +4984,6 @@ This will help notify the user when some syntax has not been implemented
 
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -5055,7 +5037,6 @@ This will help notify the user when some syntax has not been implemented
       (signal 'TypeError "TypeError: exceptions must derive from BaseException")))
 #+END_SRC
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -5170,7 +5151,6 @@ prevents multiple/none '/' seporating file names"
 #+END_SRC
 
 ** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
