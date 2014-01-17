@@ -723,7 +723,7 @@ This will have to be removed after the code is generated
     (filter (lambda (x) (not (or (eq x '&optional)
                                  (eq x '&rest))))
             args))
-
+  
   ;;TODO: have functions saved in another file,
   ;;      instead of putting them all at the top of the file, have some type of
   ;;      require/import mechanism to functions are not constantly being redefined
@@ -731,19 +731,19 @@ This will have to be removed after the code is generated
   (defmacro pyel-create-py-func (name args &rest type-switches)
     "return the function name"
     ;;create a template that will resolve arg types and create a new function
-
+  
     ;;-determine if enough type info is available to eliminate testing
     ;;-if testing is necessary, use `pyel-do-call-transform' like function to generate
     ;; the testing and calling structure and put that in a function
     ;;-create defun code if not yet defined
     ;;  add new func name to defined code list
-
+  
     ;;temp solution: does not check types etc
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
            (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                          (car (last striped-args)) nil)))
-
+  
       `(def-transform ,name pyel ()
          (lambda ,striped-args
            (let ((fsym ',(intern (concat "pyel-" (symbol-name name) "")))
@@ -760,7 +760,7 @@ This will have to be removed after the code is generated
                (push fsym pyel-defined-functions)
                (fset fsym (lambda () nil)))
              ;;(if (eq (car (last args 2)) '&rest)
-
+  
              ;; (cons fsym (mapcar 'eval ,(if rest-arg
              ;;                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
              ;;                             `(quote ,args-just-vars))))
@@ -768,7 +768,7 @@ This will have to be removed after the code is generated
                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                           (cons 'list args-just-vars)))
              )))))
-
+  
   (defmacro pyel-method-transform (name args &rest type-switches)
     "define transforms for method calls on primative types"
     ;;method transforms are defined like normal type-transforms
@@ -776,13 +776,13 @@ This will have to be removed after the code is generated
     ;;of defined method transforms, if it found, this transform will override
     ;;the normal transform.
     (add-to-list 'pyel-method-transforms name)
-
+  
     ;;temp solution: does not check types etc
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
            (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                          (car (last striped-args)) nil)))
-
+  
     `(def-transform ,(pyel-method-transform-name name) pyel ()
        (lambda ,striped-args
          (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
@@ -791,7 +791,7 @@ This will have to be removed after the code is generated
                                              ',args
                                              ',type-switches))
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-
+  
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',striped-args
                          body)
@@ -802,7 +802,7 @@ This will have to be removed after the code is generated
                            `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                          (cons 'list args-just-vars)))
            )))))
-
+  
   (defmacro pyel-func-transform (name args &rest type-switches)
     "define transforms for function calls"
     ;;function transforms are defined like normal type-transforms
@@ -818,7 +818,7 @@ This will have to be removed after the code is generated
                                              ',args
                                              ',type-switches))
                (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-
+  
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',(mapcar 'strip_ args)
                          body)
@@ -826,50 +826,50 @@ This will have to be removed after the code is generated
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
            (cons fsym (mapcar 'eval ',args))))))
-
+  
   (defvar pyel-func-transforms2 nil
     "list of functions whose translations are defined
   with the macro `pyel-define-function-translation'")
-
+  
   (defmacro pyel-define-function-translation (name &rest body)
     "BODY will form the body of a function that is called during transform time
   to tranlate a call to NAME, variables 'args' and 'kwargs'  are available at
   this point. 'args' will be a list and 'kwargs will be an alist
   This is called at the same time `pyel-func-transform' would be called"
     (add-to-list 'pyel-func-transforms2 name)
-
+  
     `(def-transform ,(pyel-func-transform-name name) pyel ()
        (lambda (args kwargs)
          ,@body
          )))
-
+  
   ;;TODO: this should be more general to allow for things like subscript to use it
-
+  
   ;;TODO: rename pyel-def-funcall -> pyel-create-py-func
   (defmacro pyel-def-funcall (name args &rest type-switches)
     "Define how to call the function NAME.
         NAME is a function that is called differently based on its argument types.
         An attempt will be made to test the least possible number of types.
-
+  
         This defines a transforms in the pyel transform table with NAME and ARGS"
     `(def-transform ,name pyel ()
        (lambda ,args
          (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                  ',args
                                  ',type-switches))))
-
+  
   ;;TODO: rename pyel-def-funcall -> pyel-def-type-transform
   (defmacro pyel-def-type-transform (name args &rest type-switches)
     "Define a transform NAME that produces code based on the types of ARGS
       TYPE-SWITCHES
-
+  
       This defines a transforms in the pyel transform table with NAME and ARGS"
     `(def-transform ,name pyel ()
        (lambda ,args
          (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                  ',args
                                  ',type-switches))))
-
+  
   ;; (defmacro pyel-def-call-func (name args &rest type-switches)
   ;;   "like `pyel-def-call-template' except that it generates a macro that
   ;; is called directly, because of this NAME must be unique"
@@ -878,7 +878,7 @@ This will have to be removed after the code is generated
   ;;      (pyel-do-call-transform (pyel-get-possible-types ,@args)
   ;;                              ',args
   ;;                              ',type-switches)))
-
+  
   (defun pyel-expand-type-switch (type-switch)
     "expands the types switch form to a list of cond clauses"
     (flet ((helper (arg form)
@@ -894,7 +894,7 @@ This will have to be removed after the code is generated
                            `(,and-or ,@(reverse ret)))
                        `((,arg ,type) ,varlist))))
            (expander (type-switch)
-
+  
                      (let ((args (car type-switch))
                            (forms (cdr type-switch))
                            and-or ret inner tmp tests)
@@ -915,7 +915,7 @@ This will have to be removed after the code is generated
                                        (dolist (x (cdr tmp))
                                          (push x ret))
                                      (push (helper arg form) ret))))))
-
+  
                          ;;else single arg
                          (dolist (form forms)
                            (setq tmp (helper args form))
@@ -929,11 +929,11 @@ This will have to be removed after the code is generated
           (dolist (e (expander ts))
             (push e ret)))
         (reverse ret))))
-
+  
   ;;TODO: fix bug with  `pyel-expand-type-switch-2'
   ;;      the arg pattern (x x) should not expand unless
   ;;      x is a possible type of both args
-
+  
   (defun pyel-expand-type-switch-2 (arglist patterns)
     "has output identical to `pyel-expand-type-switch' just translates
         different syntax"
@@ -942,24 +942,24 @@ This will have to be removed after the code is generated
           (ngroups nil)
           (ret nil)
           code)
-
+  
       ;;stage1: collect into groups
       (while patterns
         (setq p (pop patterns))
-
+  
         (if (not (eq p '->))
             (push-back p group)
           (push-back (pop patterns) group)
           (push-back group groups)
           (setq group nil)))
-
+  
       (dolist (g groups)
         (let* ((g (reverse g))
                (code (car g))
                (g (cdr g))
                ;;      (param-types (make-vector (length (car g)) nil))
                type)
-
+  
           (dolist (arg-pattern (reverse g)) ;;for each arg pattern
             (setq group-patterns nil)
             (dotimes (i (length arg-pattern)) ;;for each type or '_
@@ -975,7 +975,15 @@ This will have to be removed after the code is generated
                                                                 (reverse group-patterns))
                                                         code))))))))))
       ret))
-
+  
+  (defun pyel-remove-nil (list)
+    "remove all nil items from LIST"
+    (let ((new nil))
+      (dolist (e list)
+        (when e
+          (setq new (cons e new))))
+      (reverse new)))
+  
   (defun pyel-do-call-transform (possible-types args type-switch)
     "This is responsible for  producing a call to NAME in the most
         efficient way possible with the known types"
@@ -988,9 +996,9 @@ This will have to be removed after the code is generated
                                  (push (cons arg type) ret)))
                              ret))
            (c 0)
-
+  
            (args-just-vars (pyel-filter-non-args (mapcar 'strip_ args)))
-           (new-args (loop for a in args ;;doing: check for leading underscore
+           (new-args (loop for a in args
                            collect (if (or (eq a '&optional)
                                            (eq a '&rest)
                                            (string-match-p "\\(^_\\)\\(.+\\)"
@@ -1000,21 +1008,21 @@ This will have to be removed after the code is generated
                                 (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
                                                                         (symbol-name x))
                                                         (push (list (strip_ x) (list '\, (strip_ x))) ar)))
-
+  
                                         args)
                                 ar))
            ;;list of symbols to replace
            ;;format: (symbol replace)
            (let-vars (let (lv) (mapcar* (lambda (a b) (if b
                                                           (push (list a b) lv)))
-                                        args-just-vars new-args)
+                                        args new-args)
                           lv))
            ;;strip any leading underscores
            (args (mapcar (lambda (a)
                               (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
                                 (intern (match-string 2 (symbol-name a))) a))
                                 args))
-
+  
            ;;the __x__ type replacements interfere with the (\, x) type replacements
            ;;so they must be seporated and done one at a time
            (arg-replacements1 let-vars)
@@ -1025,7 +1033,7 @@ This will have to be removed after the code is generated
                                         (list (intern (format "$$%s" x)) (list 'quote (list '\, x))))
                                       args-just-vars))
            (arg-replacements (append arg-replacements1 arg-replacements2))
-
+  
            (arg-quote-replacements (mapcar (lambda (x)
                                         (list x (list '\, x)))
                                       args-just-vars))
@@ -1034,7 +1042,7 @@ This will have to be removed after the code is generated
            ;;                           (mapcar (lambda (x)
            ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
            ;;                                   args)))
-
+  
            (ts ) ;;??
            (valid nil) ;;list of valid arg--types
            (found nil)
@@ -1042,8 +1050,8 @@ This will have to be removed after the code is generated
            var value type all-good var-vals len)
       ;;        (print "possible types = ")
       ;;        (print possible-types)
-
-
+  
+  
       ;;collect all the arg-type--code pairs that are valid possibilities,
       ;;that is, members of possible-types.
       ;;This essentially throws out all the arg types that have been ruled out.
@@ -1063,21 +1071,21 @@ This will have to be removed after the code is generated
           (if (eq (car t-s) t) ;;when all types are _
               (push t-s valid)
             ;;otherwise check if the type is one of the valid types
-
+  
             (setq _xx t-s)
             (dolist(pos-type possible-types)
               (when (and (equal (eval (caar t-s)) (car pos-type))
                          (equal (strip$ (cadar t-s)) (cdr pos-type)))
                 (push t-s valid))))));;TODO: break if found?
-
+  
       ;;generate code to call NAME
       ;;if there is 2 posible types, use IF. For more use COND
       (setq len (length valid))
-
+  
       (flet ((replace (code replacements)
                       (let ((ret nil)
                             found)
-
+  
                         (dolist (c code)
                           (setq found nil)
                           (dolist (r replacements)
@@ -1090,19 +1098,19 @@ This will have to be removed after the code is generated
                           (unless found
                             (push c ret)))
                         (reverse ret)))
-
+  
              (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
              (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
              ;;(get-replacement (arg) ;;returns arg replacement
              ;;                 (cadr (assoc arg arg-replacements)))
              (get-replacement (arg) ;;returns arg replacement
                               (cadr (assoc arg current-replace-list)))
-
+  
              ;;bug fix maybe...
              (get-replacement-OLD (arg) ;;returns arg replacement
                                   (or (cadr (assoc arg arg-replacements))
                                       (cadr (assoc arg arg-replacements4))))
-
+  
              ;;replaces the vars, one type at a time
              (replace-vars (code)
                            (let* ((current-replace-list arg-replacements1)
@@ -1111,7 +1119,7 @@ This will have to be removed after the code is generated
                                   (code (replace code arg-replacements2))
                                   (current-replace-list arg-replacements3))
                              (replace code arg-replacements3)))
-
+  
              (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                               (if (equal (car t-s--c) 'and)
                                   (progn (setq __x t-s--c)
@@ -1122,7 +1130,7 @@ This will have to be removed after the code is generated
                                                                  (car x))))
                                                           (cadr t-s--c)))
                                            ,(replace-vars (caddr t-s--c))))
-
+  
                                 ;;TODO
                                 (progn (setq __x t-s--c)
                                        (if (equal (car t-s--c) t) ;;all types where _
@@ -1136,14 +1144,14 @@ This will have to be removed after the code is generated
                                                 (arg (get-replacement-OLD (caar t-s--c))))
                                            `((,tester ,(if quote-arg-p (list 'quote (list '\, (caar t-s--c))) arg))
                                              ,body))
-
+  
                                          ))))
-
+  
              (gen-varlist ()
                           (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
                                   let-vars)
                           ))
-
+  
         (cond ((<= len 0) "ERROR: no valid type")
               ((= len 1)
                (if (eq (caar valid) 'and)
@@ -1168,14 +1176,13 @@ This will have to be removed after the code is generated
                                      (cond ,@(reverse clauses)))
                                   `(cond ,@(reverse clauses)))
                                  )))))))
-
-
+  
   (defun call-transform (template-name &rest args)
     "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
   if was called as (transform '(template-name args))
   NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
     (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
-
+  
   (defun strip$ (sym)
     (let ((str (symbol-name sym)))
       (if (string-match "\\(^\\$\\)\\(.+\\)" str)
@@ -4216,7 +4223,7 @@ x.insert(1,'hi')"
 ** pop
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-;;
+
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
