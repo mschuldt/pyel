@@ -186,7 +186,7 @@ These names will be set globally to their index in this list")
       (let* ((class-ref (aref class (cdr special)))
 	     (instance-ref (list (car (car class-ref)))))
 	(when class-ref
-	  (py-append-list class-ref instance-ref)
+	  (py-list-append class-ref instance-ref)
 	  (aset new (cdr special) (list instance-ref)))))
     
     (aset new obj-class-index class)
