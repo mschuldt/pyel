@@ -3900,7 +3900,17 @@ Example:
 #+END_SRC
 *** python el lib
 #+Begin_SRC python :tangle py-lib.el
-
+(defun py-insert (list index object)
+  "insert OBJECT into LIST at INDEX"
+  (let ((i 0)
+	(rest list)
+	first)
+    (while (< i index)
+      (setq first rest)
+      (setq rest (cdr rest))
+      (setq i (1+ i)))
+    (setcdr first (cons object rest)))
+  nil)
 #+END_SRC
 *** tests
 (pyel-create-tests '<name>
