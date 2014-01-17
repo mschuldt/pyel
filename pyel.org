@@ -2132,7 +2132,7 @@ this test is disabled. It pollutes global variables
 
 #+END_SRC
 *** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 
@@ -3023,7 +3023,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       return "%"
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests TODO
@@ -3127,7 +3127,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       return ll_str(["subscript", value, slice, ctx, lineno, col_offset])
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -3291,7 +3291,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                    lineno, col_offset])
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -3422,7 +3422,7 @@ TODO: tests!
   (push '(range py-range) pyel-function-name-translations)
 #+END_SRC
 *** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun py-range (start &optional end step)
    (unless end
     (setq end start
@@ -3901,7 +3901,7 @@ Example:
                          (_ _) -> (call-method insert obj i x))
 #+END_SRC
 *** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 (defun py-insert (list index object)
   "insert OBJECT into LIST at INDEX"
   (let ((i 0)
@@ -4619,7 +4619,7 @@ TODO: tests!
       return "usub"
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -4649,7 +4649,7 @@ TODO: tests!
       return l_str(['aug-assign', target, op, value, lineno, col_offset])
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -4764,7 +4764,7 @@ TODO: tests!
       return l_str(["try", l_str(body), l_str(handlers), l_str(orelse), lineno, col_offset])
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -4809,7 +4809,7 @@ TODO: tests!
                        )
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun vector-member (elt vector)
    "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
    (let ((i 0)
@@ -4909,7 +4909,7 @@ DOC: generator expressions are translated to list comprehensions
       return "(unimplemented \"set comprehension\")"
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -4996,7 +4996,7 @@ This will help notify the user when some syntax has not been implemented
       pyel-error-string))
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 ** tests
@@ -5164,7 +5164,7 @@ prevents multiple/none '/' seporating file names"
 
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
 
