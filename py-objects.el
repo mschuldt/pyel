@@ -173,12 +173,6 @@ These names will be set globally to their index in this list")
 	      (defun ,name (&rest args)
 		(obj-make-instance ,name args))))))
 
-(defun py-append-list (list thing)
-  "add THING to the end of LIST"
-  (while (not (null (cdr list)))
-    (setq list (cdr list)))
-  (setcdr list (list thing)))
-
 (defun obj-make-instance (class args)
   (let ((new (make-empty-instance)))
 

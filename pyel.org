@@ -3866,8 +3866,12 @@ Example:
                          (_ _)    -> (call-method obj append thing))
 #+END_SRC
 *** python el lib
-#+Begin_SRC python :tangle py-lib.el
-
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-append-list (list thing)
+   "add THING to the end of LIST"
+   (while (not (null (cdr list)))
+    (setq list (cdr list)))
+   (setcdr list (list thing)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
