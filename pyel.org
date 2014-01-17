@@ -4110,8 +4110,8 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
    join-method
-   ("X".join(('f','g')) "fXg")
-   (" ".join([str(x) for x in range(3)]) "0 1 2"))
+   ("'X'.join(('f','g'))" "fXg")
+   ("' '.join([str(x) for x in range(3)])" "0 1 2"))
 #+END_SRC
 ** extend
 *** transform
