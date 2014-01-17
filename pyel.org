@@ -3980,13 +3980,13 @@ x.insert(1,'hi')"
 ** remove
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-method-transform remove (obj x)
-		       (list _) ->  (let ((i (list-index x obj)))
-				      (if i
-					  (setq $obj (append (subseq obj 0 i)
-							     (subseq obj (1+ i))))
-					(error "ValueError: list.remove(x): x not in list")))
-		       (object _) -> (remove obj x))
+  (pyel-method-transform remove (obj x)
+                         (list _) ->  (let ((i (list-index x obj)))
+                                        (if i
+                                            (setq $obj (append (subseq obj 0 i)
+                                                               (subseq obj (1+ i))))
+                                          (error "ValueError: list.remove(x): x not in list")))
+                         (object _) -> (remove obj x))
 #+END_SRC
 *** python el lib
 #+Begin_SRC python :tangle py-lib.el
@@ -4009,13 +4009,29 @@ x.insert(1,'hi')"
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
+  ;;;; this one is slower
+  ;;;; maybe faster with a non-regexp search function?
+  ;; (defun count-str-matches (string substr)
+  ;;   "count number of occurrences of SUBSTR in STRING"
+  ;;   (let ((quoted (regexp-quote substr))
+  ;;      (start 0)
+  ;;      (strlen (length string))
+  ;;      (sublen (length substr))
+  ;;      (count 0))
+  ;;     (while (< start strlen)
+  ;;       (setq start (string-match quoted string start))
+  ;;       (if start (setq count (1+ count)
+  ;;                    start (+ start sublen))
+  ;;      (setq start strlen)))
+  ;;     count))
+  
   (defun count-str-matches (string substr)
     "count number of occurrences of SUBSTR in STRING"
     (with-temp-buffer
       (insert string)
       (goto-char 1)
-      (how-many substr)))
-
+      (how-many (regexp-quote substr))))
+  
   (defun count-elems-list (list elem)
     "return how many times ELEM occurs in LIST"
     (let ((c 0))
@@ -4023,7 +4039,7 @@ x.insert(1,'hi')"
         (if (equal x elem)
             (setq c (1+ c))))
       c))
-
+  
   (defun count-elems-vector (vector elem)
     "return how many times ELEM occurs in VECTOR"
     (let ((c 0)
