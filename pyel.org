@@ -5123,13 +5123,14 @@ prevents multiple/none '/' seporating file names"
   (require 'pyel-transforms)
   (require 'pyel-tests-generated)
   (require 'pyel-preprocessor)
-
+  
   (require 'pyel-mode)
   (require 'py-objects)
-
+  (require 'py-lib)
+  
   (pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
   ;;...I'm so sorry
-
+  
   (provide 'pyel)
   ;;pyel.el ends here
 #+END_SRC
