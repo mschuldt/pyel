@@ -4279,13 +4279,16 @@ x.insert(1,'hi')"
                          (list) ->  (py-list-reverse obj)
                          (_)    ->  (call-method obj reverse)))
 #+END_SRC
-*** python ast
-#+Begin_SRC python :tangle py-ast.py
-
-#+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-
+  (defun pyel-list-reverse (list)
+    "reverse LIST *IN PLACE*"
+    (let ((reversed (reverse list))
+          (rest list))
+      (while reversed
+        (setcar rest (car reversed))
+        (setq reversed (cdr reversed)
+              rest (cdr rest)))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
