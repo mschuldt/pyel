@@ -4276,8 +4276,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform reverse (obj)
-                         (list) ->  (py-list-reverse obj)
-                         (_)    ->  (call-method obj reverse)))
+                         (list) ->  (pyel-list-reverse obj)
+                         (_)    ->  (call-method obj reverse))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -4294,7 +4294,6 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -4312,7 +4311,6 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
-
 * macro transforms
 macros and macroish primitives
 ** cond
