@@ -4121,7 +4121,6 @@ x.insert(1,'hi')"
 #+END_SRC
 
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4169,12 +4168,11 @@ macros and macroish primitives
 
 #+END_SRC
 *** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp:tangle py-lib.el
 
 #+END_SRC
 
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
@@ -4868,10 +4866,9 @@ This will help notify the user when some syntax has not been implemented
 
 #+END_SRC
 ** python el lib
-#+Begin_SRC python :tangle py-lib.el
+#+Begin_SRC emacs-lisp :tangle py-lib.el
 
 #+END_SRC
-
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
