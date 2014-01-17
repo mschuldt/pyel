@@ -3925,10 +3925,9 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform index (obj elem)
                          (list _) -> (list-index elem obj)
-                         (string _) -> (py-string-index obj elem);;TODO: this uses regex, python does not
+                         (string _) -> (py-string-index obj elem)
                          (vector _) -> (vector-index elem obj)
-  
-                         (object _)    -> (__index__ obj thing)) ;;?
+                         (object _) -> (call-method index obj elem))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
