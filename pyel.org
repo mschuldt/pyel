@@ -4052,9 +4052,27 @@ x.insert(1,'hi')"
       c))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+(pyel-create-tests
+ count-method
+ ;;strings
+ ("'xxxxx'.count('x')" 5)
+ ("'xxxx'.count('xx')" 2)
+ ("'xxxx'.count('xxxx')" 1)
+ ("'x.xx'.count('.')" 1)
+ ;;lists
+ ("x = [1,2,3,3,[2],'s']"
+  ("x.count(3)" 2)
+  ("x.count(2)" 1)
+  ("x.count([3,4])" 1)
+  ("x.count('s')" 1))
+ ;;vector
+ ("x = (1,2,3,3,[2],'s')"
+  ("x.count(3)" 2)
+  ("x.count(2)" 1)
+  ("x.count([3,4])" 1)
+  ("x.count('s')" 1))
+ ("(1,1,1).count(1)" 3))
 #+END_SRC
 ** join
 *** transform
