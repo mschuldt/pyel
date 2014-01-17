@@ -3952,9 +3952,25 @@ x.insert(1,'hi')"
       found))
 #+END_SRC
 *** tests
-(pyel-create-tests '<name>
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+(pyel-create-tests
+ index-method
+ ;;lists
+ ("x = [1,(1,2),'5']"
+  ("x.index(1)" 0 )
+  ("x.index((1,2))" 1)
+  ("x.index('5')" 2))
+ ;;strings
+ ("x = 'importantstring'"
+  ("x.index('t')" 5)
+  ("x.index('or')" 3)
+  ("x.index('g')" 14)
+  ("x.index(x)" 0))
+ ;;arrays
+ ("x = (1,2,'tree',(3,))"
+  ("x.index(1)" 0)
+  ("x.index('tree')" 2)
+  ("x.index((3,))" 3)))
 #+END_SRC
 ** remove
 *** transform
