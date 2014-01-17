@@ -3974,12 +3974,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform remove (obj x)
-                         (list _) ->  (let ((i (list-index x obj)))
-                                        (if i
-                                            (setq $obj (append (subseq obj 0 i)
-                                                               (subseq obj (1+ i))))
-                                          (error "ValueError: list.remove(x): x not in list")))
-                         (object _) -> (remove obj x))
+                         (list _) -> (py-list-remove obj x)
+                         (_ _) -> (call-method remove obj x))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
