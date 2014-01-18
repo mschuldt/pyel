@@ -4007,6 +4007,23 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
     ("repr(type(x))" "<class 'testc'>")
     ("y is testc" t)))
 #+END_SRC
+** abs
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform abs (object)
+                       (number) -> (abs object)
+                       (object) -> (call-method object --abs--))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+
+#+END_SRC
+
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
