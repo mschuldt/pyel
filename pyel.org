@@ -3450,32 +3450,24 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun py-list (&rest things)
+  (defun py-list (object)
     "tries to be like python's list function"
-    (if (> (length things) 1)
-        things
-      (setq thing (car things))
-      (cond
-       ((stringp thing)
-        (split-string thing "" :omit-nulls))
-       ((vectorp thing)
-        (mapcar 'identity thing))
-       ((hash-table-p thing)
-        (let (keys)
-          (maphash (lambda (key value)
-                     (setq keys (cons key keys))) thing)
-          keys))
-       ((listp thing) (copy-list thing)))))
+    (cond
+     ((stringp object)
+      (split-string object "" :omit-nulls))
+     ((vectorp object)
+      (mapcar 'identity object))
+     ((hash-table-p object)
+      (let (keys)
+        (maphash (lambda (key value)
+                   (setq keys (cons key keys))) object)
+        keys))
+     ((listp object) (copy-list object))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (ert-deftest pyel-py-list nil
-    (should (equal (py-list "string")
-                   '("s" "t" "r" "i" "n" "g")))
-    (should (equal (py-list [2 3 4 4])
-                   '(2 3 4 4)))
-    (should (equal  (py-list '(2 3 4 4))
-                    '(2 3 4 4)))
+  
     (should (equal (py-list 23 4 2 "h")
                    '(23 4 2 "h")))
     (should (equal (py-list (let ((__h__ (make-hash-table :test (quote equal)))) (puthash 1 "1" __h__) (puthash "3" 3 __h__) (puthash 23 2 __h__) __h__))
