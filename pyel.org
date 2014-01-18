@@ -2191,12 +2191,15 @@ n** tests
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests list
-                     "[]"
-                     "[a,1,2]"
-                     "a = [1,2,a.b]"
-                     "b = [1,[1,a,[a.b,[],3]]]"
-                     "[[[[[[[a]]]]]]]")
+  (pyel-create-tests
+   list
+   ("[]" nil)
+   ("['a',1,2]" '("a" 1 2))
+   ("a = [1,2,'b']
+  b = [1,[1,'3',a,[],3]]"
+    ("a" '(1 2 "b"))
+    ("b" '(1 (1 "3" (1 2 "b") nil 3))))
+   ("[[[1]]]" '(((1)))))
 #+END_SRC
 ** dict
 *** transform
