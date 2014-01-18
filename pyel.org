@@ -1206,7 +1206,7 @@ This will have to be removed after the code is generated
           (intern (match-string 2 str))
         sym)))
   
-  (defun pyel-number-of-args (arglist)
+  (defun pyel-arg-descriptor (arglist)
     "return the number of values that may be passed to ARGLIST
   If ARGLIST contains &optional or &rest then return a cons of
   the min and max values that may be passed.
@@ -1236,7 +1236,7 @@ This will have to be removed after the code is generated
         (cons min max))))
   
   (defun pyel-arglist-signature (arglist)
-    (let ((num (pyel-number-of-args arglist)))
+    (let ((num (pyel-arg-descriptor arglist)))
       (format "->%s<-" (if (or (numberp num)
                                (eq num 'I))
                            num
@@ -1244,7 +1244,7 @@ This will have to be removed after the code is generated
   
   (defun pyel-extract-signature (name)
     "extract the arglist signature from name
-  the value returned is like that from `pyel-number-of-args'"
+  the value returned is like that from `pyel-arg-descriptor'"
     (assert (stringp name) "Name must be a string")
     (if (symbolp name) (setq name (symbol-name name)))
     (let (min max I?)
@@ -1274,7 +1274,7 @@ This will have to be removed after the code is generated
   (defun pyel-add-method-name-sig (name args)
     "Add the argument signature of ARGS to NAME in `pyel-method-name-arg-signature'"
     (let* ((signatures (gethash name pyel-method-name-arg-signature)))
-      (add-to-list 'signatures (pyel-number-of-args args))
+      (add-to-list 'signatures (pyel-arg-descriptor args))
       (puthash name signatures pyel-method-name-arg-signature)))
 #+END_SRC
 *** example usage
