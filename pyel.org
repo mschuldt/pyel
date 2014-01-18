@@ -325,10 +325,21 @@ main
       (setq features (remove f features)))
     (require 'pyel))
   
-  (defun pyel-method-transform-name(method-name)
-    "return the name of the temlate that transform the method METHOD-NAME.
-  template names are modified to avoid potential conflict with other templates"
-    (intern (format "_%s-method_" (symbol-name method-name))))
+  (defun pyel-method-transform-name (method-name &optional arglist)
+    "Return the name of the temlate that transform the method METHOD-NAME.
+    template names are modified to avoid potential conflict with other templates
+  the arglist must be placed in a list before passing so that the code can
+   tell if the arglist is empty or not provided. 
+  ARGLIST is used to generate a name that is unique to that arglist signature"
+    (assert (and (listp arglist) (listp (car arglist)))
+            "Invalid arglist. Expected a list of a list")
+    (let* ((signature (if arglist (pyel-arglist-signature (car arglist)) "_"))
+           (name (format "_%s-method%s" (symbol-name method-name) signature)))
+      (if arglist
+          (assert (equal (pyel-extract-signature signature)
+                         (pyel-number-of-args (car arglist)))
+                  "Invalid method name"))
+      (intern name)))
   
   (defun pyel-func-transform-name (func-name)
     "like `pyel-method-transform-name' for functions"
