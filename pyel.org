@@ -1194,6 +1194,35 @@ This will have to be removed after the code is generated
       (if (string-match "\\(^_\\)\\(.+\\)" str)
           (intern (match-string 2 str))
         sym)))
+  
+  (defun pyel-number-of-args (arglist)
+    "return the number of values that may be passed to ARGLIST
+  If ARGLIST contains &optional or &rest then return a cons of
+  the min and max values that may be passed.
+  
+  This does not check if ARGLIST has a valid form"
+  
+    (let ((min 0)
+          (max 0)
+          optional)
+      (when arglist
+        (if (member '&rest arglist)
+            (setq max 'infinity
+                  arglist (subseq arglist 0 -2)))
+        (if (member '&optional arglist)
+            (setq optional (pyel-split-list arglist '&optional)
+                  min (length (car optional)) ;;positional args
+                  max (if (eq max 'infinity) max
+                        (+ min (length (cdr optional))))) ;;optional args
+          (setq min (length arglist)
+                max (if (eq max 'infinity)
+                        max
+                      min))))
+      (if (or (equal min max)
+              (and (= min 0)
+                   (eq max 'infinity)))
+          max
+        (cons min max))))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
@@ -3382,7 +3411,6 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                      "assert adk,'messsage'")
 #+END_SRC
 * function transforms
-TODO: tests!
 ** simple name changes
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
