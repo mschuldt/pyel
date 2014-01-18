@@ -2104,7 +2104,7 @@ n** tests
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (apyel-create-tests
+  (pyel-create-tests
    num
    ("3" 3)
    ("4.23" 4.23)
