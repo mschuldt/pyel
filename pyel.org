@@ -4233,7 +4233,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform extend (obj elem)
                          (list _) ->  (py-list-extend obj elem)
-                         (_ _)    ->  (call-method obj extend thing))
+                         (_ _)    ->  (call-method obj extend elem))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
