@@ -1288,6 +1288,36 @@ This will have to be removed after the code is generated
     (let* ((signatures (gethash name pyel-method-name-arg-signature)))
       (add-to-list 'signatures (pyel-arg-descriptor args))
       (puthash name signatures pyel-method-name-arg-signature)))
+  
+  (defun pyel-find-method-transform-name (name num-args)
+    "find a matching method transform for NAME with NUM-ARGS
+  will return the name of the first match"
+    (let ((signatures (gethash name pyel-method-name-arg-signature))
+          found min max)
+      (if signatures
+          (progn (while signatures
+                   (setq sig (car signatures)
+                         signatures (cdr signatures))
+                   
+                   (if (or (and (numberp sig)
+                                (= sig num-args))
+  
+                           (eq sig 'I)
+                           
+                           (and (consp sig)
+                                (setq min (car sig)
+                                      max (cdr sig))
+                                (and (>= num-args min)
+                                     (or (<= num-args max)
+                                         (eq max 'I)))))
+                       (setq signatures nil
+                             found sig)))
+                 (if found
+                     (intern (format pyel-method-name-format-string
+                                     name
+                                     (pyel-arg-descriptor-to-signature found)))))
+        (error "method transform %s does not exist in the signature table"
+               name))))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
