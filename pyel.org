@@ -4038,9 +4038,11 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   chr-function
+   ("chr(70)" "F")
+   ("chr(50)" "2"))
 #+END_SRC
-
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
