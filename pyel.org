@@ -1223,6 +1223,13 @@ This will have to be removed after the code is generated
                    (eq max 'I)))
           max
         (cons min max))))
+  
+  (defun pyel-arglist-signature (arglist)
+    (let ((num (pyel-number-of-args arglist)))
+      (format "->%s<-" (if (or (numberp num)
+                               (eq num 'I))
+                           num
+                         (format "%s~%s" (car num) (cdr num))))))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
