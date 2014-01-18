@@ -325,6 +325,14 @@ main
       (setq features (remove f features)))
     (require 'pyel))
   
+  (defun pyel-reset()
+    "reset internal variables"
+    (interactive)
+    (setq pyel-method-name-arg-signature (make-hash-table :test 'eq)
+          pyel-function-definitions nil
+          pyel-defined-functions nil
+          pyel-context nil))
+  
   (defvar pyel-method-name-format-string "_%s-method%s"
     "format string for the method transform names
   It must accept two args, the name of the method
