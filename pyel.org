@@ -481,6 +481,20 @@ main
         (or (fboundp object)
             (functionp object)) ;;necessary?
       (functionp object)))
+  
+  (defun pyel-split-list (lst sym)
+    "split list LST into two sub-lists at separated by SYM
+    The return value is the two sub-lists consed together"
+    (let ((current (not sym))
+          first)
+      
+      (while (and (not (eq current sym))
+                  lst)
+        (setq current (pop lst))
+        (push current first)
+        )
+      
+      (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
 #+END_SRC
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
@@ -2897,7 +2911,7 @@ FunctionDef(name='a',
               (puthash (car x) (cdr x) ht))
             alist)
       ht))
-
+  
   (defmacro def (name args decorator-list &rest body)
     ;;TODO: apply decorators
     (using-context
@@ -2914,7 +2928,7 @@ FunctionDef(name='a',
                optional
                pos+optional rest kwarg
                npositional nargs arg-index)
-
+  
            (when (member '&kwarg args)
              (setq kwarg (car (last args))
                    args (subseq args 0 -2)
@@ -2927,14 +2941,14 @@ FunctionDef(name='a',
                      positional (car optional)
                      optional (cdr optional))
              (setq positional args))
-
+  
            (setq npositional (length positional)
                  nargs (+ (length positional) (length optional))
                  arg-index-alist (mapcar (lambda (x)
                                            (setq n (1+ n))
                                            (cons x n))
                                          (append positional optional)))
-
+  
            `(,@func-name (&rest args)
                          ;;if this is called with keyword args they will be
                          ;;the in an alist in the car position.
@@ -2954,7 +2968,7 @@ FunctionDef(name='a',
                                      (t ;;(< len ,nargs)
                                       (setq pos+optional
                                             (append args (make-list (- ,nargs len) nil)))))
-
+  
                                ;;make alist of index value pairs
                                (setq index-value
                                      (mapcar (lambda (kw)
@@ -2989,7 +3003,7 @@ FunctionDef(name='a',
                                       (let (,kwarg)
                                         ,@body))
                                     args)))))
-
+  
        ;;else: no &kwarg
        `(defun ,name ,args
           ,@body)
@@ -4636,19 +4650,6 @@ macros and macroish primitives
   ;;                 ,@(mapcar 'transform body)))
   ;;       ,@(mapcar 'transform orelse)))))
   
-  (defun pyel-split-list (lst sym)
-    "split list LST into two sub-lists at separated by SYM
-  The return value is the two sub-lists consed together"
-    (let ((current (not sym))
-          first)
-  
-      (while (and (not (eq current sym))
-                  lst)
-        (setq current (pop lst))
-        (push current first)
-        )
-  
-      (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
