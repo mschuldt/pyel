@@ -1268,6 +1268,12 @@ This will have to be removed after the code is generated
              max)
             (t (cons min max)))))
   
+  (defun pyel-arg-descriptor-to-signature (descriptor)
+    (format "->%s<-" (if (or (numberp descriptor)
+                             (eq descriptor 'I))
+                         descriptor
+                       (format "%s~%s" (car descriptor) (cdr descriptor)))))
+  
   (defvar pyel-method-name-arg-signature (make-hash-table :test 'eq)
     "mapping of method transform names to a list of argument signatures")
   
