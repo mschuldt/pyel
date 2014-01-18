@@ -1235,6 +1235,7 @@ This will have to be removed after the code is generated
     "extract the arglist signature from name
   the value returned is like that from `pyel-number-of-args'"
     (assert (stringp name) "Name must be a string")
+    (if (symbolp name) (setq name (symbol-name name)))
     (let (min max I?)
       (cond ((string-match "->\\([0-9I]+\\)<-" name)
              (setq min (match-string 1 name)
