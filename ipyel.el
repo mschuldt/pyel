@@ -320,7 +320,8 @@ simply inserts a newline."
 
 (defun ipyel-eval-input (input-string)   ;;mbs
   "Evaluate the Lisp expression INPUT-STRING, and pretty-print the result."
-  (setq input-string (pp-to-string (pyel input-string)))
+  (let ((pyel-interactive t))
+    (setq input-string (pp-to-string (pyel input-string))))
   ;;TODO: should have a seporate list that new funcitons are added to, the list can be evaled and then cleared
   (pyel-eval-extra-generated-code)
   
@@ -393,7 +394,9 @@ simply inserts a newline."
 			       (set-buffer ipyel-wbuf)
 			       (setq ipyel-result
 				     ;;mbs
-                                     (pyel-repr (eval ipyel-form lexical-binding)))
+				     (let ((pyel-interactive t))
+				       (pyel-repr (eval ipyel-form
+							lexical-binding))))
 			       (setq ipyel-wbuf (current-buffer))
 			       (setq
 				ipyel-temp-buffer

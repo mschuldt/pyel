@@ -476,11 +476,11 @@ main
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defvar pyel-directory ""
     "Path to pyel files. must include py-ast.py, pyel.el etc")
-
+  
   (defmacro vfunction-p (f)
     `(and (boundp ',f)
           (functionp ,f)))
-
+  
   (set (defvar pyel-type-test-funcs nil
          "alist of types used in pyel-call-transform for the switch-type
           and the function used to test for that type")
@@ -503,11 +503,11 @@ main
          (vfunction vfunction-p)
          (vfunc vfunction-p)
          (callable callable-p)))
-
+  
   (defvar pyel-negated-function-tests nil
     "A list of automatically created negated functions from `pyel-type-test-funcs'
     stored here just for convenient inspection")
-
+  
   ;;create negated test functions
   (let (new func fname)
     (setq pyel-negated-function-tests nil)
@@ -522,72 +522,72 @@ main
                   new))
           pyel-type-test-funcs)
     (setq pyel-type-test-funcs (append pyel-type-test-funcs new)))
-
+  
   (defvar pyel-defined-classes nil
     "list of call class names defined by pyel")
-
+  
   (defvar pyel-defined-functions nil
     "list of some functions defined pyel
         used by some templates to determine if a needed function has been defined yet")
-
+  
   (defvar pyel-function-definitions nil
     "used to store function definitions created by pyel, not the user.")
-
+  
   (defvar pyel-replace-args nil
     "if non-nil, pyel-do-call-transform will replace the arg symbols with their
         value, used if the code is to be inlined
         TODO: the option to replace the args should probably be obsoletede")
-
+  
   (defvar pyel-unique-obj-names nil
     "if non-nil, uniquely name object instantces")
-
+  
   (defvar pyel-context-groups nil ;;TODO: still used?
     "groups of contexts that cannot exist at the same time.
       `context-p' will stop at the first one in the list,")
-
+  
   (setq pyel-context-groups
         '((assign-target assign-value)))
-
+  
   (defvar pyel-function-name-translations nil
     "alist of function name translations, python->e-lisp.
-
+  
       Entries in `pyel-function-name-translations' are applied before
       checking for function transforms.
       If a translation len->length is defined then the function transform for
       'len' will not be detected because the name is now 'length'
       ")
-
+  
   (defvar pyel-variable-name-translations nil
     "alist of variable name translations, python->e-lisp.")
-
+  
   (setq pyel-function-name-translations `(
-
+  
                                           ))
   ;;TODO: list, vector, etc
   ;;      map?
-
+  
   (setq pyel-variable-name-translations '((True t)
                                           (False nil)
                                           (None nil)))
-
+  
   (defvar pyel-method-transforms nil
     "List of names of methods for which a transform has been defined
       For internal use only--do not modify by hand"
     )
-
+  
   (defvar pyel-func-transforms nil
     "list of function names that have transforms defined for them")
-
+  
   (defconst pyel-nothing '(@)
     "value to return from a function/transform when it should
       not contribute to the output code")
-
+  
   (defconst pyel-python-version "3.2.3"
     "python interpreter version whose ast pyel is written for")
-
+  
   (defvar test-variable-values nil
     "variables values for running tests")
-
+  
   (setq test-variable-values
         '((pyel-defined-classes nil)
           (pyel-function-definitions nil)
@@ -598,11 +598,14 @@ main
           ;;(pyel-method-transforms nil)
           ;;(pyel-func-transforms nil)
           (pyel-marker-counter 0)))
-
+  
   (defvar pyel-marker-counter 0)
-
+  
   (defvar pyel-tmp-file  "/tmp/pyel-ast.py"
     "Name of temp file to use for AST generation")
+  
+  (defvar pyel-interactive nil
+    "non-nil during interactive session translation and evaluation")
 #+END_SRC
 ** syntax output variables
 variables that effect the form of the output code
@@ -1257,12 +1260,12 @@ This will have to be removed after the code is generated
       (cond ((string-match "->\\([0-9I]+\\)<-" name)
              (setq min (match-string 1 name)
                    max min))
-            
+  
             ((string-match "->\\([0-9]+\\)~\\([0-9I]+\\)<-" name)
              (setq min (match-string 1 name)
                    max (match-string 2 name))))
   
-      (if min 
+      (if min
           (setq I? (intern max)
                 max (if (eq I? 'I) 'I (string-to-number max))
                 min (string-to-number min)))
@@ -1298,12 +1301,12 @@ This will have to be removed after the code is generated
           (progn (while signatures
                    (setq sig (car signatures)
                          signatures (cdr signatures))
-                   
+  
                    (if (or (and (numberp sig)
                                 (= sig num-args))
   
                            (eq sig 'I)
-                           
+  
                            (and (consp sig)
                                 (setq min (car sig)
                                       max (cdr sig))
