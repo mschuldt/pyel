@@ -3721,7 +3721,10 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   hex-function
+   ("hex(23)" "0x17")
+   ("hex(123232332)" "0x758604c"))
 #+END_SRC
 ** bin
 *** transform
