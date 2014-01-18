@@ -336,8 +336,8 @@ main
     (let* ((signature (if arglist (pyel-arglist-signature (car arglist)) "_"))
            (name (format "_%s-method%s" (symbol-name method-name) signature)))
       (if arglist
-          (assert (equal (pyel-extract-signature signature)
-                         (pyel-number-of-args (car arglist)))
+          (assert (equal (pyel-extract-arg-descriptor signature)
+                         (pyel-arg-descriptor (car arglist)))
                   "Invalid method name"))
       (intern name)))
   
@@ -1242,9 +1242,9 @@ This will have to be removed after the code is generated
                            num
                          (format "%s~%s" (car num) (cdr num))))))
   
-  (defun pyel-extract-signature (name)
-    "extract the arglist signature from name
-  the value returned is like that from `pyel-arg-descriptor'"
+  (defun pyel-extract-arg-descriptor (name)
+    "extract the arglist descriptor from name"
+  
     (assert (stringp name) "Name must be a string")
     (if (symbolp name) (setq name (symbol-name name)))
     (let (min max I?)
