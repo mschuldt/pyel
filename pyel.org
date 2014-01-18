@@ -325,16 +325,22 @@ main
       (setq features (remove f features)))
     (require 'pyel))
   
+  (defvar pyel-method-name-format-string "_%s-method%s"
+    "format string for the method transform names
+  It must accept two args, the name of the method
+  and its arg signature")
+  
   (defun pyel-method-transform-name (method-name &optional arglist)
     "Return the name of the temlate that transform the method METHOD-NAME.
-    template names are modified to avoid potential conflict with other templates
-  the arglist must be placed in a list before passing so that the code can
-   tell if the arglist is empty or not provided. 
-  ARGLIST is used to generate a name that is unique to that arglist signature"
+      template names are modified to avoid potential conflict with other templates
+    the arglist must be placed in a list before passing so that the code can
+     tell if the arglist is empty or not provided. 
+    ARGLIST is used to generate a name that is unique to that arglist signature"
     (assert (and (listp arglist) (listp (car arglist)))
             "Invalid arglist. Expected a list of a list")
     (let* ((signature (if arglist (pyel-arglist-signature (car arglist)) "_"))
-           (name (format "_%s-method%s" (symbol-name method-name) signature)))
+           (name (format pyel-method-name-format-string
+                         (symbol-name method-name) signature)))
       (if arglist
           (assert (equal (pyel-extract-arg-descriptor signature)
                          (pyel-arg-descriptor (car arglist)))
