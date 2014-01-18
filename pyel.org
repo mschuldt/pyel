@@ -4020,9 +4020,17 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
-#+END_SRC
-  
+  (pyel-create-tests
+   abs-function
+   ("abs(3)" 3)
+   ("abs(-3)" 3)
+   ("class C:
+   def __abs__(self):
+    'doc'
+    return 'hi'
+  obj = C()"
+    ("abs(obj)" "hi")))
+#+END_SRC  
 ** chr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
