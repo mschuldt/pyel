@@ -3717,7 +3717,7 @@ TODO: tests!
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun py-hex (n)
-    (format "%X" n))
+    (format "0x%x" n))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
