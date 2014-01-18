@@ -3404,15 +3404,16 @@ TODO: tests!
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests len
-                     "a = [1,2,3,'5']
-  assert len(a) == 4"
-                     "a = []
-  assert len(a) == 0"
-                     "a = 'str'
-  assert len(a) == 3"
-                     "a = (1,2)
-  assert len(a) == 2"
-                     "assert len('')==0"
+                     ("a = [1,2,3,'5']
+  b = []
+  c = 'str'
+  d = (1,2,3,4)"
+                      ("len(a)" 4)
+                      ("len(b)" 0)
+                      ("len(c)" 3)
+                      ("len(d)" 4))
+                     ("len('')" 0)
+                     ("len([3,4])" 2)
                      )
 #+END_SRC
 ** range
@@ -3830,7 +3831,6 @@ TODO: tests!
 #+END_SRC
 
 * built-in method transforms
-TODO: tests!
 ** doc  TODO: move or tangle
 *Defining method transforms for build in types*
 In python, primitive types such as the list and string are objects. We need to
