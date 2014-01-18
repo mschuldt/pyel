@@ -3910,11 +3910,11 @@ x.insert(1,'hi')"
 ** index
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform index (obj elem)
-                         (list _) -> (list-index elem obj)
-                         (string _) -> (py-string-index obj elem)
-                         (vector _) -> (vector-index elem obj)
-                         (object _) -> (call-method obj index elem))
+    (pyel-method-transform index (obj elem)
+                           (list _) -> (list-index elem obj)
+                           (string _) -> (py-string-index obj elem)
+                           (object _) -> (call-method obj index elem)
+                           (vector _) -> (vector-index elem obj))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
