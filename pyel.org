@@ -3476,15 +3476,6 @@ TODO: tests!
                    '(23 "3" 1))))
   ;;(pyel "{1:'1','3':3,23:2}")
 #+END_SRC
-** getattr
-*** transform
-#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'getattr 'obj-get)
-#+END_SRC
-*** tests
-#+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
-#+END_SRC
 ** hasattr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
