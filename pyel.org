@@ -3398,7 +3398,7 @@ TODO: tests!
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform len (thing)
-                       (object) -> (--len-- thing)
+                       (object) -> (call-method thing --len--)
                        (_)      -> (length thing))
 #+END_SRC
 *** tests
