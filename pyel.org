@@ -3881,7 +3881,7 @@ Example:
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform insert (obj i x)
                          (list _) -> (py-insert obj i x)
-                         (_ _) -> (call-method insert obj i x))
+                         (_ _) -> (call-method obj insert i x))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -3914,7 +3914,7 @@ x.insert(1,'hi')"
                          (list _) -> (list-index elem obj)
                          (string _) -> (py-string-index obj elem)
                          (vector _) -> (vector-index elem obj)
-                         (object _) -> (call-method index obj elem))
+                         (object _) -> (call-method obj index elem))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -3969,7 +3969,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform remove (obj x)
                          (list _) -> (py-list-remove obj x)
-                         (_ _) -> (call-method remove obj x))
+                         (_ _) -> (call-method obj remove x))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -4012,7 +4012,7 @@ x.insert(1,'hi')"
   (pyel-method-transform count (obj elem)
                          (string _) -> (count-str-matches obj elem)
                          (list _) -> (count-elems-list obj elem)
-                         (object _)  -> (call-method count obj elem)
+                         (object _)  -> (call-method obj count elem)
                          (vector _) -> (count-elems-vector obj elem))
 #+END_SRC
 *** python el lib
@@ -4087,7 +4087,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform join (obj elem)
                          (string _) ->  (mapconcat 'identity elem obj)
-                         (_ _)      -> (call-method join obj thing))
+                         (_ _)      -> (call-method obj join thing))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -4101,7 +4101,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform extend (obj elem)
                          (list _) ->  (py-list-extend obj elem)
-                         (_ _)    ->  (call-method extend obj thing))
+                         (_ _)    ->  (call-method obj extend thing))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -4208,7 +4208,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform pop (obj &optional index)
                          (list _) -> (py-list-pop obj index)
-                         (_ _)    -> (call-method pop obj index))
+                         (_ _)    -> (call-method obj pop index))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
