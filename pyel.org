@@ -1207,20 +1207,20 @@ This will have to be removed after the code is generated
           optional)
       (when arglist
         (if (member '&rest arglist)
-            (setq max 'infinity
+            (setq max 'I
                   arglist (subseq arglist 0 -2)))
         (if (member '&optional arglist)
             (setq optional (pyel-split-list arglist '&optional)
                   min (length (car optional)) ;;positional args
-                  max (if (eq max 'infinity) max
+                  max (if (eq max 'I) max
                         (+ min (length (cdr optional))))) ;;optional args
           (setq min (length arglist)
-                max (if (eq max 'infinity)
+                max (if (eq max 'I)
                         max
                       min))))
       (if (or (equal min max)
               (and (= min 0)
-                   (eq max 'infinity)))
+                   (eq max 'I)))
           max
         (cons min max))))
 #+END_SRC
