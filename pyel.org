@@ -1972,7 +1972,7 @@ this test is disabled. It pollutes global variables
     ("a" 3)
     ("C.v" 1.1)
     ("x[2]" 1))
-
+  
    ("a = 1
   b = 2
   a,b= b,a"
@@ -1997,11 +1997,11 @@ this test is disabled. It pollutes global variables
   c = 3
   d = a,b,c"
     ("d" [1 2 3]))
-
+  
    "a,b = a.e.e()"
-
+  
    "a[1:4], b[2], a.c = c"
-
+  
    "a = b = c"
    "a = b = c.e"
    "a = b = c.e()"
@@ -2067,7 +2067,7 @@ this test is disabled. It pollutes global variables
       return l_str(["attribute ", value, "\"" + attr + "\"", ctx, lineno, col_offset])
 #+END_SRC
 
-** tests
+n** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests attribute
                      "a.b"
@@ -2087,7 +2087,7 @@ this test is disabled. It pollutes global variables
                      "a.b, a.b.c = d.e.f(1,3), e.g.b"
                      "a.b(x.y,y)"
                      "a.b(x.y(g.g()),y.y)")
-
+  
 #+END_SRC
 * num
 ** transform
@@ -2104,7 +2104,11 @@ this test is disabled. It pollutes global variables
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests num "3" "4.23")
+  (pyel-create-tests
+   num
+   ("3" 3)
+   "4.23" 4.23
+   "3e2" 3e2)
 #+END_SRC
 * name
 ** transform
