@@ -1267,6 +1267,15 @@ This will have to be removed after the code is generated
                       (eq max 'I)))
              max)
             (t (cons min max)))))
+  
+  (defvar pyel-method-name-arg-signature (make-hash-table :test 'eq)
+    "mapping of method transform names to a list of argument signatures")
+  
+  (defun pyel-add-method-name-sig (name args)
+    "Add the argument signature of ARGS to NAME in `pyel-method-name-arg-signature'"
+    (let* ((signatures (gethash name pyel-method-name-arg-signature)))
+      (add-to-list 'signatures (pyel-number-of-args args))
+      (puthash name signatures pyel-method-name-arg-signature)))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
