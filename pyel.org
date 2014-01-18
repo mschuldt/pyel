@@ -812,27 +812,32 @@ This will have to be removed after the code is generated
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
            (rest-arg (if (eq (car (last striped-args 2)) '&rest)
-                         (car (last striped-args)) nil)))
+                         (car (last striped-args)) nil))
+           (fsym (intern (format "pyel-%s-method%s"
+                                 (symbol-name name)
+                                 (pyel-arglist-signature args))))
+           (transform-name (pyel-method-transform-name name (list args))))
   
-    `(def-transform ,(pyel-method-transform-name name) pyel ()
-       (lambda ,striped-args
-         (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
-               (body (pyel-do-call-transform (pyel-get-possible-types
-                                              ,@args-just-vars)
-                                             ',args
-                                             ',type-switches))
-               (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
+      (pyel-add-method-name-sig name args)
+      
+      `(def-transform ,transform-name pyel ()
+         (lambda ,striped-args
+           (let ((body (pyel-do-call-transform (pyel-get-possible-types
+                                                ,@args-just-vars)
+                                               ',args
+                                               ',type-switches))
+                 (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
   
-           (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',striped-args
-                         body)
-                   pyel-function-definitions)
-             (push fsym pyel-defined-functions)
-             (fset fsym (lambda () nil)))
-           (cons fsym ,(if rest-arg
-                           `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                         (cons 'list args-just-vars)))
-           )))))
+             (unless (member ',fsym pyel-defined-functions)
+               (push (list 'defmacro ',fsym ',striped-args
+                           body)
+                     pyel-function-definitions)
+               (push ',fsym pyel-defined-functions)
+               (fset ',fsym (lambda () nil)))
+             (cons ',fsym ,(if rest-arg
+                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                             (cons 'list args-just-vars)))
+             )))))
   
   (defmacro pyel-func-transform (name args &rest type-switches)
     "define transforms for function calls"
@@ -2489,7 +2494,11 @@ this test is disabled. It pollutes global variables
                 (setq keyword-args keywords
                       star-args starargs
                       kw-args kwargs)
-                (eval `(call-transform ',(pyel-method-transform-name m-name)
+  
+                (eval `(call-transform ',(or (pyel-find-method-transform-name
+                                              m-name
+                                              (1+ (length args))) ;;1+ because args does not include the object
+                                             (pyel-method-transform-name m-name))
                                        ',(transform (cadr func))
                                        ,@(mapcar '(lambda (x) `(quote ,x)) args))))
             ;;normal method call
