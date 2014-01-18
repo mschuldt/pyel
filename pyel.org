@@ -3623,7 +3623,14 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   (defun _py-str-sequence (seq)
     "convert SEQ to a string of its python representation
       does not include starting/ending parens or brackets"
-    (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
+    (if (listp (cdr seq))
+        (mapconcat (lambda (x) (pyel-str-function x)) seq ", ")
+      ;;cons cell
+      ;;this should not happend from normal python
+      ;;but maybe when interacting with lisp code from python
+      (concat (pyel-str-function (car seq))
+              " . "
+              (pyel-str-function (cdr seq)))))
   
   (defun py-list-str (thing)
     (concat "[" (_py-str-sequence thing) "]"))
@@ -3643,7 +3650,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                                                      (or (eq (car func) 'lambda)))
                                                 "<lambda>"
                                               (symbol-name func))))))
-
+  
   (defun py-hash-str (ht)
     (let (str)
       (maphash (lambda (key value)
@@ -3732,19 +3739,19 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
               thing;;error
               ))
         (list 'pyel-repr-function thing))))
-
+  
   (defsubst py-repr-string (thing)
     (prin1-to-string thing))
-
+  
   (defun _py-repr-sequence (seq)
     (mapconcat (lambda (x) (pyel-repr-function x)) seq ", "))
-
+  
   (defun py-list-repr (thing)
     (concat "[" (_py-repr-sequence thing) "]"))
-
+  
   (defun py-vector-repr (thing)
     (concat "(" (_py-repr-sequence thing) ")"))
-
+  
   (defun pyel-symbol-str (sym)
     (if (eq sym t)
         "True"
