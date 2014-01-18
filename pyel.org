@@ -313,6 +313,7 @@ main
   
   (defun pyel-reload ()
     (interactive)
+    (pyel-reset)
     (dolist (f '(pyel
                  pyel-tests
                  pyel-transforms
