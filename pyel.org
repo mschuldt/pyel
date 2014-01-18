@@ -3742,7 +3742,10 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   bin-function
+   ("bin(123)" "0b1111011")
+   ("bin(3456312)" "0b1101001011110100111000"))
 #+END_SRC
 ** print
 *** transform
