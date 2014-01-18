@@ -1230,6 +1230,31 @@ This will have to be removed after the code is generated
                                (eq num 'I))
                            num
                          (format "%s~%s" (car num) (cdr num))))))
+  
+  (defun pyel-extract-signature (name)
+    "extract the arglist signature from name
+  the value returned is like that from `pyel-number-of-args'"
+    (assert (stringp name) "Name must be a string")
+    (let (min max I?)
+      (cond ((string-match "->\\([0-9I]+\\)<-" name)
+             (setq min (match-string 1 name)
+                   max min))
+            
+            ((string-match "->\\([0-9]+\\)~\\([0-9I]+\\)<-" name)
+             (setq min (match-string 1 name)
+                   max (match-string 2 name))))
+  
+      (if min 
+          (setq I? (intern max)
+                max (if (eq I? 'I) 'I (string-to-number max))
+                min (string-to-number min)))
+  
+      (cond ((null min) nil)
+            ((or (equal min max)
+                 (and (= min 0)
+                      (eq max 'I)))
+             max)
+            (t (cons min max)))))
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)
