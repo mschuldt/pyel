@@ -3403,18 +3403,19 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests len
-                     ("a = [1,2,3,'5']
+  (pyel-create-tests
+   len-function
+   ("a = [1,2,3,'5']
   b = []
   c = 'str'
   d = (1,2,3,4)"
-                      ("len(a)" 4)
-                      ("len(b)" 0)
-                      ("len(c)" 3)
-                      ("len(d)" 4))
-                     ("len('')" 0)
-                     ("len([3,4])" 2)
-                     )
+    ("len(a)" 4)
+    ("len(b)" 0)
+    ("len(c)" 3)
+    ("len(d)" 4))
+   ("len('')" 0)
+   ("len([3,4])" 2)
+   )
 #+END_SRC
 ** range
 *** transform
