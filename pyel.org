@@ -769,20 +769,13 @@ This will have to be removed after the code is generated
                                  (eq x '&rest))))
             args))
   
-  ;;TODO: have functions saved in another file,
-  ;;      instead of putting them all at the top of the file, have some type of
-  ;;      require/import mechanism to functions are not constantly being redefined
-  ;;    option to place insert function defs instead of requires
   (defmacro pyel-create-py-func (name args &rest type-switches)
-    "return the function name"
-    ;;create a template that will resolve arg types and create a new function
-  
-    ;;-determine if enough type info is available to eliminate testing
-    ;;-if testing is necessary, use `pyel-do-call-transform' like function to generate
-    ;; the testing and calling structure and put that in a function
-    ;;-create defun code if not yet defined
-    ;;  add new func name to defined code list
-  
+    "Define a transform that dispatches on argument type as defined by TYPE-SWITCHES
+  The transform will have the same NAME and ARGSand must be called with a
+  function like `call-transform'.
+  Use `pyel-func-transform' to define transforms for functions that
+  will be automatically called"
+    
     ;;temp solution: does not check types etc
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
@@ -792,34 +785,26 @@ This will have to be removed after the code is generated
       `(def-transform ,name pyel ()
          (lambda ,striped-args
            (let ((fsym ',(intern (concat "pyel-" (symbol-name name) "")))
-                 ;;      (body (pyel-do-call-transform (pyel-get-possible-types ,@(mapcar (lambda (x) `(quote ,x))args))
                  (body (pyel-do-call-transform (pyel-get-possible-types
                                                 ,@args-just-vars)
                                                ',args
-                                               ',type-switches))
-                 (known-types nil)) ;;tmp
+                                               ',type-switches))) 
              (unless (member fsym pyel-defined-functions)
                (push (list 'defmacro fsym ',striped-args
                            body)
                      pyel-function-definitions)
                (push fsym pyel-defined-functions)
                (fset fsym (lambda () nil)))
-             ;;(if (eq (car (last args 2)) '&rest)
-  
-             ;; (cons fsym (mapcar 'eval ,(if rest-arg
-             ;;                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-             ;;                             `(quote ,args-just-vars))))
              (cons fsym ,(if rest-arg
-                            `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                          (cons 'list args-just-vars)))
-             )))))
+                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                           (cons 'list args-just-vars))))))))
   
   (defmacro pyel-method-transform (name args &rest type-switches)
-    "define transforms for method calls on primative types"
-    ;;method transforms are defined like normal type-transforms
-    ;;when a method call is being transformed the name is looked up in the list
-    ;;of defined method transforms, if it found, this transform will override
-    ;;the normal transform.
+    "Defines a transform for methods that dispatches on NAME and ARGS.
+  The syntax is the same as with `pyel-create-py-func'. 
+  These transforms are automatically called for methods during translation time.
+  The transform will be dispatched on the NAME and the possible number
+  of arguments that ARGS allows"
     (add-to-list 'pyel-method-transforms name)
   
     ;;temp solution: does not check types etc
@@ -839,8 +824,7 @@ This will have to be removed after the code is generated
            (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                                 ,@args-just-vars)
                                                ',args
-                                               ',type-switches))
-                 (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
+                                               ',type-switches))) 
   
              (unless (member ',fsym pyel-defined-functions)
                (push (list 'defmacro ',fsym ',striped-args
@@ -850,8 +834,7 @@ This will have to be removed after the code is generated
                (fset ',fsym (lambda () nil)))
              (cons ',fsym ,(if rest-arg
                                `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                             (cons 'list args-just-vars)))
-             )))))
+                             (cons 'list args-just-vars))))))))
   
   (defmacro pyel-func-transform (name args &rest type-switches)
     "define transforms for function calls"
@@ -867,7 +850,8 @@ This will have to be removed after the code is generated
                (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
                                              ',args
                                              ',type-switches))
-               (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
+  ;;             (known-types nil) ;;tmp -- should this be before 'body' is set!!??
+               )
   
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',(mapcar 'strip_ args)
