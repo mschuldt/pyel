@@ -74,7 +74,7 @@ $var replaces var with name of the original var
                        (_)      -> (length ,thing))
 #+END_SRC
 *** type switching transforms
-  (define-dispatch-func ** (l r) ;;pow
+  (pyel-dispatch-func ** (l r) ;;pow
                     (number number) -> (expt l r)
                     (object _ )
                     (_ object) -> (--pow-- l r))
@@ -769,7 +769,7 @@ This will have to be removed after the code is generated
                                  (eq x '&rest))))
             args))
   
-  (defmacro define-dispatch-func (name args &rest type-switches)
+  (defmacro pyel-dispatch-func (name args &rest type-switches)
     "Define a transform that creates a runtime function that
   dispatches on argument type as defined by TYPE-SWITCHES.
   The transform will have the same NAME and ARGS and must be called with a
@@ -810,7 +810,7 @@ This will have to be removed after the code is generated
   
   (defmacro pyel-method-transform (name args &rest type-switches)
     "Defines a transform for methods that dispatches on NAME and ARG length.
-  The syntax and the function creation is the same as with `define-dispatch-func'.
+  The syntax and the function creation is the same as with `pyel-dispatch-func'.
   These transforms are automatically called for methods during translation time.
   The transform will be dispatched on NAME and the possible number
   of arguments that ARGS allows.
@@ -1050,7 +1050,7 @@ This will have to be removed after the code is generated
                                            (eq a '&rest)
                                            (string-match-p "\\(^_\\)\\(.+\\)"
                                                            (symbol-name a))) nil
-                                       (intern (format "__%s__" (symbol-name a))))))
+                                     (intern (format "__%s__" (symbol-name a))))))
            (arg-replacements4 (let (ar)
                                 (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
                                                                         (symbol-name x))
@@ -1066,9 +1066,9 @@ This will have to be removed after the code is generated
                           lv))
            ;;strip any leading underscores
            (args (mapcar (lambda (a)
-                              (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
-                                (intern (match-string 2 (symbol-name a))) a))
-                                args))
+                           (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
+                               (intern (match-string 2 (symbol-name a))) a))
+                         args))
   
            ;;the __x__ type replacements interfere with the (\, x) type replacements
            ;;so they must be seporated and done one at a time
@@ -1082,8 +1082,8 @@ This will have to be removed after the code is generated
            (arg-replacements (append arg-replacements1 arg-replacements2))
   
            (arg-quote-replacements (mapcar (lambda (x)
-                                        (list x (list '\, x)))
-                                      args-just-vars))
+                                             (list x (list '\, x)))
+                                           args-just-vars))
            (current-replace-list nil)
            ;; (arg-replacements (append let-vars
            ;;                           (mapcar (lambda (x)
@@ -1219,10 +1219,10 @@ This will have to be removed after the code is generated
                                     clauses)))
                         (varlist (gen-varlist)))
                    `(backquote ,(if varlist
-                                   `(let ,varlist
-                                     (cond ,@(reverse clauses)))
+                                    `(let ,varlist
+                                       (cond ,@(reverse clauses)))
                                   `(cond ,@(reverse clauses)))
-                                 )))))))
+                               )))))))
   
   (defun call-transform (template-name &rest args)
     "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
@@ -1849,9 +1849,9 @@ this test is disabled. It pollutes global variables
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   ;; should not fset functions because the effect takes place globally
   ;; even when the name being set is let bound.
-  (define-dispatch-func set (_sym _val)
-                       (_ $function) -> (setq $sym $$val)
-                       (_ _) -> (setq $sym $val)) ;;TODO: other?
+  (pyel-dispatch-func set (_sym _val)
+                      (_ $function) -> (setq $sym $$val)
+                      (_ _) -> (setq $sym $val)) ;;TODO: other?
   
   (def-transform assign pyel ()
     (lambda (targ val &optional line col) (py-assign targ val line col)))
@@ -2322,47 +2322,47 @@ n** tests
       
       (call-transform (read (car ops)) left (car comparators))))
   
-  (define-dispatch-func == (l r)
-                       (number number) -> (= l r)
-                       (string string) -> (string= l r)
-                       ;;                       (object _) -> (--eq-- l r)
+  (pyel-dispatch-func == (l r)
+                      (number number) -> (= l r)
+                      (string string) -> (string= l r)
+                      ;;                       (object _) -> (--eq-- l r)
   
-                       (_ _) -> (equal l r))
+                      (_ _) -> (equal l r))
   
-  (define-dispatch-func > (l r)
-                       (number number) -> (> l r)
-                       ;;TODO: macro for this
-                       (string string) -> (and (not (string< l r)) (not (string= l r)))
-                       (object _) -> (__gt__ l r))
+  (pyel-dispatch-func > (l r)
+                      (number number) -> (> l r)
+                      ;;TODO: macro for this
+                      (string string) -> (and (not (string< l r)) (not (string= l r)))
+                      (object _) -> (__gt__ l r))
   
   ;;TODO: other py types?
   
   ;;::Q does `string<' behave like < for strings in python?
-  (define-dispatch-func < (l r)
-                       (number number) -> (< l r)
-                       (string string) -> (string< l r)
-                       (object _) -> (__lt__ l r))
+  (pyel-dispatch-func < (l r)
+                      (number number) -> (< l r)
+                      (string string) -> (string< l r)
+                      (object _) -> (__lt__ l r))
   
-  (define-dispatch-func >= (l r)
-                       (number number) -> (>= l r)
-                       (string string) -> (not (string< l r))
-                       (object _) -> (__ge__ l r))
+  (pyel-dispatch-func >= (l r)
+                      (number number) -> (>= l r)
+                      (string string) -> (not (string< l r))
+                      (object _) -> (__ge__ l r))
   
-  (define-dispatch-func <= (l r)
-                       (number number) -> (<= l r)
-                       (string string) -> (or (string< l r) (string= l r))
-                       (object _) -> (__le__ l r))
+  (pyel-dispatch-func <= (l r)
+                      (number number) -> (<= l r)
+                      (string string) -> (or (string< l r) (string= l r))
+                      (object _) -> (__le__ l r))
   
-  (define-dispatch-func != (l r)
-                       (number number) -> (not (= l r))
-                       (string string) -> (not (string= l r))
-                       (object _) -> (__ne__ l r)
-                       (_ _) -> (not (equal l r)))
+  (pyel-dispatch-func != (l r)
+                      (number number) -> (not (= l r))
+                      (string string) -> (not (string= l r))
+                      (object _) -> (__ne__ l r)
+                      (_ _) -> (not (equal l r)))
   
   ;;this is defined as a transform because `pyel-compare' expects
   ;;all comparison functions to be transforms
-  (define-dispatch-func is (l r)
-                       (_ _) -> (eq l r))
+  (pyel-dispatch-func is (l r)
+                      (_ _) -> (eq l r))
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2467,14 +2467,14 @@ n** tests
         (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
       "obj"))
   
-  ;; (define-dispatch-func fcall (_func &rest args)
+  ;; (pyel-dispatch-func fcall (_func &rest args)
   ;;                      ($func _) -> ($func ,@args)
   ;;                      (_ _) -> (funcall $func ,@args))
   
   ;; functions set to variables override those defined with `defun'
   ;; this allows locally defined functions to override their global
   ;; counterparts without defining themselves globally
-  (define-dispatch-func fcall (_func &rest _args)
+  (pyel-dispatch-func fcall (_func &rest _args)
                        (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
                        ($function _) -> ($func ,@(pyel-sort-kwargs args))
                        (object) -> (call-method $func --call--
@@ -3100,14 +3100,14 @@ TODO: tests!
     (lambda (left op right &optional line col)
       (call-transform op left right)))
   
-  (define-dispatch-func * (l r)
+  (pyel-dispatch-func * (l r)
                        (number _) ->  (* l r)
                        (object _)      -> (call-method l --mul-- r)
                        (_ number) -> (* l r)
                        (_ string)
                        (string _)      -> (pyel-mul-num-str l r))
   
-  (define-dispatch-func + (lhs rhs)
+  (pyel-dispatch-func + (lhs rhs)
                        (number _) -> (+ lhs rhs)
                        (string _) -> (concat lhs rhs)
                        (list _)   -> (append lhs rhs)
@@ -3118,42 +3118,42 @@ TODO: tests!
                        (_ string) -> (concat lhs rhs)
                        (_ list)   -> (append lhs rhs))
   
-  (define-dispatch-func - (l r)
+  (pyel-dispatch-func - (l r)
                        (number _) -> (- l r)
                        (object _) -> (call-method l --sub-- r)
                        (_ number) -> (- l r))
   
-  (define-dispatch-func ** (l r) ;;pow
+  (pyel-dispatch-func ** (l r) ;;pow
                        (number _) -> (expt l r)
                        (object _) -> (call-method l --pow-- r)
                        (_ number) -> (expt l r))
   
-  (define-dispatch-func / (l r)
+  (pyel-dispatch-func / (l r)
                        (number _) -> (pyel-div l r)
                        (object _) -> (call-method l --truediv-- r)
                        (_ number) -> (pyel-div l r))
   
-  (define-dispatch-func // (l r) ;;floored (normal) division
+  (pyel-dispatch-func // (l r) ;;floored (normal) division
                        (number _) -> (/ l r)
                        (object _) -> (call-method l --floordiv-- r)
                        (_ number) -> (/ l r))
   
-  (define-dispatch-func ^ (l r) ;;bit xor
+  (pyel-dispatch-func ^ (l r) ;;bit xor
                        (number _) -> (logxor l r)
                        (object _) -> (call-method l --xor-- r)
                        (_ number) -> (logxor l r))
   
-  (define-dispatch-func & (l r) ;;bit and
+  (pyel-dispatch-func & (l r) ;;bit and
                        (number _) -> (logand l r)
                        (object _) (call-method l --and-- r)
                        (_ number) -> (logand l r))
   
-  (define-dispatch-func | (l r) ;;bit or
+  (pyel-dispatch-func | (l r) ;;bit or
                        (number _) -> (logior l r)
                        (object _) -> (call-method l --or-- r)
                        (_ number) -> (logior l r))
   
-  (define-dispatch-func % (l r)
+  (pyel-dispatch-func % (l r)
                        (number _) -> (% l r)
                        (object _) -> (call-method l --mod-- r))
   
@@ -3230,14 +3230,14 @@ TODO: tests!
     (lambda (value slice ctx &optional line col)
       (pyel-subscript value slice ctx line col)))
   
-  (define-dispatch-func subscript-load-index (name value)
+  (pyel-dispatch-func subscript-load-index (name value)
                        (list _) -> (nth value name)
                        (object _) -> (--getitem-- name value)
                        (vector _) -> (aref name value)
                        (string _) -> (char-to-string (aref name value))
                        (hash _) -> (gethash value name))
   
-  (define-dispatch-func subscript-load-slice (name start end step)
+  (pyel-dispatch-func subscript-load-slice (name start end step)
                        (object _ _ _) -> (--getitem-- name (PySlice "slice"
                                                                     :start start
                                                                     :end  end
@@ -3245,7 +3245,7 @@ TODO: tests!
                        ;;TODO implement step
                        (_ _ _ _) -> (subseq name start end))
   
-  (define-dispatch-func subscript-store-slice (name start end step assign)
+  (pyel-dispatch-func subscript-store-slice (name start end step assign)
                        (object _ _ _) -> (--setitem-- name
                                                       (PySlice "slice"
                                                                :start start
@@ -3256,7 +3256,7 @@ TODO: tests!
                        ;;TODO implement step
                        (_ _ _ _) -> (setf (subseq name start end) assign))
   
-  (define-dispatch-func subscript-store-index (name value assign)
+  (pyel-dispatch-func subscript-store-index (name value assign)
                        (list _) -> (setf (nth value name) assign)
                        (object _) -> (--setitem-- name value assign)
                        (vector _) -> (setf (aref name value) assign)
@@ -4829,11 +4829,11 @@ TODO: tests!
     (lambda (op operand &optional line col)
       (call-transform op operand)))
   
-  (define-dispatch-func not (x)
+  (pyel-dispatch-func not (x)
                        (object) -> (--not-- x) ;;?
                        (_) -> (not x))
   
-  (define-dispatch-func usub (x)
+  (pyel-dispatch-func usub (x)
                        (number) -> (- x)
                        (object) -> (--usub-- x) ;;?
                        )
@@ -5020,7 +5020,7 @@ TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   ;;a not in b
   ;; function:    is_not(a, b)  (in the operator module)
-  (define-dispatch-func not-in (l r)
+  (pyel-dispatch-func not-in (l r)
                        (_ list) -> (not (member l r))
                        (_ vector) -> (not (vector-member l r))
                        (_ object) -> (--not-in-- r l) ;;?
@@ -5028,7 +5028,7 @@ TODO: tests!
 
   ;;a in b
   ;; function:    is_(a, b)
-  (define-dispatch-func in (l r)
+  (pyel-dispatch-func in (l r)
                        (_ list) -> (member l r)
                        (_ vector) -> (vector-member l r)
                        (_ object) -> (--in-- r l);;?
