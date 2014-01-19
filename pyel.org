@@ -1763,7 +1763,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
         (if (or (string= selector "pyel-test")
                 (string= selector "pyel"))
-            (let ((tmp-file "~/tmp/pyel-test-functions.el"))
+            (let ((tmp-file "/tmp/pyel-test-functions.el"))
               (message "Evaluating test functions...")
               ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
               (find-file tmp-file)
