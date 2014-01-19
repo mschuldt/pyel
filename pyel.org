@@ -3124,23 +3124,25 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                        (_ number) -> (/ l r))
   
   (pyel-create-py-func ^ (l r) ;;bit xor
-                       (number number) -> (logxor l r)
-                       (object _)
-                       (_ object) -> (--xor-- l r))
+                       (number _) -> (logxor l r)
+                       (object _) -> (call-method l --xor-- r)
+                       (_ number) -> (logxor l r))
   
   (pyel-create-py-func & (l r) ;;bit and
-                       (number number) -> (logand l r)
-                       (object _)
-                       (_ object) -> (--and-- l r)) ;;?
+                       (number _) -> (logand l r)
+                       (object _) (call-method l --and-- r)
+                       (_ number) -> (logand l r))
   
   (pyel-create-py-func | (l r) ;;bit or
-                       (number number) -> (logior l r)
-                       (object _)
-                       (_ object) -> (--or-- l r));;?
+                       (number _) -> (logior l r)
+                       (object _) -> (call-method l --or-- r)
+                       (_ number) -> (logior l r))
   
-  (pyel-create-py-func % (l r) ;;bit or
+  (pyel-create-py-func % (l r)
                        (number number) -> (% l r)
                        (object _) -> (--mod-- l r));;?
+  
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
