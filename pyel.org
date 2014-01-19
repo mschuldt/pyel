@@ -837,29 +837,32 @@ This will have to be removed after the code is generated
                              (cons 'list args-just-vars))))))))
   
   (defmacro pyel-func-transform (name args &rest type-switches)
-    "define transforms for function calls"
-    ;;function transforms are defined like normal type-transforms
-    ;;when a function call is being transformed the name is looked up in the list
-    ;;of defined function transforms, if it found, this transform will override
-    ;;the normal function call transform.
+    "Define a transform for function calls.
+  This is just like `pyel-method-transform' except that the
+  ARG signature has no effect on the transform dispatch"
     (add-to-list 'pyel-func-transforms name)
     ;;TODO: should name be modified to avoid conflicts ?
-    `(def-transform ,(pyel-func-transform-name name) pyel ()
-       (lambda ,args
-         (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-function")))
-               (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
-                                             ',args
-                                             ',type-switches))
-  ;;             (known-types nil) ;;tmp -- should this be before 'body' is set!!??
-               )
-  
-           (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
-                         body)
-                   pyel-function-definitions)
-             (push fsym pyel-defined-functions)
-             (fset fsym (lambda () nil)))
-           (cons fsym (mapcar 'eval ',args))))))
+    
+    (let* ((striped-args (mapcar 'strip_ args))
+           (args-just-vars (pyel-filter-non-args striped-args))
+           (rest-arg (if (eq (car (last striped-args 2)) '&rest)
+                         (car (last striped-args)) nil))
+           (fsym (intern (concat "pyel-" (symbol-name ',name) "-function"))))
+      `(def-transform ,(pyel-func-transform-name name) pyel ()
+         (lambda ,striped-args
+           (let ((body (pyel-do-call-transform (pyel-get-possible-types
+                                                ,@args-just-vars)
+                                               ',args
+                                               ',type-switches)))
+             (unless (member ',fsym pyel-defined-functions)
+               (push (list 'defmacro ',fsym ',striped-args
+                           body)
+                     pyel-function-definitions)
+               (push ',fsym pyel-defined-functions)
+               (fset ',fsym (lambda () nil)))
+             (cons ',fsym ,(if rest-arg
+                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                             (cons 'list args-just-vars))))))))
   
   (defvar pyel-func-transforms2 nil
     "list of functions whose translations are defined
@@ -3080,6 +3083,7 @@ overloadable operators: http://rgruet.free.fr/PQR26/PQR2.6.html#SpecialMethods
 emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elisp/Bitwise-Operations.html
 
 ** transform
+TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform bin-op pyel ()
     (lambda (left op right &optional line col)
