@@ -769,7 +769,6 @@ This will have to be removed after the code is generated
                                  (eq x '&rest))))
             args))
   
-  
   (defmacro pyel-create-py-func (name args &rest type-switches)
     "Define a transform that creates a runtime function that
   dispatches on argument type as defined by TYPE-SWITCHES.
@@ -859,7 +858,7 @@ This will have to be removed after the code is generated
            (args-just-vars (pyel-filter-non-args striped-args))
            (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                          (car (last striped-args)) nil))
-           (fsym (intern (concat "pyel-" (symbol-name ',name) "-function"))))
+           (fsym (intern (concat "pyel-" (symbol-name name) "-function"))))
       `(def-transform ,(pyel-func-transform-name name) pyel ()
          (lambda ,striped-args
            (let ((body (pyel-do-call-transform (pyel-get-possible-types
