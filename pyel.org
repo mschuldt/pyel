@@ -3109,9 +3109,9 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                        (_ number) -> (- l r))
   
   (pyel-create-py-func ** (l r) ;;pow
-                       (number number) -> (expt l r)
-                       (object _)
-                       (_ object) -> (--pow-- l r))
+                       (number _) -> (expt l r)
+                       (object _) -> (call-method l --pow-- r)
+                       (_ number) -> (expt l r))
   
   (pyel-create-py-func / (l r)
                        ;; (float _)
