@@ -3082,39 +3082,36 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 ** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform bin-op pyel ()
-      (lambda (left op right &optional line col)
-        (call-transform op left right)))
+    (lambda (left op right &optional line col)
+      (call-transform op left right)))
   
   (pyel-create-py-func * (l r)
-                      (number number) ->  (* l r)
-                      (object _)
-                      (_ object)      -> (--mul-- l r)
-                      (_ string)
-                      (string _)      -> (pyel-mul-num-str l r))
+                       (number number) ->  (* l r)
+                       (object _)      -> (call-method l --mul-- r)
+                       (_ string)
+                       (string _)      -> (pyel-mul-num-str l r))
   
-    (pyel-create-py-func + (lhs rhs)
-                      ;;this presumes that both args are the same type
-                      (number number)  -> (+ lhs rhs)
-                      (string _)
-                      (_ string)       -> (concat lhs rhs)
-                      (list _)
-                      (_ list)         -> (append lhs rhs)
-                      (vector _)
-                      (_ vector)       -> (vconcat lhs rhs) ;;faster way?
-                      ;;should the right side be checked if its an object?
-                      (object _)
-                      (_ object)       -> (--add-- lhs rhs));;correct way to call it?
+  (pyel-create-py-func + (lhs rhs)
+                       (number _) -> (+ lhs rhs)
+                       (string _) -> (concat lhs rhs)
+                       (list _)   -> (append lhs rhs)
+                       (object _) -> (call-method l --add-- r)
+                       (_ number)  -> (+ lhs rhs)
+                       (vector _)
+                       (_ vector)  -> (vconcat lhs rhs)
+                       (_ string) -> (concat lhs rhs)
+                       (_ list)   -> (append lhs rhs))
   
   (pyel-create-py-func - (l r)
-                    (number number) -> (- l r)
-                    (object _)
-                    (_ object) -> (--sub-- l r))
+                       (number number) -> (- l r)
+                       (object _)
+                       (_ object) -> (--sub-- l r))
   
   
   (pyel-create-py-func ** (l r) ;;pow
-                    (number number) -> (expt l r)
-                    (object _)
-                    (_ object) -> (--pow-- l r))
+                       (number number) -> (expt l r)
+                       (object _)
+                       (_ object) -> (--pow-- l r))
   
   (pyel-create-py-func / (l r)
                        ;; (float _)
@@ -3131,19 +3128,19 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   ;;                    (_ object) ;;?
   
   (pyel-create-py-func ^ (l r) ;;bit xor
-                    (number number) -> (logxor l r)
-                    (object _)
-                    (_ object) -> (--xor-- l r))
+                       (number number) -> (logxor l r)
+                       (object _)
+                       (_ object) -> (--xor-- l r))
   
   (pyel-create-py-func & (l r) ;;bit and
-                    (number number) -> (logand l r)
-                    (object _)
-                    (_ object) -> (--and-- l r)) ;;?
+                       (number number) -> (logand l r)
+                       (object _)
+                       (_ object) -> (--and-- l r)) ;;?
   
   (pyel-create-py-func | (l r) ;;bit or
-                    (number number) -> (logior l r)
-                    (object _)
-                    (_ object) -> (--or-- l r));;?
+                       (number number) -> (logior l r)
+                       (object _)
+                       (_ object) -> (--or-- l r));;?
   
   (pyel-create-py-func % (l r) ;;bit or
                        (number number) -> (% l r)
