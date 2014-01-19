@@ -3114,18 +3114,14 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                        (_ number) -> (expt l r))
   
   (pyel-create-py-func / (l r)
-                       ;; (float _)
-                       ;; (_ float) -> (/ l r)
-                       (number _)
-                       (_ number) -> (/ (* l 1.0) r)
-                       (object _) -> (--truediv-- l r))
-  ;;                    (_ object) ;;?
+                       (number _) -> (pyel-div l r)
+                       (object _) -> (call-method l --truediv-- r)
+                       (_ number) -> (pyel-div l r))
   
   (pyel-create-py-func // (l r) ;;floored (normal) division
-                       (number _)
-                       (_ number) -> (/ l r)
-                       (object _) -> (--floordiv-- l r))
-  ;;                    (_ object) ;;?
+                       (number _) -> (/ l r)
+                       (object _) -> (call-method l --floordiv-- r)
+                       (_ number) -> (/ l r))
   
   (pyel-create-py-func ^ (l r) ;;bit xor
                        (number number) -> (logxor l r)
