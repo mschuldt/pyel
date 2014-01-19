@@ -3177,6 +3177,16 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
   (defun pyel-mul-num-str (left right)
     "not implemented"
     )
+
+(defmacro pyel-div (l r)
+  (cond ((or (floatp l)
+	     (floatp r))
+	 `(/ ,l ,r))
+	((integerp l)
+	 `(/ ,(* 1.0 l) ,r))
+	((integerp r)
+	 `(/ ,l ,(* 1.0 r)))
+	(t `(/ (* ,l 1.0) ,r))))
 #+END_SRC
 ** tests TODO
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
