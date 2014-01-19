@@ -3086,8 +3086,9 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
       (call-transform op left right)))
   
   (pyel-create-py-func * (l r)
-                       (number number) ->  (* l r)
+                       (number _) ->  (* l r)
                        (object _)      -> (call-method l --mul-- r)
+                       (_ number) -> (* l r)
                        (_ string)
                        (string _)      -> (pyel-mul-num-str l r))
   
