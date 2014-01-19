@@ -2494,10 +2494,14 @@ n** tests
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
       ;;        (--init-- __c ,@(mapcar 'transform args))
       ;;        __c)
-  
+          
       (if (eq (car func) 'attribute);;method call
-          (if (member (setq m-name (read (caddr func)))
-                      pyel-method-transforms)
+          (if (and (member (setq m-name (read (caddr func)))
+                           pyel-method-transforms)
+                   (setq m-name (pyel-find-method-transform-name
+                                     m-name
+                                     (1+ (length args)))));;1+ because args does not include the object
+  
               ;;this methods transform is overridden
               (progn
                 ;;dynamic scoping saves the day again!
@@ -2505,10 +2509,7 @@ n** tests
                       star-args starargs
                       kw-args kwargs)
   
-                (eval `(call-transform ',(or (pyel-find-method-transform-name
-                                              m-name
-                                              (1+ (length args))) ;;1+ because args does not include the object
-                                             (pyel-method-transform-name m-name))
+                (eval `(call-transform ',m-name
                                        ',(transform (cadr func))
                                        ,@(mapcar '(lambda (x) `(quote ,x)) args))))
             ;;normal method call
