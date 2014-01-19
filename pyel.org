@@ -3177,7 +3177,9 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-
+  (defun pyel-mul-num-str (left right)
+    "not implemented"
+    )
 #+END_SRC
 ** tests TODO
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
