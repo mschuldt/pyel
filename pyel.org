@@ -3108,10 +3108,10 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
                        (object _) -> (call-method l --sub-- r)
                        (_ number) -> (- l r))
   
-  (pyel-create-py-func ** (l r) ;;pow
-                       (number _) -> (expt l r)
-                       (object _) -> (call-method l --pow-- r)
-                       (_ number) -> (expt l r))
+  (pyel-create-py-func ** (l r &optional mod) ;;pow
+                       (number _) -> (pyel-pow l r mod)
+                       (object _) -> (call-method l --pow-- r mod)
+                       (_ number) -> (pyel-pow l r mod))
   
   (pyel-create-py-func / (l r)
                        (number _) -> (pyel-div l r)
@@ -3170,19 +3170,24 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun pyel-mul-num-str (left right)
-    "not implemented"
-    )
-
-(defmacro pyel-div (l r)
-  (cond ((or (floatp l)
-	     (floatp r))
-	 `(/ ,l ,r))
-	((integerp l)
-	 `(/ ,(* 1.0 l) ,r))
-	((integerp r)
-	 `(/ ,l ,(* 1.0 r)))
-	(t `(/ (* ,l 1.0) ,r))))
+    (defun pyel-mul-num-str (left right)
+      "not implemented"
+      )
+  
+  (defmacro pyel-div (l r)
+    (cond ((or (floatp l)
+               (floatp r))
+           `(/ ,l ,r))
+          ((integerp l)
+           `(/ ,(* 1.0 l) ,r))
+          ((integerp r)
+           `(/ ,l ,(* 1.0 r)))
+          (t `(/ (* ,l 1.0) ,r))))
+  
+  (defmacro pyel-pow (self other modulo)
+    (if modulo
+        (list 'mod (list 'expt self other) modulo)
+      (list 'expt self other)))
 #+END_SRC
 ** tests TODO
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -3951,6 +3956,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
      (2 (list 'expt (car args) (cadr args)))
      (t "ERROR") ;;TODO
      ))
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
