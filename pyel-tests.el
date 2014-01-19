@@ -4,26 +4,19 @@
 ;
 
 (ert-deftest pyel-expand-type-switch ()
-  ;;verify that both type expanders produce the same output
   (should (equal (pyel-expand-type-switch-2 '(l r)
                                             '((number number) ->  (* l r)
                                               (object _)
                                               (_ object)  -> (--mul-- l r)
                                               (_ string)
                                               (string _)  -> (pyel-mul-num-str l r)))
-
-                 (pyel-expand-type-switch-2 '(l r)
-                                            '((number number) ->  (* l r)
-                                              (object _)
-                                              (_ object)  -> (--mul-- l r)
-                                              (_ string)
-                                              (string _) -> (pyel-mul-num-str l r))))))
+                 '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-mul-num-str l r)) ((l string) (pyel-mul-num-str l r))))))
 
 (ert-deftest pyel-do-splices ()
- (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
- (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
- (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
-                '(a b (c 2 (n (x 1 2)) 3 3 a b (2)))))
+  (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
+  (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
+  (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
+                 '(a b (c 2 (n (x 1 2)) 3 3 a b (2)))))
 
   (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c ))))))
                  '(a b d (e 2 a b c))))
@@ -32,7 +25,7 @@
                  '(progn (a b d (e 2 a b c)) last)))
 
   (should (equal (pyel-do-splices '(@)) nil))
-)
+  )
 
 (pyel-create-tests
  assign
@@ -111,16 +104,25 @@ d = a,b,c"
                    "a.b(x.y,y)"
                    "a.b(x.y(g.g()),y.y)")
 
-(pyel-create-tests num "3" "4.23")
+(pyel-create-tests
+ num
+ ("3" 3)
+ ("4.23" 4.23)
+ ("3e2" 300.0))
 
-(pyel-create-tests name "testName")
+(pyel-create-tests
+ name
+ ("testName" 'testName))
 
-(pyel-create-tests list
-                   "[]"
-                   "[a,1,2]"
-                   "a = [1,2,a.b]"
-                   "b = [1,[1,a,[a.b,[],3]]]"
-                   "[[[[[[[a]]]]]]]")
+(pyel-create-tests
+ list
+ ("[]" nil)
+ ("['a',1,2]" '("a" 1 2))
+ ("a = [1,2,'b']
+b = [1,[1,'3',a,[],3]]"
+  ("a" '(1 2 "b"))
+  ("b" '(1 (1 "3" (1 2 "b") nil 3))))
+ ("[[[1]]]" '(((1)))))
 
 (pyel-create-tests dict
                    "{'a':2, 'b':4}"
@@ -480,34 +482,57 @@ d.__call__ = lambda : 'hi'"
 
 ;;
 
-(pyel-create-tests len
-                   "a = [1,2,3,'5']
-assert len(a) == 4"
-                   "a = []
-assert len(a) == 0"
-                   "a = 'str'
-assert len(a) == 3"
-                   "a = (1,2)
-assert len(a) == 2"
-                   "assert len('')==0"
-                   )
+(pyel-create-tests
+ len-function
+ ("a = [1,2,3,'5']
+b = []
+c = 'str'
+d = (1,2,3,4)"
+  ("len(a)" 4)
+  ("len(b)" 0)
+  ("len(c)" 3)
+  ("len(d)" 4))
+ ("len('')" 0)
+ ("len([3,4])" 2)
+ )
 
-;;
+(pyel-create-tests
+ range-function
+ ("range(5)" '(0 1 2 3 4))
+ ("range(2,7)" '(2 3 4 5 6))
+ ("range(2,20,3)" '(2 5 8 11 14 17)))
 
-(ert-deftest pyel-py-list nil
-  (should (equal (py-list "string")
-                 '("s" "t" "r" "i" "n" "g")))
-  (should (equal (py-list [2 3 4 4])
-                 '(2 3 4 4)))
-  (should (equal  (py-list '(2 3 4 4))
-                  '(2 3 4 4)))
-  (should (equal (py-list 23 4 2 "h")
-                 '(23 4 2 "h")))
-  (should (equal (py-list (let ((__h__ (make-hash-table :test (quote equal)))) (puthash 1 "1" __h__) (puthash "3" 3 __h__) (puthash 23 2 __h__) __h__))
-                 '(23 "3" 1))))
-;;(pyel "{1:'1','3':3,23:2}")
+(pyel-create-tests
+ list-function
+ ("list('string')" '("s" "t" "r" "i" "n" "g"))
+ ("list([1,2,'3',(2,)])" '(1 2 "3" [2]))
+ ("a = [1]
+b = [a,1]
+c = list(b)"
+  ("c is b" nil)
+  ("c == b" t)
+  ("c[0] is a" t))
 
-;;
+ ("a = [1]
+b = (a, 1)
+c = list(b)"
+  ("c" '((1) 1))
+  ("c[0] is a" t))
+
+ ("list({1:'one', 2:'two', 3:'three'})" '(3 2 1))
+
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = a()"
+  ("list(obj)" '("5" "4" "3" "2" "1"))))
 
 ;;
 
@@ -554,9 +579,15 @@ repr(f)"
 repr(__ff_)"
   "<function --ff- at 0x18b071>"))
 
-;;
+(pyel-create-tests
+ hex-function
+ ("hex(23)" "0x17")
+ ("hex(123232332)" "0x758604c"))
 
-;;
+(pyel-create-tests
+ bin-function
+ ("bin(123)" "0b1111011")
+ ("bin(3456312)" "0b1101001011110100111000"))
 
 ;;
 
@@ -586,6 +617,22 @@ y = type(x)"
   ("repr(type(x))" "<class 'testc'>")
   ("y is testc" t)))
 
+(pyel-create-tests
+ abs-function
+ ("abs(3)" 3)
+ ("abs(-3)" 3)
+ ("class C:
+ def __abs__(self):
+  'doc'
+  return 'hi'
+obj = C()"
+  ("abs(obj)" "hi")))
+
+(pyel-create-tests
+ chr-function
+ ("chr(70)" "F")
+ ("chr(50)" "2"))
+
 ;;
 
 (pyel-create-tests
@@ -599,15 +646,135 @@ a.append('hi')"
   ("a.append(c)" ("a is b" t))
   ("a.append(c)" ("a[3] is c" t))))
 
-;;
+(pyel-create-tests
+ insert
+ ("x = [1,2,3]
+y = x
+x.insert(1,'hi')"
+  ("x" '(1 "hi" 2 3))
+  ("x is y" t)))
 
-;;
+(pyel-create-tests
+ index-method
+ ;;lists
+ ("x = [1,(1,2),'5']"
+  ("x.index(1)" 0 )
+  ("x.index((1,2))" 1)
+  ("x.index('5')" 2))
+ ;;strings
+ ("x = 'importantstring'"
+  ("x.index('t')" 5)
+  ("x.index('or')" 3)
+  ("x.index('g')" 14)
+  ("x.index(x)" 0))
+  ("x = 'str.ing'"
+   ("x.index('.')" 3))
+ ;;arrays
+ ("x = (1,2,'tree',(3,))"
+  ("x.index(1)" 0)
+  ("x.index('tree')" 2)
+  ("x.index((3,))" 3)))
 
-;;
+(pyel-create-tests
+ remove-method
+ ("x = [1,'2','2',(1,)]"
+  "y = x"
+  "x.remove('2')"
+  ("x is y" t))
+ ("x = [1,'2','2',(1,)]"
+  "x.remove('2')"
+  ("x" '(1 "2" [1])))
+ ("x = [1,'2','2',(1,)]"
+  "x.remove(1)"
+  ("x" '("2" "2" [1])))
+ ("x = [1,'2','2',(1,)]"
+  "x.remove(1)"
+  ("x" '(1 "2" "2"))))
 
-;;
+(pyel-create-tests
+ count-method
+ ;;strings
+ ("'xxxxx'.count('x')" 5)
+ ("'xxxx'.count('xx')" 2)
+ ("'xxxx'.count('xxxx')" 1)
+ ("'x.xx'.count('.')" 1)
+ ;;lists
+ ("x = [1,2,3,3,[2],'s']"
+  ("x.count(3)" 2)
+  ("x.count(2)" 1)
+  ("x.count([3,4])" 1)
+  ("x.count('s')" 1))
+ ;;vector
+ ("x = (1,2,3,3,[2],'s')"
+  ("x.count(3)" 2)
+  ("x.count(2)" 1)
+  ("x.count([3,4])" 1)
+  ("x.count('s')" 1))
+ ("(1,1,1).count(1)" 3))
 
-;;
+(pyel-create-tests
+ join-method
+ ("'X'.join(('f','g'))" "fXg")
+ ("' '.join([str(x) for x in range(3)])" "0 1 2"))
+
+(pyel-create-tests
+ extend-method
+ ;;extend with list
+ ("x = [1]
+y = x
+x.extend([1,'2',(3,)])"
+  ("x is y" t)
+  ("x" '(1 1 "2" [3])))
+ ;;extend with vector
+ ("x = [1]
+y = x
+x.extend((1,'2',(3,)))"
+  ("x is y" t)
+  ("x" '(1 1 "2" [3])))
+ ;;extend with string
+ ("x = [1]
+y = x
+x.extend('extended')"
+  ("x is y" t)
+  ("x" '(1 "e" "x" "t" "e" "n" "d" "e" "d")))
+ ;;extend with object
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = a()
+x = [1]
+y = x
+x.extend(obj)"
+  ("y is x" t)
+  ("x" '(1 "5" "4" "3" "2" "1"))))
+
+(pyel-create-tests
+ pop-method
+ ("x = [[1],'s',(2,), 1, 4]
+y = x
+a = x.pop()
+b = x.pop(0)
+c = x.pop(2)
+"
+  ("a" 4)
+  ("b" '(1))
+  ("c" 1)
+  ("x is y" t)))
+
+(pyel-create-tests
+ reverse-method
+ ("x = [1,2,3]
+y = x
+x.reverse()"
+  ("x" '(3 2 1))
+  ("x is y" t)))
 
 ;;
 

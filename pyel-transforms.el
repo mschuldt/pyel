@@ -5,9 +5,9 @@
 
 ;; should not fset functions because the effect takes place globally
 ;; even when the name being set is let bound.
-(pyel-create-py-func set (_sym _val)
-                     (_ $function) -> (setq $sym $$val)
-                     (_ _) -> (setq $sym $val)) ;;TODO: other?
+(pyel-dispatch-func set (_sym _val)
+                    (_ $function) -> (setq $sym $$val)
+                    (_ _) -> (setq $sym $val)) ;;TODO: other?
 
 (def-transform assign pyel ()
   (lambda (targ val &optional line col) (py-assign targ val line col)))
@@ -161,7 +161,7 @@
 
 (def-transform num pyel ()
   (lambda (n &optional line col)
-    n
+    n 
     ))
 
 (def-transform name pyel ()
@@ -263,47 +263,47 @@
     
     (call-transform (read (car ops)) left (car comparators))))
 
-(pyel-create-py-func == (l r)
-                     (number number) -> (= l r)
-                     (string string) -> (string= l r)
-                     ;;                       (object _) -> (--eq-- l r)
+(pyel-dispatch-func == (l r)
+                    (number number) -> (= l r)
+                    (string string) -> (string= l r)
+                    ;;                       (object _) -> (--eq-- l r)
 
-                     (_ _) -> (equal l r))
+                    (_ _) -> (equal l r))
 
-(pyel-create-py-func > (l r)
-                     (number number) -> (> l r)
-                     ;;TODO: macro for this
-                     (string string) -> (and (not (string< l r)) (not (string= l r)))
-                     (object _) -> (__gt__ l r))
+(pyel-dispatch-func > (l r)
+                    (number number) -> (> l r)
+                    ;;TODO: macro for this
+                    (string string) -> (and (not (string< l r)) (not (string= l r)))
+                    (object _) -> (__gt__ l r))
 
 ;;TODO: other py types?
 
 ;;::Q does `string<' behave like < for strings in python?
-(pyel-create-py-func < (l r)
-                     (number number) -> (< l r)
-                     (string string) -> (string< l r)
-                     (object _) -> (__lt__ l r))
+(pyel-dispatch-func < (l r)
+                    (number number) -> (< l r)
+                    (string string) -> (string< l r)
+                    (object _) -> (__lt__ l r))
 
-(pyel-create-py-func >= (l r)
-                     (number number) -> (>= l r)
-                     (string string) -> (not (string< l r))
-                     (object _) -> (__ge__ l r))
+(pyel-dispatch-func >= (l r)
+                    (number number) -> (>= l r)
+                    (string string) -> (not (string< l r))
+                    (object _) -> (__ge__ l r))
 
-(pyel-create-py-func <= (l r)
-                     (number number) -> (<= l r)
-                     (string string) -> (or (string< l r) (string= l r))
-                     (object _) -> (__le__ l r))
+(pyel-dispatch-func <= (l r)
+                    (number number) -> (<= l r)
+                    (string string) -> (or (string< l r) (string= l r))
+                    (object _) -> (__le__ l r))
 
-(pyel-create-py-func != (l r)
-                     (number number) -> (not (= l r))
-                     (string string) -> (not (string= l r))
-                     (object _) -> (__ne__ l r)
-                     (_ _) -> (not (equal l r)))
+(pyel-dispatch-func != (l r)
+                    (number number) -> (not (= l r))
+                    (string string) -> (not (string= l r))
+                    (object _) -> (__ne__ l r)
+                    (_ _) -> (not (equal l r)))
 
 ;;this is defined as a transform because `pyel-compare' expects
 ;;all comparison functions to be transforms
-(pyel-create-py-func is (l r)
-                     (_ _) -> (eq l r))
+(pyel-dispatch-func is (l r)
+                    (_ _) -> (eq l r))
 
 (def-transform if pyel ()
   (lambda (test body orelse &optional line col)
@@ -335,20 +335,20 @@
       (format "obj-%d" (setq pyel-obj-counter (1+ pyel-obj-counter)))
     "obj"))
 
-;; (pyel-create-py-func fcall (_func &rest args)
+;; (pyel-dispatch-func fcall (_func &rest args)
 ;;                      ($func _) -> ($func ,@args)
 ;;                      (_ _) -> (funcall $func ,@args))
 
 ;; functions set to variables override those defined with `defun'
 ;; this allows locally defined functions to override their global
 ;; counterparts without defining themselves globally
-(pyel-create-py-func fcall (_func &rest args)
-                     (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
-                     ($function _) -> ($func ,@(pyel-sort-kwargs args))
-                     (object) -> (call-method $func --call--
-                                              ,@(pyel-sort-kwargs args))
-                     (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
-                     )
+(pyel-dispatch-func fcall (_func &rest _args)
+                    (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
+                    ($function _) -> ($func ,@(pyel-sort-kwargs args))
+                    (object) -> (call-method $func --call--
+                                             ,@(pyel-sort-kwargs args))
+                    (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
+                    )
 
 (def-transform keyword pyel ()
   (lambda (arg value &optional line col)
@@ -372,17 +372,22 @@
     ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
     ;;        (--init-- __c ,@(mapcar 'transform args))
     ;;        __c)
-
+    
     (if (eq (car func) 'attribute);;method call
-        (if (member (setq m-name (read (caddr func)))
-                    pyel-method-transforms)
+        (if (and (member (setq m-name (read (caddr func)))
+                         pyel-method-transforms)
+                 (setq m-name (pyel-find-method-transform-name
+                               m-name
+                               (1+ (length args)))));;1+ because args does not include the object
+
             ;;this methods transform is overridden
             (progn
               ;;dynamic scoping saves the day again!
               (setq keyword-args keywords
                     star-args starargs
                     kw-args kwargs)
-              (eval `(call-transform ',(pyel-method-transform-name m-name)
+
+              (eval `(call-transform ',m-name
                                      ',(transform (cadr func))
                                      ,@(mapcar '(lambda (x) `(quote ,x)) args))))
           ;;normal method call
@@ -646,72 +651,65 @@ Recognizes keyword args in the form 'arg = value'."
     args))
 
 (def-transform bin-op pyel ()
-    (lambda (left op right &optional line col)
-      (call-transform op left right)))
+  (lambda (left op right &optional line col)
+    (call-transform op left right)))
 
-(pyel-create-py-func * (l r)
-                    (number number) ->  (* l r)
-                    (object _)
-                    (_ object)      -> (--mul-- l r)
+(pyel-dispatch-func * (l r)
+                    (number _) ->  (* l r)
+                    (object _)      -> (call-method l --mul-- r)
+                    (_ number) -> (* l r)
                     (_ string)
                     (string _)      -> (pyel-mul-num-str l r))
 
-  (pyel-create-py-func + (lhs rhs)
-                    ;;this presumes that both args are the same type
-                    (number number)  -> (+ lhs rhs)
-                    (string _)
-                    (_ string)       -> (concat lhs rhs)
-                    (list _)
-                    (_ list)         -> (append lhs rhs)
+(pyel-dispatch-func + (lhs rhs)
+                    (number _) -> (+ lhs rhs)
+                    (string _) -> (concat lhs rhs)
+                    (list _)   -> (append lhs rhs)
+                    (object _) -> (call-method l --add-- r)
+                    (_ number)  -> (+ lhs rhs)
                     (vector _)
-                    (_ vector)       -> (vconcat lhs rhs) ;;faster way?
-                    ;;should the right side be checked if its an object?
-                    (object _)
-                    (_ object)       -> (--add-- lhs rhs));;correct way to call it?
+                    (_ vector)  -> (vconcat lhs rhs)
+                    (_ string) -> (concat lhs rhs)
+                    (_ list)   -> (append lhs rhs))
 
-(pyel-create-py-func - (l r)
-                  (number number) -> (- l r)
-                  (object _)
-                  (_ object) -> (--sub-- l r))
+(pyel-dispatch-func - (l r)
+                    (number _) -> (- l r)
+                    (object _) -> (call-method l --sub-- r)
+                    (_ number) -> (- l r))
 
+(pyel-dispatch-func ** (l r) ;;pow
+                    (number _) -> (expt l r)
+                    (object _) -> (call-method l --pow-- r)
+                    (_ number) -> (expt l r))
 
-(pyel-create-py-func ** (l r) ;;pow
-                  (number number) -> (expt l r)
-                  (object _)
-                  (_ object) -> (--pow-- l r))
+(pyel-dispatch-func / (l r)
+                    (number _) -> (pyel-div l r)
+                    (object _) -> (call-method l --truediv-- r)
+                    (_ number) -> (pyel-div l r))
 
-(pyel-create-py-func / (l r)
-                     ;; (float _)
-                     ;; (_ float) -> (/ l r)
-                     (number _)
-                     (_ number) -> (/ (* l 1.0) r)
-                     (object _) -> (--truediv-- l r))
-;;                    (_ object) ;;?
+(pyel-dispatch-func // (l r) ;;floored (normal) division
+                    (number _) -> (/ l r)
+                    (object _) -> (call-method l --floordiv-- r)
+                    (_ number) -> (/ l r))
 
-(pyel-create-py-func // (l r) ;;floored (normal) division
-                     (number _)
-                     (_ number) -> (/ l r)
-                     (object _) -> (--floordiv-- l r))
-;;                    (_ object) ;;?
+(pyel-dispatch-func ^ (l r) ;;bit xor
+                    (number _) -> (logxor l r)
+                    (object _) -> (call-method l --xor-- r)
+                    (_ number) -> (logxor l r))
 
-(pyel-create-py-func ^ (l r) ;;bit xor
-                  (number number) -> (logxor l r)
-                  (object _)
-                  (_ object) -> (--xor-- l r))
+(pyel-dispatch-func & (l r) ;;bit and
+                    (number _) -> (logand l r)
+                    (object _) (call-method l --and-- r)
+                    (_ number) -> (logand l r))
 
-(pyel-create-py-func & (l r) ;;bit and
-                  (number number) -> (logand l r)
-                  (object _)
-                  (_ object) -> (--and-- l r)) ;;?
+(pyel-dispatch-func | (l r) ;;bit or
+                    (number _) -> (logior l r)
+                    (object _) -> (call-method l --or-- r)
+                    (_ number) -> (logior l r))
 
-(pyel-create-py-func | (l r) ;;bit or
-                  (number number) -> (logior l r)
-                  (object _)
-                  (_ object) -> (--or-- l r));;?
-
-(pyel-create-py-func % (l r) ;;bit or
-                     (number number) -> (% l r)
-                     (object _) -> (--mod-- l r));;?
+(pyel-dispatch-func % (l r)
+                    (number _) -> (% l r)
+                    (object _) -> (call-method l --mod-- r))
 
 (defclass PySlice nil ;;TODO: name?
   ((start :initarg :start)
@@ -733,37 +731,37 @@ Recognizes keyword args in the form 'arg = value'."
   (lambda (value slice ctx &optional line col)
     (pyel-subscript value slice ctx line col)))
 
-(pyel-create-py-func subscript-load-index (name value)
-                     (list _) -> (nth value name)
-                     (object _) -> (--getitem-- name value)
-                     (vector _) -> (aref name value)
-                     (string _) -> (char-to-string (aref name value))
-                     (hash _) -> (gethash value name))
+(pyel-dispatch-func subscript-load-index (name value)
+                    (list _) -> (nth value name)
+                    (object _) -> (--getitem-- name value)
+                    (vector _) -> (aref name value)
+                    (string _) -> (char-to-string (aref name value))
+                    (hash _) -> (gethash value name))
 
-(pyel-create-py-func subscript-load-slice (name start end step)
-                     (object _ _ _) -> (--getitem-- name (PySlice "slice"
-                                                                  :start start
-                                                                  :end  end
-                                                                  :step  step))
-                     ;;TODO implement step
-                     (_ _ _ _) -> (subseq name start end))
+(pyel-dispatch-func subscript-load-slice (name start end step)
+                    (object _ _ _) -> (--getitem-- name (PySlice "slice"
+                                                                 :start start
+                                                                 :end  end
+                                                                 :step  step))
+                    ;;TODO implement step
+                    (_ _ _ _) -> (subseq name start end))
 
-(pyel-create-py-func subscript-store-slice (name start end step assign)
-                     (object _ _ _) -> (--setitem-- name
-                                                    (PySlice "slice"
-                                                             :start start
-                                                             :end  end
-                                                             :step  step)
-                                                    assign)
+(pyel-dispatch-func subscript-store-slice (name start end step assign)
+                    (object _ _ _) -> (--setitem-- name
+                                                   (PySlice "slice"
+                                                            :start start
+                                                            :end  end
+                                                            :step  step)
+                                                   assign)
 
-                     ;;TODO implement step
-                     (_ _ _ _) -> (setf (subseq name start end) assign))
+                    ;;TODO implement step
+                    (_ _ _ _) -> (setf (subseq name start end) assign))
 
-(pyel-create-py-func subscript-store-index (name value assign)
-                     (list _) -> (setf (nth value name) assign)
-                     (object _) -> (--setitem-- name value assign)
-                     (vector _) -> (setf (aref name value) assign)
-                     (hash _) -> (puthash value assign name))
+(pyel-dispatch-func subscript-store-index (name value assign)
+                    (list _) -> (setf (nth value name) assign)
+                    (object _) -> (--setitem-- name value assign)
+                    (vector _) -> (setf (aref name value) assign)
+                    (hash _) -> (puthash value assign name))
 ;;                  (string _) -> not supported in python
 
 (defun pyel-subscript (value slice ctx &optional line col)
@@ -824,10 +822,9 @@ Recognizes keyword args in the form 'arg = value'."
   `(assert ,(transform test) t ,(transform msg)))
 
 (pyel-translate-function-name 'map 'mapcar)
-(pyel-translate-function-name 'chr 'byte-to-string)
 
 (pyel-func-transform len (thing)
-                     (object) -> (--len-- thing)
+                     (object) -> (call-method thing --len--)
                      (_)      -> (length thing))
 
 (push '(range py-range) pyel-function-name-translations)
@@ -835,8 +832,6 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-translate-function-name 'input 'read-string)
 
 (pyel-translate-function-name 'list 'py-list)
-
-(pyel-translate-function-name 'getattr 'obj-get)
 
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 
@@ -890,42 +885,53 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'type 'py-type)
 
+(pyel-func-transform abs (object)
+                     (number) -> (abs object)
+                     (object) -> (call-method object --abs--))
+
+(pyel-translate-function-name 'chr 'byte-to-string)
+
 ;;
 
 (pyel-method-transform append (obj thing)
-                       (list _) -> (py-append-list obj thing)
+                       (list _) -> (py-list-append obj thing)
                        (_ _)    -> (call-method obj append thing))
 
 (pyel-method-transform insert (obj i x)
-                       (list _) -> (let () (setq $obj (append (subseq obj 0 i)
-                                                              (list x)
-                                                              (subseq obj i))))
-                       (object _) -> (insert obj i x))
+                       (list _) -> (py-insert obj i x)
+                       (_ _) -> (call-method obj insert i x))
 
 (pyel-method-transform index (obj elem)
                        (list _) -> (list-index elem obj)
-                       (string _) -> (string-match elem obj);;TODO: this uses regex, python does not
-                       (vector _) -> (vector-index elem obj)
-
-                       (object _)    -> (__index__ obj thing)) ;;?
+                       (string _) -> (py-string-index obj elem)
+                       (object _) -> (call-method obj index elem)
+                       (vector _) -> (vector-index elem obj))
 
 (pyel-method-transform remove (obj x)
-                       (list _) ->  (let ((i (list-index x obj)))
-                                      (if i
-                                          (setq $obj (append (subseq obj 0 i)
-                                                             (subseq obj (1+ i))))
-                                        (error "ValueError: list.remove(x): x not in list")))
-                       (object _) -> (remove obj x))
+                       (list _) -> (py-list-remove obj x)
+                       (_ _) -> (call-method obj remove x))
 
 (pyel-method-transform count (obj elem)
                        (string _) -> (count-str-matches obj elem)
                        (list _) -> (count-elems-list obj elem)
-                       (vector _) -> (count-elems-vector obj elem)
-                       (object _)  -> (count thing));;
+                       (object _)  -> (call-method obj count elem)
+                       (vector _) -> (count-elems-vector obj elem))
 
 (pyel-method-transform join (obj elem)
                        (string _) ->  (mapconcat 'identity elem obj)
-                       (_ _)      -> (join obj thing))
+                       (_ _)      -> (call-method obj join thing))
+
+(pyel-method-transform extend (obj elem)
+                       (list _) ->  (py-list-extend obj elem)
+                       (_ _)    ->  (call-method obj extend elem))
+
+(pyel-method-transform pop (obj &optional index)
+                       (list _) -> (py-list-pop obj index)
+                       (_ _)    -> (call-method obj pop index))
+
+(pyel-method-transform reverse (obj)
+                       (list) ->  (pyel-list-reverse obj)
+                       (_)    ->  (call-method obj reverse))
 
 ;;
 
@@ -971,20 +977,6 @@ Recognizes keyword args in the form 'arg = value'."
 ;;                 ,@(mapcar 'transform body)))
 ;;       ,@(mapcar 'transform orelse)))))
 
-(defun pyel-split-list (lst sym)
-  "split list LST into two sub-lists at separated by SYM
-The return value is the two sub-lists consed together"
-  (let ((current (not sym))
-        first)
-
-    (while (and (not (eq current sym))
-                lst)
-      (setq current (pop lst))
-      (push current first)
-      )
-
-    (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
-
 (def-transform global pyel ()
   (lambda (names &optional line col)
     (if (context-p 'function-def)
@@ -1003,14 +995,14 @@ The return value is the two sub-lists consed together"
   (lambda (op operand &optional line col)
     (call-transform op operand)))
 
-(pyel-create-py-func not (x)
-                     (object) -> (--not-- x) ;;?
-                     (_) -> (not x))
+(pyel-dispatch-func not (x)
+                    (object) -> (--not-- x) ;;?
+                    (_) -> (not x))
 
-(pyel-create-py-func usub (x)
-                     (number) -> (- x)
-                     (object) -> (--usub-- x) ;;?
-                     )
+(pyel-dispatch-func usub (x)
+                    (number) -> (- x)
+                    (object) -> (--usub-- x) ;;?
+                    )
 
 (def-transform aug-assign pyel (target op value)
   (lambda (target op value &optional line col)
@@ -1066,19 +1058,19 @@ The return value is the two sub-lists consed together"
 
 ;;a not in b
 ;; function:    is_not(a, b)  (in the operator module)
-(pyel-create-py-func not-in (l r)
-                     (_ list) -> (not (member l r))
-                     (_ vector) -> (not (vector-member l r))
-                     (_ object) -> (--not-in-- r l) ;;?
-                     )
+(pyel-dispatch-func not-in (l r)
+                    (_ list) -> (not (member l r))
+                    (_ vector) -> (not (vector-member l r))
+                    (_ object) -> (--not-in-- r l) ;;?
+                    )
 
 ;;a in b
 ;; function:    is_(a, b)
-(pyel-create-py-func in (l r)
-                     (_ list) -> (member l r)
-                     (_ vector) -> (vector-member l r)
-                     (_ object) -> (--in-- r l);;?
-                     )
+(pyel-dispatch-func in (l r)
+                    (_ list) -> (member l r)
+                    (_ vector) -> (vector-member l r)
+                    (_ object) -> (--in-- r l);;?
+                    )
 
 (def-transform comprehension pyel (target iter ifs)
   (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
@@ -1161,7 +1153,7 @@ The return value is the two sub-lists consed together"
 
 (def-transform raise pyel ()
   (lambda (exc cause &optional line col)
-    `(py-range ,(transform exc)))) ;;TODO: ignoring cause
+    `(py-raise ,(transform exc)))) ;;TODO: ignoring cause
 
 ;;
 

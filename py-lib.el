@@ -1,6 +1,8 @@
 
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
+
+
 (defun pyel-alist-to-hash (alist)
   "Turn ALIST a hash table."
   (let ((ht (make-hash-table
@@ -108,27 +110,70 @@
         ,@body)
      )))
 
-(defun py-list (&rest things)
+(defun pyel-mul-num-str (left right)
+    "not implemented"
+    )
+
+(defmacro pyel-div (l r)
+  (cond ((or (floatp l)
+             (floatp r))
+         `(/ ,l ,r))
+        ((integerp l)
+         `(/ ,(* 1.0 l) ,r))
+        ((integerp r)
+         `(/ ,l ,(* 1.0 r)))
+        (t `(/ (* ,l 1.0) ,r))))
+
+
+
+
+
+(defun py-range (start &optional end step)
+ (unless end
+  (setq end start
+   start 0))
+ (number-sequence start (1- end) step))
+
+(defun py-list (object)
   "tries to be like python's list function"
-  (if (> (length things) 1)
-      things
-    (setq thing (car things))
-    (cond
-     ((stringp thing)
-      (split-string thing "" :omit-nulls))
-     ((vectorp thing)
-      (mapcar 'identity thing))
-     ((hash-table-p thing)
-      (let (keys)
-        (maphash (lambda (key value)
-                   (setq keys (cons key keys))) thing)
-        keys))
-     ((listp thing) (copy-list thing)))))
+  (cond
+   ((stringp object)
+    (split-string object "" :omit-nulls))
+   ((py-object-p object) (pyel-object-to-list object))
+   ((vectorp object)
+    (mapcar 'identity object))
+   ((hash-table-p object)
+    (let (keys)
+      (maphash (lambda (key value)
+                 (setq keys (cons key keys))) object)
+      keys))
+   ((listp object) (copy-list object))))
+
+(defun pyel-object-to-list (object)
+  "assumes that py-object(OBJECT) == t"
+  (let ((iter (condition-case nil
+                  (call-method object --iter--)
+                (AttributeError
+                 (py-raise (TypeError (format
+                                       "'%s' object is not iterable"
+                                       (getattr object --name--)))))))
+        list)
+    (condition-case nil
+        (while t
+          (setq list (cons (call-method iter --next--) list)))
+      (StopIteration (reverse list)))))
 
 (defun _py-str-sequence (seq)
   "convert SEQ to a string of its python representation
     does not include starting/ending parens or brackets"
-  (mapconcat (lambda (x) (pyel-str-function x)) seq ", "))
+  (if (listp (cdr seq))
+      (mapconcat (lambda (x) (pyel-str-function x)) seq ", ")
+    ;;cons cell
+    ;;this should not happend from normal python
+    ;;but maybe when interacting with lisp code from python
+    (concat (pyel-str-function (car seq))
+            " . "
+            (pyel-str-function (cdr seq)))))
 
 (defun py-list-str (thing)
   (concat "[" (_py-str-sequence thing) "]"))
@@ -224,7 +269,7 @@
       (t (symbol-name sym)))))
 
 (defun py-hex (n)
-  (format "%X" n))
+  (format "0x%x" n))
 
 (defun py-bin (n) ;;Is there really no built in way to do this???
   (let (bin)
@@ -247,10 +292,12 @@
            (funcall pyel-print-function end)
            nil)))
 
-(defmacro py-eval (source)
+(defun py-eval (source &rest others)
+  (if others
+      (error "Only the first arg in `py-eval' is implemented"))
   (if (stringp source)
-      `(eval (pyel ,source))
-    `(eval ,source)))
+      (eval (pyel source))
+    (py-raise (TypeError "eval() arg 1 must be a string, bytes or code object)"))))
 
 ;;TODO: when the built in type classes are finished and `py-type'
 ;;      returns them, the special cases for the types in
@@ -266,6 +313,26 @@
         (t (type-of object))))
 
 
+
+
+
+(defun py-list-append (list thing)
+ "add THING to the end of LIST"
+ (while (not (null (cdr list)))
+  (setq list (cdr list)))
+ (setcdr list (list thing)))
+
+(defun py-insert (list index object)
+  "insert OBJECT into LIST at INDEX"
+  (let ((i 0)
+        (rest list)
+        first)
+    (while (< i index)
+      (setq first rest)
+      (setq rest (cdr rest))
+      (setq i (1+ i)))
+    (setcdr first (cons object rest)))
+  nil)
 
 (defun list-index (elem list)
   "return the index of ELEM in LIST"
@@ -286,12 +353,46 @@
         (setq i (1+ i))))
     found))
 
+(defsubst py-string-index (obj str)
+  (string-match (regexp-quote str) obj))
+
+(defun py-list-remove (list item)
+  "remove ITEM from LIST"
+  (when (equal (car list) item)
+    (setcar list (cadr list))
+    (setcdr list (cddr list)))
+  (let ((rest list)
+        first)
+    (while rest
+      (if (equal (car rest) item)
+          (progn (setcdr first (cdr rest))
+                 (setq rest nil))
+        (setq first rest
+              rest (cdr rest))))
+    nil))
+
+;;;; this one is slower
+;;;; maybe faster with a non-regexp search function?
+;; (defun count-str-matches (string substr)
+;;   "count number of occurrences of SUBSTR in STRING"
+;;   (let ((quoted (regexp-quote substr))
+;;      (start 0)
+;;      (strlen (length string))
+;;      (sublen (length substr))
+;;      (count 0))
+;;     (while (< start strlen)
+;;       (setq start (string-match quoted string start))
+;;       (if start (setq count (1+ count)
+;;                    start (+ start sublen))
+;;      (setq start strlen)))
+;;     count))
+
 (defun count-str-matches (string substr)
   "count number of occurrences of SUBSTR in STRING"
   (with-temp-buffer
     (insert string)
     (goto-char 1)
-    (how-many substr)))
+    (how-many (regexp-quote substr))))
 
 (defun count-elems-list (list elem)
   "return how many times ELEM occurs in LIST"
@@ -311,6 +412,101 @@
           (setq c (1+ c)))
       (setq i (1+ i)))
     c))
+
+(defun py-list-extend (list iterable)
+  "Extend LIST by appending elements from the ITERABLE"
+  (let ((rest list)
+        prev)
+
+    (while rest
+      (setq prev rest
+            rest (cdr rest)))
+    
+    (cond ((py-object-p iterable)
+           (_py-list-extend-with-object prev iterable))
+          ((listp iterable)
+           (_py-list-extend-with-list prev iterable))
+          ((stringp iterable)
+           (_py-list-extend-with-string prev iterable))
+          ((vectorp iterable)
+           (_py-list-extend-with-vector prev iterable))
+          (t (py-raise (TypeError (format "TypeError: '%s' object is not iterable"
+                                          (type-of iterable))))))))
+
+(defun _py-list-extend-with-list (list extendlist)
+  (while extendlist
+    (setcdr list (list (car extendlist)))
+    (setq list (cdr list)
+          extendlist (cdr extendlist))))
+
+(defun _py-list-extend-with-vector (list vector)
+  (let ((len (length vector))
+        (index 0))
+    (while (< index len)
+      (setcdr list (list (aref vector index)))
+      (setq list (cdr list)
+            index (1+ index)))
+    nil))
+
+(defun _py-list-extend-with-string (list string)
+  (let ((len (length string))
+        (index 0))
+    (while (< index len)
+      (setcdr list (list (char-to-string (aref string index))))
+      (setq list (cdr list)
+            index (1+ index)))
+    nil))
+
+(defun _py-list-extend-with-object (list object)
+  "assumes that py-object(OBJECT) == t"
+  (let ((iter (condition-case nil
+                  (call-method object --iter--)
+                (AttributeError
+                 (py-raise (TypeError (format
+                                       "'%s' object is not iterable"
+                                       (getattr object --name--))))))))
+    (condition-case nil
+        (while t
+          (setcdr list (list (call-method iter --next--)))
+          (setq list (cdr list)))
+      (StopIteration nil))))
+
+(defun py-list-pop (list &optional index)
+  "remove and return item at INDEX from LIST (default last)"
+  (let ((rest list)
+        (i 0)
+        last ret)
+    (if index
+        (if (= index 0)
+            (progn
+              (setq ret (car list))
+              (setcar list (cadr list))
+              (setcdr list (cddr list))
+              ret)
+          ;; 0 < index < len(list)
+          (while (< i index)
+            (setq last rest
+                  rest (cdr rest)
+                  i (1+ i)))
+          (setq ret (car rest))
+          (setcdr last (cdr rest))
+          ret)
+      ;;pop last element
+      (while (cdr rest)
+        (setq prev rest
+              rest (cdr rest)))
+      (setq ret (car rest))
+      (setcdr prev nil))
+    ret))
+
+(defun pyel-list-reverse (list)
+  "reverse LIST *IN PLACE*"
+  (let ((reversed (reverse list))
+        (rest list))
+    (while reversed
+      (setcar rest (car reversed))
+      (setq reversed (cdr reversed)
+            rest (cdr rest)))))
 
 
 
@@ -373,31 +569,6 @@ else is optional"
             )
        ,@body)))
 
-(provide 'py-lib)
-;;py-lib.el ends here
-
-
-
-
-
-
-
-
-
-(defun py-range (start &optional end step)
- (unless end
-  (setq end start
-   start 0))
- (number-sequence start (1- end) step))
-
-
-
-
-
-
-
-
-
 
 
 
@@ -405,22 +576,35 @@ else is optional"
 
 
 (defun vector-member (elt vector)
- "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
- (let ((i 0)
-       (len (length vector))
-       found)
-  (while (and (not found)
-          (< i len))
-   (if (equal (elt vector i) elt)
-    (setq found t)
-    (setq i (1+ i))))
-  found))
+  "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
+  (let ((i 0)
+        (len (length vector))
+        found)
+    (while (and (not found)
+                (< i len))
+      (if (equal (elt vector i) elt)
+          (setq found t)
+        (setq i (1+ i))))
+    found))
 
 
 
 
 
+(defun py-raise (exc &optional cause)
+  "signal an error with the name of EXC, an class/object
+EXC must be derived from BaseException"
+  (if (py-object-p exc)
+         ;;;;TODO: after `issubclass' is implemented
+      ;; (or (and (py-class-p exc)
+      ;;          (issubclass exc BaseException))
+      ;;     (and (py-instance-p exc)
+      ;;          (issubclass (py-type exc) BaseException)))
+      (signal (intern (getattr exc --name--)) exc)
+    (signal 'TypeError "TypeError: exceptions must derive from BaseException")))
 
 
 
+(provide 'py-lib)
+;;py-lib.el ends here
 

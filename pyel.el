@@ -194,6 +194,7 @@ useing python3 unless PYTHON2 is non-nil"
 
 (defun pyel-reload ()
   (interactive)
+  (pyel-reset)
   (dolist (f '(pyel
                pyel-tests
                pyel-transforms
@@ -201,14 +202,41 @@ useing python3 unless PYTHON2 is non-nil"
                pyel-pp
                pyel-preprocessor
                pyel-tests-generated
+               py-lib
                transformer))
     (setq features (remove f features)))
   (require 'pyel))
 
-(defun pyel-method-transform-name(method-name)
-  "return the name of the temlate that transform the method METHOD-NAME.
-template names are modified to avoid potential conflict with other templates"
-  (intern (format "_%s-method_" (symbol-name method-name))))
+(defun pyel-reset()
+  "reset internal variables"
+  (interactive)
+  (setq pyel-method-name-arg-signature (make-hash-table :test 'eq)
+        pyel-function-definitions nil
+        pyel-defined-functions nil
+        pyel-method-transforms nil
+        pyel-context nil))
+
+(defvar pyel-method-name-format-string "_%s-method%s"
+  "format string for the method transform names
+It must accept two args, the name of the method
+and its arg signature")
+
+(defun pyel-method-transform-name (method-name &optional arglist)
+  "Return the name of the temlate that transform the method METHOD-NAME.
+    template names are modified to avoid potential conflict with other templates
+  the arglist must be placed in a list before passing so that the code can
+   tell if the arglist is empty or not provided. 
+  ARGLIST is used to generate a name that is unique to that arglist signature"
+  (assert (and (listp arglist) (listp (car arglist)))
+          "Invalid arglist. Expected a list of a list")
+  (let* ((signature (if arglist (pyel-arglist-signature (car arglist)) "_"))
+         (name (format pyel-method-name-format-string
+                       (symbol-name method-name) signature)))
+    (if arglist
+        (assert (equal (pyel-extract-arg-descriptor signature)
+                       (pyel-arg-descriptor (car arglist)))
+                "Invalid method name"))
+    (intern name)))
 
 (defun pyel-func-transform-name (func-name)
   "like `pyel-method-transform-name' for functions"
@@ -240,7 +268,7 @@ value."
                        (subseq ,list  ,nth))))
 
 (defun list-to-vector (list)
-  (eval `(vector ,@list))) ;;this is gross
+  (eval `(vector ,@list)))
 
 (defun pyel-replace-in-thing (from to thing)
   "replace character FROM to TO in THING
@@ -334,6 +362,20 @@ This is used when the ast form is needed by a transform that is manually
       (or (fboundp object)
           (functionp object)) ;;necessary?
     (functionp object)))
+
+(defun pyel-split-list (lst sym)
+  "split list LST into two sub-lists at separated by SYM
+  The return value is the two sub-lists consed together"
+  (let ((current (not sym))
+        first)
+    
+    (while (and (not (eq current sym))
+                lst)
+      (setq current (pop lst))
+      (push current first)
+      )
+    
+    (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
 
 (defvar pyel-directory ""
   "Path to pyel files. must include py-ast.py, pyel.el etc")
@@ -465,6 +507,9 @@ This is used when the ast form is needed by a transform that is manually
 (defvar pyel-tmp-file  "/tmp/pyel-ast.py"
   "Name of temp file to use for AST generation")
 
+(defvar pyel-interactive nil
+  "non-nil during interactive session translation and evaluation")
+
 (defvar pyel-default--init--method
   "(defmethod --init-- ((self %s))
      \"Default initializer\"
@@ -591,20 +636,22 @@ This is used when the ast form is needed by a transform that is manually
                                (eq x '&rest))))
           args))
 
-;;TODO: have functions saved in another file,
-;;      instead of putting them all at the top of the file, have some type of
-;;      require/import mechanism to functions are not constantly being redefined
-;;    option to place insert function defs instead of requires
-(defmacro pyel-create-py-func (name args &rest type-switches)
-  "return the function name"
-  ;;create a template that will resolve arg types and create a new function
+(defmacro pyel-dispatch-func (name args &rest type-switches)
+  "Define a transform that creates a runtime function that
+dispatches on argument type as defined by TYPE-SWITCHES.
+The transform will have the same NAME and ARGS and must be called with a
+function like `call-transform', it will return a call to
+the function it creates.
+After the resulting transform is called, it adds the name of the
+created function in `pyel-defined-functions' and adds the function 
+definition to `pyel-function-definitions'
 
-  ;;-determine if enough type info is available to eliminate testing
-  ;;-if testing is necessary, use `pyel-do-call-transform' like function to generate
-  ;; the testing and calling structure and put that in a function
-  ;;-create defun code if not yet defined
-  ;;  add new func name to defined code list
+Use `pyel-func-transform' to define transforms for functions that
+will be automatically called.
 
+NOTE: if the name of the function to be created is already in
+ `pyel-defined-functions', the function will not be updated
+"
   ;;temp solution: does not check types etc
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
@@ -614,85 +661,86 @@ This is used when the ast form is needed by a transform that is manually
     `(def-transform ,name pyel ()
        (lambda ,striped-args
          (let ((fsym ',(intern (concat "pyel-" (symbol-name name) "")))
-               ;;      (body (pyel-do-call-transform (pyel-get-possible-types ,@(mapcar (lambda (x) `(quote ,x))args))
                (body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches))
-               (known-types nil)) ;;tmp
+                                             ',type-switches))) 
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',striped-args
                          body)
                    pyel-function-definitions)
              (push fsym pyel-defined-functions)
              (fset fsym (lambda () nil)))
-           ;;(if (eq (car (last args 2)) '&rest)
-
-           ;; (cons fsym (mapcar 'eval ,(if rest-arg
-           ;;                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-           ;;                             `(quote ,args-just-vars))))
            (cons fsym ,(if rest-arg
-                          `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                        (cons 'list args-just-vars)))
-           )))))
+                           `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                         (cons 'list args-just-vars))))))))
 
 (defmacro pyel-method-transform (name args &rest type-switches)
-  "define transforms for method calls on primative types"
-  ;;method transforms are defined like normal type-transforms
-  ;;when a method call is being transformed the name is looked up in the list
-  ;;of defined method transforms, if it found, this transform will override
-  ;;the normal transform.
+  "Defines a transform for methods that dispatches on NAME and ARG length.
+The syntax and the function creation is the same as with `pyel-dispatch-func'.
+These transforms are automatically called for methods during translation time.
+The transform will be dispatched on NAME and the possible number
+of arguments that ARGS allows.
+During translation time, if no transform is found for a method call that
+matches NAME and has the proper arg length then no transform will be called."
   (add-to-list 'pyel-method-transforms name)
 
   ;;temp solution: does not check types etc
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
-                       (car (last striped-args)) nil)))
+                       (car (last striped-args)) nil))
+         (fsym (intern (format "pyel-%s-method%s"
+                               (symbol-name name)
+                               (pyel-arglist-signature args))))
+         (transform-name (pyel-method-transform-name name (list args))))
 
-  `(def-transform ,(pyel-method-transform-name name) pyel ()
-     (lambda ,striped-args
-       (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-method")))
-             (body (pyel-do-call-transform (pyel-get-possible-types
-                                            ,@args-just-vars)
-                                           ',args
-                                           ',type-switches))
-             (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
+    (pyel-add-method-name-sig name args)
+    
+    `(def-transform ,transform-name pyel ()
+       (lambda ,striped-args
+         (let ((body (pyel-do-call-transform (pyel-get-possible-types
+                                              ,@args-just-vars)
+                                             ',args
+                                             ',type-switches))) 
 
-         (unless (member fsym pyel-defined-functions)
-           (push (list 'defmacro fsym ',striped-args
-                       body)
-                 pyel-function-definitions)
-           (push fsym pyel-defined-functions)
-           (fset fsym (lambda () nil)))
-         (cons fsym ,(if rest-arg
-                         `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                       (cons 'list args-just-vars)))
-         )))))
+           (unless (member ',fsym pyel-defined-functions)
+             (push (list 'defmacro ',fsym ',striped-args
+                         body)
+                   pyel-function-definitions)
+             (push ',fsym pyel-defined-functions)
+             (fset ',fsym (lambda () nil)))
+           (cons ',fsym ,(if rest-arg
+                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                           (cons 'list args-just-vars))))))))
 
 (defmacro pyel-func-transform (name args &rest type-switches)
-  "define transforms for function calls"
-  ;;function transforms are defined like normal type-transforms
-  ;;when a function call is being transformed the name is looked up in the list
-  ;;of defined function transforms, if it found, this transform will override
-  ;;the normal function call transform.
+  "Define a transform for function calls.
+This is just like `pyel-method-transform' except that the
+ARG signature has no effect on the transform dispatch"
   (add-to-list 'pyel-func-transforms name)
   ;;TODO: should name be modified to avoid conflicts ?
-  `(def-transform ,(pyel-func-transform-name name) pyel ()
-     (lambda ,args
-       (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-function")))
-             (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
-                                           ',args
-                                           ',type-switches))
-             (known-types nil)) ;;tmp -- should this be before 'body' is set!!??
-
-         (unless (member fsym pyel-defined-functions)
-           (push (list 'defmacro fsym ',(mapcar 'strip_ args)
-                       body)
-                 pyel-function-definitions)
-           (push fsym pyel-defined-functions)
-           (fset fsym (lambda () nil)))
-         (cons fsym (mapcar 'eval ',args))))))
+  
+  (let* ((striped-args (mapcar 'strip_ args))
+         (args-just-vars (pyel-filter-non-args striped-args))
+         (rest-arg (if (eq (car (last striped-args 2)) '&rest)
+                       (car (last striped-args)) nil))
+         (fsym (intern (concat "pyel-" (symbol-name name) "-function"))))
+    `(def-transform ,(pyel-func-transform-name name) pyel ()
+       (lambda ,striped-args
+         (let ((body (pyel-do-call-transform (pyel-get-possible-types
+                                              ,@args-just-vars)
+                                             ',args
+                                             ',type-switches)))
+           (unless (member ',fsym pyel-defined-functions)
+             (push (list 'defmacro ',fsym ',striped-args
+                         body)
+                   pyel-function-definitions)
+             (push ',fsym pyel-defined-functions)
+             (fset ',fsym (lambda () nil)))
+           (cons ',fsym ,(if rest-arg
+                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                           (cons 'list args-just-vars))))))))
 
 (defvar pyel-func-transforms2 nil
   "list of functions whose translations are defined
@@ -712,7 +760,6 @@ This is called at the same time `pyel-func-transform' would be called"
 
 ;;TODO: this should be more general to allow for things like subscript to use it
 
-;;TODO: rename pyel-def-funcall -> pyel-create-py-func
 (defmacro pyel-def-funcall (name args &rest type-switches)
   "Define how to call the function NAME.
       NAME is a function that is called differently based on its argument types.
@@ -843,6 +890,14 @@ This is called at the same time `pyel-func-transform' would be called"
                                                       code))))))))))
     ret))
 
+(defun pyel-remove-nil (list)
+  "remove all nil items from LIST"
+  (let ((new nil))
+    (dolist (e list)
+      (when e
+        (setq new (cons e new))))
+    (reverse new)))
+
 (defun pyel-do-call-transform (possible-types args type-switch)
   "This is responsible for  producing a call to NAME in the most
       efficient way possible with the known types"
@@ -857,12 +912,12 @@ This is called at the same time `pyel-func-transform' would be called"
          (c 0)
 
          (args-just-vars (pyel-filter-non-args (mapcar 'strip_ args)))
-         (new-args (loop for a in args ;;doing: check for leading underscore
+         (new-args (loop for a in args
                          collect (if (or (eq a '&optional)
                                          (eq a '&rest)
                                          (string-match-p "\\(^_\\)\\(.+\\)"
                                                          (symbol-name a))) nil
-                                     (intern (format "__%s__" (symbol-name a))))))
+                                   (intern (format "__%s__" (symbol-name a))))))
          (arg-replacements4 (let (ar)
                               (mapcar (lambda (x) (if (string-match-p "\\(^_\\)\\(.+\\)"
                                                                       (symbol-name x))
@@ -874,13 +929,13 @@ This is called at the same time `pyel-func-transform' would be called"
          ;;format: (symbol replace)
          (let-vars (let (lv) (mapcar* (lambda (a b) (if b
                                                         (push (list a b) lv)))
-                                      args-just-vars new-args)
+                                      args new-args)
                         lv))
          ;;strip any leading underscores
          (args (mapcar (lambda (a)
-                            (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
-                              (intern (match-string 2 (symbol-name a))) a))
-                              args))
+                         (if (string-match "\\(^_\\)\\(.+\\)" (symbol-name a))
+                             (intern (match-string 2 (symbol-name a))) a))
+                       args))
 
          ;;the __x__ type replacements interfere with the (\, x) type replacements
          ;;so they must be seporated and done one at a time
@@ -894,8 +949,8 @@ This is called at the same time `pyel-func-transform' would be called"
          (arg-replacements (append arg-replacements1 arg-replacements2))
 
          (arg-quote-replacements (mapcar (lambda (x)
-                                      (list x (list '\, x)))
-                                    args-just-vars))
+                                           (list x (list '\, x)))
+                                         args-just-vars))
          (current-replace-list nil)
          ;; (arg-replacements (append let-vars
          ;;                           (mapcar (lambda (x)
@@ -1031,11 +1086,10 @@ This is called at the same time `pyel-func-transform' would be called"
                                   clauses)))
                       (varlist (gen-varlist)))
                  `(backquote ,(if varlist
-                                 `(let ,varlist
-                                   (cond ,@(reverse clauses)))
+                                  `(let ,varlist
+                                     (cond ,@(reverse clauses)))
                                 `(cond ,@(reverse clauses)))
-                               )))))))
-
+                             )))))))
 
 (defun call-transform (template-name &rest args)
   "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
@@ -1053,6 +1107,113 @@ NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
     (if (string-match "\\(^_\\)\\(.+\\)" str)
         (intern (match-string 2 str))
       sym)))
+
+(defun pyel-arg-descriptor (arglist)
+  "return the number of values that may be passed to ARGLIST
+If ARGLIST contains &optional or &rest then return a cons of
+the min and max values that may be passed.
+
+This does not check if ARGLIST has a valid form"
+
+  (let ((min 0)
+        (max 0)
+        optional)
+    (when arglist
+      (if (member '&rest arglist)
+          (setq max 'I
+                arglist (subseq arglist 0 -2)))
+      (if (member '&optional arglist)
+          (setq optional (pyel-split-list arglist '&optional)
+                min (length (car optional)) ;;positional args
+                max (if (eq max 'I) max
+                      (+ min (length (cdr optional))))) ;;optional args
+        (setq min (length arglist)
+              max (if (eq max 'I)
+                      max
+                    min))))
+    (if (or (equal min max)
+            (and (= min 0)
+                 (eq max 'I)))
+        max
+      (cons min max))))
+
+(defun pyel-arglist-signature (arglist)
+  (let ((num (pyel-arg-descriptor arglist)))
+    (format "->%s<-" (if (or (numberp num)
+                             (eq num 'I))
+                         num
+                       (format "%s~%s" (car num) (cdr num))))))
+
+(defun pyel-extract-arg-descriptor (name)
+  "extract the arglist descriptor from name"
+
+  (assert (stringp name) "Name must be a string")
+  (if (symbolp name) (setq name (symbol-name name)))
+  (let (min max I?)
+    (cond ((string-match "->\\([0-9I]+\\)<-" name)
+           (setq min (match-string 1 name)
+                 max min))
+
+          ((string-match "->\\([0-9]+\\)~\\([0-9I]+\\)<-" name)
+           (setq min (match-string 1 name)
+                 max (match-string 2 name))))
+
+    (if min
+        (setq I? (intern max)
+              max (if (eq I? 'I) 'I (string-to-number max))
+              min (string-to-number min)))
+
+    (cond ((null min) nil)
+          ((or (equal min max)
+               (and (= min 0)
+                    (eq max 'I)))
+           max)
+          (t (cons min max)))))
+
+(defun pyel-arg-descriptor-to-signature (descriptor)
+  (format "->%s<-" (if (or (numberp descriptor)
+                           (eq descriptor 'I))
+                       descriptor
+                     (format "%s~%s" (car descriptor) (cdr descriptor)))))
+
+(defvar pyel-method-name-arg-signature (make-hash-table :test 'eq)
+  "mapping of method transform names to a list of argument signatures")
+
+(defun pyel-add-method-name-sig (name args)
+  "Add the argument signature of ARGS to NAME in `pyel-method-name-arg-signature'"
+  (let* ((signatures (gethash name pyel-method-name-arg-signature)))
+    (add-to-list 'signatures (pyel-arg-descriptor args))
+    (puthash name signatures pyel-method-name-arg-signature)))
+
+(defun pyel-find-method-transform-name (name num-args)
+  "find a matching method transform for NAME with NUM-ARGS
+will return the name of the first match"
+  (let ((signatures (gethash name pyel-method-name-arg-signature))
+        found min max)
+    (if signatures
+        (progn (while signatures
+                 (setq sig (car signatures)
+                       signatures (cdr signatures))
+
+                 (if (or (and (numberp sig)
+                              (= sig num-args))
+
+                         (eq sig 'I)
+
+                         (and (consp sig)
+                              (setq min (car sig)
+                                    max (cdr sig))
+                              (and (>= num-args min)
+                                   (or (<= num-args max)
+                                       (eq max 'I)))))
+                     (setq signatures nil
+                           found sig)))
+               (if found
+                   (intern (format pyel-method-name-format-string
+                                   name
+                                   (pyel-arg-descriptor-to-signature found)))))
+      (error "method transform %s does not exist in the signature table"
+             name))))
 
 (defvar pyel-translation-messages nil
   "collects messages during pyel translations")
@@ -1097,7 +1258,7 @@ format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
             (push (vector start end nil) elems)
             (goto-char end)))
       (scan-error (goto-char (1+ start))))
-      (reverse elems)))
+    (reverse elems)))
 
 (defvar pyel-test-py-functions nil
   "list of generated python test functions.
@@ -1315,7 +1476,7 @@ generated lisp code.
 
       (if (or (string= selector "pyel-test")
               (string= selector "pyel"))
-          (let ((tmp-file "~/tmp/pyel-test-functions.el"))
+          (let ((tmp-file "/tmp/pyel-test-functions.el"))
             (message "Evaluating test functions...")
             ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
             (find-file tmp-file)
@@ -1381,6 +1542,7 @@ prevents multiple/none '/' seporating file names"
 
 (require 'pyel-mode)
 (require 'py-objects)
+(require 'py-lib)
 
 (pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
 ;;...I'm so sorry
