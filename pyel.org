@@ -2475,12 +2475,12 @@ n** tests
   ;; this allows locally defined functions to override their global
   ;; counterparts without defining themselves globally
   (pyel-dispatch-func fcall (_func &rest _args)
-                       (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
-                       ($function _) -> ($func ,@(pyel-sort-kwargs args))
-                       (object) -> (call-method $func --call--
-                                                ,@(pyel-sort-kwargs args))
-                       (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
-                       )
+                      (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
+                      ($function _) -> ($func ,@(pyel-sort-kwargs args))
+                      (object) -> (call-method $func --call--
+                                               ,@(pyel-sort-kwargs args))
+                      (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
+                      )
   
   (def-transform keyword pyel ()
     (lambda (arg value &optional line col)
@@ -2504,13 +2504,13 @@ n** tests
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
       ;;        (--init-- __c ,@(mapcar 'transform args))
       ;;        __c)
-          
+      
       (if (eq (car func) 'attribute);;method call
           (if (and (member (setq m-name (read (caddr func)))
                            pyel-method-transforms)
                    (setq m-name (pyel-find-method-transform-name
-                                     m-name
-                                     (1+ (length args)))));;1+ because args does not include the object
+                                 m-name
+                                 (1+ (length args)))));;1+ because args does not include the object
   
               ;;this methods transform is overridden
               (progn
@@ -3101,61 +3101,61 @@ TODO: tests!
       (call-transform op left right)))
   
   (pyel-dispatch-func * (l r)
-                       (number _) ->  (* l r)
-                       (object _)      -> (call-method l --mul-- r)
-                       (_ number) -> (* l r)
-                       (_ string)
-                       (string _)      -> (pyel-mul-num-str l r))
+                      (number _) ->  (* l r)
+                      (object _)      -> (call-method l --mul-- r)
+                      (_ number) -> (* l r)
+                      (_ string)
+                      (string _)      -> (pyel-mul-num-str l r))
   
   (pyel-dispatch-func + (lhs rhs)
-                       (number _) -> (+ lhs rhs)
-                       (string _) -> (concat lhs rhs)
-                       (list _)   -> (append lhs rhs)
-                       (object _) -> (call-method l --add-- r)
-                       (_ number)  -> (+ lhs rhs)
-                       (vector _)
-                       (_ vector)  -> (vconcat lhs rhs)
-                       (_ string) -> (concat lhs rhs)
-                       (_ list)   -> (append lhs rhs))
+                      (number _) -> (+ lhs rhs)
+                      (string _) -> (concat lhs rhs)
+                      (list _)   -> (append lhs rhs)
+                      (object _) -> (call-method l --add-- r)
+                      (_ number)  -> (+ lhs rhs)
+                      (vector _)
+                      (_ vector)  -> (vconcat lhs rhs)
+                      (_ string) -> (concat lhs rhs)
+                      (_ list)   -> (append lhs rhs))
   
   (pyel-dispatch-func - (l r)
-                       (number _) -> (- l r)
-                       (object _) -> (call-method l --sub-- r)
-                       (_ number) -> (- l r))
+                      (number _) -> (- l r)
+                      (object _) -> (call-method l --sub-- r)
+                      (_ number) -> (- l r))
   
   (pyel-dispatch-func ** (l r) ;;pow
-                       (number _) -> (expt l r)
-                       (object _) -> (call-method l --pow-- r)
-                       (_ number) -> (expt l r))
+                      (number _) -> (expt l r)
+                      (object _) -> (call-method l --pow-- r)
+                      (_ number) -> (expt l r))
   
   (pyel-dispatch-func / (l r)
-                       (number _) -> (pyel-div l r)
-                       (object _) -> (call-method l --truediv-- r)
-                       (_ number) -> (pyel-div l r))
+                      (number _) -> (pyel-div l r)
+                      (object _) -> (call-method l --truediv-- r)
+                      (_ number) -> (pyel-div l r))
   
   (pyel-dispatch-func // (l r) ;;floored (normal) division
-                       (number _) -> (/ l r)
-                       (object _) -> (call-method l --floordiv-- r)
-                       (_ number) -> (/ l r))
+                      (number _) -> (/ l r)
+                      (object _) -> (call-method l --floordiv-- r)
+                      (_ number) -> (/ l r))
   
   (pyel-dispatch-func ^ (l r) ;;bit xor
-                       (number _) -> (logxor l r)
-                       (object _) -> (call-method l --xor-- r)
-                       (_ number) -> (logxor l r))
+                      (number _) -> (logxor l r)
+                      (object _) -> (call-method l --xor-- r)
+                      (_ number) -> (logxor l r))
   
   (pyel-dispatch-func & (l r) ;;bit and
-                       (number _) -> (logand l r)
-                       (object _) (call-method l --and-- r)
-                       (_ number) -> (logand l r))
+                      (number _) -> (logand l r)
+                      (object _) (call-method l --and-- r)
+                      (_ number) -> (logand l r))
   
   (pyel-dispatch-func | (l r) ;;bit or
-                       (number _) -> (logior l r)
-                       (object _) -> (call-method l --or-- r)
-                       (_ number) -> (logior l r))
+                      (number _) -> (logior l r)
+                      (object _) -> (call-method l --or-- r)
+                      (_ number) -> (logior l r))
   
   (pyel-dispatch-func % (l r)
-                       (number _) -> (% l r)
-                       (object _) -> (call-method l --mod-- r))
+                      (number _) -> (% l r)
+                      (object _) -> (call-method l --mod-- r))
   
   
 #+END_SRC
@@ -3231,36 +3231,36 @@ TODO: tests!
       (pyel-subscript value slice ctx line col)))
   
   (pyel-dispatch-func subscript-load-index (name value)
-                       (list _) -> (nth value name)
-                       (object _) -> (--getitem-- name value)
-                       (vector _) -> (aref name value)
-                       (string _) -> (char-to-string (aref name value))
-                       (hash _) -> (gethash value name))
+                      (list _) -> (nth value name)
+                      (object _) -> (--getitem-- name value)
+                      (vector _) -> (aref name value)
+                      (string _) -> (char-to-string (aref name value))
+                      (hash _) -> (gethash value name))
   
   (pyel-dispatch-func subscript-load-slice (name start end step)
-                       (object _ _ _) -> (--getitem-- name (PySlice "slice"
-                                                                    :start start
-                                                                    :end  end
-                                                                    :step  step))
-                       ;;TODO implement step
-                       (_ _ _ _) -> (subseq name start end))
+                      (object _ _ _) -> (--getitem-- name (PySlice "slice"
+                                                                   :start start
+                                                                   :end  end
+                                                                   :step  step))
+                      ;;TODO implement step
+                      (_ _ _ _) -> (subseq name start end))
   
   (pyel-dispatch-func subscript-store-slice (name start end step assign)
-                       (object _ _ _) -> (--setitem-- name
-                                                      (PySlice "slice"
-                                                               :start start
-                                                               :end  end
-                                                               :step  step)
-                                                      assign)
+                      (object _ _ _) -> (--setitem-- name
+                                                     (PySlice "slice"
+                                                              :start start
+                                                              :end  end
+                                                              :step  step)
+                                                     assign)
   
-                       ;;TODO implement step
-                       (_ _ _ _) -> (setf (subseq name start end) assign))
+                      ;;TODO implement step
+                      (_ _ _ _) -> (setf (subseq name start end) assign))
   
   (pyel-dispatch-func subscript-store-index (name value assign)
-                       (list _) -> (setf (nth value name) assign)
-                       (object _) -> (--setitem-- name value assign)
-                       (vector _) -> (setf (aref name value) assign)
-                       (hash _) -> (puthash value assign name))
+                      (list _) -> (setf (nth value name) assign)
+                      (object _) -> (--setitem-- name value assign)
+                      (vector _) -> (setf (aref name value) assign)
+                      (hash _) -> (puthash value assign name))
   ;;                  (string _) -> not supported in python
   
   (defun pyel-subscript (value slice ctx &optional line col)
@@ -4830,13 +4830,13 @@ TODO: tests!
       (call-transform op operand)))
   
   (pyel-dispatch-func not (x)
-                       (object) -> (--not-- x) ;;?
-                       (_) -> (not x))
+                      (object) -> (--not-- x) ;;?
+                      (_) -> (not x))
   
   (pyel-dispatch-func usub (x)
-                       (number) -> (- x)
-                       (object) -> (--usub-- x) ;;?
-                       )
+                      (number) -> (- x)
+                      (object) -> (--usub-- x) ;;?
+                      )
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -5021,32 +5021,32 @@ TODO: tests!
   ;;a not in b
   ;; function:    is_not(a, b)  (in the operator module)
   (pyel-dispatch-func not-in (l r)
-                       (_ list) -> (not (member l r))
-                       (_ vector) -> (not (vector-member l r))
-                       (_ object) -> (--not-in-- r l) ;;?
-                       )
-
+                      (_ list) -> (not (member l r))
+                      (_ vector) -> (not (vector-member l r))
+                      (_ object) -> (--not-in-- r l) ;;?
+                      )
+  
   ;;a in b
   ;; function:    is_(a, b)
   (pyel-dispatch-func in (l r)
-                       (_ list) -> (member l r)
-                       (_ vector) -> (vector-member l r)
-                       (_ object) -> (--in-- r l);;?
-                       )
+                      (_ list) -> (member l r)
+                      (_ vector) -> (vector-member l r)
+                      (_ object) -> (--in-- r l);;?
+                      )
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun vector-member (elt vector)
-   "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
-   (let ((i 0)
-         (len (length vector))
-         found)
-    (while (and (not found)
-            (< i len))
-     (if (equal (elt vector i) elt)
-      (setq found t)
-      (setq i (1+ i))))
-    found))
+    "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
+    (let ((i 0)
+          (len (length vector))
+          found)
+      (while (and (not found)
+                  (< i len))
+        (if (equal (elt vector i) elt)
+            (setq found t)
+          (setq i (1+ i))))
+      found))
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
