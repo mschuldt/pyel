@@ -659,7 +659,7 @@ This will have to be removed after the code is generated
   ;;TODO: this should be generalized and added to the transform code
   (defvar pyel-context nil
     "list of current expansion contexts")
-
+  
   (defmacro using-context (context &rest code)
     `(progn
        (push ',context pyel-context)
@@ -670,22 +670,22 @@ This will have to be removed after the code is generated
                   (error (format "using-context: %s" err))))
          (pop pyel-context)
          ret)))
-
+  
   (def-edebug-spec using-context (symbolp &rest form))
-
+  
   (defmacro remove-context (context &rest code)
     "remove CONTEXT and translate CODE, then restore context"
     `(let ((pyel-context (remove ',context pyel-context)))
        ,@code))
   (def-edebug-spec remove-context (symbolp &rest form))
-
+  
   (defmacro context-switch (&rest forms)
     `(cond ,@(mapcar (lambda (x)
                        `(,(let ((context (car x)))
                             (if (eq context t) t
                               `(member ',context pyel-context))) ,@(cdr x)))
                      forms)))
-
+  
   (defun get-context-group (context)
     (let ((groups pyel-context-groups)
           (found nil)
@@ -698,7 +698,7 @@ This will have to be removed after the code is generated
             (setq found group
                   groups nil))))
       found))
-
+  
   ;; (defun context-p (context)
   ;;   (member context pyel-context))
   (defun context-p (context)
@@ -718,7 +718,7 @@ This will have to be removed after the code is generated
             (setq ret t
                   cont nil))))
       ret))
-
+  
   (defun context-depth (context)
     "get the depth of CONTEXT in `pyel-context'"
     ;;TODO:
@@ -761,7 +761,7 @@ This will have to be removed after the code is generated
       (mapcar* (lambda (arg type) (cons arg type))
                args types)))
 #+end_src
-** pyel-def-funcall related
+** type dispatching transforms
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defun pyel-filter-non-args(args)
     "remove '&optional' and '&rest' from ARGS list"
@@ -849,29 +849,32 @@ This will have to be removed after the code is generated
                              (cons 'list args-just-vars))))))))
   
   (defmacro pyel-func-transform (name args &rest type-switches)
-    "define transforms for function calls"
-    ;;function transforms are defined like normal type-transforms
-    ;;when a function call is being transformed the name is looked up in the list
-    ;;of defined function transforms, if it found, this transform will override
-    ;;the normal function call transform.
+    "Define a transform for function calls.
+  This is just like `pyel-method-transform' except that the
+  ARG signature has no effect on the transform dispatch"
     (add-to-list 'pyel-func-transforms name)
     ;;TODO: should name be modified to avoid conflicts ?
-    `(def-transform ,(pyel-func-transform-name name) pyel ()
-       (lambda ,args
-         (let ((fsym (intern (concat "pyel-" (symbol-name ',name) "-function")))
-               (body (pyel-do-call-transform (pyel-get-possible-types ,@args)
-                                             ',args
-                                             ',type-switches))
-  ;;             (known-types nil) ;;tmp -- should this be before 'body' is set!!??
-               )
-  
-           (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',(mapcar 'strip_ args)
-                         body)
-                   pyel-function-definitions)
-             (push fsym pyel-defined-functions)
-             (fset fsym (lambda () nil)))
-           (cons fsym (mapcar 'eval ',args))))))
+    
+    (let* ((striped-args (mapcar 'strip_ args))
+           (args-just-vars (pyel-filter-non-args striped-args))
+           (rest-arg (if (eq (car (last striped-args 2)) '&rest)
+                         (car (last striped-args)) nil))
+           (fsym (intern (concat "pyel-" (symbol-name ',name) "-function"))))
+      `(def-transform ,(pyel-func-transform-name name) pyel ()
+         (lambda ,striped-args
+           (let ((body (pyel-do-call-transform (pyel-get-possible-types
+                                                ,@args-just-vars)
+                                               ',args
+                                               ',type-switches)))
+             (unless (member ',fsym pyel-defined-functions)
+               (push (list 'defmacro ',fsym ',striped-args
+                           body)
+                     pyel-function-definitions)
+               (push ',fsym pyel-defined-functions)
+               (fset ',fsym (lambda () nil)))
+             (cons ',fsym ,(if rest-arg
+                               `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                             (cons 'list args-just-vars))))))))
   
   (defvar pyel-func-transforms2 nil
     "list of functions whose translations are defined
@@ -1448,24 +1451,24 @@ in `pyel-message-formats'"
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(ert-deftest pyel-do-splices ()
- (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
- (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
- (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
-		'(a b (c 2 (n (x 1 2)) 3 3 a b (2)))))
-
-  (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c ))))))
-		 '(a b d (e 2 a b c))))
-
-  (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c )))) last))
-		 '(progn (a b d (e 2 a b c)) last)))
-
-  (should (equal (pyel-do-splices '(@)) nil))
-)
+  (ert-deftest pyel-do-splices ()
+    (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
+    (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
+    (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
+                   '(a b (c 2 (n (x 1 2)) 3 3 a b (2)))))
+  
+    (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c ))))))
+                   '(a b d (e 2 a b c))))
+  
+    (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c )))) last))
+                   '(progn (a b d (e 2 a b c)) last)))
+  
+    (should (equal (pyel-do-splices '(@)) nil))
+    )
 #+END_SRC
 
 * python preprocessor
-the preprocessor is no longer tangled
+The preprocessor is no longer tangled
 
 (lambda (a b) (print a))
 lambda((a,b)
@@ -1772,7 +1775,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
         (if (or (string= selector "pyel-test")
                 (string= selector "pyel"))
-            (let ((tmp-file "~/tmp/pyel-test-functions.el"))
+            (let ((tmp-file "/tmp/pyel-test-functions.el"))
               (message "Evaluating test functions...")
               ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
               (find-file tmp-file)
@@ -2503,10 +2506,14 @@ n** tests
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
       ;;        (--init-- __c ,@(mapcar 'transform args))
       ;;        __c)
-  
+          
       (if (eq (car func) 'attribute);;method call
-          (if (member (setq m-name (read (caddr func)))
-                      pyel-method-transforms)
+          (if (and (member (setq m-name (read (caddr func)))
+                           pyel-method-transforms)
+                   (setq m-name (pyel-find-method-transform-name
+                                     m-name
+                                     (1+ (length args)))));;1+ because args does not include the object
+  
               ;;this methods transform is overridden
               (progn
                 ;;dynamic scoping saves the day again!
@@ -2514,10 +2521,7 @@ n** tests
                       star-args starargs
                       kw-args kwargs)
   
-                (eval `(call-transform ',(or (pyel-find-method-transform-name
-                                              m-name
-                                              (1+ (length args))) ;;1+ because args does not include the object
-                                             (pyel-method-transform-name m-name))
+                (eval `(call-transform ',m-name
                                        ',(transform (cadr func))
                                        ,@(mapcar '(lambda (x) `(quote ,x)) args))))
             ;;normal method call
@@ -3092,74 +3096,70 @@ overloadable operators: http://rgruet.free.fr/PQR26/PQR2.6.html#SpecialMethods
 emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elisp/Bitwise-Operations.html
 
 ** transform
+TODO: tests!
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform bin-op pyel ()
-      (lambda (left op right &optional line col)
-        (call-transform op left right)))
+    (lambda (left op right &optional line col)
+      (call-transform op left right)))
   
   (pyel-create-py-func * (l r)
-                      (number number) ->  (* l r)
-                      (object _)
-                      (_ object)      -> (--mul-- l r)
-                      (_ string)
-                      (string _)      -> (pyel-mul-num-str l r))
+                       (number _) ->  (* l r)
+                       (object _)      -> (call-method l --mul-- r)
+                       (_ number) -> (* l r)
+                       (_ string)
+                       (string _)      -> (pyel-mul-num-str l r))
   
-    (pyel-create-py-func + (lhs rhs)
-                      ;;this presumes that both args are the same type
-                      (number number)  -> (+ lhs rhs)
-                      (string _)
-                      (_ string)       -> (concat lhs rhs)
-                      (list _)
-                      (_ list)         -> (append lhs rhs)
-                      (vector _)
-                      (_ vector)       -> (vconcat lhs rhs) ;;faster way?
-                      ;;should the right side be checked if its an object?
-                      (object _)
-                      (_ object)       -> (--add-- lhs rhs));;correct way to call it?
+  (pyel-create-py-func + (lhs rhs)
+                       (number _) -> (+ lhs rhs)
+                       (string _) -> (concat lhs rhs)
+                       (list _)   -> (append lhs rhs)
+                       (object _) -> (call-method l --add-- r)
+                       (_ number)  -> (+ lhs rhs)
+                       (vector _)
+                       (_ vector)  -> (vconcat lhs rhs)
+                       (_ string) -> (concat lhs rhs)
+                       (_ list)   -> (append lhs rhs))
   
   (pyel-create-py-func - (l r)
-                    (number number) -> (- l r)
-                    (object _)
-                    (_ object) -> (--sub-- l r))
-  
+                       (number _) -> (- l r)
+                       (object _) -> (call-method l --sub-- r)
+                       (_ number) -> (- l r))
   
   (pyel-create-py-func ** (l r) ;;pow
-                    (number number) -> (expt l r)
-                    (object _)
-                    (_ object) -> (--pow-- l r))
+                       (number _) -> (expt l r)
+                       (object _) -> (call-method l --pow-- r)
+                       (_ number) -> (expt l r))
   
   (pyel-create-py-func / (l r)
-                       ;; (float _)
-                       ;; (_ float) -> (/ l r)
-                       (number _)
-                       (_ number) -> (/ (* l 1.0) r)
-                       (object _) -> (--truediv-- l r))
-  ;;                    (_ object) ;;?
+                       (number _) -> (pyel-div l r)
+                       (object _) -> (call-method l --truediv-- r)
+                       (_ number) -> (pyel-div l r))
   
   (pyel-create-py-func // (l r) ;;floored (normal) division
-                       (number _)
-                       (_ number) -> (/ l r)
-                       (object _) -> (--floordiv-- l r))
-  ;;                    (_ object) ;;?
+                       (number _) -> (/ l r)
+                       (object _) -> (call-method l --floordiv-- r)
+                       (_ number) -> (/ l r))
   
   (pyel-create-py-func ^ (l r) ;;bit xor
-                    (number number) -> (logxor l r)
-                    (object _)
-                    (_ object) -> (--xor-- l r))
+                       (number _) -> (logxor l r)
+                       (object _) -> (call-method l --xor-- r)
+                       (_ number) -> (logxor l r))
   
   (pyel-create-py-func & (l r) ;;bit and
-                    (number number) -> (logand l r)
-                    (object _)
-                    (_ object) -> (--and-- l r)) ;;?
+                       (number _) -> (logand l r)
+                       (object _) (call-method l --and-- r)
+                       (_ number) -> (logand l r))
   
   (pyel-create-py-func | (l r) ;;bit or
-                    (number number) -> (logior l r)
-                    (object _)
-                    (_ object) -> (--or-- l r));;?
+                       (number _) -> (logior l r)
+                       (object _) -> (call-method l --or-- r)
+                       (_ number) -> (logior l r))
   
-  (pyel-create-py-func % (l r) ;;bit or
-                       (number number) -> (% l r)
-                       (object _) -> (--mod-- l r));;?
+  (pyel-create-py-func % (l r)
+                       (number _) -> (% l r)
+                       (object _) -> (call-method l --mod-- r))
+  
+  
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -3189,7 +3189,19 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
 #+END_SRC
 ** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-
+    (defun pyel-mul-num-str (left right)
+      "not implemented"
+      )
+  
+  (defmacro pyel-div (l r)
+    (cond ((or (floatp l)
+               (floatp r))
+           `(/ ,l ,r))
+          ((integerp l)
+           `(/ ,(* 1.0 l) ,r))
+          ((integerp r)
+           `(/ ,l ,(* 1.0 r)))
+          (t `(/ (* ,l 1.0) ,r))))
 #+END_SRC
 ** tests TODO
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -3958,6 +3970,7 @@ emacs bitwise operators: http://www.gnu.org/software/emacs/manual/html_node/elis
      (2 (list 'expt (car args) (cadr args)))
      (t "ERROR") ;;TODO
      ))
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
