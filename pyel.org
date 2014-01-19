@@ -659,7 +659,7 @@ This will have to be removed after the code is generated
   ;;TODO: this should be generalized and added to the transform code
   (defvar pyel-context nil
     "list of current expansion contexts")
-
+  
   (defmacro using-context (context &rest code)
     `(progn
        (push ',context pyel-context)
@@ -670,22 +670,22 @@ This will have to be removed after the code is generated
                   (error (format "using-context: %s" err))))
          (pop pyel-context)
          ret)))
-
+  
   (def-edebug-spec using-context (symbolp &rest form))
-
+  
   (defmacro remove-context (context &rest code)
     "remove CONTEXT and translate CODE, then restore context"
     `(let ((pyel-context (remove ',context pyel-context)))
        ,@code))
   (def-edebug-spec remove-context (symbolp &rest form))
-
+  
   (defmacro context-switch (&rest forms)
     `(cond ,@(mapcar (lambda (x)
                        `(,(let ((context (car x)))
                             (if (eq context t) t
                               `(member ',context pyel-context))) ,@(cdr x)))
                      forms)))
-
+  
   (defun get-context-group (context)
     (let ((groups pyel-context-groups)
           (found nil)
@@ -698,7 +698,7 @@ This will have to be removed after the code is generated
             (setq found group
                   groups nil))))
       found))
-
+  
   ;; (defun context-p (context)
   ;;   (member context pyel-context))
   (defun context-p (context)
@@ -718,7 +718,7 @@ This will have to be removed after the code is generated
             (setq ret t
                   cont nil))))
       ret))
-
+  
   (defun context-depth (context)
     "get the depth of CONTEXT in `pyel-context'"
     ;;TODO:
@@ -761,7 +761,7 @@ This will have to be removed after the code is generated
       (mapcar* (lambda (arg type) (cons arg type))
                args types)))
 #+end_src
-** pyel-def-funcall related
+** type dispatching transforms
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defun pyel-filter-non-args(args)
     "remove '&optional' and '&rest' from ARGS list"
@@ -1439,24 +1439,24 @@ in `pyel-message-formats'"
 #+END_SRC
 ** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(ert-deftest pyel-do-splices ()
- (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
- (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
- (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
-		'(a b (c 2 (n (x 1 2)) 3 3 a b (2)))))
-
-  (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c ))))))
-		 '(a b d (e 2 a b c))))
-
-  (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c )))) last))
-		 '(progn (a b d (e 2 a b c)) last)))
-
-  (should (equal (pyel-do-splices '(@)) nil))
-)
+  (ert-deftest pyel-do-splices ()
+    (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
+    (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
+    (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
+                   '(a b (c 2 (n (x 1 2)) 3 3 a b (2)))))
+  
+    (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c ))))))
+                   '(a b d (e 2 a b c))))
+  
+    (should (equal (pyel-do-splices '(@ (a b (@ d (e 2 (@ a b c )))) last))
+                   '(progn (a b d (e 2 a b c)) last)))
+  
+    (should (equal (pyel-do-splices '(@)) nil))
+    )
 #+END_SRC
 
 * python preprocessor
-the preprocessor is no longer tangled
+The preprocessor is no longer tangled
 
 (lambda (a b) (print a))
 lambda((a,b)
