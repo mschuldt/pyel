@@ -769,13 +769,23 @@ This will have to be removed after the code is generated
                                  (eq x '&rest))))
             args))
   
+  
   (defmacro pyel-create-py-func (name args &rest type-switches)
-    "Define a transform that dispatches on argument type as defined by TYPE-SWITCHES
-  The transform will have the same NAME and ARGSand must be called with a
-  function like `call-transform'.
+    "Define a transform that creates a runtime function that
+  dispatches on argument type as defined by TYPE-SWITCHES.
+  The transform will have the same NAME and ARGS and must be called with a
+  function like `call-transform', it will return a call to
+  the function it creates.
+  After the resulting transform is called, it adds the name of the
+  created function in `pyel-defined-functions' and adds the function 
+  definition to `pyel-function-definitions'
+  
   Use `pyel-func-transform' to define transforms for functions that
-  will be automatically called"
-    
+  will be automatically called.
+  
+  NOTE: if the name of the function to be created is already in
+   `pyel-defined-functions', the function will not be updated
+  "
     ;;temp solution: does not check types etc
     (let* ((striped-args (mapcar 'strip_ args))
            (args-just-vars (pyel-filter-non-args striped-args))
@@ -800,11 +810,13 @@ This will have to be removed after the code is generated
                            (cons 'list args-just-vars))))))))
   
   (defmacro pyel-method-transform (name args &rest type-switches)
-    "Defines a transform for methods that dispatches on NAME and ARGS.
-  The syntax is the same as with `pyel-create-py-func'. 
+    "Defines a transform for methods that dispatches on NAME and ARG length.
+  The syntax and the function creation is the same as with `pyel-create-py-func'.
   These transforms are automatically called for methods during translation time.
-  The transform will be dispatched on the NAME and the possible number
-  of arguments that ARGS allows"
+  The transform will be dispatched on NAME and the possible number
+  of arguments that ARGS allows.
+  During translation time, if no transform is found for a method call that
+  matches NAME and has the proper arg length then no transform will be called."
     (add-to-list 'pyel-method-transforms name)
   
     ;;temp solution: does not check types etc
