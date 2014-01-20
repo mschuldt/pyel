@@ -457,7 +457,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
     ;;should be checking if it is a proper data-descriptor.
     ;;but is it really necessary to also check for --get--?
     (if (obj-hasattr data-descriptor '--set--)
-	(call-method data-descriptor --set-- attr value)
+	(call-method data-descriptor --set-- value)
       (puthash attr value (aref obj obj-dict-index)))
     nil))
 
