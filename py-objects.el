@@ -462,16 +462,20 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 			    (error nil))))
     ;;should be checking if it is a proper data-descriptor.
     ;;but is it really necessary to also check for --get--?
-    (if (obj-hasattr data-descriptor '--set--)
+    (if (obj-hasattr data-descriptor --set--)
 	(call-method data-descriptor --set-- value)
       (puthash attr value (aref obj obj-dict-index)))
     nil))
 
 (defmacro obj-hasattr (object attr)
-  (setq attr (if (stringp attr) (intern attr) attr))
-  `(obj-hasattr-1 ,object ,attr))
+  (let* ((attr (if (stringp attr) (intern attr) attr))
+	 (special (cdr (assoc attr special-method-names))))
+    (if special
+	`(if (caar (aref ,object ,special)) t nil)
+      `(obj-hasattr-1 ,object ',attr))))
 
 (defun obj-hasattr-1 (object attr)
+  "return non-nil if OBJECT as non-special attribute ATTR"
   (condition-case nil
       (and (py-object-p object)
 	   (getattr-1 object attr))
