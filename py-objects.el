@@ -81,7 +81,13 @@ These names will be set globally to their index in this list")
 	 (bases (if (eq name 'object)
 		    nil
 		  (or bases '(object)))) ;;everything inherits from object
-	 (bases (list-to-vector bases)) ;;Python keeps the bases in a tuple
+	 ;;Python keeps the bases in a tuple
+	 (bases (list-to-vector (mapcar (lambda (x)
+					  (let ((base (eval x)))
+					    (if (py-class-p base)
+						base
+					      (error "Invalid base"))))
+					bases)))
 	 (doc (if (eq (type-of (car attributes)) 'string)
 		  (pop attributes) nil))
 	 class-variables
