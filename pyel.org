@@ -387,7 +387,14 @@ main
                          (subseq ,list  ,nth))))
   
   (defun list-to-vector (list)
-    (eval `(vector ,@list)))
+    (let ((v (make-vector (length list) nil))
+          (rest list)
+          (i 0))
+      (while rest
+        (aset v i (car rest))
+        (setq rest (cdr rest)
+              i (1+ i)))
+      v))
   
   (defun pyel-replace-in-thing (from to thing)
     "replace character FROM to TO in THING
