@@ -439,7 +439,6 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (let ((special (assoc method special-method-names)))
     (if special
 	`(funcall (_getattr-special-implicit ,object ,(cdr special)) ,object ,@args)
-      
       `(funcall (getattr-1 ,object ',method)
 		,@args))))
 
@@ -452,9 +451,15 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (funcall (caar (aref obj setattr-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
-  ;;TODO: if attr is a data-descriptor, use that to set it
-  (puthash attr value (aref obj obj-dict-index))
-  nil)
+  (let* ((data-descriptor (condition-case nil
+			      (getattr obj attr)
+			    (error nil))))
+    ;;should be checking if it is a proper data-descriptor.
+    ;;but is it really necessary to also check for --get--?
+    (if (obj-hasattr data-descriptor '--set--)
+	(call-method data-descriptor --set-- attr value)
+      (puthash attr value (aref obj obj-dict-index)))
+    nil))
 
 (defun obj-hasattr (object attr)
   (condition-case nil
