@@ -452,7 +452,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 
 (defun _obj-setattr (obj attr value)
   (let* ((data-descriptor (condition-case nil
-			      (getattr obj attr)
+			      (getattr-1 obj attr)
 			    (error nil))))
     ;;should be checking if it is a proper data-descriptor.
     ;;but is it really necessary to also check for --get--?
