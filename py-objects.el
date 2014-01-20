@@ -462,8 +462,8 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 			    (error nil))))
     ;;should be checking if it is a proper data-descriptor.
     ;;but is it really necessary to also check for --get--?
-    (if (obj-hasattr data-descriptor --set--)
-	(call-method data-descriptor --set-- value)
+    (if (and data-descriptor (obj-hasattr data-descriptor --set--))
+	(call-method data-descriptor --set-- obj value)
       (puthash attr value (aref obj obj-dict-index)))
     nil))
 
@@ -471,9 +471,14 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (let* ((attr (if (stringp attr) (intern attr) attr))
 	 (special (cdr (assoc attr special-method-names))))
     (if special
-	`(if (caar (aref ,object ,special)) t nil)
+	`(obj-hasattr-special ,object ',special)
       `(obj-hasattr-1 ,object ',attr))))
 
+(defun obj-hasattr-special (object index)
+  (if (and (py-object-p object)
+	   (caar (aref object index)))
+      t nil))
+	    
 (defun obj-hasattr-1 (object attr)
   "return non-nil if OBJECT as non-special attribute ATTR"
   (condition-case nil
@@ -515,6 +520,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
        (format (if (py-class-p self) "<class '%s'>" "<%s object at 0x18b071>")
 	       (getattr self --name--)))
   )
+
 
 (define-class BaseException ()
   ;;TODO: these should be data descriptors
