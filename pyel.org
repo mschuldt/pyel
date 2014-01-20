@@ -495,6 +495,23 @@ main
         )
       
       (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
+  
+  
+  (fset 'pyel-orig-eval-last-sexp-1 'eval-last-sexp-1)
+  
+  (defun eval-last-sexp-1 (eval-last-sexp-arg-internal)
+    "Evaluate sexp before point; print value in minibuffer.
+  With argument, print output into current buffer.
+  
+  This function is redefined to print python objects in a
+  reasonable manner. The origional definition has been stored
+  in `pyel-orig-eval-last-sexp-1'"
+    (let ((standard-output (if eval-last-sexp-arg-internal (current-buffer) t))
+          (val (eval (eval-sexp-add-defvars (preceding-sexp)) lexical-binding)))
+      ;; Setup the lexical environment if lexical-binding is enabled.
+      (if (py-object-p val)
+          (setq val (pyel-repr val)))
+      (eval-last-sexp-print-value val)))
 #+END_SRC
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
