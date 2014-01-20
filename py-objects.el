@@ -254,7 +254,9 @@ if it is not call OBJECT's --getattr-- method if defined"
   (let (val)
     (condition-case nil
 	;;look for data descriptor in obj.__class__.__dict__
-	(_find-data-descriptor (aref (aref obj obj-bases-index) 0) obj attr) 
+	(call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0)
+					    obj attr)
+		     --get-- object)
       (AttributeError ;;look for attr in obj.__dict__
        (if (eq (aref obj obj-symbol-index) obj-class-symbol)
 	   (_find-attr obj attr) ;; if obj is a class, search its bases as well
@@ -269,7 +271,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   
   (let ((val (gethash name (aref class obj-dict-index))))
     (if (data-descriptor-p val)
-	(call-method val --get-- object)
+	val
       ;;data descriptor not found, now check the bases
       (let* ((bases (aref class obj-bases-index))
 	     (nbases (length bases))
