@@ -461,7 +461,11 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
       (puthash attr value (aref obj obj-dict-index)))
     nil))
 
-(defun obj-hasattr (object attr)
+(defmacro obj-hasattr (object attr)
+  (setq attr (if (stringp attr) (intern attr) attr))
+  `(obj-hasattr-1 ,object ,attr))
+
+(defun obj-hasattr-1 (object attr)
   (condition-case nil
       (and (py-object-p object)
 	   (getattr-1 object attr))
