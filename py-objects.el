@@ -255,7 +255,7 @@ if it is not call OBJECT's --getattr-- method if defined"
     (condition-case nil
 	;;look for data descriptor in obj.__class__.__dict__
 	(call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0)
-					    obj attr)
+					    attr)
 		     --get-- object)
       (AttributeError ;;look for attr in obj.__dict__
        (if (eq (aref obj obj-symbol-index) obj-class-symbol)
@@ -266,7 +266,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 	   val
 	   ))))))
 
-(defun _find-data-descriptor (class object name)
+(defun _find-data-descriptor (class name)
   "return the value of the data descriptor NAME if found, else raise error"
   
   (let ((val (gethash name (aref class obj-dict-index))))
@@ -282,7 +282,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 	      (setq done (condition-case nil
 			     (progn (setq val
 					  (_find-data-descriptor (aref bases i)
-								 object name))
+								 name))
 				    t)
 			   (AttributeError nil)))
 
