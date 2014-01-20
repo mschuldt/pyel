@@ -459,15 +459,11 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (funcall (caar (aref obj setattr-index)) obj attr value))
 
 (defun _obj-setattr (obj attr value)
-  (let* ((data-descriptor (condition-case nil
-			      (getattr-1 obj attr)
-			    (error nil))))
-    ;;should be checking if it is a proper data-descriptor.
-    ;;but is it really necessary to also check for --get--?
-    (if (and data-descriptor (obj-hasattr data-descriptor --set--))
-	(call-method data-descriptor --set-- obj value)
-      (puthash attr value (aref obj obj-dict-index)))
-    nil))
+  (condition-case nil
+      (call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0) attr)
+		   --set-- obj value)
+      (AttributeError
+       (puthash attr value (aref obj obj-dict-index)))))
 
 (defmacro obj-hasattr (object attr)
   (let* ((attr (if (stringp attr) (intern attr) attr))
