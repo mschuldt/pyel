@@ -497,9 +497,7 @@ main
       (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
   
   
-  (fset 'pyel-orig-eval-last-sexp-1 'eval-last-sexp-1)
-  
-  (defun eval-last-sexp-1 (eval-last-sexp-arg-internal)
+  (defun pyel-eval-last-sexp-1-function (eval-last-sexp-arg-internal)
     "Evaluate sexp before point; print value in minibuffer.
   With argument, print output into current buffer.
   
@@ -509,9 +507,21 @@ main
     (let ((standard-output (if eval-last-sexp-arg-internal (current-buffer) t))
           (val (eval (eval-sexp-add-defvars (preceding-sexp)) lexical-binding)))
       ;; Setup the lexical environment if lexical-binding is enabled.
-      (if (py-object-p val)
+      (if (and pyel-object-prettyprint
+               (py-object-p val))
           (setq val (pyel-repr val)))
       (eval-last-sexp-print-value val)))
+  
+  (fset 'pyel-orig-eval-last-sexp-1 'eval-last-sexp-1)
+  (fset 'eval-last-sexp-1 'pyel-eval-last-sexp-1-function)
+  
+  (defvar pyel-object-prettyprint t
+    "if non-nil, objects will be printed with their pyel repr value
+  during interactive emacs-lisp sessions where possible")
+          
+  (defun pyel-toggle-object-prettyprint ()
+    (interactive)
+    (setq pyel-object-prettyprint (not pyel-object-prettyprint)))
 #+END_SRC
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
