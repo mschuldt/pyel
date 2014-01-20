@@ -463,8 +463,8 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 
 (defun obj-hasattr (object attr)
   (condition-case nil
-      (progn (getattr-1 object attr)
-	     t)
+      (and (py-object-p object)
+	   (getattr-1 object attr))
     (AttributeError nil)))
 
 (defun obj-isinstance (object class)
