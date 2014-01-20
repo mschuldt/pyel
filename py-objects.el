@@ -207,19 +207,19 @@ These names will be set globally to their index in this list")
 
 (defun descriptor-p (object)
   (and (py-object-p object)
-       (or (obj-hasattr object '__get__)
-	   (obj-hasattr object '__set__))))
+       (or (obj-hasattr-1 object '--get--)
+	   (obj-hasattr-1 object '--set--))))
 
 (defun data-descriptor-p (object)
   (and (py-object-p object)
-       (obj-hasattr object '__get__)
-       (obj-hasattr object '__set__)))
+       (obj-hasattr-1 object '--get--)
+       (obj-hasattr-1 object '--set--)))
 
 (defun non-data-descriptor-p (object)
   (or (functionp object)
       (and (py-object-p object)
-	   (obj-hasattr object '__get__)
-	   (not (obj-hasattr object '__set__)))))
+	   (obj-hasattr-1 object '--get--)
+	   (not (obj-hasattr-1 object '--set--)))))
 
 (defmacro getattr (object attr)
   (let* ((attr (if (stringp attr) (intern attr) attr))
@@ -269,7 +269,7 @@ if it is not call OBJECT's --getattr-- method if defined"
   
   (let ((val (gethash name (aref class obj-dict-index))))
     (if (data-descriptor-p val)
-	(call-method val __get__ class object)
+	(call-method val --get-- object)
       ;;data descriptor not found, now check the bases
       (let* ((bases (aref class obj-bases-index))
 	     (nbases (length bases))
@@ -316,7 +316,7 @@ this does not create bound methods"
 			 (>= i nbases)) (signal 'AttributeError nil))))))
     (if val
 	(if (descriptor-p val) 
-	    (call-method val __get__ object object)
+	    (call-method val --get-- object object)
 	  val)
       (signal 'AttributeError nil))))
 
@@ -348,7 +348,7 @@ if it is a descriptor, return its value"
 	(cond ((functionp val)
 	       (bind-method object val name))
 	      ((non-data-descriptor-p val)
-	       (call-method val __get__ class object))
+	       (call-method val --get-- class object))
 	      (t val))
       (signal 'AttributeError nil))))
 
@@ -416,7 +416,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 	     (cond ((functionp val)
 		    (bind-method object val attr))
 		   ((non-data-descriptor-p val)
-		    (call-method val __get__ class object))
+		    (call-method val --get-- class object))
 		   (t val)))
 	 (signal 'AttributeError nil))))))
 
