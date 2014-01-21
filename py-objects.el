@@ -462,7 +462,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (condition-case nil
       (call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0) attr)
 		   --set-- obj value)
-      (AttributeError
+      (error ;;AttributeError
        (puthash attr value (aref obj obj-dict-index)))))
 
 (defmacro obj-hasattr (object attr)
