@@ -153,8 +153,8 @@ These names will be set globally to their index in this list")
 	    (append methods class-variables)))
     
     (setattr new --name-- (symbol-name name))
-
     (setattr new --doc-- doc)
+    (setattr new --dict-- (aref new obj-dict-index)) ;;temp until indexes are fixed
 
     (let ((base (unless (eq bases []) (aref bases 0) nil))) ;;?
       (setattr new --base-- base)
@@ -462,7 +462,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (condition-case nil
       (call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0) attr)
 		   --set-- obj value)
-      (error ;;AttributeError
+    (error ;;AttributeError
        (puthash attr value (aref obj obj-dict-index)))))
 
 (defmacro obj-hasattr (object attr)
@@ -518,7 +518,6 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
        (format (if (py-class-p self) "<class '%s'>" "<%s object at 0x18b071>")
 	       (getattr self --name--)))
   )
-
 
 (define-class BaseException ()
   ;;TODO: these should be data descriptors
