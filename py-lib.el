@@ -166,14 +166,18 @@
 (defun _py-str-sequence (seq)
   "convert SEQ to a string of its python representation
     does not include starting/ending parens or brackets"
-  (if (listp (cdr seq))
-      (mapconcat (lambda (x) (pyel-str-function x)) seq ", ")
-    ;;cons cell
-    ;;this should not happend from normal python
-    ;;but maybe when interacting with lisp code from python
-    (concat (pyel-str-function (car seq))
-            " . "
-            (pyel-str-function (cdr seq)))))
+  (if (vectorp seq)
+      (setq seq (mapcar 'identity seq)))
+  (if (listp seq)
+      (if (listp (cdr seq))
+          (mapconcat (lambda (x) (pyel-str-function x)) seq ", ")
+        ;;cons cell
+        ;;this should not happend from normal python
+        ;;but maybe when interacting with lisp code from python
+        (concat (pyel-str-function (car seq))
+                " . "
+                (pyel-str-function (cdr seq))))
+    (error "invalid type")))
 
 (defun py-list-str (thing)
   (concat "[" (_py-str-sequence thing) "]"))

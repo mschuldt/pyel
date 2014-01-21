@@ -268,7 +268,14 @@ value."
                        (subseq ,list  ,nth))))
 
 (defun list-to-vector (list)
-  (eval `(vector ,@list)))
+  (let ((v (make-vector (length list) nil))
+        (rest list)
+        (i 0))
+    (while rest
+      (aset v i (car rest))
+      (setq rest (cdr rest)
+            i (1+ i)))
+    v))
 
 (defun pyel-replace-in-thing (from to thing)
   "replace character FROM to TO in THING
@@ -376,6 +383,33 @@ This is used when the ast form is needed by a transform that is manually
       )
     
     (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
+
+
+(defun pyel-eval-last-sexp-1-function (eval-last-sexp-arg-internal)
+  "Evaluate sexp before point; print value in minibuffer.
+With argument, print output into current buffer.
+
+This function is redefined to print python objects in a
+reasonable manner. The origional definition has been stored
+in `pyel-orig-eval-last-sexp-1'"
+  (let ((standard-output (if eval-last-sexp-arg-internal (current-buffer) t))
+        (val (eval (eval-sexp-add-defvars (preceding-sexp)) lexical-binding)))
+    ;; Setup the lexical environment if lexical-binding is enabled.
+    (if (and pyel-object-prettyprint
+             (py-object-p val))
+        (setq val (pyel-repr val)))
+    (eval-last-sexp-print-value val)))
+
+(fset 'pyel-orig-eval-last-sexp-1 'eval-last-sexp-1)
+(fset 'eval-last-sexp-1 'pyel-eval-last-sexp-1-function)
+
+(defvar pyel-object-prettyprint t
+  "if non-nil, objects will be printed with their pyel repr value
+during interactive emacs-lisp sessions where possible")
+        
+(defun pyel-toggle-object-prettyprint ()
+  (interactive)
+  (setq pyel-object-prettyprint (not pyel-object-prettyprint)))
 
 (defvar pyel-directory ""
   "Path to pyel files. must include py-ast.py, pyel.el etc")
