@@ -4583,6 +4583,17 @@ x.insert(1,'hi')"
     ("x" '(3 2 1))
     ("x is y" t)))
 #+END_SRC
+** lower
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform lower(obj)
+                           (string) ->  (downcase obj)
+                           (_)    ->  (call-method obj lower))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
