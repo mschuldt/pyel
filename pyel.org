@@ -4605,6 +4605,27 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
+** split
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform split (obj &optional sep maxsplit)
+                         (string) ->  (pyel-split obj sep maxsplit)
+                         (_)    ->  (call-method obj split sep maxsplit))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-split (string &optional sep maxsplit)
+    
+    (let ((sep (or sep "[ \f\t\n\r\v]+")) ;;correct default?
+          (ret (split-string string sep t)))
+      (if maxsplit
+          ret ;;TODO
+        ret)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
