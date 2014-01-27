@@ -4628,7 +4628,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun pyel-split (string &optional sep maxsplit)
     
-    (let ((sep (or sep "[ \f\t\n\r\v]+")) ;;correct default?
+    (let ((sep (or (regexp-quote sep) "[ \f\t\n\r\v]+")) ;;correct default?
           (ret (split-string string sep t)))
       (if maxsplit
           ret ;;TODO
