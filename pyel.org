@@ -4626,6 +4626,40 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
+** strip
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform strip (obj &optional chars)
+                         (string) ->  (pyel-strip obj chars)
+                         (_)    ->  (call-method obj strip chars))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-strip-left (s &optional chars)
+    "Remove whitespace or CHARS at the beginning of S."
+    (let ((chars (if chars (format "\\`[%s]+" chars)
+                   "\\`[ \t\n\r]+")))
+      (if (string-match chars s)
+          (replace-match "" t t s)
+        s)))
+  
+  (defun pyel-strip-right (s &optional chars)
+    "Remove whitespace or CHARS at the end of S."
+    (let ((chars (if chars (format "[%s]+\\'" chars)
+                   "[ \t\n\r]+\\'")))
+      (if (string-match chars s)
+          (replace-match "" t t s)
+        s)))
+  
+  (defun pyel-strip (s &optional chars)
+    "Remove whitespace or CHARS at the beginning and end of S."
+    (pyel-strip-left (pyel-strip-right s chars) chars))
+  
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
