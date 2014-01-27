@@ -4586,13 +4586,19 @@ x.insert(1,'hi')"
 ** lower
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform lower(obj)
-                           (string) ->  (downcase obj)
-                           (_)    ->  (call-method obj lower))
+  (pyel-method-transform lower (obj)
+                         (string) ->  (downcase obj)
+                         (_)    ->  (call-method obj lower))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   lower-method
+   ("x = 'aB'
+  y = x
+  y = x.lower()"
+    ("y" "ab")
+    ("x" "aB")))
 #+END_SRC
 ** upper
 *** transform
