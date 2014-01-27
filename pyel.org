@@ -4636,7 +4636,15 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   split-method
+   ("x = 'a b c'
+  y = x.split()"
+    ("y" '("a" "b" "c")))
+   ("'a b c'.split()" '("a" "b" "c"))
+   ("y = 'a x b x d x'.split()"
+    ("y" '("a" "x" "b" "x" "d" "x"))
+    ("len(y)" 6)))
 #+END_SRC
 ** strip
 *** transform
