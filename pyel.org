@@ -4158,10 +4158,13 @@ Example:
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun py-list-append (list thing)
-   "add THING to the end of LIST"
-   (while (not (null (cdr list)))
-    (setq list (cdr list)))
-   (setcdr list (list thing)))
+    "add THING to the end of LIST"
+    (cond ((eq (car list) 'py-empty-list)
+           (setcar list thing))
+          ((null list) (list thing))
+          (t (while (not (null (cdr list)))
+               (setq list (cdr list)))
+             (setcdr list (list thing)))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
