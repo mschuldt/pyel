@@ -539,6 +539,9 @@ main
     `(and (boundp ',f)
           (functionp ,f)))
   
+  (defmacro pyel-empty-list-p (list)
+    `(eq ,list 'py-empty-list))
+  
   (set (defvar pyel-type-test-funcs nil
          "alist of types used in pyel-call-transform for the switch-type
           and the function used to test for that type")
@@ -548,6 +551,7 @@ main
          (int integerp)
          (float floatp)
          (vector vectorp)
+         (empty-list pyel-empty-list-p)
          (list listp)
          (cons consp)
          (hash hash-table-p)
