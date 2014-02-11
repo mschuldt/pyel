@@ -4714,7 +4714,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform items (obj)
                            (hash) -> (pyel-dict-items obj)
-                           (_)    -> (call-method obj key default))
+                           (_)    -> (call-method obj items))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
