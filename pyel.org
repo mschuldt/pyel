@@ -4701,7 +4701,13 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   get-method
+   ("x = {1:'one',2:'two',3:'three'}"
+    ("x[1]" "one")
+    ("x[1] == x.get(1)" t)
+    ("x.get(3, 'd')" "three")
+    ("x.get(4, 'd')" "d")))
 #+END_SRC
 ** transform template
 *** transform
