@@ -4722,7 +4722,7 @@ x.insert(1,'hi')"
     (let (ret)
       (maphash (lambda (key value)
                  (push (list key value) ret))
-               x)
+               dict)
       ret))
 #+END_SRC
 *** tests
