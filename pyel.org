@@ -4727,7 +4727,14 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   items-method
+   ("x = {1:'one',2:'two',3:'three'}
+    y = {8 : 88}
+    z = {}"
+    ("x.items()" '((3 "three") (2 "two") (1 "one")))
+    ("y.items()" '((8 88)))
+    ("z.items()" nil)))
 #+END_SRC
 ** transform template
 *** transform
