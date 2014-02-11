@@ -4709,6 +4709,26 @@ x.insert(1,'hi')"
     ("x.get(3, 'd')" "three")
     ("x.get(4, 'd')" "d")))
 #+END_SRC
+** items
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform items (obj)
+                           (hash) -> (pyel-dict-items obj)
+                           (_)    -> (call-method obj key default))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-dict-items (dict)
+    (let (ret)
+      (maphash (lambda (key value)
+                 (push (list key value) ret))
+               x)
+      ret))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
