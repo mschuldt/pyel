@@ -4736,6 +4736,26 @@ x.insert(1,'hi')"
     ("y.items()" '((8 88)))
     ("z.items()" nil)))
 #+END_SRC
+** keys
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform keys (obj)
+                             (hash) -> (pyel-dict-keys obj)
+                             (_)    -> (call-method obj key))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-dict-keys (dict)
+    (let (ret)
+      (maphash (lambda (key value)
+                 (push key ret))
+               dict)
+      ret))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
