@@ -4513,9 +4513,10 @@ x.insert(1,'hi')"
 ** pop
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform pop (obj &optional index)
-                         (list _) -> (py-list-pop obj index)
-                         (_ _)    -> (call-method obj pop index))
+  (pyel-method-transform pop (obj &optional a)
+                         (list _) -> (py-list-pop obj a)
+                         (hash _) -> (py-hash-pop obj a)
+                         (_ _)    -> (call-method obj pop a))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -4545,6 +4546,11 @@ x.insert(1,'hi')"
                 rest (cdr rest)))
         (setq ret (car rest))
         (setcdr prev nil))
+      ret))
+  
+  (defun py-hash-pop (ht key)
+    (let ((ret (gethash key ht)))
+      (remhash key ht)
       ret))
 #+END_SRC
 *** tests
@@ -5138,14 +5144,15 @@ TODO: tests!
                      "a ^= b"
                      "a |= b"
                      "a = 3
-  b = 4
-  a += b + 1
-  assert a == 8"
-
+    b = 4
+    a += b + 1
+    assert a == 8"
+  
                      "a.b += a[2]"
                      "a.b += 4"
                      "a.b += d.e"
                      )
+  
 #+END_SRC
 * return
 ** transform
