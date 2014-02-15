@@ -4796,6 +4796,28 @@ x.insert(1,'hi')"
     ("y.values()" '(88))
     ("z.values()" nil)))
 #+END_SRC
+** popitem
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform popitem (obj)
+                         (hash) -> (pyel-hash-popitem obj)
+                         (_)    -> (call-method obj popitem))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-hash-popitem (ht)
+    (let* ((key (catch '_pop_
+                  (maphash (lambda (k v)
+                             (throw '_pop_ k))
+                           ht)))
+           (ret (list key (gethash key ht))))
+      (remhash key ht)
+      ret))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
