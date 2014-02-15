@@ -529,6 +529,11 @@ main
   (defun pyel-toggle-object-prettyprint ()
     (interactive)
     (setq pyel-object-prettyprint (not pyel-object-prettyprint)))
+  
+  (defun pyel-get-generated-function (name)
+    "return the generated function/macro definition for NAME"
+    (get-matching-item pyel-function-definitions
+                       (lambda (x) (eq (cadr x) name))))
 #+END_SRC
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
