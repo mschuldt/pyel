@@ -4766,6 +4766,26 @@ x.insert(1,'hi')"
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform values (obj)
+                         (hash) -> (pyel-dict-values obj)
+                         (_)    -> (call-method obj values))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-dict-values (dict)
+    (let (ret)
+      (maphash (lambda (key value)
+                 (push value ret))
+               dict)
+      ret))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
+** transform template
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 ;;
 #+END_SRC
 *** python ast
