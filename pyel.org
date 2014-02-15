@@ -4754,7 +4754,14 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   keys-method
+   ("x = {1:'one',2:'two',3:'three'}
+      y = {8 : 88}
+      z = {}"
+    ("x.keys()" '(3 2 1))
+    ("y.keys()" '((8)))
+    ("z.keys()" nil)))
 #+END_SRC
 ** transform template
 *** transform
