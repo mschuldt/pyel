@@ -297,7 +297,7 @@ if it is not call OBJECT's --getattr-- method if defined"
 if it is a descriptor, return its value
 if it is not found, raise an AttributeError
 this does not create bound methods"
-  (let ((val (gethash name (aref object obj-dict-index))))
+  (let ((val (gethash attr (aref object obj-dict-index))))
     (if (not val)
 	;;data descriptor not found, now check the bases
 	(let* ((bases (aref object obj-bases-index))
@@ -309,7 +309,7 @@ this does not create bound methods"
 		(setq done (condition-case nil
 			       (progn (setq val
 					    (_find-attr (aref bases i)
-							object name))
+							object attr))
 				      t)
 			     (AttributeError nil)))
 
@@ -321,6 +321,7 @@ this does not create bound methods"
 	    (call-method val --get-- object object)
 	  val)
       (signal 'AttributeError nil))))
+
 
 (defun _find-non-data-descriptor (class object name)
   "search for the non-data descriptor or plan attribute NAME
