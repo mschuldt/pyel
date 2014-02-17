@@ -4728,7 +4728,8 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform get (obj key &optional default)
                          (hash) ->  (gethash key obj default)
-                         (_)    ->  (call-method obj key default))
+                         (_)    ->  (call-method-with-defaults obj get
+                                                               (key) (default)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
