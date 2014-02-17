@@ -564,6 +564,8 @@ main
          (symbol symbolp)
          (array arrayp)
          ;;         (object object-p)
+         (class py-class-p)
+         (instance py-instance-p)
          (object py-object-p)
          (function functionp)
          (func fboundp)
