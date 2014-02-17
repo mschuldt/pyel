@@ -1717,15 +1717,6 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                              ,(pyel test nil nil t)))
                                  _pyel-structure-tests)))))
             (error (error "Error while creating test: '%s'. Error: " name err)))))))
-  (pyel-create-tests
-   items-method
-   ("x = {1:'one',2:'two',3:'three'}
-  y = {8 : 88}
-  z = {}"
-    ("x.items()" '((3 "three") (2 "two") (1 "one")))
-    ("y.items()" '((8 88)))
-    ("z.items()" nil)))
-  
   
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
