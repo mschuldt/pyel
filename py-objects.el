@@ -260,7 +260,8 @@ if it is not call OBJECT's --getattr-- method if defined"
 	(call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0)
 					    attr)
 		     --get-- object)
-      (AttributeError ;;look for attr in obj.__dict__
+      ((AttributeError ;;look for attr in obj.__dict__
+	args-out-of-range);;because class 'object' has no bases
        (if (eq (aref obj obj-symbol-index) obj-class-symbol)
 	   (_find-attr obj attr) ;; if obj is a class, search its bases as well
 	 (if (eq (setq val (gethash attr (aref obj obj-dict-index) pyel-none))
