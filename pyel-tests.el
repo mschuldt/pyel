@@ -776,6 +776,76 @@ x.reverse()"
   ("x" '(3 2 1))
   ("x is y" t)))
 
+(pyel-create-tests
+ lower-method
+ ("x = 'aB'
+y = x
+y = x.lower()"
+  ("y" "ab")
+  ("x" "aB")))
+
+(pyel-create-tests
+ upper-method
+ ("x = 'aB'
+y = x
+y = x.upper()"
+  ("y" "AB")
+  ("x" "aB")))
+
+(pyel-create-tests
+ split-method
+ ("x = 'a b c'
+y = x.split()"
+  ("y" '("a" "b" "c")))
+ ("'a b c'.split()" '("a" "b" "c"))
+ ("y = 'a x b x d x'.split()"
+  ("y" '("a" "x" "b" "x" "d" "x"))
+  ("len(y)" 6)))
+
+(pyel-create-tests
+ strip-method
+ ("'\r\nhello \t'.strip('heo')" "hello")
+ ("'hello'.strip('heo')" "ll")
+ ("x = 'hello'"
+  ("x.strip('hlo')" "e")))
+
+(pyel-create-tests
+ get-method
+ ("x = {1:'one',2:'two',3:'three'}"
+  ("x[1]" "one")
+  ("x[1] == x.get(1)" t)
+  ("x.get(3, 'd')" "three")
+  ("x.get(4, 'd')" "d")))
+
+(pyel-create-tests
+ items-method
+ ("x = {1:'one',2:'two',3:'three'}
+y = {8 : 88}
+z = {}"
+  ("x.items()" '((3 "three") (2 "two") (1 "one")))
+  ("y.items()" '((8 88)))
+  ("z.items()" nil)))
+
+(pyel-create-tests
+ keys-method
+ ("x = {1:'one',2:'two',3:'three'}
+y = {8 : 88}
+z = {}"
+  ("x.keys()" '(3 2 1))
+  ("y.keys()" '((8)))
+  ("z.keys()" nil)))
+
+(pyel-create-tests
+ values-method
+ ("x = {1:'one',2:'two',3:'three'}
+    y = {8 : 88}
+    z = {}"
+  ("x.values()" '("three" "two" "one"))
+  ("y.values()" '(88))
+  ("z.values()" nil)))
+
+;;
+
 ;;
 
 ;;;;errors with these
@@ -865,9 +935,9 @@ assert x2 == 35"
                    "a ^= b"
                    "a |= b"
                    "a = 3
-b = 4
-a += b + 1
-assert a == 8"
+  b = 4
+  a += b + 1
+  assert a == 8"
 
                    "a.b += a[2]"
                    "a.b += 4"

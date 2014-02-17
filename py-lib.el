@@ -321,10 +321,13 @@
 
 
 (defun py-list-append (list thing)
- "add THING to the end of LIST"
- (while (not (null (cdr list)))
-  (setq list (cdr list)))
- (setcdr list (list thing)))
+  "add THING to the end of LIST"
+  (cond ;; ((eq (car list) 'py-empty-list)
+        ;;  (setcar list thing))
+        ((null list) (list thing))
+        (t (while (not (null (cdr list)))
+             (setq list (cdr list)))
+           (setcdr list (list thing)))))
 
 (defun py-insert (list index object)
   "insert OBJECT into LIST at INDEX"
@@ -503,6 +506,11 @@
       (setcdr prev nil))
     ret))
 
+(defun py-hash-pop (ht key)
+  (let ((ret (gethash key ht)))
+    (remhash key ht)
+    ret))
+
 (defun pyel-list-reverse (list)
   "reverse LIST *IN PLACE*"
   (let ((reversed (reverse list))
@@ -511,6 +519,64 @@
       (setcar rest (car reversed))
       (setq reversed (cdr reversed)
             rest (cdr rest)))))
+
+(defun pyel-split (string &optional sep maxsplit)
+  
+  (let ((sep (or (regexp-quote sep) "[ \f\t\n\r\v]+")) ;;correct default?
+        (ret (split-string string sep t)))
+    (if maxsplit
+        ret ;;TODO
+      ret)))
+
+(defun pyel-strip-left (s &optional chars)
+  "Remove whitespace or CHARS at the beginning of S."
+  (let ((chars (if chars (format "\\`[%s]+" chars)
+                 "\\`[ \t\n\r]+")))
+    (if (string-match chars s)
+        (replace-match "" t t s)
+      s)))
+
+(defun pyel-strip-right (s &optional chars)
+  "Remove whitespace or CHARS at the end of S."
+  (let ((chars (if chars (format "[%s]+\\'" chars)
+                 "[ \t\n\r]+\\'")))
+    (if (string-match chars s)
+        (replace-match "" t t s)
+      s)))
+
+(defun pyel-strip (s &optional chars)
+  "Remove whitespace or CHARS at the beginning and end of S."
+  (pyel-strip-left (pyel-strip-right s chars) chars))
+
+(defun pyel-dict-items (dict)
+  (let (ret)
+    (maphash (lambda (key value)
+               (push (list key value) ret))
+             dict)
+    ret))
+
+(defun pyel-dict-keys (dict)
+  (let (ret)
+    (maphash (lambda (key value)
+               (push key ret))
+             dict)
+    ret))
+
+(defun pyel-dict-values (dict)
+  (let (ret)
+    (maphash (lambda (key value)
+               (push value ret))
+             dict)
+    ret))
+
+(defun pyel-hash-popitem (ht)
+  (let* ((key (catch '_pop_
+                (maphash (lambda (k v)
+                           (throw '_pop_ k))
+                         ht)))
+         (ret (list key (gethash key ht))))
+    (remhash key ht)
+    ret))
 
 
 

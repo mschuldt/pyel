@@ -411,12 +411,35 @@ during interactive emacs-lisp sessions where possible")
   (interactive)
   (setq pyel-object-prettyprint (not pyel-object-prettyprint)))
 
+(defun pyel-get-generated-function (name)
+  "return the generated function/macro definition for NAME"
+  (get-matching-item pyel-function-definitions
+                     (lambda (x) (eq (cadr x) name))))
+
+(defun pyel-strip-leading-nil (list)
+  "remove all nil items from the front of LIST until the first non-nil item"
+  (while (and (not (null list))
+              (not (car list)))
+    (setq list (cdr list)))
+  list)
+
+(defun pyel-strip-trailing-nil (list)
+  "remove all nil items from the back of LIST until the last non-nil item"
+  (setq list (reverse list))
+  (while (and (not (null list))
+              (not (car list)))
+    (setq list (cdr list)))
+  (reverse list))
+
 (defvar pyel-directory ""
   "Path to pyel files. must include py-ast.py, pyel.el etc")
 
 (defmacro vfunction-p (f)
   `(and (boundp ',f)
         (functionp ,f)))
+
+(defmacro pyel-empty-list-p (list)
+  `(eq ,list 'py-empty-list))
 
 (set (defvar pyel-type-test-funcs nil
        "alist of types used in pyel-call-transform for the switch-type
@@ -427,6 +450,7 @@ during interactive emacs-lisp sessions where possible")
        (int integerp)
        (float floatp)
        (vector vectorp)
+       (empty-list pyel-empty-list-p)
        (list listp)
        (cons consp)
        (hash hash-table-p)
@@ -434,6 +458,8 @@ during interactive emacs-lisp sessions where possible")
        (symbol symbolp)
        (array arrayp)
        ;;         (object object-p)
+       (class py-class-p)
+       (instance py-instance-p)
        (object py-object-p)
        (function functionp)
        (func fboundp)
@@ -638,16 +664,16 @@ during interactive emacs-lisp sessions where possible")
 ;;same thing when it comes to python. if func is known type, function should
 ;;also be know. need some kind of an alias mechanism
 (setq known-types
-      '((number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)
-        (number list vector string object hash function func symbol vfunc)))
+      '((number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)
+        (number list vector string object hash function func symbol vfunc class instance)))
 (push (list 'known-types known-types) test-variable-values)
 
 (defun pyel-get-possible-types (&rest args)
@@ -1352,7 +1378,8 @@ and compared to expected values")
                                                                                                  (if (and (listp (cadr x))
                                                                                                           ;;form:  ("setup" ("test" expect))
                                                                                                           (not (or (eq (caadr x) 'lambda)
-                                                                                                                   (eq (caadr x) 'quote))))
+                                                                                                                   (eq (caadr x) 'quote)
+                                                                                                                   (null (caadr x)))))
                                                                                                      (concat (pyel-indent-py-code (car x)) "\n"
                                                                                                              (concat " return " (caadr x)))
                                                                                                    ;;form: ("test" expect)

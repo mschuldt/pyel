@@ -345,7 +345,9 @@
 (pyel-dispatch-func fcall (_func &rest _args)
                     (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
                     ($function _) -> ($func ,@(pyel-sort-kwargs args))
-                    (object) -> (call-method $func --call--
+                    (class _) -> (call-method $func --new--
+                                              ,@(pyel-sort-kwargs args))
+                    (instance _) -> (call-method $func --call--
                                              ,@(pyel-sort-kwargs args))
                     (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
                     )
@@ -925,13 +927,51 @@ Recognizes keyword args in the form 'arg = value'."
                        (list _) ->  (py-list-extend obj elem)
                        (_ _)    ->  (call-method obj extend elem))
 
-(pyel-method-transform pop (obj &optional index)
-                       (list _) -> (py-list-pop obj index)
-                       (_ _)    -> (call-method obj pop index))
+(pyel-method-transform pop (obj &optional a)
+                       (list _) -> (py-list-pop obj a)
+                       (hash _) -> (py-hash-pop obj a)
+                       (_ _)    -> (call-method obj pop a))
 
 (pyel-method-transform reverse (obj)
                        (list) ->  (pyel-list-reverse obj)
                        (_)    ->  (call-method obj reverse))
+
+(pyel-method-transform lower (obj)
+                       (string) ->  (downcase obj)
+                       (_)    ->  (call-method obj lower))
+
+(pyel-method-transform upper (obj)
+                       (string) ->  (upcase obj)
+                       (_)    ->  (call-method obj upper))
+
+(pyel-method-transform split (obj &optional sep maxsplit)
+                       (string) ->  (pyel-split obj sep maxsplit)
+                       (_)    ->  (call-method obj split sep maxsplit))
+
+(pyel-method-transform strip (obj &optional chars)
+                       (string) ->  (pyel-strip obj chars)
+                       (_)    ->  (call-method obj strip chars))
+
+(pyel-method-transform get (obj key &optional default)
+                       (hash) ->  (gethash key obj default)
+                       (_)    ->  (call-method-with-defaults obj get
+                                                             (key) (default)))
+
+(pyel-method-transform items (obj)
+                         (hash) -> (pyel-dict-items obj)
+                         (_)    -> (call-method obj items))
+
+(pyel-method-transform keys (obj)
+                           (hash) -> (pyel-dict-keys obj)
+                           (_)    -> (call-method obj key))
+
+(pyel-method-transform values (obj)
+                       (hash) -> (pyel-dict-values obj)
+                       (_)    -> (call-method obj values))
+
+(pyel-method-transform popitem (obj)
+                       (hash) -> (pyel-hash-popitem obj)
+                       (_)    -> (call-method obj popitem))
 
 ;;
 
