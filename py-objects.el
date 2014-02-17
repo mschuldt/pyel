@@ -505,7 +505,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 
 (define-class object ()
   "The most base type"
-  (def --new-- (self &rest args)
+  (def --new-- (self &rest args) ()
        (obj-make-instance self args))
   (def --init-- (self) ()
        "x.__init__(...) initializes x; see help(type(x)) for signature"
