@@ -454,6 +454,9 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
       `(funcall (getattr-1 ,object ',method)
 		,@args))))
 
+(defun call-method-fn (object method &rest args)
+  (eval `(call-method ,object ,method ,@args)))
+
 (defmacro setattr (obj attr value)
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 
