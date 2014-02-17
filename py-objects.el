@@ -308,8 +308,7 @@ this does not create bound methods"
 	      (while (not done)
 		(setq done (condition-case nil
 			       (progn (setq val
-					    (_find-attr (aref bases i)
-							object attr))
+					    (_find-attr (aref bases i) attr))
 				      t)
 			     (AttributeError nil)))
 
