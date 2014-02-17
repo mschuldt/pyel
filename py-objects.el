@@ -457,6 +457,20 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 (defun call-method-fn (object method &rest args)
   (eval `(call-method ,object ,method ,@args)))
 
+;;`call-method-with-defaults' is used for calling methods from method transform
+;;that have default parameters. Without it the transform will may try to call
+;;the method of some object with the with nil for the default arg values
+;;even if that method does not accept the default args.
+(defmacro call-method-with-defaults (object method args defaults)
+  `(_call-method-with-defaults ,object
+			       ',method
+			       ,(cons 'list args)
+			       ,(cons 'list defaults)))
+
+(defun _call-method-with-defaults (object method args defaults)
+    (eval (setq _xx `(call-method ,object ,method
+				  ,@args ,@(pyel-strip-trailing-nil defaults)))))
+
 (defmacro setattr (obj attr value)
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
 

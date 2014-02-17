@@ -534,6 +534,21 @@ main
     "return the generated function/macro definition for NAME"
     (get-matching-item pyel-function-definitions
                        (lambda (x) (eq (cadr x) name))))
+  
+  (defun pyel-strip-leading-nil (list)
+    "remove all nil items from the front of LIST until the first non-nil item"
+    (while (and (not (null list))
+                (not (car list)))
+      (setq list (cdr list)))
+    list)
+  
+  (defun pyel-strip-trailing-nil (list)
+    "remove all nil items from the back of LIST until the last non-nil item"
+    (setq list (reverse list))
+    (while (and (not (null list))
+                (not (car list)))
+      (setq list (cdr list)))
+    (reverse list))
 #+END_SRC
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
