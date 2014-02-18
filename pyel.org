@@ -4580,18 +4580,24 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
- (pyel-create-tests
-   pop-method
-   ("x = [[1],'s',(2,), 1, 4]
-  y = x
-  a = x.pop()
-  b = x.pop(0)
-  c = x.pop(2)
-  "
-    ("a" 4)
-    ("b" '(1))
-    ("c" 1)
-    ("x is y" t)))
+  (pyel-create-tests
+    pop-method
+    ("x = [[1],'s',(2,), 1, 4]
+   y = x
+   a = x.pop()
+   b = x.pop(0)
+   c = x.pop(2)
+   "
+     ("a" 4)
+     ("b" '(1))
+     ("c" 1)
+     ("x is y" t))
+  
+    ("x = {1:'one',2:'two',3:'three'}
+  y = x.pop(2)"
+     ("y" "two") 
+     ("repr(x)" "{1: \"one\", 3: \"three\"}"))
+    )
 #+END_SRC
 ** reverse
 *** transform
