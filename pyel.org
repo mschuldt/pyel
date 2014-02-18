@@ -4855,6 +4855,21 @@ x.insert(1,'hi')"
     ("y" '(1 "one"))
     ("repr(x)" "{2: \"two\", 3: \"three\"}")))
 #+END_SRC
+** copy
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform copy (obj)
+                         (dict) -> (copy-hash-table obj)
+                         (_)    -> (call-method obj popitem))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
