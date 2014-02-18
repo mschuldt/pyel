@@ -4868,7 +4868,13 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   copy-method
+   ("x = {1:['one'],2:'two',3:'three'}
+  y = x
+  z = x.copy()"
+    ("x is z" nil)
+    ("x[1] is z[1]" t)))
 #+END_SRC
 ** transform template
 *** transform
