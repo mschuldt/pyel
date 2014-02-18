@@ -973,6 +973,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (hash) -> (pyel-hash-popitem obj)
                        (_)    -> (call-method obj popitem))
 
+(pyel-method-transform copy (obj)
+                       (dict) -> (copy-hash-table obj)
+                       (_)    -> (call-method obj popitem))
+
 ;;
 
 ;;
