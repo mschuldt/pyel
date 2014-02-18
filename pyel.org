@@ -4580,7 +4580,7 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests
+ (pyel-create-tests
    pop-method
    ("x = [[1],'s',(2,), 1, 4]
   y = x
@@ -4842,7 +4842,12 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   popitem-method
+   ("x = {1:'one',2:'two',3:'three'}
+  y = x.popitem()"
+    ("y" '(1 "one"))
+    ("repr(x)" "{2: \"two\", 3: \"three\"}")))
 #+END_SRC
 ** transform template
 *** transform
