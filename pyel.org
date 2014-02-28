@@ -2139,7 +2139,7 @@ this test is disabled. It pollutes global variables
       return l_str(["attribute ", value, "\"" + attr + "\"", ctx, lineno, col_offset])
 #+END_SRC
 
-n** tests
+** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests attribute
                      "a.b"
@@ -4859,7 +4859,7 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform copy (obj)
-                         (dict) -> (copy-hash-table obj)
+                         (hash) -> (copy-hash-table obj)
                          (_)    -> (call-method obj popitem))
 #+END_SRC
 *** python el lib
