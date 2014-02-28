@@ -128,6 +128,101 @@
 
 
 
+(defmacro py-for (&rest args)
+  "(for <targets> in <iter> <body> else <body>)
+else is optional"
+
+  ;;TODO: error checking for correct form
+  (let* ((targets (pyel-split-list args 'in))
+         (args (cdr targets))
+         (targets (car targets))
+         (iter (pop args)) ;;TODO: must iter be only one form?
+
+         (body (pyel-split-list args 'else))
+         (else-body (cdr body))
+         (body (car body))
+
+         (target (cond ((symbolp targets) ;;nil when there are multiple targets
+                        targets)
+                       ((= (length targets) 1)
+                        (car targets))
+                       (t nil)))
+
+         (unpack-code (unless target
+                        (let (ret)
+                          (dotimes (i (length targets) (reverse ret))
+                            (push `(setq ,(nth i targets)
+                                         (nth ,i __target__))
+                                  ret)))))
+         (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
+
+         (current-transform-table (get-transform-table 'for-macro))
+         __for-continue ;;these are set by the for-macro transforms
+         __for-break
+         )
+    ;;TODO: when multiple targets, check that all lists are the same size
+    (setq body (transform (setq _x body)))
+
+    (setq body (cons '(setq __idx (1+ __idx))  body)
+          body (if target
+                   (cons `(setq ,target (nth __idx __tmp-list)) body)
+                 (append unpack-code body)))
+
+    (when __for-continue
+      (setq body `((catch '__continue__ ,@body))))
+
+    ;; ! This assumes that all iters are the same size
+    (setq body `((while (< __idx __len)
+                   ,@body)
+                 ,@else-body))
+
+    (when __for-break
+      (setq body `((catch '__break__ ,@body))))
+
+    `(let* ((__tmp-list ,iter)
+            ;;      ,@iter-lets
+            ;;      ,@next-function-lets
+            (__len (length __tmp-list))
+            (__idx 0)
+            )
+       ,@body)))
+
+
+
+
+
+
+
+(defun vector-member (elt vector)
+  "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
+  (let ((i 0)
+        (len (length vector))
+        found)
+    (while (and (not found)
+                (< i len))
+      (if (equal (elt vector i) elt)
+          (setq found t)
+        (setq i (1+ i))))
+    found))
+
+
+
+
+
+(defun py-raise (exc &optional cause)
+  "signal an error with the name of EXC, an class/object
+EXC must be derived from BaseException"
+  (if (py-object-p exc)
+         ;;;;TODO: after `issubclass' is implemented
+      ;; (or (and (py-class-p exc)
+      ;;          (issubclass exc BaseException))
+      ;;     (and (py-instance-p exc)
+      ;;          (issubclass (py-type exc) BaseException)))
+      (signal (intern (getattr exc --name--)) exc)
+    (signal 'TypeError "TypeError: exceptions must derive from BaseException")))
+
+
+
 (defun py-range (start &optional end step)
  (unless end
   (setq end start
@@ -579,101 +674,6 @@
     ret))
 
 
-
-
-
-(defmacro py-for (&rest args)
-  "(for <targets> in <iter> <body> else <body>)
-else is optional"
-
-  ;;TODO: error checking for correct form
-  (let* ((targets (pyel-split-list args 'in))
-         (args (cdr targets))
-         (targets (car targets))
-         (iter (pop args)) ;;TODO: must iter be only one form?
-
-         (body (pyel-split-list args 'else))
-         (else-body (cdr body))
-         (body (car body))
-
-         (target (cond ((symbolp targets) ;;nil when there are multiple targets
-                        targets)
-                       ((= (length targets) 1)
-                        (car targets))
-                       (t nil)))
-
-         (unpack-code (unless target
-                        (let (ret)
-                          (dotimes (i (length targets) (reverse ret))
-                            (push `(setq ,(nth i targets)
-                                         (nth ,i __target__))
-                                  ret)))))
-         (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
-
-         (current-transform-table (get-transform-table 'for-macro))
-         __for-continue ;;these are set by the for-macro transforms
-         __for-break
-         )
-    ;;TODO: when multiple targets, check that all lists are the same size
-    (setq body (transform (setq _x body)))
-
-    (setq body (cons '(setq __idx (1+ __idx))  body)
-          body (if target
-                   (cons `(setq ,target (nth __idx __tmp-list)) body)
-                 (append unpack-code body)))
-
-    (when __for-continue
-      (setq body `((catch '__continue__ ,@body))))
-
-    ;; ! This assumes that all iters are the same size
-    (setq body `((while (< __idx __len)
-                   ,@body)
-                 ,@else-body))
-
-    (when __for-break
-      (setq body `((catch '__break__ ,@body))))
-
-    `(let* ((__tmp-list ,iter)
-            ;;      ,@iter-lets
-            ;;      ,@next-function-lets
-            (__len (length __tmp-list))
-            (__idx 0)
-            )
-       ,@body)))
-
-
-
-
-
-
-
-(defun vector-member (elt vector)
-  "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
-  (let ((i 0)
-        (len (length vector))
-        found)
-    (while (and (not found)
-                (< i len))
-      (if (equal (elt vector i) elt)
-          (setq found t)
-        (setq i (1+ i))))
-    found))
-
-
-
-
-
-(defun py-raise (exc &optional cause)
-  "signal an error with the name of EXC, an class/object
-EXC must be derived from BaseException"
-  (if (py-object-p exc)
-         ;;;;TODO: after `issubclass' is implemented
-      ;; (or (and (py-class-p exc)
-      ;;          (issubclass exc BaseException))
-      ;;     (and (py-instance-p exc)
-      ;;          (issubclass (py-type exc) BaseException)))
-      (signal (intern (getattr exc --name--)) exc)
-    (signal 'TypeError "TypeError: exceptions must derive from BaseException")))
 
 
 

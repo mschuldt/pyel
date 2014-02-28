@@ -480,6 +480,152 @@ d.__call__ = lambda : 'hi'"
                    "assert sldk()"
                    "assert adk,'messsage'")
 
+(pyel-create-tests for-loop
+                   "b = [1,2,3,4]
+c = 0
+for a in b:
+ c = c + a
+assert c==10"
+
+                   "for i in range(n):
+ break"
+
+                   "for i in range(n):
+ continue"
+
+                   "x = []
+for i in range(5):
+ if i == 2:
+  continue
+ x.append(i)
+assert x == [0,1,3,4]"
+                   )
+
+(pyel-create-tests global
+
+                   "def a():
+ global x
+ x = 3
+ y = 1"
+
+                   "x = 1
+y = 1
+def func():
+ global x
+ x = 7
+ y = 7
+func()
+assert x == 7
+assert y == 1
+"
+                   )
+
+;;
+
+(pyel-create-tests lambda
+                   "lambda x,y,z=4,*g: print(z);x()"
+                   "x = range(2, 9)
+x2 = reduce(lambda a,b:a+b, x)
+assert x2 == 35"
+                   )
+
+;;
+
+(pyel-create-tests aug-assign
+                   "a += b"
+                   "a -= b"
+                   "a /= b"
+                   "a *= b"
+                   "a **= b"
+                   "a ^= b"
+                   "a |= b"
+                   "a = 3
+  b = 4
+  a += b + 1
+  assert a == 8"
+
+                   "a.b += a[2]"
+                   "a.b += 4"
+                   "a.b += d.e"
+                   )
+
+;;
+
+;;
+
+;;
+
+(pyel-create-tests try
+                   "x = ''
+try:
+ 1 / 0
+ x = 'yes'
+except:
+ x = 'no'
+assert x == 'no'"
+
+                   "try:
+ _a()
+except:
+ try:
+  _x()
+ except:
+  _b()"
+                   )
+
+;;
+
+(pyel-create-tests list-comprehensions
+                   "[x*x for x in range(10)]"
+                   "[x*x for x in range(10) if x > 5]"
+                   "[x*x for x in range(10) if x > 5 if x < 8]"
+
+                   "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]"
+
+                   "
+matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
+_x = [[row[i] for row in matrix] for i in range(4)]
+assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]"
+
+                   "
+transposed = []
+for i in range(4):
+ transposed.append([row[i] for row in matrix])
+assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
+"
+
+                   "{x: [y*y for y in range(x)] for x in range(20)}"
+
+                   "x = {x: number_to_string(x) for x in range(10)}
+assert hash_table_count(x) == 10
+assert x[1] == '1'
+assert x[9] == '9'
+"
+                   )
+
+(pyel-create-tests boolop
+                   "a or b"
+                   "a or b or c"
+                   "a.c or b.c() or a[2]"
+                   "a and b"
+                   "a and b or c"
+                   "a[2] and b.f() or c.e"
+                   "a.e and b[2] or c.e() and 2 ")
+
+;;
+
+;;
+
+(pyel-create-tests conditional-expressions
+                   "1 if True else 0"
+                   "true() if tst() else false()"
+                   "a[1] if a[2:2] else a[2]"
+                   )
+
+;;
+
+;;
+
 ;;
 
 (pyel-create-tests
@@ -891,152 +1037,6 @@ z = x.copy()"
 ;;  'y')
 ;; x=cl_mapcar(f, [1, 2, 3, 4, 5], [4, 2, 1, 6, 3])
 ;; assert x == ['y', 'y', 'x', 'y', 'x']")
-
-;;
-
-(pyel-create-tests for-loop
-                   "b = [1,2,3,4]
-c = 0
-for a in b:
- c = c + a
-assert c==10"
-
-                   "for i in range(n):
- break"
-
-                   "for i in range(n):
- continue"
-
-                   "x = []
-for i in range(5):
- if i == 2:
-  continue
- x.append(i)
-assert x == [0,1,3,4]"
-                   )
-
-(pyel-create-tests global
-
-                   "def a():
- global x
- x = 3
- y = 1"
-
-                   "x = 1
-y = 1
-def func():
- global x
- x = 7
- y = 7
-func()
-assert x == 7
-assert y == 1
-"
-                   )
-
-;;
-
-(pyel-create-tests lambda
-                   "lambda x,y,z=4,*g: print(z);x()"
-                   "x = range(2, 9)
-x2 = reduce(lambda a,b:a+b, x)
-assert x2 == 35"
-                   )
-
-;;
-
-(pyel-create-tests aug-assign
-                   "a += b"
-                   "a -= b"
-                   "a /= b"
-                   "a *= b"
-                   "a **= b"
-                   "a ^= b"
-                   "a |= b"
-                   "a = 3
-  b = 4
-  a += b + 1
-  assert a == 8"
-
-                   "a.b += a[2]"
-                   "a.b += 4"
-                   "a.b += d.e"
-                   )
-
-;;
-
-;;
-
-;;
-
-(pyel-create-tests try
-                   "x = ''
-try:
- 1 / 0
- x = 'yes'
-except:
- x = 'no'
-assert x == 'no'"
-
-                   "try:
- _a()
-except:
- try:
-  _x()
- except:
-  _b()"
-                   )
-
-;;
-
-(pyel-create-tests list-comprehensions
-                   "[x*x for x in range(10)]"
-                   "[x*x for x in range(10) if x > 5]"
-                   "[x*x for x in range(10) if x > 5 if x < 8]"
-
-                   "assert [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y] == [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]"
-
-                   "
-matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
-_x = [[row[i] for row in matrix] for i in range(4)]
-assert _x == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]"
-
-                   "
-transposed = []
-for i in range(4):
- transposed.append([row[i] for row in matrix])
-assert transposed == [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
-"
-
-                   "{x: [y*y for y in range(x)] for x in range(20)}"
-
-                   "x = {x: number_to_string(x) for x in range(10)}
-assert hash_table_count(x) == 10
-assert x[1] == '1'
-assert x[9] == '9'
-"
-                   )
-
-(pyel-create-tests boolop
-                   "a or b"
-                   "a or b or c"
-                   "a.c or b.c() or a[2]"
-                   "a and b"
-                   "a and b or c"
-                   "a[2] and b.f() or c.e"
-                   "a.e and b[2] or c.e() and 2 ")
-
-;;
-
-;;
-
-(pyel-create-tests conditional-expressions
-                   "1 if True else 0"
-                   "true() if tst() else false()"
-                   "a[1] if a[2:2] else a[2]"
-                   )
-
-;;
 
 ;;
 

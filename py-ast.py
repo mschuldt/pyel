@@ -184,12 +184,6 @@ def ClassDef (name, bases, keywords, starargs, kwargs, body, decorator_list, lin
 def Assert(test, msg, lineno='nil', col_offset='nil'):
     return ll_str(["assert ", test , msg or "nil", lineno, col_offset])
 
-
-
-
-
-
-
 def For(target, iter, body, orelse, lineno='nil', col_offset='nil'):
     return l_str(["for ", target, iter, ll_str(body), ll_str(orelse), lineno, col_offset])
 
@@ -259,6 +253,12 @@ def IfExp (test, body, orelse, lineno='nil', col_offset='nil'):
 
 def Raise(exc, cause, lineno='nil', col_offset='nil'):
     return l_str(["raise", exc, cause or "nil", lineno, col_offset])
+
+
+
+
+
+
 
 
 

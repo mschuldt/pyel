@@ -823,164 +823,6 @@ Recognizes keyword args in the form 'arg = value'."
 (defun pyel-assert (test msg &optional line col)
   `(assert ,(transform test) t ,(transform msg)))
 
-(pyel-translate-function-name 'map 'mapcar)
-
-(pyel-func-transform len (thing)
-                     (object) -> (call-method thing --len--)
-                     (_)      -> (length thing))
-
-(push '(range py-range) pyel-function-name-translations)
-
-(pyel-translate-function-name 'input 'read-string)
-
-(pyel-translate-function-name 'list 'py-list)
-
-(pyel-translate-function-name 'hasattr 'obj-hasattr)
-
-(pyel-translate-function-name 'isinstance 'obj-isinstance)
-
-(pyel-func-transform str (thing)
-                     (number) -> (number-to-string thing)
-                     (string) -> (format "\"%s\"" thing)
-                     (function) -> (py-function-str thing)
-                     (list) -> (py-list-str thing)
-                     (object) -> (call-method thing --str--)
-                     (vector) -> (py-vector-str thing)
-                     (hash) -> (py-hash-str thing)
-                     (symbol) -> (symbol-name thing))
-
-(pyel-translate-function-name 'str 'pyel-str)
-
-(pyel-func-transform repr (thing)
-                     (number) -> (number-to-string thing)
-                     (string) -> (py-repr-string thing)
-                     (function) -> (py-function-str thing)
-                     (symbol) -> (pyel-symbol-str thing)
-                     (list) -> (py-list-repr thing)
-                     (object) -> (call-method thing --repr--)
-                     (vector) -> (py-vector-str thing)
-                     (hash) -> (py-hash-str thing))
-
-(pyel-translate-function-name 'repr 'pyel-repr)
-
-(pyel-translate-function-name 'hex 'py-hex)
-
-(pyel-translate-function-name 'bin 'py-bin)
-
-;;(pyel-translate-function-name 'print 'py-print)
-(pyel-define-function-translation
- print
- `(py-print ,(cadr (assoc 'sep kwargs))
-            ,(cadr (assoc 'end kwargs))
-            nil ;;TODO: file=sys.stdout
-            ,@args))
-
-(pyel-define-function-translation
- pow
- (case (length args)
-   (3 (list 'mod (list 'expt (car args) (cadr args)) (caddr args)))
-   (2 (list 'expt (car args) (cadr args)))
-   (t "ERROR") ;;TODO
-   ))
-
-(pyel-translate-function-name 'eval 'py-eval)
-
-(pyel-translate-function-name 'type 'py-type)
-
-(pyel-func-transform abs (object)
-                     (number) -> (abs object)
-                     (object) -> (call-method object --abs--))
-
-(pyel-translate-function-name 'chr 'byte-to-string)
-
-;;
-
-(pyel-method-transform append (obj thing)
-                       (list _) -> (py-list-append obj thing)
-                       (_ _)    -> (call-method obj append thing))
-
-(pyel-method-transform insert (obj i x)
-                       (list _) -> (py-insert obj i x)
-                       (_ _) -> (call-method obj insert i x))
-
-(pyel-method-transform index (obj elem)
-                       (list _) -> (list-index elem obj)
-                       (string _) -> (py-string-index obj elem)
-                       (object _) -> (call-method obj index elem)
-                       (vector _) -> (vector-index elem obj))
-
-(pyel-method-transform remove (obj x)
-                       (list _) -> (py-list-remove obj x)
-                       (_ _) -> (call-method obj remove x))
-
-(pyel-method-transform count (obj elem)
-                       (string _) -> (count-str-matches obj elem)
-                       (list _) -> (count-elems-list obj elem)
-                       (object _)  -> (call-method obj count elem)
-                       (vector _) -> (count-elems-vector obj elem))
-
-(pyel-method-transform join (obj elem)
-                       (string _) ->  (mapconcat 'identity elem obj)
-                       (_ _)      -> (call-method obj join thing))
-
-(pyel-method-transform extend (obj elem)
-                       (list _) ->  (py-list-extend obj elem)
-                       (_ _)    ->  (call-method obj extend elem))
-
-(pyel-method-transform pop (obj &optional a)
-                       (list _) -> (py-list-pop obj a)
-                       (hash _) -> (py-hash-pop obj a)
-                       (_ _)    -> (call-method obj pop a))
-
-(pyel-method-transform reverse (obj)
-                       (list) ->  (pyel-list-reverse obj)
-                       (_)    ->  (call-method obj reverse))
-
-(pyel-method-transform lower (obj)
-                       (string) ->  (downcase obj)
-                       (_)    ->  (call-method obj lower))
-
-(pyel-method-transform upper (obj)
-                       (string) ->  (upcase obj)
-                       (_)    ->  (call-method obj upper))
-
-(pyel-method-transform split (obj &optional sep maxsplit)
-                       (string) ->  (pyel-split obj sep maxsplit)
-                       (_)    ->  (call-method obj split sep maxsplit))
-
-(pyel-method-transform strip (obj &optional chars)
-                       (string) ->  (pyel-strip obj chars)
-                       (_)    ->  (call-method obj strip chars))
-
-(pyel-method-transform get (obj key &optional default)
-                       (hash) ->  (gethash key obj default)
-                       (_)    ->  (call-method-with-defaults obj get
-                                                             (key) (default)))
-
-(pyel-method-transform items (obj)
-                         (hash) -> (pyel-dict-items obj)
-                         (_)    -> (call-method obj items))
-
-(pyel-method-transform keys (obj)
-                           (hash) -> (pyel-dict-keys obj)
-                           (_)    -> (call-method obj key))
-
-(pyel-method-transform values (obj)
-                       (hash) -> (pyel-dict-values obj)
-                       (_)    -> (call-method obj values))
-
-(pyel-method-transform popitem (obj)
-                       (hash) -> (pyel-hash-popitem obj)
-                       (_)    -> (call-method obj popitem))
-
-(pyel-method-transform copy (obj)
-                       (hash) -> (copy-hash-table obj)
-                       (_)    -> (call-method obj popitem))
-
-;;
-
-;;
-
 (def-transform for pyel ()
   (lambda (target iter body orelse &optional line col)
     (pyel-for target iter body orelse line col)))
@@ -1198,6 +1040,164 @@ Recognizes keyword args in the form 'arg = value'."
 (def-transform raise pyel ()
   (lambda (exc cause &optional line col)
     `(py-raise ,(transform exc)))) ;;TODO: ignoring cause
+
+;;
+
+(pyel-translate-function-name 'map 'mapcar)
+
+(pyel-func-transform len (thing)
+                     (object) -> (call-method thing --len--)
+                     (_)      -> (length thing))
+
+(push '(range py-range) pyel-function-name-translations)
+
+(pyel-translate-function-name 'input 'read-string)
+
+(pyel-translate-function-name 'list 'py-list)
+
+(pyel-translate-function-name 'hasattr 'obj-hasattr)
+
+(pyel-translate-function-name 'isinstance 'obj-isinstance)
+
+(pyel-func-transform str (thing)
+                     (number) -> (number-to-string thing)
+                     (string) -> (format "\"%s\"" thing)
+                     (function) -> (py-function-str thing)
+                     (list) -> (py-list-str thing)
+                     (object) -> (call-method thing --str--)
+                     (vector) -> (py-vector-str thing)
+                     (hash) -> (py-hash-str thing)
+                     (symbol) -> (symbol-name thing))
+
+(pyel-translate-function-name 'str 'pyel-str)
+
+(pyel-func-transform repr (thing)
+                     (number) -> (number-to-string thing)
+                     (string) -> (py-repr-string thing)
+                     (function) -> (py-function-str thing)
+                     (symbol) -> (pyel-symbol-str thing)
+                     (list) -> (py-list-repr thing)
+                     (object) -> (call-method thing --repr--)
+                     (vector) -> (py-vector-str thing)
+                     (hash) -> (py-hash-str thing))
+
+(pyel-translate-function-name 'repr 'pyel-repr)
+
+(pyel-translate-function-name 'hex 'py-hex)
+
+(pyel-translate-function-name 'bin 'py-bin)
+
+;;(pyel-translate-function-name 'print 'py-print)
+(pyel-define-function-translation
+ print
+ `(py-print ,(cadr (assoc 'sep kwargs))
+            ,(cadr (assoc 'end kwargs))
+            nil ;;TODO: file=sys.stdout
+            ,@args))
+
+(pyel-define-function-translation
+ pow
+ (case (length args)
+   (3 (list 'mod (list 'expt (car args) (cadr args)) (caddr args)))
+   (2 (list 'expt (car args) (cadr args)))
+   (t "ERROR") ;;TODO
+   ))
+
+(pyel-translate-function-name 'eval 'py-eval)
+
+(pyel-translate-function-name 'type 'py-type)
+
+(pyel-func-transform abs (object)
+                     (number) -> (abs object)
+                     (object) -> (call-method object --abs--))
+
+(pyel-translate-function-name 'chr 'byte-to-string)
+
+;;
+
+(pyel-method-transform append (obj thing)
+                       (list _) -> (py-list-append obj thing)
+                       (_ _)    -> (call-method obj append thing))
+
+(pyel-method-transform insert (obj i x)
+                       (list _) -> (py-insert obj i x)
+                       (_ _) -> (call-method obj insert i x))
+
+(pyel-method-transform index (obj elem)
+                       (list _) -> (list-index elem obj)
+                       (string _) -> (py-string-index obj elem)
+                       (object _) -> (call-method obj index elem)
+                       (vector _) -> (vector-index elem obj))
+
+(pyel-method-transform remove (obj x)
+                       (list _) -> (py-list-remove obj x)
+                       (_ _) -> (call-method obj remove x))
+
+(pyel-method-transform count (obj elem)
+                       (string _) -> (count-str-matches obj elem)
+                       (list _) -> (count-elems-list obj elem)
+                       (object _)  -> (call-method obj count elem)
+                       (vector _) -> (count-elems-vector obj elem))
+
+(pyel-method-transform join (obj elem)
+                       (string _) ->  (mapconcat 'identity elem obj)
+                       (_ _)      -> (call-method obj join thing))
+
+(pyel-method-transform extend (obj elem)
+                       (list _) ->  (py-list-extend obj elem)
+                       (_ _)    ->  (call-method obj extend elem))
+
+(pyel-method-transform pop (obj &optional a)
+                       (list _) -> (py-list-pop obj a)
+                       (hash _) -> (py-hash-pop obj a)
+                       (_ _)    -> (call-method obj pop a))
+
+(pyel-method-transform reverse (obj)
+                       (list) ->  (pyel-list-reverse obj)
+                       (_)    ->  (call-method obj reverse))
+
+(pyel-method-transform lower (obj)
+                       (string) ->  (downcase obj)
+                       (_)    ->  (call-method obj lower))
+
+(pyel-method-transform upper (obj)
+                       (string) ->  (upcase obj)
+                       (_)    ->  (call-method obj upper))
+
+(pyel-method-transform split (obj &optional sep maxsplit)
+                       (string) ->  (pyel-split obj sep maxsplit)
+                       (_)    ->  (call-method obj split sep maxsplit))
+
+(pyel-method-transform strip (obj &optional chars)
+                       (string) ->  (pyel-strip obj chars)
+                       (_)    ->  (call-method obj strip chars))
+
+(pyel-method-transform get (obj key &optional default)
+                       (hash) ->  (gethash key obj default)
+                       (_)    ->  (call-method-with-defaults obj get
+                                                             (key) (default)))
+
+(pyel-method-transform items (obj)
+                         (hash) -> (pyel-dict-items obj)
+                         (_)    -> (call-method obj items))
+
+(pyel-method-transform keys (obj)
+                           (hash) -> (pyel-dict-keys obj)
+                           (_)    -> (call-method obj key))
+
+(pyel-method-transform values (obj)
+                       (hash) -> (pyel-dict-values obj)
+                       (_)    -> (call-method obj values))
+
+(pyel-method-transform popitem (obj)
+                       (hash) -> (pyel-hash-popitem obj)
+                       (_)    -> (call-method obj popitem))
+
+(pyel-method-transform copy (obj)
+                       (hash) -> (copy-hash-table obj)
+                       (_)    -> (call-method obj popitem))
+
+;;
 
 ;;
 
