@@ -5052,18 +5052,21 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
    remove-method
-   ("x = [1,'2','2',(1,)]"
-    "y = x"
-    "x.remove('2')"
+   ("x = [1,'2','2',(1,)]
+  y = x
+  x.remove('2')"
     ("x is y" t))
-   ("x = [1,'2','2',(1,)]"
-    "x.remove('2')"
+   
+   ("x = [1,'2','2',(1,)]
+  x.remove('2')"
     ("x" '(1 "2" [1])))
-   ("x = [1,'2','2',(1,)]"
-    "x.remove(1)"
+   
+   ("x = [1,'2','2',(1,)]
+  x.remove(1)"
     ("x" '("2" "2" [1])))
-   ("x = [1,'2','2',(1,)]"
-    "x.remove(1)"
+   
+   ("x = [1,'2','2',(1,)]
+  x.remove((1,))"
     ("x" '(1 "2" "2"))))
 #+END_SRC
 ** count
