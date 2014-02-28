@@ -209,7 +209,6 @@ useing python3 unless PYTHON2 is non-nil"
 
 (defun pyel-reset()
   "reset internal variables"
-  (interactive)
   (setq pyel-method-name-arg-signature (make-hash-table :test 'eq)
         pyel-function-definitions nil
         pyel-defined-functions nil

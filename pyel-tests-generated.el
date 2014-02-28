@@ -15,8 +15,8 @@
  if n == 2:
   return repr(x)" "def pyel_test_values_method_335(n):
  x = {1:'one',2:'two',3:'three'}
-     y = {8 : 88}
-     z = {}
+ y = {8 : 88}
+ z = {}
  if n == 1:
   return x.values()
  
@@ -95,10 +95,10 @@
  if n == 2:
   return x is y" "def pyel_test_pop_method_325(n):
  x = [[1],'s',(2,), 1, 4]
-  y = x
-  a = x.pop()
-  b = x.pop(0)
-  c = x.pop(2)
+ y = x
+ a = x.pop()
+ b = x.pop(0)
+ c = x.pop(2)
   
  if n == 1:
   return a

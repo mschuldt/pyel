@@ -230,7 +230,7 @@ These names will be set globally to their index in this list")
     (if special
 	`(_getattr-special-explicit ,object ',attr)
       `(getattr-1 ,object ',attr))))
-
+(aref object getattribute-index)
 (defun getattr-1 (object attr)
   "lookup ATTR in OBJECT. Presumes ATTR is not a special method.
 if it is not call OBJECT's --getattr-- method if defined"

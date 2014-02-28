@@ -756,23 +756,23 @@ x.extend(obj)"
   ("x" '(1 "5" "4" "3" "2" "1"))))
 
 (pyel-create-tests
-  pop-method
-  ("x = [[1],'s',(2,), 1, 4]
- y = x
- a = x.pop()
- b = x.pop(0)
- c = x.pop(2)
+ pop-method
+ ("x = [[1],'s',(2,), 1, 4]
+y = x
+a = x.pop()
+b = x.pop(0)
+c = x.pop(2)
  "
-   ("a" 4)
-   ("b" '(1))
-   ("c" 1)
-   ("x is y" t))
+  ("a" 4)
+  ("b" '(1))
+  ("c" 1)
+  ("x is y" t))
 
-  ("x = {1:'one',2:'two',3:'three'}
+ ("x = {1:'one',2:'two',3:'three'}
 y = x.pop(2)"
-   ("y" "two") 
-   ("repr(x)" "{1: \"one\", 3: \"three\"}"))
-  )
+  ("y" "two") 
+  ("repr(x)" "{1: \"one\", 3: \"three\"}"))
+ )
 
 (pyel-create-tests
  reverse-method
@@ -844,8 +844,8 @@ z = {}"
 (pyel-create-tests
  values-method
  ("x = {1:'one',2:'two',3:'three'}
-    y = {8 : 88}
-    z = {}"
+y = {8 : 88}
+z = {}"
   ("x.values()" '("three" "two" "one"))
   ("y.values()" '(88))
   ("z.values()" nil)))

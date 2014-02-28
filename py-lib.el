@@ -522,7 +522,7 @@
 
 (defun pyel-split (string &optional sep maxsplit)
   
-  (let ((sep (or (regexp-quote sep) "[ \f\t\n\r\v]+")) ;;correct default?
+  (let ((sep (or (and sep (regexp-quote sep)) "[ \f\t\n\r\v]+")) ;;correct default?
         (ret (split-string string sep t)))
     (if maxsplit
         ret ;;TODO
