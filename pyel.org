@@ -1681,6 +1681,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
           (c 0)
           ert-tests
           tests
+          invalid-form
           trans)
       (message "creating tests for '%s'" name)
       (progv
@@ -1690,7 +1691,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (flet ((pyel-create-new-marker () "test_marker"))
           (condition-case err
               (dolist (test (reverse py-tests))
-                (or (pyel-check-test-form-p test) (error "pyel-create-tests -- invalid test form: %s" (pp-to-string test)))
+                (or (setq valid-form (pyel-check-test-form-p test)) (error nil))
                 (cond ((and (consp test)
                             (>= (length test) 2)
                             (and (consp (cadr test))
@@ -1770,7 +1771,9 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                     (string= (pyel ,test nil nil t)
                                              ,(pyel test nil nil t)))
                                  _pyel-structure-tests)))))
-            (error (error "Error while creating test: '%s'. Error: " name err)))))))
+            (error (error "Error while creating test: '%s'. Error: %s" name (if valid-form
+                                                                                err
+                                                                                "Invalid form"))))))))
   
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
