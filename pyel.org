@@ -1656,7 +1656,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
              (or 
               ;; form: ("test" expect)
               (and (= (length form) 2)
-                   (not (pyel-test-list-form-p (cadr form))))
+                   (not (pyel-test-list-form-p (cadr form)))
+                   (not (symbolp (cadr form))))
               ;; form: ("setup" test-forms ...)
               (and (let ((ok t))
                      (dolist (x (cdr form))
@@ -1664,13 +1665,15 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                              (= (length x) 2)
                                              (stringp (car x))
                                          ;;;test-form: ("test1" result1)
-                                             (or (not (pyel-test-list-form-p (cadr x)))
+                                             (or (not (and (pyel-test-list-form-p (cadr x))
+                                                           (symbolp (cadr x))))
                                                  ;;test-form: ("test1setup" ("test1" result1))                                   
                                                  (let ((subform (cadr x)))
                                                    (and (consp subform)
                                                         (= (length subform) 2)
                                                         (stringp (car subform))
-                                                        (not (pyel-test-list-form-p (cadr subform))))))))))
+                                                        (not (and (pyel-test-list-form-p (cadr subform))
+                                                                  (symbolp (cadr subform)))))))))))
                      ok))))))
   
   
