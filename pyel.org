@@ -4821,8 +4821,8 @@ x.insert(1,'hi')"
   (pyel-create-tests
    values-method
    ("x = {1:'one',2:'two',3:'three'}
-      y = {8 : 88}
-      z = {}"
+  y = {8 : 88}
+  z = {}"
     ("x.values()" '("three" "two" "one"))
     ("y.values()" '(88))
     ("z.values()" nil)))
