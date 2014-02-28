@@ -1635,6 +1635,45 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
       (cl-prettyprint form)
       (buffer-string)))
   
+  
+  (defun pyel-test-list-form-p (form)
+    "return t if FORM describes part of a pyel test.
+  All lists are a part of pyel tests except those whose
+  car is 'lambda or 'quote" 
+    (and
+     (listp form)
+     (> (length form) 0)
+     (not (or (eq (car form) 'lambda)
+              (eq (car form) 'quote)))))
+  
+  (defun pyel-check-test-form-p (form)
+    "Returns t if FORM is a valid pyel test"
+    (or (stringp form)
+        
+        (and (consp form)
+             (>= (length form) 2)
+             (stringp (car form))
+             (or 
+              ;; form: ("test" expect)
+              (and (= (length form) 2)
+                   (not (pyel-test-list-form-p (cadr form))))
+              ;; form: ("setup" test-forms ...)
+              (and (let ((ok t))
+                     (dolist (x (cdr form))
+                       (setq ok (and ok (and (consp x)
+                                             (= (length x) 2)
+                                             (stringp (car x))
+                                         ;;;test-form: ("test1" result1)
+                                             (or (not (pyel-test-list-form-p (cadr x)))
+                                                 ;;test-form: ("test1setup" ("test1" result1))                                   
+                                                 (let ((subform (cadr x)))
+                                                   (and (consp subform)
+                                                        (= (length subform) 2)
+                                                        (stringp (car subform))
+                                                        (not (pyel-test-list-form-p (cadr subform))))))))))
+                     ok))))))
+  
+  
   (defmacro pyel-create-tests (name &rest py-tests)
     (let ((complete nil)
           (py-ast nil)
@@ -1651,13 +1690,14 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
         (flet ((pyel-create-new-marker () "test_marker"))
           (condition-case err
               (dolist (test (reverse py-tests))
+                (or (pyel-check-test-form-p test) (error "pyel-create-tests -- invalid test form: %s" (pp-to-string test)))
                 (cond ((and (consp test)
                             (>= (length test) 2)
                             (and (consp (cadr test))
                                  (not (or (eq (caadr test) 'lambda)
                                           (eq (caadr test) 'quote))))
                             )
-                       (let* ((tests)  ;;form: ("test" ("test1" result1) ("test2" result2) ...)
+                       (let* ((tests)  ;;form: ("setup" ("test1" result1) ("test2" result2) ...)
                               (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
                               (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
                               (d 0))
