@@ -328,7 +328,6 @@ main
   
   (defun pyel-reset()
     "reset internal variables"
-    (interactive)
     (setq pyel-method-name-arg-signature (make-hash-table :test 'eq)
           pyel-function-definitions nil
           pyel-defined-functions nil
