@@ -179,7 +179,7 @@ These names will be set globally to their index in this list")
     ;;   `(progn (setq ,name ',new)
     ;; 	      (defun ,name (&rest args)
     ;; 		(obj-make-instance ,name args))))
-    (set name new)
+    `(setq ,name ,new)
     ))
 
 (defun obj-make-instance (class args)
