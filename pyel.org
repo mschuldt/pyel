@@ -2654,7 +2654,9 @@ this test is disabled. It pollutes global variables
                       ;;TODO: macro for this
                       (string string) -> (pyel-string> l r)
                       (list list) -> (pyel-list-> l r)
-                      (object _) -> (__gt__ l r))
+                      (object _) -> (__gt__ l r)
+                      (vector vector) -> (pyel-vector-> l r)
+                      )
   
   ;;TODO: other py types?
   
@@ -2755,6 +2757,23 @@ this test is disabled. It pollutes global variables
   
   (defsubst pyel-list<= (a b)
     (or (equal a b) (pyel-list-< a b)))
+  
+  (defun pyel-vector-> (a b)
+    (let* ((greator nil)
+           (len-a (length a))
+           (len-b (length b))
+           (len (min len-a len-b))
+           (i 0)
+           e1 e2)
+      (while (and (< i len)
+                  (equal e1 e2))
+        (setq e1 (aref a i)
+              e2 (aref b i)
+              i (1+ i)))
+      (or (pyel-> e1 e2)
+          (and (= i len)
+               (equal e1 e2)
+               (> len-a len-b)))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
