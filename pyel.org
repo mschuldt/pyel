@@ -2667,7 +2667,7 @@ this test is disabled. It pollutes global variables
   
   (pyel-dispatch-func >= (l r)
                       (number number) -> (>= l r)
-                      (string string) -> (pyel-string<= l r)
+                      (string string) -> (pyel-string>= l r)
                       (list list)     ->  (pyel-list>= l r)
                       (object _) -> (__ge__ l r))
   
