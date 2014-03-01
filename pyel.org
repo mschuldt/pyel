@@ -2674,6 +2674,7 @@ this test is disabled. It pollutes global variables
   (pyel-dispatch-func <= (l r)
                       (number number) -> (<= l r)
                       (string string) -> (pyel-string<= l r)
+                      (list list)     -> (pyel-list<= l r)
                       (object _) -> (__le__ l r))
   
   (pyel-dispatch-func != (l r)
@@ -2751,6 +2752,9 @@ this test is disabled. It pollutes global variables
   
   (defsubst pyel-list>= (a b)
     (or (equal a b) (pyel-list-> a b)))
+  
+  (defsubst pyel-list<= (a b)
+    (or (equal a b) (pyel-list-< a b)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
