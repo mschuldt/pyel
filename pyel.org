@@ -2078,7 +2078,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
     (interactive)
     (setq selector (or selector
                        (let ((tests '(("all" . "pyel")
-                                      ("normal" . "pyel-test")
+                                      ("standard" . "pyel-test")
                                       ("python AST" . "pyel-py-ast-test")
                                       ("lisp AST" . "pyel-el-ast-test")
                                       ("transform" . "pyel-transform-test"))))
