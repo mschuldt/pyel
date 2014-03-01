@@ -1,3 +1,179 @@
+* todo
+** built-in methods
+| method           | list? | tuple? | str? | dict? | tests | notes |
+|------------------+-------+--------+------+-------+-------+-------|
+| append           | YES   | na     | na   | na    | YES   |       |
+| count            | YES   | YES    | YES  | na    | YES   |       |
+| extend           | YES   | na     | na   | na    | YES   |       |
+| index            | YES   | YES    | YES  | na    | YES   |       |
+| insert           | YES   | na     | na   | na    | YES   |       |
+| pop              | YES   | na     | na   | YES   | YES   |       |
+| remove           | YES   | na     | na   | na    | YES   |       |
+| reverse          | YES   | na     | na   | na    | YES   |       |
+| sort             |       | na     | na   | na    |       |       |
+| clear            | na    | na     | na   |       |       |       |
+| copy             | na    | na     | na   | YES   | YES   |       |
+| fromkeys         | na    | na     | na   |       |       |       |
+| get              | na    | na     | na   | YES   | YES   |       |
+| items            | na    | na     | na   | YES   | YES   |       |
+| keys             | na    | na     | na   | YES   | YES   |       |
+| popitem          | na    | na     | na   | YES   | YES   |       |
+| setdefault       | na    | na     | na   |       |       |       |
+| update           | na    | na     | na   |       |       |       |
+| values           | na    | na     | na   | YES   | YES   |       |
+| zfill            | na    | na     |      | na    |       |       |
+| upper            | na    | na     | YES  | YES   | YES   |       |
+| translate        | na    | na     |      | na    |       |       |
+| title            | na    | na     |      | na    |       |       |
+| swapcase         | na    | na     |      | na    |       |       |
+| strip            | na    | na     | YES  | YES   | YES   |       |
+| startswith       | na    | na     |      | na    |       |       |
+| splitlines       | na    | na     |      | na    |       |       |
+| split            | na    | na     | YES  | YES   | YES   |       |
+| rstrip           | na    | na     |      | na    |       |       |
+| rsplit           | na    | na     |      | na    |       |       |
+| rpartition       | na    | na     |      | na    |       |       |
+| rjust            | na    | na     |      | na    |       |       |
+| rindex           | na    | na     |      | na    |       |       |
+| rfind            | na    | na     |      | na    |       |       |
+| replace          | na    | na     |      | na    |       |       |
+| partition        | na    | na     |      | na    |       |       |
+| lstrip           | na    | na     |      | na    |       |       |
+| lower            | na    | na     | YES  | YES   | YES   |       |
+| ljust            | na    | na     |      | na    |       |       |
+| join             | na    | na     | YES  | na    | YES   |       |
+| isupper          | na    | na     |      | na    |       |       |
+| istitle          | na    | na     |      | na    |       |       |
+| isspace          | na    | na     |      | na    |       |       |
+| isprintable      | na    | na     |      | na    |       |       |
+| isnumeric        | na    | na     |      | na    |       |       |
+| islower          | na    | na     |      | na    |       |       |
+| isidentifier     | na    | na     |      | na    |       |       |
+| isdigit          | na    | na     |      | na    |       |       |
+| isdecimal        | na    | na     |      | na    |       |       |
+| isalpha          | na    | na     |      | na    |       |       |
+| isalnum          | na    | na     |      | na    |       |       |
+| format_map       | na    | na     |      | na    |       |       |
+| format           | na    | na     |      | na    |       |       |
+| find             | na    | na     |      | na    |       |       |
+| expandtabs       | na    | na     |      | na    |       |       |
+| capitalize       | na    | na     |      | na    |       |       |
+| center           | na    | na     |      | na    |       |       |
+| encode           | na    | na     |      | na    |       |       |
+| endswith         | na    | na     |      | na    |       |       |
+| maketrans        | na    | na     |      | na    |       |       |
+| __add__          |       |        |      | na    |       |       |
+| __contains__     |       |        |      |       |       |       |
+| __delitem__      |       | na     | na   |       |       |       |
+| __eq__           |       | na     |      |       |       |       |
+| __ge__           |       | na     |      |       |       |       |
+| __getattribute__ |       |        |      |       |       |       |
+| __getitem__      |       |        |      |       |       |       |
+| __getnewargs__   | na    |        |      | na    |       |       |
+| __hash__         |       |        |      |       |       |       |
+| __gt__           |       |        |      |       |       |       |
+| __iadd__         |       | na     | na   | na    |       |       |
+| __imul__         |       | na     | na   | na    |       |       |
+| __init__         |       |        |      |       |       |       |
+| __iter__         |       |        |      |       |       |       |
+| __le__           |       |        |      |       |       |       |
+| __len__          |       |        |      |       |       |       |
+| __lt__           |       |        |      |       |       |       |
+| __mul__          |       |        |      | na    |       |       |
+| __ne__           |       |        |      |       |       |       |
+| __repr__         |       |        |      |       |       |       |
+| __rmul__         |       |        |      | na    |       |       |
+| __reversed__     |       | na     | na   | na    |       |       |
+| __rmul__         |       |        |      | na    |       |       |
+| __setitem__      |       | na     | na   |       |       |       |
+| __sizeof__       |       |        |      |       |       |       |
+
+** built-in functions
+http://docs.python.org/2/library/functions.html
+
+| function     | status | tests | notes                            |
+|--------------+--------+-------+----------------------------------|
+| abs          | x      |       |                                  |
+| divmod       |        |       |                                  |
+| input        | x      |       |                                  |
+| open         |        |       |                                  |
+| staticmethod |        |       |                                  |
+| all          |        |       |                                  |
+| enumerate    |        |       |                                  |
+| int          |        |       |                                  |
+| ord          |        |       |                                  |
+| str          |        |       |                                  |
+| any          |        |       |                                  |
+| eval         | x      |       |                                  |
+| isinstance   | x      |       |                                  |
+| pow          | -      |       | assumes numbers                  |
+| sum          |        |       |                                  |
+| basestring   |        |       |                                  |
+| execfile     |        |       |                                  |
+| issubclass   |        |       |                                  |
+| print        | -      |       | does not call pyel str functions |
+| super        |        |       |                                  |
+| bin          | x      |       |                                  |
+| file         |        |       |                                  |
+| iter         |        |       |                                  |
+| property     |        |       |                                  |
+| tuple        |        |       |                                  |
+| bool         |        |       |                                  |
+| filter       |        |       |                                  |
+| len          | x      |       |                                  |
+| range        | x      |       |                                  |
+| type         |        |       |                                  |
+| bytearray    |        |       |                                  |
+| float        |        |       |                                  |
+| list         | x      |       |                                  |
+| raw_input    |        |       |                                  |
+| unichr       |        |       |                                  |
+| callable     |        |       |                                  |
+| format       |        |       |                                  |
+| locals       |        |       |                                  |
+| reduce       |        |       |                                  |
+| unicode      |        |       |                                  |
+| chr          | x      |       |                                  |
+| frozenset    |        |       |                                  |
+| long         |        |       |                                  |
+| reload       |        |       |                                  |
+| vars         |        |       |                                  |
+| classmethod  |        |       |                                  |
+| getattr      | x      |       |                                  |
+| map          | x      |       | ??? really equivalent?           |
+| repr         |        |       |                                  |
+| xrange       |        |       |                                  |
+| cmp          |        |       |                                  |
+| globals      |        |       |                                  |
+| max          |        |       |                                  |
+| reversed     |        |       |                                  |
+| zip          |        |       |                                  |
+| compile      |        |       |                                  |
+| hasattr      | x      |       |                                  |
+| memoryview   |        |       |                                  |
+| round        |        |       |                                  |
+| __import__   |        |       |                                  |
+| complex      |        |       |                                  |
+| hash         |        |       |                                  |
+| min          |        |       |                                  |
+| set          |        |       |                                  |
+| apply        |        |       |                                  |
+| delattr      |        |       |                                  |
+| help         |        |       |                                  |
+| next         |        |       |                                  |
+| setattr      |        |       |                                  |
+| buffer       |        |       |                                  |
+| dict         |        |       |                                  |
+| hex          | x      |       |                                  |
+| object       |        |       |                                  |
+| slice        |        |       |                                  |
+| coerce       |        |       |                                  |
+| dir          |        |       |                                  |
+| id           |        |       |                                  |
+| oct          |        |       |                                  |
+| sorted       |        |       |                                  |
+| intern       |        |       |                                  |
+
 * documentation
 TODO: how to export a heading as pdf or into a seporate file?
 
