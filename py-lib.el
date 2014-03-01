@@ -1,8 +1,6 @@
 
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
-
-
 (defsubst pyel-string> (a b)
   (and (not (string< a b)) (not (string= a b))))
 
@@ -496,6 +494,14 @@ EXC must be derived from BaseException"
         (t (type-of object))))
 
 
+
+(defun pyel-exit ()
+  (if pyel-interactive
+      (progn (kill-buffer)
+             (message "you killed ipyel")
+             (throw 'ipyel-quit nil))
+    ;;(kill-emacs)
+    (save-buffers-kill-terminal)))
 
 
 

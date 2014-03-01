@@ -246,8 +246,6 @@
     s
     ))
 
-
-
 (def-transform compare pyel ()
   (lambda (left ops comparators &optional line col)
     ;;what if comparators has multiple items?
@@ -267,7 +265,7 @@
                     (number number) -> (= l r)
                     (string string) -> (string= l r)
                     ;;                       (object _) -> (--eq-- l r)
-
+                    
                     (_ _) -> (equal l r))
 
 (pyel-dispatch-func > (l r)
@@ -1123,6 +1121,8 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-translate-function-name 'chr 'byte-to-string)
 
 (pyel-translate-function-name 'ord 'string-to-char)
+
+(pyel-translate-function-name 'exit 'pyel-exit)
 
 ;;
 
