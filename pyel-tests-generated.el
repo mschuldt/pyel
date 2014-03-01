@@ -528,12 +528,15 @@ _pyel21312()")) "ll"))
 (ert-deftest pyel-split-method3 nil (equal (eval (pyel "def _pyel21312():
  'a b c'.split()
 _pyel21312()")) (quote ("a" "b" "c"))))
-(ert-deftest pyel-join-method2 nil (equal (eval (pyel "def _pyel21312():
+(ert-deftest pyel-join-method3 nil (equal (eval (pyel "def _pyel21312():
  'X'.join(('f','g'))
 _pyel21312()")) "fXg"))
-(ert-deftest pyel-join-method1 nil (equal (eval (pyel "def _pyel21312():
+(ert-deftest pyel-join-method2 nil (equal (eval (pyel "def _pyel21312():
  ' '.join([str(x) for x in range(3)])
 _pyel21312()")) "0 1 2"))
+(ert-deftest pyel-join-method1 nil (equal (eval (pyel "def _pyel21312():
+ ''.join(['a','b']))
+_pyel21312()")) "ab"))
 (ert-deftest pyel-count-method13 nil (equal (eval (pyel "def _pyel21312():
  'xxxxx'.count('x')
 _pyel21312()")) 5))
@@ -698,9 +701,6 @@ _pyel21312()")) (quote ("a" 1 2))))
 (ert-deftest pyel-list1 nil (equal (eval (pyel "def _pyel21312():
  [[[1]]]
 _pyel21312()")) (quote (((1))))))
-(ert-deftest pyel-name1 nil (equal (eval (pyel "def _pyel21312():
- testName
-_pyel21312()")) (quote testName)))
 (ert-deftest pyel-num3 nil (equal (eval (pyel "def _pyel21312():
  3
 _pyel21312()")) 3))

@@ -3,7 +3,7 @@
 
 ;
 
-(ert-deftest pyel-expand-type-switch ()
+(ert-deftest pyel-test-expand-type-switch ()
   (should (equal (pyel-expand-type-switch-2 '(l r)
                                             '((number number) ->  (* l r)
                                               (object _)
@@ -12,7 +12,7 @@
                                               (string _)  -> (pyel-mul-num-str l r)))
                  '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-mul-num-str l r)) ((l string) (pyel-mul-num-str l r))))))
 
-(ert-deftest pyel-do-splices ()
+(ert-deftest pyel-test-do-splices ()
   (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))
   (should (equal (pyel-do-splices '(a (@ b c)))  '(a b c)))
   (should (equal (pyel-do-splices '(a (@ b (c (@ 2 (n (x 1 (@ 2))) 3 (@ 3) (@ a b (2)))))))
@@ -110,9 +110,8 @@ d = a,b,c"
  ("4.23" 4.23)
  ("3e2" 300.0))
 
-(pyel-create-tests
- name
- ("testName" 'testName))
+(ert-deftest pyel-test-name ()
+ (should (eq (pyel "testName") 'testName)))
 
 (pyel-create-tests
  list
@@ -221,7 +220,7 @@ else:
 
                    )
 
-(ert-deftest pyel-arguments ()
+(ert-deftest pyel-test-arguments ()
   (with-transform-table 'pyel
                         (and
                          (should (equal (transform '(arguments ((arg "b" nil)
@@ -286,7 +285,7 @@ else:
   ("repr(func(x = 's',__b = 324,__a = 'n',d = 2))"
    "[\"n\", 324, 1, 2, [], {x: \"s\"}]")))
 
-(ert-deftest pyel-pyel-sort-kwargs ()
+(ert-deftest pyel-test-sort-kwargs ()
   (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
          '((a 5 12 3) ((x . 1) (b . 1))))
   (equal (pyel-sort-kwargs '(b = 1 x = 1))
