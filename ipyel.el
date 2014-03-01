@@ -268,23 +268,24 @@ Complete sexps are evaluated; for incomplete sexps inserts a newline
 and indents.  If however `ipyel-dynamic-return' is nil, this always
 simply inserts a newline."
   (interactive)
-  (if ipyel-dynamic-return
-      (let ((state
-	     (save-excursion
-	       (end-of-line)
-	       (parse-partial-sexp (ipyel-pm)
-				   (point)))))
-	(if (and (< (car state) 1) (not (nth 3 state)))
-	    (ipyel-send-input)
-	  (when (and ipyel-dynamic-multiline-inputs
-		     (save-excursion
-		       (beginning-of-line)
-		       (looking-at-p comint-prompt-regexp)))
-	    (save-excursion
-	      (goto-char (ipyel-pm))
-	      (newline 1)))
-	  (newline-and-indent)))
-    (newline)))
+  (catch 'ipyel-quit ;;mbs 
+    (if ipyel-dynamic-return
+	(let ((state
+	       (save-excursion
+		 (end-of-line)
+		 (parse-partial-sexp (ipyel-pm)
+				     (point)))))
+	  (if (and (< (car state) 1) (not (nth 3 state)))
+	      (ipyel-send-input)
+	    (when (and ipyel-dynamic-multiline-inputs
+		       (save-excursion
+			 (beginning-of-line)
+			 (looking-at-p comint-prompt-regexp)))
+	      (save-excursion
+		(goto-char (ipyel-pm))
+		(newline 1)))
+	    (newline-and-indent)))
+      (newline))))
 
 (defvar ipyel-input)
 
