@@ -1995,39 +1995,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
   
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
-    ;;99% of the code is the same...
-    (let ((complete nil)
-          (py-ast nil)
-          (el-ast nil)
-          trans)
-      (progv
-          (mapcar 'car test-variable-values)
-          (mapcar 'cadr test-variable-values)
-  
-        (dolist (code (reverse py-code))
-          ;;check complete code transformation
-          (setq trans (pyel-with-known-types known-types code))
-          (push `(should (equal
-                          (pyel-with-known-types ',known-types ,code)
-                          ',trans))
-                complete)
-          ;;check pure .py syntax tree
-          (push `(should (equal (py-ast ,code)
-                                ,(py-ast code)))
-                py-ast)
-          ;;check transformed .py syntax tree
-          (push `(should (string= (pyel ,code t)
-                                  ,(pyel code t)))
-                el-ast))
-  
-        (kill-new (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-full-transform"))
-                                     () ,@complete)))
-        (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-py-ast"))
-                                        () ,@py-ast)) nil)
-  
-        (kill-append (pp-to-string `(ert-deftest ,(intern (concat "pyel-" (symbol-name name) "-el-ast"))
-                                        () ,@el-ast)) nil)
-        (message "Tests copied to kill ring"))))
+    ;;TODO
+    )
   
   
   (defun pyel-indent-py-code (code &optional indent)
