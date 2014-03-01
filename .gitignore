@@ -3,3 +3,4 @@
 .emacs.desktop
 _*
 *.org_archive
+*.elc
