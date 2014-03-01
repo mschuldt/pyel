@@ -2686,7 +2686,7 @@ this test is disabled. It pollutes global variables
                       (number number) -> (pyel-number!= l r)
                       (string string) -> (pyel-string!= l r)
                       (object _) -> (__ne__ l r)
-                      (_ _) -> (not (equal l r)))
+                      (_ _) -> (!equal l r))
   
   ;;this is defined as a transform because `pyel-compare' expects
   ;;all comparison functions to be transforms
@@ -2799,6 +2799,9 @@ this test is disabled. It pollutes global variables
   
   (defsubst pyel-vector->= (a b)
     (or (equal a b) (pyel-vector-> a b)))
+  
+  (defsubst !equal (a b)
+    (not (equal a b)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
