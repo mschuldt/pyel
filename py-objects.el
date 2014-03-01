@@ -561,6 +561,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 	       (mapconcat (lambda (x) (pyel-str x))
 			  (mapcar 'identity (getattr self args)) ", "))))
 
+;;TODO: these should inherit from the Exception class instead
 (define-class AttributeError (BaseException))
 (define-class TypeError (BaseException))
 (define-class StopIteration (BaseException))
