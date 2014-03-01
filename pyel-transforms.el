@@ -273,8 +273,11 @@
 (pyel-dispatch-func > (l r)
                     (number number) -> (> l r)
                     ;;TODO: macro for this
-                    (string string) -> (and (not (string< l r)) (not (string= l r)))
-                    (object _) -> (__gt__ l r))
+                    (string string) -> (pyel-string> l r)
+                    (list list) -> (pyel-list-> l r)
+                    (object _) -> (call-method l __gt__ r)
+                    (vector vector) -> (pyel-vector-> l r)
+                    )
 
 ;;TODO: other py types?
 
@@ -282,23 +285,29 @@
 (pyel-dispatch-func < (l r)
                     (number number) -> (< l r)
                     (string string) -> (string< l r)
-                    (object _) -> (__lt__ l r))
+                    (list list) -> (pyel-list-< l r)
+                    (object _) -> (call-method l __lt__ r)
+                    (vector vector) -> (pyel-vector-< l r))
 
 (pyel-dispatch-func >= (l r)
                     (number number) -> (>= l r)
-                    (string string) -> (not (string< l r))
-                    (object _) -> (__ge__ l r))
+                    (string string) -> (pyel-string>= l r)
+                    (list list)     ->  (pyel-list>= l r)
+                    (object _) -> (call-method l __ge__ r)
+                    (vector vector) -> (pyel-vector->= l r))
 
 (pyel-dispatch-func <= (l r)
                     (number number) -> (<= l r)
-                    (string string) -> (or (string< l r) (string= l r))
-                    (object _) -> (__le__ l r))
+                    (string string) -> (pyel-string<= l r)
+                    (list list)     -> (pyel-list<= l r)
+                    (object _) -> (call-method l __le__ r)
+                    (vector vector) -> (pyel-vector-<= l r))
 
 (pyel-dispatch-func != (l r)
-                    (number number) -> (not (= l r))
-                    (string string) -> (not (string= l r))
-                    (object _) -> (__ne__ l r)
-                    (_ _) -> (not (equal l r)))
+                    (number number) -> (pyel-number!= l r)
+                    (string string) -> (pyel-string!= l r)
+                    (object _) -> (call-method l __ne__ r)
+                    (_ _) -> (!equal l r))
 
 ;;this is defined as a transform because `pyel-compare' expects
 ;;all comparison functions to be transforms

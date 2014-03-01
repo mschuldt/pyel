@@ -3,6 +3,90 @@
 
 
 
+(defsubst pyel-string> (a b)
+  (and (not (string< a b)) (not (string= a b))))
+
+(defsubst pyel-string<= (a b)
+  (or (string< a b) (string= a b)))
+
+(defsubst pyel-string!= (a b)
+  (not (string= a b)))
+
+(defsubst pyel-number!= (a b)
+  (not (= a b)))
+
+(defsubst pyel-string<= (a b)
+  (not (string< a b)))
+
+(defun pyel-list-< (a b)
+  "a < b"
+  (let ((greator nil)
+        e1 e2)
+    (while (and a b (equal e1 e2))
+      (setq e1 (car a)
+            e2 (car b)
+            a (cdr a)
+            b (cdr b)))
+    (pyel-< e1 e2)))
+(defun pyel-list-> (a b)
+  "a > b"
+  (let ((greator nil)
+        e1 e2)
+    (while (and a b (equal e1 e2))
+      (setq e1 (car a)
+            e2 (car b)
+            a (cdr a)
+            b (cdr b)))
+    (pyel-> e1 e2)))
+
+(defsubst pyel-list>= (a b)
+  (or (equal a b) (pyel-list-> a b)))
+
+(defsubst pyel-list<= (a b)
+  (or (equal a b) (pyel-list-< a b)))
+
+(defun pyel-vector-> (a b)
+  (let* ((greator nil)
+         (len-a (length a))
+         (len-b (length b))
+         (len (min len-a len-b))
+         (i 0)
+         e1 e2)
+    (while (and (< i len)
+                (equal e1 e2))
+      (setq e1 (aref a i)
+            e2 (aref b i)
+            i (1+ i)))
+    (or (pyel-> e1 e2)
+        (and (= i len)
+             (equal e1 e2)
+             (> len-a len-b)))))
+(defun pyel-vector-< (a b)
+  (let* ((greator nil)
+         (len-a (length a))
+         (len-b (length b))
+         (len (min len-a len-b))
+         (i 0)
+         e1 e2)
+    (while (and (< i len)
+                (equal e1 e2))
+      (setq e1 (aref a i)
+            e2 (aref b i)
+            i (1+ i)))
+    (or (pyel-< e1 e2)
+        (and (= i len)
+             (equal e1 e2)
+             (< len-a len-b)))))
+
+(defsubst pyel-vector-<= (a b)
+  (or (equal a b) (pyel-vector-< a b)))
+
+(defsubst pyel-vector->= (a b)
+  (or (equal a b) (pyel-vector-> a b)))
+
+(defsubst !equal (a b)
+  (not (equal a b)))
+
 (defun pyel-alist-to-hash (alist)
   "Turn ALIST a hash table."
   (let ((ht (make-hash-table
