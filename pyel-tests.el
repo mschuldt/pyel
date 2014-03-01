@@ -778,6 +778,11 @@ obj = C()"
  ("chr(70)" "F")
  ("chr(50)" "2"))
 
+(pyel-create-tests
+ chr-function
+ ("ord('F')" 70)
+ ("ord('2')" 50))
+
 ;;
 
 (pyel-create-tests

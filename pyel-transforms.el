@@ -1113,6 +1113,8 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'chr 'byte-to-string)
 
+(pyel-translate-function-name 'ord 'string-to-char)
+
 ;;
 
 (pyel-method-transform append (obj thing)

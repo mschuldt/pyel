@@ -91,88 +91,88 @@
 ** built-in functions
 http://docs.python.org/2/library/functions.html
 
-| function     | status | tests | notes                            |
-|--------------+--------+-------+----------------------------------|
-| abs          | x      |       |                                  |
-| divmod       |        |       |                                  |
-| input        | x      |       |                                  |
-| open         |        |       |                                  |
-| staticmethod |        |       |                                  |
-| all          |        |       |                                  |
-| enumerate    |        |       |                                  |
-| int          |        |       |                                  |
-| ord          |        |       |                                  |
-| str          |        |       |                                  |
-| any          |        |       |                                  |
-| eval         | x      |       |                                  |
-| isinstance   | x      |       |                                  |
-| pow          | -      |       | assumes numbers                  |
-| sum          |        |       |                                  |
-| basestring   |        |       |                                  |
-| execfile     |        |       |                                  |
-| issubclass   |        |       |                                  |
-| print        | -      |       | does not call pyel str functions |
-| super        |        |       |                                  |
-| bin          | x      |       |                                  |
-| file         |        |       |                                  |
-| iter         |        |       |                                  |
-| property     |        |       |                                  |
-| tuple        |        |       |                                  |
-| bool         |        |       |                                  |
-| filter       |        |       |                                  |
-| len          | x      |       |                                  |
-| range        | x      |       |                                  |
-| type         |        |       |                                  |
-| bytearray    |        |       |                                  |
-| float        |        |       |                                  |
-| list         | x      |       |                                  |
-| raw_input    |        |       |                                  |
-| unichr       |        |       |                                  |
-| callable     |        |       |                                  |
-| format       |        |       |                                  |
-| locals       |        |       |                                  |
-| reduce       |        |       |                                  |
-| unicode      |        |       |                                  |
-| chr          | x      |       |                                  |
-| frozenset    |        |       |                                  |
-| long         |        |       |                                  |
-| reload       |        |       |                                  |
-| vars         |        |       |                                  |
-| classmethod  |        |       |                                  |
-| getattr      | x      |       |                                  |
-| map          | x      |       | ??? really equivalent?           |
-| repr         |        |       |                                  |
-| xrange       |        |       |                                  |
-| cmp          |        |       |                                  |
-| globals      |        |       |                                  |
-| max          |        |       |                                  |
-| reversed     |        |       |                                  |
-| zip          |        |       |                                  |
-| compile      |        |       |                                  |
-| hasattr      | x      |       |                                  |
-| memoryview   |        |       |                                  |
-| round        |        |       |                                  |
-| __import__   |        |       |                                  |
-| complex      |        |       |                                  |
-| hash         |        |       |                                  |
-| min          |        |       |                                  |
-| set          |        |       |                                  |
-| apply        |        |       |                                  |
-| delattr      |        |       |                                  |
-| help         |        |       |                                  |
-| next         |        |       |                                  |
-| setattr      |        |       |                                  |
-| buffer       |        |       |                                  |
-| dict         |        |       |                                  |
-| hex          | x      |       |                                  |
-| object       |        |       |                                  |
-| slice        |        |       |                                  |
-| coerce       |        |       |                                  |
-| dir          |        |       |                                  |
-| id           |        |       |                                  |
-| oct          |        |       |                                  |
-| sorted       |        |       |                                  |
-| intern       |        |       |                                  |
+| function     | status | tests | notes                                    |
+|--------------+--------+-------+------------------------------------------|
+| abs          | x      |       |                                          |
+| divmod       |        |       |                                          |
+| input        | x      |       |                                          |
+| open         |        |       |                                          |
+| staticmethod |        |       |                                          |
+| all          |        |       |                                          |
+| enumerate    |        |       |                                          |
+| int          |        |       |                                          |
+| ord          | x      |       | strings > 1 char does not raise an error |
+| str          |        |       |                                          |
+| any          |        |       |                                          |
+| eval         | x      |       |                                          |
+| isinstance   | x      |       |                                          |
+| pow          | -      |       | assumes numbers                          |
+| sum          |        |       |                                          |
+| basestring   |        |       |                                          |
+| execfile     |        |       |                                          |
+| issubclass   |        |       |                                          |
+| print        | -      |       | does not call pyel str functions         |
+| super        |        |       |                                          |
+| bin          | x      |       |                                          |
+| file         |        |       |                                          |
+| iter         |        |       |                                          |
+| property     |        |       |                                          |
+| tuple        |        |       |                                          |
+| bool         |        |       |                                          |
+| filter       |        |       |                                          |
+| len          | x      |       |                                          |
+| range        | x      |       |                                          |
+| type         |        |       |                                          |
+| bytearray    |        |       |                                          |
+| float        |        |       |                                          |
+| list         | x      |       |                                          |
+| raw_input    |        |       |                                          |
+| unichr       |        |       |                                          |
+| callable     |        |       |                                          |
+| format       |        |       |                                          |
+| locals       |        |       |                                          |
+| reduce       |        |       |                                          |
+| unicode      |        |       |                                          |
+| chr          | x      |       |                                          |
+| frozenset    |        |       |                                          |
+| long         |        |       |                                          |
+| reload       |        |       |                                          |
+| vars         |        |       |                                          |
+| classmethod  |        |       |                                          |
+| getattr      | x      |       |                                          |
+| map          | x      |       | ??? really equivalent?                   |
+| repr         |        |       |                                          |
+| xrange       |        |       |                                          |
+| cmp          |        |       |                                          |
+| globals      |        |       |                                          |
+| max          |        |       |                                          |
+| reversed     |        |       |                                          |
+| zip          |        |       |                                          |
+| compile      |        |       |                                          |
+| hasattr      | x      |       |                                          |
+| memoryview   |        |       |                                          |
+| round        |        |       |                                          |
+| __import__   |        |       |                                          |
+| complex      |        |       |                                          |
+| hash         |        |       |                                          |
+| min          |        |       |                                          |
+| set          |        |       |                                          |
+| apply        |        |       |                                          |
+| delattr      |        |       |                                          |
+| help         |        |       |                                          |
+| next         |        |       |                                          |
+| setattr      |        |       |                                          |
+| buffer       |        |       |                                          |
+| dict         |        |       |                                          |
+| hex          | x      |       |                                          |
+| object       |        |       |                                          |
+| slice        |        |       |                                          |
+| coerce       |        |       |                                          |
+| dir          |        |       |                                          |
+| id           |        |       |                                          |
+| oct          |        |       |                                          |
+| sorted       |        |       |                                          |
+| intern       |        |       |                                          |
 
 * documentation
 TODO: how to export a heading as pdf or into a seporate file?
@@ -5075,7 +5075,7 @@ This will help notify the user when some syntax has not been implemented
 ** chr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'chr 'byte-to-string)
+  (pyel-translate-function-name 'chr 'byte-to-string)
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -5083,6 +5083,19 @@ This will help notify the user when some syntax has not been implemented
    chr-function
    ("chr(70)" "F")
    ("chr(50)" "2"))
+#+END_SRC
+
+** ord
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-translate-function-name 'ord 'string-to-char)
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   chr-function
+   ("ord('F')" 70)
+   ("ord('2')" 50))
 #+END_SRC
 ** transform template
 *** transform
