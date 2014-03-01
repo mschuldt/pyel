@@ -139,8 +139,6 @@ b = [1,[1,'3',a,[],3]]"
                    "x = 'a'"
                    "['a','b']")
 
-;;
-
 (pyel-create-tests compare
                    "a=='d'"
                    "a==b"

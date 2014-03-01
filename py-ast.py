@@ -82,8 +82,6 @@ def Tuple(elts, ctx, lineno='nil', col_offset='nil'):
 def Str(s, lineno='nil', col_offset='nil'):
     return "(str \"" + str(s) +"\"" + " " + str(lineno) + " " + str(col_offset) + ")"
 
-
-
 def Compare (left, ops, comparators, lineno='nil', col_offset='nil'):
       return l_str(["compare ", left, ll_str(ops), ll_str(comparators), lineno, col_offset ])
 
