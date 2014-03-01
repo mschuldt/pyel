@@ -2712,18 +2712,18 @@ this test is disabled. It pollutes global variables
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defsubst pyel-string> (a b)
     (and (not (string< a b)) (not (string= a b))))
-
-(defun pyel-string<= (a b)
-  (or (string< a b) (string= a b)))
-
-(defsubst pyel-string!= (a b)
-  (not (string= a b)))
-
-(defsubst pyel-!= (a b)
-  (not (= a b)))
-
-(defsubst pyel-string<= (a b)
-  (not (string< a b)))
+  
+  (defsubst pyel-string<= (a b)
+    (or (string< a b) (string= a b)))
+  
+  (defsubst pyel-string!= (a b)
+    (not (string= a b)))
+  
+  (defsubst pyel-!= (a b)
+    (not (= a b)))
+  
+  (defsubst pyel-string<= (a b)
+    (not (string< a b)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
