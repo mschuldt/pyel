@@ -823,18 +823,21 @@ x.insert(1,'hi')"
 
 (pyel-create-tests
  remove-method
- ("x = [1,'2','2',(1,)]"
-  "y = x"
-  "x.remove('2')"
+ ("x = [1,'2','2',(1,)]
+y = x
+x.remove('2')"
   ("x is y" t))
- ("x = [1,'2','2',(1,)]"
-  "x.remove('2')"
+ 
+ ("x = [1,'2','2',(1,)]
+x.remove('2')"
   ("x" '(1 "2" [1])))
- ("x = [1,'2','2',(1,)]"
-  "x.remove(1)"
+ 
+ ("x = [1,'2','2',(1,)]
+x.remove(1)"
   ("x" '("2" "2" [1])))
- ("x = [1,'2','2',(1,)]"
-  "x.remove(1)"
+ 
+ ("x = [1,'2','2',(1,)]
+x.remove((1,))"
   ("x" '(1 "2" "2"))))
 
 (pyel-create-tests
@@ -861,7 +864,8 @@ x.insert(1,'hi')"
 (pyel-create-tests
  join-method
  ("'X'.join(('f','g'))" "fXg")
- ("' '.join([str(x) for x in range(3)])" "0 1 2"))
+ ("' '.join([str(x) for x in range(3)])" "0 1 2")
+ ("''.join(['a','b']))" "ab"))
 
 (pyel-create-tests
  extend-method

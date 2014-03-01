@@ -1338,6 +1338,80 @@ and compared to expected values")
     (cl-prettyprint form)
     (buffer-string)))
 
+
+(defun pyel-test-list-form-p (form)
+  "return t if FORM describes part of a pyel test.
+All lists are a part of pyel tests except those whose
+car is 'lambda or 'quote" 
+  (and
+   (listp form)
+   (> (length form) 0)
+   (not (or (eq (car form) 'lambda)
+            (eq (car form) 'quote)))))
+
+(defun pyel-check-test-form-p (form)
+  "Returns t if FORM is a valid pyel test"
+  (or (stringp form)
+      
+      (and (consp form)
+           (>= (length form) 2)
+           (stringp (car form))
+           (or 
+            ;; form: ("test" expect)
+            (and (= (length form) 2)
+                 (not (pyel-test-list-form-p (cadr form)))
+                 (not (symbolp (cadr form))))
+            ;; form: ("setup" test-forms ...)
+            (and (let ((ok t))
+                   (dolist (x (cdr form))
+                     (setq ok (and ok (and (consp x)
+                                           (= (length x) 2)
+                                           (stringp (car x))
+                                       ;;;test-form: ("test1" result1)
+                                           (or (and (not (pyel-test-list-form-p (cadr x)))
+                                                    (not (symbolp (cadr x))))
+                                               ;;test-form: ("test1setup" ("test1" result1))
+                                               (let ((subform (cadr x)))
+                                                 (and (consp subform)
+                                                      (= (length subform) 2)
+                                                      (stringp (car subform))
+                                                      (and (not (pyel-test-list-form-p (cadr subform)))
+                                                            (not (symbolp (cadr subform)))))))))))
+                   ok))))))
+
+(ert-deftest pyel-test-valid-forms ()
+  ;;valid forms
+  (should (pyel-check-test-form-p "test"))
+  (should (pyel-check-test-form-p ("test" "expect")))
+  (should (pyel-check-test-form-p ("test" 'expect)))
+  (should (pyel-check-test-form-p ("test" 3)))
+  (should (pyel-check-test-form-p ("test" '(a b c))))
+  (should (pyel-check-test-form-p ("test" (lambda () c))))
+  (should (pyel-check-test-form-p ("setup" ("test1" 'result1))))
+  (should (pyel-check-test-form-p ("setup" ("test1setup" ("test1" 34)))))
+  (should (pyel-check-test-form-p ("setup" ("test1" 'result1) ("test2" "r3") ("test2" 3) ("test1setup" ("test1" 'result1)))))
+  (should (pyel-check-test-form-p ("setup" ("test1" '(a b c)) ("test2" (lambda () 4))  ("test1setup" ("test1" '(a b c))))))
+  (should (pyel-check-test-form-p ("setup" ("test1setup" ("test1" (lambda () 3))))))
+  ;;invalid forms
+  (should (not (pyel-check-test-form-p 3)))
+  (should (not (pyel-check-test-form-p symbol)))
+  (should (not (pyel-check-test-form-p (s))))
+  (should (not (pyel-check-test-form-p (s 3))))
+  (should (not (pyel-check-test-form-p ("skld" "ldkj" "lskdjf"))))
+  (should (not (pyel-check-test-form-p ("test" expect))))
+  (should (not (pyel-check-test-form-p ('a "expect"))))
+  (should (not (pyel-check-test-form-p (3 expect))))
+  (should (not (pyel-check-test-form-p ((b c) 3))))
+  (should (not (pyel-check-test-form-p ((lambda ()) '(a b c)))))
+  (should (not (pyel-check-test-form-p ("setup" (3 result1)))))
+  (should (not (pyel-check-test-form-p (3 ("test1" result1)))))
+  (should (not (pyel-check-test-form-p ("setup" ("test1setup" (34 "test1"))))))
+  (should (not (pyel-check-test-form-p ("setup" ("test1setup" ("test1" sym))))))
+  (should (not (pyel-check-test-form-p ("setup" ("test1" result1) ("test2" "r3") ("test2" 3) ("test1setup" (1 result1))))))
+  (should (not (pyel-check-test-form-p ("setup" ("test1" '(a b c)) (test2 (lambda () 4))  ("test1setup" ("test1" '(a b c)))))))
+  (should (not (pyel-check-test-form-p (("test1setup" ("test1" (lambda () 3))))))))
+
+
 (defmacro pyel-create-tests (name &rest py-tests)
   (let ((complete nil)
         (py-ast nil)
@@ -1345,6 +1419,7 @@ and compared to expected values")
         (c 0)
         ert-tests
         tests
+        invalid-form
         trans)
     (message "creating tests for '%s'" name)
     (progv
@@ -1354,13 +1429,14 @@ and compared to expected values")
       (flet ((pyel-create-new-marker () "test_marker"))
         (condition-case err
             (dolist (test (reverse py-tests))
+              (or (setq valid-form (pyel-check-test-form-p test)) (error nil))
               (cond ((and (consp test)
                           (>= (length test) 2)
                           (and (consp (cadr test))
                                (not (or (eq (caadr test) 'lambda)
                                         (eq (caadr test) 'quote))))
                           )
-                     (let* ((tests)  ;;form: ("test" ("test1" result1) ("test2" result2) ...)
+                     (let* ((tests)  ;;form: ("setup" ("test1" result1) ("test2" result2) ...)
                             (name-str (replace-regexp-in-string "-" "_" (symbol-name name)))
                             (test-name (concat "pyel_test_" name-str "_" (number-to-string (pyel-make-test-func-name))))
                             (d 0))
@@ -1433,7 +1509,9 @@ and compared to expected values")
                                   (string= (pyel ,test nil nil t)
                                            ,(pyel test nil nil t)))
                                _pyel-structure-tests)))))
-          (error (error "Error while creating test: '%s'. Error: " name err)))))))
+          (error (error "Error while creating test: '%s'. Error: %s" name (if valid-form
+                                                                              err
+                                                                              "Invalid form"))))))))
 
 (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
   "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
