@@ -1990,7 +1990,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                                  _pyel-structure-tests)))))
             (error (error "Error while creating test: '%s'. Error: %s" name (if valid-form
                                                                                 err
-                                                                                "Invalid form"))))))))
+                                                                              "Invalid form"))))))))
   
   (defun pyel-create-tests-with-known-types (name known-types &rest py-code)
     "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
@@ -2053,7 +2053,7 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
                         (prin1-to-string pyel-test-py-functions)))
         ;;insert normal tests
         (mapc (lambda (x)
-                    (insert (prin1-to-string x) "\n"))
+                (insert (prin1-to-string x) "\n"))
               _pyel-tests)
         ;;insert the other tests
         (mapc (lambda (x)
@@ -2106,8 +2106,8 @@ http://www.gnu.org/software/emacs/manual/html_mono/ert.html#Test-Selectors
               (kill-buffer)
               (load-file tmp-file)))
   
-          (ert-run-tests-interactively selector)
-          )))
+        (ert-run-tests-interactively selector)
+        )))
   
   (defun pyel-functionize (py-code &optional func-name &rest args)
     "wrap PY-CODE in a function definition
@@ -2499,9 +2499,8 @@ this test is disabled. It pollutes global variables
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests
-   name
-   ("testName" 'testName))
+  (ert-deftest pyel-test-name ()
+   (should (eq (pyel "testName") 'testName)))
 #+END_SRC
 ** literals
 *** list
