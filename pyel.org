@@ -2652,7 +2652,7 @@ this test is disabled. It pollutes global variables
   (pyel-dispatch-func > (l r)
                       (number number) -> (> l r)
                       ;;TODO: macro for this
-                      (string string) -> (and (not (string< l r)) (not (string= l r)))
+                      (string string) -> (pyel-string> l r)
                       (object _) -> (__gt__ l r))
   
   ;;TODO: other py types?
@@ -2707,6 +2707,11 @@ this test is disabled. It pollutes global variables
         return "\"not-in\""
   def Is():
         return "\"is\""
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defsubst pyel-string> (a b)
+    (and (not (string< a b)) (not (string= a b))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
