@@ -395,6 +395,7 @@ in `pyel-orig-eval-last-sexp-1'"
         (val (eval (eval-sexp-add-defvars (preceding-sexp)) lexical-binding)))
     ;; Setup the lexical environment if lexical-binding is enabled.
     (if (and pyel-object-prettyprint
+             (fboundp 'py-object-p)
              (py-object-p val))
         (setq val (pyel-repr val)))
     (eval-last-sexp-print-value val)))
