@@ -725,6 +725,13 @@ main
                 (not (car list)))
       (setq list (cdr list)))
     (reverse list))
+  
+  (defun filter (func list)
+    (let ((newlist ()))
+      (dolist (e list)
+        (if (funcall func e)
+            (setq newlist (cons e newlist))))
+      (reverse newlist)))
 #+END_SRC
 ** variables
 #+Begin_SRC emacs-lisp :tangle pyel.el
@@ -1583,6 +1590,8 @@ This will have to be removed after the code is generated
                                      (pyel-arg-descriptor-to-signature found)))))
         (error "method transform %s does not exist in the signature table"
                name))))
+  
+  
 #+END_SRC
 *** example usage
 (pyel-def-call-func pyel+ (lhs rhs)

@@ -203,8 +203,7 @@ useing python3 unless PYTHON2 is non-nil"
                pyel-preprocessor
                pyel-tests-generated
                py-lib
-               transformer
-               pyel-testing))
+               transformer))
     (setq features (remove f features)))
   (require 'pyel))
 
@@ -430,6 +429,13 @@ during interactive emacs-lisp sessions where possible")
               (not (car list)))
     (setq list (cdr list)))
   (reverse list))
+
+(defun filter (func list)
+  (let ((newlist ()))
+    (dolist (e list)
+      (if (funcall func e)
+          (setq newlist (cons e newlist))))
+    (reverse newlist)))
 
 (defvar pyel-directory ""
   "Path to pyel files. must include py-ast.py, pyel.el etc")
