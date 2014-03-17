@@ -1770,11 +1770,7 @@ This is for all non template specific code.
   
   def keyword(arg, value, lineno='nil', col_offset='nil'):
       return l_str(["(keyword ", arg, " ", value, lineno, col_offset, ")"])
-  
-  def Print(dest, values, nl, lineno='nil', col_offset='nil'):
-      print("Error: using python2, upgrade to python3")
-      exit()
-  
+
   def Param():
       return "'param"
   
@@ -4675,10 +4671,18 @@ This will help notify the user when some syntax has not been implemented
              (funcall pyel-print-function end)
              nil)))
 #+END_SRC
+*** python ast
+#+Begin_SRC python :tangle py-ast.py
+  def Print(dest, values, nl, lineno='nil', col_offset='nil'):
+      print("Error: using python2, upgrade to python3")
+      exit()
+        
+#+END_SRC  
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
 ;;
 #+END_SRC
+
 ** pow
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

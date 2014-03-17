@@ -31,10 +31,6 @@ def Module(body):
 def keyword(arg, value, lineno='nil', col_offset='nil'):
     return l_str(["(keyword ", arg, " ", value, lineno, col_offset, ")"])
 
-def Print(dest, values, nl, lineno='nil', col_offset='nil'):
-    print("Error: using python2, upgrade to python3")
-    exit()
-
 def Param():
     return "'param"
 
@@ -254,6 +250,10 @@ def Raise(exc, cause, lineno='nil', col_offset='nil'):
 
 
 
+def Print(dest, values, nl, lineno='nil', col_offset='nil'):
+    print("Error: using python2, upgrade to python3")
+    exit()
+
 
 
 
@@ -261,4 +261,5 @@ def Raise(exc, cause, lineno='nil', col_offset='nil'):
 
 
 #py-ast.py ends here
+
 
