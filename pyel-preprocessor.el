@@ -3,8 +3,7 @@
   "list of all macro names that the preprocessor recognizes
           Do not modify this directory. use <TODO: define> to create new definitions")
 
-
-;;macros that don't need to be specially defined 
+;;macros that don't need to be specially defined
 (setq pyel-pp--macro-names '("save_excursion"
                              "save_window_excursion"
                              "cond"
@@ -17,10 +16,8 @@ TODO: not all macro translations will work when  declared this way."
     (setq name (symbol-name name)))
   (push name pyel-pp--macro-names))
 
-
 (defvar pyel-py-macro-prefix "__pyel__macro__"
   "prepend this to e-lisp macro call in python before generating ast")
-
 
 ;;TODO:
 (defun pyel-reprocess (&optional filename output)
@@ -38,7 +35,7 @@ TODO: not all macro translations will work when  declared this way."
                           (format "\\(%s\\)[ \t\n]*("
                                   (replace-regexp-in-string "-" "_" name))))
     (let (re)
-      (dolist (name pyel-pp--macro-names)      
+      (dolist (name pyel-pp--macro-names)
         ;;TODO group these names together to minimize transverses
         (setq re (create-regex name))
         (goto-char 1)
@@ -47,7 +44,6 @@ TODO: not all macro translations will work when  declared this way."
                                  pyel-py-macro-prefix
                                  (match-string 1))))))))
 
-
 (defun pyel-create-new-marker ()
   (format "__pyel_marker_%d__" (incf pyel-marker-counter)))
 
@@ -55,7 +51,6 @@ TODO: not all macro translations will work when  declared this way."
   ;;used to share code between the preprocessor and the transforms
   "a-list of marked ast pieces
   element form: (marker . ast)")
-
 
 (defun pyel-preprocess-buffer2 () ;;recursive function
   (interactive)
@@ -87,7 +82,7 @@ TODO: not all macro translations will work when  declared this way."
         (setq marker (first c)
               name (second c)
               c (third c))
-        
+
         (with-temp-buffer
           ;;        (find-file "/tmp/pp.py")
           (insert c)
@@ -112,6 +107,5 @@ TODO: not all macro translations will work when  declared this way."
                       (read (_to- name))
                       (pyel-buffer-to-string :ast-only))
                 pyel-marked-ast-pieces))))))
-
 
 (provide 'pyel-preprocessor)

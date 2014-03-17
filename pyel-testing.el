@@ -17,11 +17,10 @@ and compared to expected values")
     (cl-prettyprint form)
     (buffer-string)))
 
-
 (defun pyel-test-list-form-p (form)
   "return t if FORM describes part of a pyel test.
 All lists are a part of pyel tests except those whose
-car is 'lambda or 'quote" 
+car is 'lambda or 'quote"
   (and
    (listp form)
    (> (length form) 0)
@@ -31,11 +30,11 @@ car is 'lambda or 'quote"
 (defun pyel-valid-test-form-p (form)
   "Returns t if FORM is a valid pyel test"
   (or (stringp form)
-      
+
       (and (consp form)
            (>= (length form) 2)
            (stringp (car form))
-           (or 
+           (or
             ;; form: ("test" expect)
             (and (= (length form) 2)
                  (not (pyel-test-list-form-p (cadr form)))
@@ -96,7 +95,6 @@ car is 'lambda or 'quote"
   (should (not (pyel-valid-test-form-p '("setup" ("test1" '(a b c)) (test2 (lambda () 4))  ("test1setup" ("test1" '(a b c)))))))
   (should (not (pyel-valid-test-form-p '(("test1setup" ("test1" (lambda () 3))))))))
 
-
 (defmacro pyel-create-tests (name &rest py-tests)
   (let ((complete nil)
         (py-ast nil)
@@ -154,7 +152,6 @@ car is 'lambda or 'quote"
                                                            (number-to-string (setq c (1+ c))))) ()
                                         (equal (eval (pyel ,(if (= (length test) 2)
 
-
                                                                 (format "%s()" test-name)
                                                               (format "%s(%s)" test-name (setq d (1+ d))))))
                                                ,(if (and (listp (cadr x))
@@ -202,7 +199,6 @@ car is 'lambda or 'quote"
   "just like `pyel-create-tests-with-known-types' fakes the known types during the tests"
   ;;TODO
   )
-
 
 (defun pyel-indent-py-code (code &optional indent)
   "Indent CODE by INDENT. CODE is a string. INDENT defaults to one space"

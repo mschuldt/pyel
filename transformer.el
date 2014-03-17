@@ -26,59 +26,58 @@ Bind variables according to VARLIST, like `let*' "
 (defun get-transform (name table-name)
   (gethash name (get-transform-table table-name)))
 
-;;transform modifiers, 
+;;transform modifiers,
 (defvar transform-no-eval nil) ;;for debugging
 (defvar transform-quote-args t);;TODO: this should be set by the transform def
 
-
-(defun transform (&rest code) 
+(defun transform (&rest code)
   (cond ((> (length code) 1)
-	 (mapconcat 'transform code "\n")) ;;TODO: optional newline
-	
-	;;special case: list whose car is a list
-	((and (= (length code) 1) 
-	      (and (consp (car code))
-		   (consp (caar code))))
-	 (cons (transform (caar code)) (mapcar 'transform (cdar code))))
-	
-	(t (let ((code (car code))
-		 var--func)
-	     (if (and transform-quote-args (listp code))
-		 (setq orig-code code
-		       code `(,(car code)
-			      ,@(mapcar (lambda (x) `(quote ,x)) (cdr code)))))
-	   (case (type-of code)
-	     ((cons list)
-	      (if (and (eq (type-of (car code)) 'symbol)
-		       (setq var--func (gethash (car code)
-						current-transform-table)))
-		  (let* ((varlist (car var--func))
-			 (func (cdr var--func))
-			 (args (cdr code))
-			 fcall)
-		    (when func ;;TODO: if not raise error
-		      (setq fcall `(let* ,varlist (funcall ,func ,@args)))
-		      (if transform-no-eval
-			  fcall
-			(eval fcall))))
-		;;else: no defined transform
-		(if (null (car code))
-		    nil ;;TODO: why not transform the args?
-					
-		  `(,(car code) ,@(mapcar 'transform (cdr orig-code))))));;don't use quoted args
+         (mapconcat 'transform code "\n")) ;;TODO: optional newline
 
-	     ((symbol integer float string) code)
+        ;;special case: list whose car is a list
+        ((and (= (length code) 1)
+              (and (consp (car code))
+                   (consp (caar code))))
+         (cons (transform (caar code)) (mapcar 'transform (cdar code))))
 
-	     (vector
-	      "<TODO: transform vector>")
-	     (hash-table
-	      "<TODO: transform hash-table>"))))))
+        (t (let ((code (car code))
+                 var--func)
+             (if (and transform-quote-args (listp code))
+                 (setq orig-code code
+                       code `(,(car code)
+                              ,@(mapcar (lambda (x) `(quote ,x)) (cdr code)))))
+             (case (type-of code)
+               ((cons list)
+                (if (and (eq (type-of (car code)) 'symbol)
+                         (setq var--func (gethash (car code)
+                                                  current-transform-table)))
+                    (let* ((varlist (car var--func))
+                           (func (cdr var--func))
+                           (args (cdr code))
+                           fcall)
+                      (when func ;;TODO: if not raise error
+                        (setq fcall `(let* ,varlist (funcall ,func ,@args)))
+                        (if transform-no-eval
+                            fcall
+                          (eval fcall))))
+                  ;;else: no defined transform
+                  (if (null (car code))
+                      nil ;;TODO: why not transform the args?
+
+                    `(,(car code) ,@(mapcar 'transform (cdr orig-code))))));;don't use quoted args
+
+               ((symbol integer float string) code)
+
+               (vector
+                "<TODO: transform vector>")
+               (hash-table
+                "<TODO: transform hash-table>"))))))
 
 ;;DOES NOT WORK
 ;; (defun transform-with (table-name &rest code)
 ;;   (let ((current-transform-table (get-transform-table table-name)))
 ;;     (transform code)))
-  
+
 (defmacro with-transform-table (table-name &rest code)
   `(let ((current-transform-table (get-transform-table ,table-name)))
      ,@code))

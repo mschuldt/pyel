@@ -44,7 +44,6 @@
   "Interaction mode for Emacs Lisp."
   :group 'lisp)
 
-
 (defcustom ipyel-noisy t
   "If non-nil, IPYEL will beep on error."
   :type 'boolean
@@ -65,10 +64,10 @@ the remaining prompts will be accidentally messed up.  You may
 wish to put something like the following in your init file:
 
 \(add-hook 'ipyel-mode-hook
-	  (lambda ()
-	     (define-key ipyel-map \"\\C-w\" 'comint-kill-region)
-	     (define-key ipyel-map [C-S-backspace]
-	       'comint-kill-whole-line)))
+          (lambda ()
+             (define-key ipyel-map \"\\C-w\" 'comint-kill-region)
+             (define-key ipyel-map [C-S-backspace]
+               'comint-kill-whole-line)))
 
 If you set `comint-prompt-read-only' to t, you might wish to use
 `comint-mode-hook' and `comint-mode-map' instead of
@@ -202,7 +201,7 @@ This variable is buffer-local.")
   "Possibly indent the current line as Lisp code."
   (interactive)
   (when (or (eq (preceding-char) ?\n)
-	    (eq (char-syntax (preceding-char)) ?\s))
+            (eq (char-syntax (preceding-char)) ?\s))
     (ipyel-indent-line)
     t))
 
@@ -211,16 +210,16 @@ This variable is buffer-local.")
   ;; A wrapper for lisp-complete symbol that returns non-nil if
   ;; completion has occurred
   (let* ((btick (buffer-modified-tick))
-	 (cbuffer (get-buffer "*Completions*"))
-	 (ctick (and cbuffer (buffer-modified-tick cbuffer))))
+         (cbuffer (get-buffer "*Completions*"))
+         (ctick (and cbuffer (buffer-modified-tick cbuffer))))
     (lisp-complete-symbol)
-     ;; completion has occurred if:
+    ;; completion has occurred if:
     (or
      ;; the buffer has been modified
      (not (= btick (buffer-modified-tick)))
      ;; a completions buffer has been modified or created
      (if cbuffer
-	 (not (= ctick (buffer-modified-tick cbuffer)))
+         (not (= ctick (buffer-modified-tick cbuffer)))
        (get-buffer "*Completions*")))))
 
 (defun ipyel-complete-filename nil
@@ -256,7 +255,7 @@ evaluated.  You can achieve the same effect with a call to
   (interactive "bSet working buffer to: ")
   (let ((buffer (get-buffer buf)))
     (if (and buffer (buffer-live-p buffer))
-  	(setq ipyel-working-buffer buffer)
+        (setq ipyel-working-buffer buffer)
       (error "No such buffer: %S" buf)))
   (ipyel-print-working-buffer))
 
@@ -268,23 +267,23 @@ Complete sexps are evaluated; for incomplete sexps inserts a newline
 and indents.  If however `ipyel-dynamic-return' is nil, this always
 simply inserts a newline."
   (interactive)
-  (catch 'ipyel-quit ;;mbs 
+  (catch 'ipyel-quit ;;mbs
     (if ipyel-dynamic-return
-	(let ((state
-	       (save-excursion
-		 (end-of-line)
-		 (parse-partial-sexp (ipyel-pm)
-				     (point)))))
-	  (if (and (< (car state) 1) (not (nth 3 state)))
-	      (ipyel-send-input)
-	    (when (and ipyel-dynamic-multiline-inputs
-		       (save-excursion
-			 (beginning-of-line)
-			 (looking-at-p comint-prompt-regexp)))
-	      (save-excursion
-		(goto-char (ipyel-pm))
-		(newline 1)))
-	    (newline-and-indent)))
+        (let ((state
+               (save-excursion
+                 (end-of-line)
+                 (parse-partial-sexp (ipyel-pm)
+                                     (point)))))
+          (if (and (< (car state) 1) (not (nth 3 state)))
+              (ipyel-send-input)
+            (when (and ipyel-dynamic-multiline-inputs
+                       (save-excursion
+                         (beginning-of-line)
+                         (looking-at-p comint-prompt-regexp)))
+              (save-excursion
+                (goto-char (ipyel-pm))
+                (newline 1)))
+            (newline-and-indent)))
       (newline))))
 
 (defvar ipyel-input)
@@ -297,8 +296,8 @@ simply inserts a newline."
 (defun ipyel-send-input nil
   "Evaluate the Emacs Lisp expression after the prompt."
   (interactive)
-  (let (ipyel-input)			; set by ipyel-input-sender
-    (comint-send-input)			; update history, markers etc.
+  (let (ipyel-input)                    ; set by ipyel-input-sender
+    (comint-send-input)                 ; update history, markers etc.
     (ipyel-eval-input ipyel-input)))
 
 ;;; Utility functions
@@ -325,7 +324,7 @@ simply inserts a newline."
     (setq input-string (pp-to-string (pyel input-string))))
   ;;TODO: should have a seporate list that new funcitons are added to, the list can be evaled and then cleared
   (pyel-eval-extra-generated-code)
-  
+
   ;; This is the function that actually `sends' the input to the
   ;; `inferior Lisp process'. All comint-send-input does is works out
   ;; what that input is.  What this function does is evaluates that
@@ -339,104 +338,104 @@ simply inserts a newline."
   ;; NOTE: all temporary variables in this function will be in scope
   ;; during the eval, and so need to have non-clashing names.
   (let ((ipyel-string input-string)      ; input expression, as a string
-        ipyel-form			; form to evaluate
-	ipyel-pos			; End posn of parse in string
-	ipyel-result			; Result, or error message
-	ipyel-error-type			; string, nil if no error
-	(ipyel-output "")		; result to display
-	(ipyel-wbuf ipyel-working-buffer)	; current buffer after evaluation
-	(ipyel-pmark (ipyel-pm)))
+        ipyel-form                      ; form to evaluate
+        ipyel-pos                       ; End posn of parse in string
+        ipyel-result                    ; Result, or error message
+        ipyel-error-type                        ; string, nil if no error
+        (ipyel-output "")               ; result to display
+        (ipyel-wbuf ipyel-working-buffer)       ; current buffer after evaluation
+        (ipyel-pmark (ipyel-pm)))
     (unless (ipyel-is-whitespace-or-comment ipyel-string)
       (condition-case err
-	  (let ((rout (read-from-string ipyel-string)))
-	    (setq ipyel-form (car rout)
-		  ipyel-pos (cdr rout)))
-	(error (setq ipyel-result (error-message-string err))
-	       (setq ipyel-error-type "Read error")))
+          (let ((rout (read-from-string ipyel-string)))
+            (setq ipyel-form (car rout)
+                  ipyel-pos (cdr rout)))
+        (error (setq ipyel-result (error-message-string err))
+               (setq ipyel-error-type "Read error")))
       (unless ipyel-error-type
-	;; Make sure working buffer has not been killed
-	(if (not (buffer-name ipyel-working-buffer))
-	    (setq ipyel-result "Working buffer has been killed"
-		  ipyel-error-type "IPYEL Error"
-		  ipyel-wbuf (current-buffer))
-	  (if (ipyel-is-whitespace-or-comment (substring ipyel-string ipyel-pos))
-	      ;; To correctly handle the ipyel-local variables *,
-	      ;; ** and ***, we need a temporary buffer to be
-	      ;; current at entry to the inner of the next two let
-	      ;; forms.  We need another temporary buffer to exit
-	      ;; that same let.  To avoid problems, neither of
-	      ;; these buffers should be alive during the
-	      ;; evaluation of ipyel-form.
-	      (let ((*1 *)
-		    (*2 **)
-		    (*3 ***)
-		    ipyel-temp-buffer)
-		(set-match-data ipyel-match-data)
-		(save-excursion
-		  (with-temp-buffer
-		    (condition-case err
-			(unwind-protect
-			     ;; The next let form creates default
-			     ;; bindings for *, ** and ***.  But
-			     ;; these default bindings are
-			     ;; identical to the ipyel-local
-			     ;; bindings.  Hence, during the
-			     ;; evaluation of ipyel-form, the
-			     ;; ipyel-local values are going to be
-			     ;; used in all buffers except for
-			     ;; other ipyel buffers, which override
-			     ;; them.  Normally, the variables *1,
-			     ;; *2 and *3 also have default
-			     ;; bindings, which are not overridden.
-			     (let ((* *1)
-				   (** *2)
-				   (*** *3))
-			       (kill-buffer (current-buffer))
-			       (set-buffer ipyel-wbuf)
-			       (setq ipyel-result
-				     ;;mbs
-				     (let ((pyel-interactive t))
-				       (pyel-repr (eval ipyel-form
-							lexical-binding))))
-			       (setq ipyel-wbuf (current-buffer))
-			       (setq
-				ipyel-temp-buffer
-				(generate-new-buffer " *ipyel-temp*"))
-			       (set-buffer ipyel-temp-buffer))
-			  (when ipyel-temp-buffer
-			    (kill-buffer ipyel-temp-buffer)))
-		      (error (setq ipyel-result (error-message-string err))
-			     (setq ipyel-error-type "Eval error"))
-		      (quit (setq ipyel-result "Quit during evaluation")
-			    (setq ipyel-error-type "Eval error")))))
-		(setq ipyel-match-data (match-data)))
-	    (setq ipyel-error-type "IPYEL error")
-	    (setq ipyel-result "More than one sexp in input"))))
+        ;; Make sure working buffer has not been killed
+        (if (not (buffer-name ipyel-working-buffer))
+            (setq ipyel-result "Working buffer has been killed"
+                  ipyel-error-type "IPYEL Error"
+                  ipyel-wbuf (current-buffer))
+          (if (ipyel-is-whitespace-or-comment (substring ipyel-string ipyel-pos))
+              ;; To correctly handle the ipyel-local variables *,
+              ;; ** and ***, we need a temporary buffer to be
+              ;; current at entry to the inner of the next two let
+              ;; forms.  We need another temporary buffer to exit
+              ;; that same let.  To avoid problems, neither of
+              ;; these buffers should be alive during the
+              ;; evaluation of ipyel-form.
+              (let ((*1 *)
+                    (*2 **)
+                    (*3 ***)
+                    ipyel-temp-buffer)
+                (set-match-data ipyel-match-data)
+                (save-excursion
+                  (with-temp-buffer
+                    (condition-case err
+                        (unwind-protect
+                            ;; The next let form creates default
+                            ;; bindings for *, ** and ***.  But
+                            ;; these default bindings are
+                            ;; identical to the ipyel-local
+                            ;; bindings.  Hence, during the
+                            ;; evaluation of ipyel-form, the
+                            ;; ipyel-local values are going to be
+                            ;; used in all buffers except for
+                            ;; other ipyel buffers, which override
+                            ;; them.  Normally, the variables *1,
+                            ;; *2 and *3 also have default
+                            ;; bindings, which are not overridden.
+                            (let ((* *1)
+                                  (** *2)
+                                  (*** *3))
+                              (kill-buffer (current-buffer))
+                              (set-buffer ipyel-wbuf)
+                              (setq ipyel-result
+                                    ;;mbs
+                                    (let ((pyel-interactive t))
+                                      (pyel-repr (eval ipyel-form
+                                                       lexical-binding))))
+                              (setq ipyel-wbuf (current-buffer))
+                              (setq
+                               ipyel-temp-buffer
+                               (generate-new-buffer " *ipyel-temp*"))
+                              (set-buffer ipyel-temp-buffer))
+                          (when ipyel-temp-buffer
+                            (kill-buffer ipyel-temp-buffer)))
+                      (error (setq ipyel-result (error-message-string err))
+                             (setq ipyel-error-type "Eval error"))
+                      (quit (setq ipyel-result "Quit during evaluation")
+                            (setq ipyel-error-type "Eval error")))))
+                (setq ipyel-match-data (match-data)))
+            (setq ipyel-error-type "IPYEL error")
+            (setq ipyel-result "More than one sexp in input"))))
 
       ;; If the eval changed the current buffer, mention it here
       (unless (eq ipyel-wbuf ipyel-working-buffer)
-	(message "current buffer is now: %s" ipyel-wbuf)
-	(setq ipyel-working-buffer ipyel-wbuf))
+        (message "current buffer is now: %s" ipyel-wbuf)
+        (setq ipyel-working-buffer ipyel-wbuf))
 
       (goto-char ipyel-pmark)
       (unless ipyel-error-type
-	(condition-case nil
-	    ;; Self-referential objects cause loops in the printer, so
-	    ;; trap quits here. May as well do errors, too
-	    (setq ipyel-output (concat ipyel-output ipyel-result)) ;;mbs
-	  (error (setq ipyel-error-type "IPYEL Error")
-		 (setq ipyel-result "Error during pretty-printing (bug in pp)"))
-	  (quit  (setq ipyel-error-type "IPYEL Error")
-		 (setq ipyel-result "Quit during pretty-printing"))))
+        (condition-case nil
+            ;; Self-referential objects cause loops in the printer, so
+            ;; trap quits here. May as well do errors, too
+            (setq ipyel-output (concat ipyel-output ipyel-result)) ;;mbs
+          (error (setq ipyel-error-type "IPYEL Error")
+                 (setq ipyel-result "Error during pretty-printing (bug in pp)"))
+          (quit  (setq ipyel-error-type "IPYEL Error")
+                 (setq ipyel-result "Quit during pretty-printing"))))
       (if ipyel-error-type
-	  (progn
-	    (when ipyel-noisy (ding))
-	    (setq ipyel-output (concat ipyel-output "*** " ipyel-error-type " ***  "))
-	    (setq ipyel-output (concat ipyel-output ipyel-result)))
-	;; There was no error, so shift the *** values
-	(setq *** **)
-	(setq ** *)
-	(setq * ipyel-result))
+          (progn
+            (when ipyel-noisy (ding))
+            (setq ipyel-output (concat ipyel-output "*** " ipyel-error-type " ***  "))
+            (setq ipyel-output (concat ipyel-output ipyel-result)))
+        ;; There was no error, so shift the *** values
+        (setq *** **)
+        (setq ** *)
+        (setq * ipyel-result))
       (setq ipyel-output (concat ipyel-output "\n")))
     (setq ipyel-output (concat ipyel-output ipyel-prompt-internal))
     (comint-output-filter (ipyel-process) (setq _x ipyel-output))))
@@ -508,7 +507,7 @@ Customized bindings may be defined in `ipyel-map', which currently contains:
   (setq comint-process-echoes nil)
   (set (make-local-variable 'comint-dynamic-complete-functions)
        '(ipyel-tab comint-replace-by-expanded-history
-	 ipyel-complete-filename ipyel-complete-symbol))
+                   ipyel-complete-filename ipyel-complete-symbol))
   (set (make-local-variable 'ipyel-prompt-internal) ipyel-prompt)
   (set (make-local-variable 'comint-prompt-read-only) ipyel-prompt-read-only)
   (setq comint-get-old-input 'ipyel-get-old-input)
@@ -536,7 +535,7 @@ Customized bindings may be defined in `ipyel-map', which currently contains:
     ;; Was cat, but on non-Unix platforms that might not exist, so
     ;; use hexl instead, which is part of the Emacs distribution.
     (condition-case nil
-	(start-process "ipyel" (current-buffer) "hexl")
+        (start-process "ipyel" (current-buffer) "hexl")
       (file-error (start-process "ipyel" (current-buffer) "cat")))
     (set-process-query-on-exit-flag (ipyel-process) nil)
     (goto-char (point-max))
@@ -576,8 +575,8 @@ Switches to the buffer `*ipyel*', or creates it if it does not exist."
   (let (old-point)
     (unless (comint-check-proc "*ipyel*")
       (with-current-buffer (get-buffer-create "*ipyel*")
-	(unless (zerop (buffer-size)) (setq old-point (point)))
-	(inferior-emacs-lisp-mode)))
+        (unless (zerop (buffer-size)) (setq old-point (point)))
+        (inferior-emacs-lisp-mode)))
     (switch-to-buffer "*ipyel*")
     (when old-point (push-mark old-point))))
 

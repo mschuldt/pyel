@@ -4,7 +4,7 @@
 (defconst obj-class-symbol 'pyel-class)
 
 (set (defvar special-method-names nil
-  "alist of special method names and index pairs")
+       "alist of special method names and index pairs")
      nil)
 
 (defun is-special-method (name)
@@ -314,7 +314,6 @@ this does not create bound methods"
           val)
       (signal 'AttributeError nil))))
 
-
 (defun _find-non-data-descriptor (class object name)
   "search for the non-data descriptor or plan attribute NAME
 if it is a descriptor, return its value"
@@ -422,7 +421,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
         (let* ((bases (if (eq (aref object obj-symbol-index)
                               obj-instance-symbol)
                           (vector (aref object obj-class-index))
-                          (aref object obj-bases-index)))
+                        (aref object obj-bases-index)))
                (nbases (length bases))
                (i 0))
           (while (not method) ;;TODO: proper MRO
@@ -457,8 +456,8 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
                                ,(cons 'list defaults)))
 
 (defun _call-method-with-defaults (object method args defaults)
-    (eval (setq _xx `(call-method ,object ,method
-                                  ,@args ,@(pyel-strip-trailing-nil defaults)))))
+  (eval (setq _xx `(call-method ,object ,method
+                                ,@args ,@(pyel-strip-trailing-nil defaults)))))
 
 (defmacro setattr (obj attr value)
   `(setattr-1 ,obj ',(if (stringp attr) (intern attr) attr) ,value))
@@ -473,7 +472,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
       (call-method (_find-data-descriptor (aref (aref obj obj-bases-index) 0) attr)
                    --set-- obj value)
     (error ;;AttributeError
-       (puthash attr value (aref obj obj-dict-index)))))
+     (puthash attr value (aref obj obj-dict-index)))))
 
 (defmacro obj-hasattr (object attr)
   (let* ((attr (if (stringp attr) (intern attr) attr))
@@ -554,6 +553,5 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 (define-class AttributeError (BaseException))
 (define-class TypeError (BaseException))
 (define-class StopIteration (BaseException))
-
 
 (provide 'py-objects)
