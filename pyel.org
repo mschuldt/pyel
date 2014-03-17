@@ -175,6 +175,14 @@ http://docs.python.org/2/library/functions.html
 | intern       |        |       |                                          |
 | exit         | x      | no    | not of type Quitter, just a function     |
 
+** bugs
+*** break in a while loop 
+(cl-prettyprint (pyel "while True:
+ if x == 3:
+  break"))
+(while t
+  (if (pyel-== x 3) nil))
+
 * documentation
 TODO: how to export a heading as pdf or into a seporate file?
 
