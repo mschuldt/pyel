@@ -919,11 +919,14 @@ obj = C()"
  ("a = [1,2,3]
 c = ['a','a']
 b = a
-a.append('hi')"
+a.append('hi')
+e = []
+e.append(3)"
   ("a" '(1 2 3 "hi"))
   ("a is b" t)
   ("a.append(c)" ("a is b" t))
-  ("a.append(c)" ("a[3] is c" t))))
+  ("a.append(c)" ("a[3] is c" t))
+  ("e" '(3))))
 
 (pyel-create-tests
  insert

@@ -242,6 +242,8 @@
  c = ['a','a']
  b = a
  a.append('hi')
+ e = []
+ e.append(3)
  if n == 1:
   return a
 
@@ -254,7 +256,10 @@
 
  if n == 4:
   a.append(c)
-  return a[3] is c" "def pyel_test_abs_function_396():
+  return a[3] is c
+
+ if n == 5:
+  return e" "def pyel_test_abs_function_396():
  class C:
   def __abs__(self):
    'doc'
@@ -1032,6 +1037,7 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-append-2 nil (equal (eval (pyel "pyel_test_append_397(2)")) t))
 (ert-deftest pyel-test-append-3 nil (equal (eval (pyel "pyel_test_append_397(3)")) t))
 (ert-deftest pyel-test-append-4 nil (equal (eval (pyel "pyel_test_append_397(4)")) t))
+(ert-deftest pyel-test-append-5 nil (equal (eval (pyel "pyel_test_append_397(5)")) (quote (3))))
 (ert-deftest pyel-test-insert-1 nil (equal (eval (pyel "pyel_test_insert_398(1)")) (quote (1 "hi" 2 3))))
 (ert-deftest pyel-test-insert-2 nil (equal (eval (pyel "pyel_test_insert_398(2)")) t))
 (ert-deftest pyel-test-index_method-1 nil (equal (eval (pyel "pyel_test_index_method_399(1)")) 0))
