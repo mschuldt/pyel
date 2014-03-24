@@ -320,6 +320,19 @@ n2 = 3"
   ("n1 - n2" 2)))
 
 (pyel-create-tests
+ mult-op
+ ("3 * 4" 12)
+ ("'a' * 3" "aaa")
+ ("4*'b'" "bbbb")
+ ("n1 = 2
+n2 = 4
+s = 's'"
+  ("n1 * n2" 8)
+  ("s * n1" "ss")
+  ("n1 * s" "ss"))
+ )
+
+(pyel-create-tests
 subscript
  ;;load index====
  ;;string
