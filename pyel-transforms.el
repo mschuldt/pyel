@@ -671,11 +671,10 @@ Recognizes keyword args in the form 'arg = value'."
     (call-transform op left right)))
 
 (pyel-dispatch-func * (l r)
-                    (number _) ->  (* l r)
-                    (object _)      -> (call-method l --mul-- r)
-                    (_ number) -> (* l r)
-                    (_ string)
-                    (string _)      -> (pyel-mul-num-str l r))
+                    (object _)  -> (call-method l --mul-- r)
+                    (string _)
+                    (_ string)  -> (pyel-mul-num-str l r)
+                    (_ _)       -> (* l r))
 
 (pyel-dispatch-func + (lhs rhs)
                     (number _) -> (+ lhs rhs)
