@@ -3296,6 +3296,13 @@ TODO: tests!
     ("s * n1" "ss")
     ("n1 * s" "ss"))
    )
+  
+  (pyel-create-tests
+   pow-op
+   ("3 ** 4" 81)
+   ("n1 = 2
+  n2 = 4"
+    ("n1 ** n2" 16)))
 #+END_SRC
 ** subscript,index,slice
 *** transform

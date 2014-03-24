@@ -333,6 +333,13 @@ s = 's'"
  )
 
 (pyel-create-tests
+ pow-op
+ ("3 ** 4" 81)
+ ("n1 = 2
+n2 = 4"
+  ("n1 ** n2" 16)))
+
+(pyel-create-tests
 subscript
  ;;load index====
  ;;string
