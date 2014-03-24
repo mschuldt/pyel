@@ -462,20 +462,22 @@
            ,@(mapcar 'transform body)))
 
       ;;expand as a normal while loop
-      (setq t-body (remove-context tail-context
-                                   (mapcar 'transform (subseq body 0 -1)))
-            t-last (transform (car (last body)))
-            code (append t-body (list t-last))
+      (using-context
+       while
+       (setq t-body (remove-context tail-context
+                                    (mapcar 'transform (subseq body 0 -1)))
+             t-last (transform (car (last body)))
+             code (append t-body (list t-last))
 
-            break-code (if break-while '(catch '__break__)
-                         pyel-nothing)
-            continue-code (if continue-while '(catch '__continue__)
-                            pyel-nothing)
-            wile `(,@break-code
-                   (while
-                       ,(if (equal tst []) nil tst)
-                     (,@continue-code
-                      ,@code))))
+             break-code (if break-while '(catch '__break__)
+                          pyel-nothing)
+             continue-code (if continue-while '(catch '__continue__)
+                             pyel-nothing)
+             wile `(,@break-code
+                    (while
+                        ,(if (equal tst []) nil tst)
+                      (,@continue-code
+                       ,@code)))))
       (if else
           `(@ ,wile ,@else)
         wile))))
