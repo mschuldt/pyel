@@ -3939,7 +3939,51 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   break
+   ("x = 0
+  while x < 10:
+   x = x + 1
+   if x == 3:
+    break"
+    ("x" 3))
+  
+   ("x = [0]
+  c = 0
+  while c < 3:
+   c = c + 1
+   y = 0
+   while y < 10:
+    y = y + 1
+    x.append(y)
+    if y == 3:
+     x.append('b')
+     break"
+    ("x" '(0 1 2 3 "b" 1 2 3 "b" 1 2 3 "b"))))
+  
+  (pyel-create-tests 
+   continue
+   ("l = [0]
+  y = 8;
+  while y > 0:
+   y = y -1
+   if y % 2 == 0:
+    continue
+   l.append(y)"
+    ("l"  '(0 7 5 3 1)))
+  
+   ("x = [0]
+  c = 0
+  while c < 3:
+   c = c + 1
+   y = 0
+   while y < 5:
+    y = y + 1
+    if y % 2 == 0:
+     x.append('c')
+     continue
+    x.append(y)"
+    ("x" '(0 1 "c" 3 "c" 5 1 "c" 3 "c" 5 1 "c" 3 "c" 5))))
 #+END_SRC
 ** exception handler
 *** transform
