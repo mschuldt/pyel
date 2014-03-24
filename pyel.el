@@ -52,7 +52,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
 
   (setq pyel-marked-ast-pieces nil)
   (setq pyel-transform-status nil) ;;so far so good...
-  
+
   (setq pyel-last-python-code python)
 
   (let* (;;Q general way of replacing backslashes?

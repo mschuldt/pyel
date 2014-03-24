@@ -477,26 +477,30 @@ d.__call__ = lambda : 'hi'"
                    "assert sldk()"
                    "assert adk,'messsage'")
 
-(pyel-create-tests for-loop
-                   "b = [1,2,3,4]
+(pyel-create-tests
+ for-loop
+ ("x = [0]
+for a in range(1,10):
+ x.append(a)"
+  ("x" '(0 1 2 3 4 5 6 7 8 9)))
+
+ ("x = [0]
+for a in range(10):
+ if a % 2 == 0: continue
+ x.append(a)"
+  ("x" '(0 1 3 5 7 9)))
+
+ ("x = [0]
+for a in range(1,10):
+ if a == 5: break
+ x.append(a)"
+  ("x" '(0 1 2 3 4)))
+
+ ("b = [1,2,3,4]
 c = 0
 for a in b:
- c = c + a
-assert c==10"
-
-                   "for i in range(n):
- break"
-
-                   "for i in range(n):
- continue"
-
-                   "x = []
-for i in range(5):
- if i == 2:
-  continue
- x.append(i)
-assert x == [0,1,3,4]"
-                   )
+ c = c + a"
+  ("c" 10)))
 
 (pyel-create-tests global
 
