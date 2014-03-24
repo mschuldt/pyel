@@ -52,6 +52,8 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
 
   (setq pyel-marked-ast-pieces nil)
   (setq pyel-transform-status nil) ;;so far so good...
+  
+  (setq pyel-last-python-code python)
 
   (let* (;;Q general way of replacing backslashes?
          (python (replace-regexp-in-string "\"" "\\\\\"" python))
@@ -106,6 +108,9 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
         (mapc 'eval pyel-function-definitions)
         ret
         ))))
+
+(defvar pyel-last-python-code nil
+  "last python string `pyel' attempted to transform")
 
 (defun pyel-buffer-to-string (&optional ast-only)
   "transform python in current buffer and return a string"
