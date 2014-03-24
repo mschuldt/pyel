@@ -193,8 +193,18 @@
      )))
 
 (defun pyel-mul-num-str (left right)
-    "not implemented"
-    )
+  (let ((c 0)
+        (ret "")
+        num str)
+    (if (numberp left)
+        (setq num left
+              str right)
+      (setq num right
+            str left))
+    (while (< c num)
+      (setq ret (concat ret str)
+            c (1+ c)))
+    ret))
 
 (defmacro pyel-div (l r)
   (cond ((or (floatp l)
