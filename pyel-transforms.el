@@ -351,12 +351,13 @@
 ;; counterparts without defining themselves globally
 (pyel-dispatch-func fcall (_func &rest _args)
                     (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
-                    ($function _) -> ($func ,@(pyel-sort-kwargs args))
+                    ;;($function _) -> ($func ,@(pyel-sort-kwargs args))
                     (class _) -> (call-method $func --new--
                                               ,@(pyel-sort-kwargs args))
+
                     (instance _) -> (call-method $func --call--
                                              ,@(pyel-sort-kwargs args))
-                    (_ _) -> ($func ,@(pyel-sort-kwargs args));;for macros
+                    (_ _) -> ($func ,@(pyel-sort-kwargs args))
                     )
 
 (def-transform keyword pyel ()
