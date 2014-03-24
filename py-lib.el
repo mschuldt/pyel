@@ -613,7 +613,7 @@ EXC must be derived from BaseException"
     (while rest
       (setq prev rest
             rest (cdr rest)))
-
+    
     (cond ((py-object-p iterable)
            (_py-list-extend-with-object prev iterable))
           ((listp iterable)
@@ -706,7 +706,7 @@ EXC must be derived from BaseException"
             rest (cdr rest)))))
 
 (defun pyel-split (string &optional sep maxsplit)
-
+  
   (let ((sep (or (and sep (regexp-quote sep)) "[ \f\t\n\r\v]+")) ;;correct default?
         (ret (split-string string sep t)))
     (if maxsplit
@@ -769,4 +769,5 @@ EXC must be derived from BaseException"
 
 (provide 'py-lib)
 ;;py-lib.el ends here
+
 

@@ -446,6 +446,11 @@
          break-code
          continue-code
          macro-name
+         t-body
+         t-last
+         break-code
+         continue-code
+         wile
          ;;inter-transform variables
          continue-while
          break-while )
