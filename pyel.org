@@ -4453,6 +4453,7 @@ This will help notify the user when some syntax has not been implemented
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform len (thing)
+                       (hash)   -> (hash-table-count thing)
                        (object) -> (call-method thing --len--)
                        (_)      -> (length thing))
 #+END_SRC
@@ -4470,6 +4471,7 @@ This will help notify the user when some syntax has not been implemented
     ("len(d)" 4))
    ("len('')" 0)
    ("len([3,4])" 2)
+   ("len({1:'one', 2:'two'})" 2)
    )
 #+END_SRC
 ** range

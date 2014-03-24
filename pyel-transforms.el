@@ -1060,6 +1060,7 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-translate-function-name 'map 'mapcar)
 
 (pyel-func-transform len (thing)
+                     (hash)   -> (hash-table-count thing)
                      (object) -> (call-method thing --len--)
                      (_)      -> (length thing))
 

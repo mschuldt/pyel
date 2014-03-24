@@ -765,6 +765,7 @@ d = (1,2,3,4)"
   ("len(d)" 4))
  ("len('')" 0)
  ("len([3,4])" 2)
+ ("len({1:'one', 2:'two'})" 2)
  )
 
 (pyel-create-tests

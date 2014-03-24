@@ -881,11 +881,14 @@ _pyel21312()")) (quote (2 3 4 5 6))))
 (ert-deftest pyel-range-function1 nil (equal (eval (pyel "def _pyel21312():
  range(2,20,3)
 _pyel21312()")) (quote (2 5 8 11 14 17))))
-(ert-deftest pyel-len-function2 nil (equal (eval (pyel "def _pyel21312():
+(ert-deftest pyel-len-function3 nil (equal (eval (pyel "def _pyel21312():
  len('')
 _pyel21312()")) 0))
-(ert-deftest pyel-len-function1 nil (equal (eval (pyel "def _pyel21312():
+(ert-deftest pyel-len-function2 nil (equal (eval (pyel "def _pyel21312():
  len([3,4])
+_pyel21312()")) 2))
+(ert-deftest pyel-len-function1 nil (equal (eval (pyel "def _pyel21312():
+ len({1:'one', 2:'two'})
 _pyel21312()")) 2))
 (ert-deftest pyel-dict-comprehensions3 nil (equal (eval (pyel "def _pyel21312():
  str({x:x*x for x in range(5)})
@@ -1051,10 +1054,10 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-list_comprehensions-2 nil (equal (eval (pyel "pyel_test_list_comprehensions_338()")) (quote ((1 5 9) (2 6 10) (3 7 11) (4 8 12)))))
 (ert-deftest pyel-test-dict_comprehensions-1 nil (equal (eval (pyel "pyel_test_dict_comprehensions_339(1)")) 20))
 (ert-deftest pyel-test-dict_comprehensions-2 nil (equal (eval (pyel "pyel_test_dict_comprehensions_339(2)")) [(0 1 4) (0 1 4 9 16) (0 1 4 9 16 25 36 49 64 81)]))
-(ert-deftest pyel-test-len_function-3 nil (equal (eval (pyel "pyel_test_len_function_370(1)")) 4))
-(ert-deftest pyel-test-len_function-4 nil (equal (eval (pyel "pyel_test_len_function_370(2)")) 0))
-(ert-deftest pyel-test-len_function-5 nil (equal (eval (pyel "pyel_test_len_function_370(3)")) 3))
-(ert-deftest pyel-test-len_function-6 nil (equal (eval (pyel "pyel_test_len_function_370(4)")) 4))
+(ert-deftest pyel-test-len_function-4 nil (equal (eval (pyel "pyel_test_len_function_370(1)")) 4))
+(ert-deftest pyel-test-len_function-5 nil (equal (eval (pyel "pyel_test_len_function_370(2)")) 0))
+(ert-deftest pyel-test-len_function-6 nil (equal (eval (pyel "pyel_test_len_function_370(3)")) 3))
+(ert-deftest pyel-test-len_function-7 nil (equal (eval (pyel "pyel_test_len_function_370(4)")) 4))
 (ert-deftest pyel-test-list_function-1 nil (equal (eval (pyel "pyel_test_list_function_371()")) (quote ("5" "4" "3" "2" "1"))))
 (ert-deftest pyel-test-list_function-3 nil (equal (eval (pyel "pyel_test_list_function_372(1)")) (quote ((1) 1))))
 (ert-deftest pyel-test-list_function-4 nil (equal (eval (pyel "pyel_test_list_function_372(2)")) t))
