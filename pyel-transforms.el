@@ -680,7 +680,7 @@ Recognizes keyword args in the form 'arg = value'."
                     (number _) -> (+ lhs rhs)
                     (string _) -> (concat lhs rhs)
                     (list _)   -> (append lhs rhs)
-                    (object _) -> (call-method l --add-- r)
+                    (object _) -> (call-method lhs --add-- rhs)
                     (_ number)  -> (+ lhs rhs)
                     (vector _)
                     (_ vector)  -> (vconcat lhs rhs)
