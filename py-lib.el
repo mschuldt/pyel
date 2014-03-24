@@ -269,6 +269,16 @@ else is optional"
             )
        ,@body)))
 
+(make-transform-table 'for-macro)
+
+(def-transform break for-macro ()
+  (lambda () (setq __for-break t)
+    '(throw '__break__ nil)))
+
+(def-transform continue for-macro ()
+  (lambda () (setq __for-continue t)
+    '(throw '__continue__ nil)))
+
 
 
 

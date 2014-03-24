@@ -3708,6 +3708,16 @@ TODO: tests!
               (__idx 0)
               )
          ,@body)))
+  
+  (make-transform-table 'for-macro)
+  
+  (def-transform break for-macro ()
+    (lambda () (setq __for-break t)
+      '(throw '__break__ nil)))
+  
+  (def-transform continue for-macro ()
+    (lambda () (setq __for-continue t)
+      '(throw '__continue__ nil)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
