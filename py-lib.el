@@ -243,7 +243,7 @@ else is optional"
          __for-break
          )
     ;;TODO: when multiple targets, check that all lists are the same size
-    (setq body (transform (setq _x body)))
+    (setq body (mapcar 'transform body))
 
     (setq body (cons '(setq __idx (1+ __idx))  body)
           body (if target
