@@ -340,6 +340,27 @@ n2 = 4"
   ("n1 ** n2" 16)))
 
 (pyel-create-tests
+ div-op
+ ("9 / 4" 2.25)
+ ("9 // 4" 2)
+ ("a = 9
+b = 4"
+  ("a / b" 2.25)
+  ("a // b" 2))
+ )
+
+(pyel-create-tests
+ bin-ops
+ ("3 & 5" 0)
+ ("3 | 5" 7)
+ ("3 ^ 5" 6)
+ ("a = 3
+b = 5"
+  ("a & b" 0)
+  ("a | b" 7)
+  ("a ^ b" 6)))
+
+(pyel-create-tests
 subscript
  ;;load index====
  ;;string
