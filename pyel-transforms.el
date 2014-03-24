@@ -1134,7 +1134,7 @@ Recognizes keyword args in the form 'arg = value'."
 ;;
 
 (pyel-method-transform append (obj thing)
-                       (list _) -> (py-list-append obj thing)
+                       (list _) -> (py-append $obj thing)
                        (_ _)    -> (call-method obj append thing))
 
 (pyel-method-transform insert (obj i x)

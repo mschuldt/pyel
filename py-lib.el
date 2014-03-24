@@ -527,12 +527,14 @@ EXC must be derived from BaseException"
 
 (defun py-list-append (list thing)
   "add THING to the end of LIST"
-  (cond ;; ((eq (car list) 'py-empty-list)
-        ;;  (setcar list thing))
-        ((null list) (list thing))
-        (t (while (not (null (cdr list)))
-             (setq list (cdr list)))
-           (setcdr list (list thing)))))
+  (while (not (null (cdr list)))
+    (setq list (cdr list)))
+  (setcdr list (list thing)))
+
+(defmacro py-append (list thing)
+  "add THING to the end of LIST"
+  `(cond ((null ,list) (setq ,list (list ,thing)))
+         (t (py-list-append ,list ,thing))))
 
 (defun py-insert (list index object)
   "insert OBJECT into LIST at INDEX"

@@ -5039,19 +5039,22 @@ Example:
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform append (obj thing)
-                         (list _) -> (py-list-append obj thing)
+                         (list _) -> (py-append $obj thing)
                          (_ _)    -> (call-method obj append thing))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun py-list-append (list thing)
     "add THING to the end of LIST"
-    (cond ;; ((eq (car list) 'py-empty-list)
-          ;;  (setcar list thing))
-          ((null list) (list thing))
-          (t (while (not (null (cdr list)))
-               (setq list (cdr list)))
-             (setcdr list (list thing)))))
+    (while (not (null (cdr list)))
+      (setq list (cdr list)))
+    (setcdr list (list thing)))
+  
+  (defmacro py-append (list thing)
+    "add THING to the end of LIST"
+    `(cond ((null ,list) (setq ,list (list ,thing)))
+           (t (py-list-append ,list ,thing))))
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
