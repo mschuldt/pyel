@@ -720,6 +720,14 @@ for i in range(4):
  transposed.append([row[i] for row in matrix])"
   ("transposed" '((1 5 9) (2 6 10) (3 7 11) (4 8 12)))))
 
+
+(pyel-create-tests
+ dict-comprehensions
+ ("str({x:x*x for x in range(5)})" "{0: 0, 1: 1, 2: 4, 3: 9, 4: 16}")
+ ("x = {x: [y*y for y in range(x)] for x in range(20)}"
+  ("hash_table_count(x)" 20)
+  ("x[3],x[5],x[10]" [(0 1 4) (0 1 4 9 16) (0 1 4 9 16 25 36 49 64 81)])))
+
 (pyel-create-tests boolop
                    "a or b"
                    "a or b or c"
