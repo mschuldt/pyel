@@ -295,9 +295,22 @@ else:
   (equal (pyel-sort-kwargs '(a b = (b 1 2) 5 12 x = 1 (+ 1 3 ) y = "s"))
          '((a 5 12 (+ 1 3)) ((y . "s") (x . 1) (b b 1 2)))))
 
-(pyel-create-tests binop
-                   "assert 1//2 == 0"
-                   "assert 1/2 == 0.5")
+(pyel-create-tests
+ add-op
+ ("1 + 2" 3)
+ ("'a' + 'b'" "ab")
+ ("n1 = 2
+n2 = 5
+s1 = 'asd'
+s2 = 'df'
+l1 = [1]
+l2 = [3,'a']
+v1 = (1,2)
+v2 = (3,)"
+  ("n1 + n2" 10)
+  ("s1 + s2" "asddf")
+  ("l1 + l2" '(1 3 "a"))
+  ("v1 + v2" [1 2 3])))
 
 (pyel-create-tests
 subscript
