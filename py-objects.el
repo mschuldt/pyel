@@ -125,7 +125,11 @@ These names will be set globally to their index in this list")
                       (name (pop attr))
                       (args (pop attr))
                       (decorators (pop attr))
-                      (doc (if (eq (type-of (car attr)) 'string) (pop attr) nil))
+                      (doc (if (and (> (length attr) 1)
+                                    (eq (type-of (car attr)) 'string))
+                               ;;if method body is only a string, assume
+                               ;;it is meant to be returned
+                               (pop attr) nil))
                       (func `(lambda ,args ,@attr))
                       attr type )
                  (setq type (cond ((assoc name special-method-names) 'special)
