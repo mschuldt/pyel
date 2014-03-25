@@ -97,6 +97,11 @@
 
 (defmacro def (name args decorator-list &rest body)
   ;;TODO: apply decorators
+
+  (if (and (= (length body) 1)
+           (stringp (car body)))
+      (push nil body))
+
   (using-context
    function-def
    (if (member '&kwarg args)
