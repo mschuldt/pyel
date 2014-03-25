@@ -1,4 +1,4 @@
-(setq pyel-test-py-functions '("def pyel_test_copy_method_406(n):
+(setq pyel-test-py-functions '("def pyel_test_copy_method_410(n):
  x = {1:['one'],2:'two',3:'three'}
  y = x
  z = x.copy()
@@ -6,14 +6,14 @@
   return x is z
 
  if n == 2:
-  return x[1] is z[1]" "def pyel_test_popitem_method_405(n):
+  return x[1] is z[1]" "def pyel_test_popitem_method_409(n):
  x = {1:'one',2:'two',3:'three'}
  y = x.popitem()
  if n == 1:
   return y
 
  if n == 2:
-  return repr(x)" "def pyel_test_values_method_404(n):
+  return repr(x)" "def pyel_test_values_method_408(n):
  x = {1:'one',2:'two',3:'three'}
  y = {8 : 88}
  z = {}
@@ -24,7 +24,7 @@
   return y.values()
 
  if n == 3:
-  return z.values()" "def pyel_test_keys_method_403(n):
+  return z.values()" "def pyel_test_keys_method_407(n):
  x = {1:'one',2:'two',3:'three'}
  y = {8 : 88}
  z = {}
@@ -35,7 +35,7 @@
   return y.keys()
 
  if n == 3:
-  return z.keys()" "def pyel_test_items_method_402(n):
+  return z.keys()" "def pyel_test_items_method_406(n):
  x = {1:'one',2:'two',3:'three'}
  y = {8 : 88}
  z = {}
@@ -46,7 +46,7 @@
   return y.items()
 
  if n == 3:
-  return z.items()" "def pyel_test_get_method_401(n):
+  return z.items()" "def pyel_test_get_method_405(n):
  x = {1:'one',2:'two',3:'three'}
  if n == 1:
   return x[1]
@@ -58,18 +58,18 @@
   return x.get(3, 'd')
 
  if n == 4:
-  return x.get(4, 'd')" "def pyel_test_strip_method_400():
+  return x.get(4, 'd')" "def pyel_test_strip_method_404():
  x = 'hello'
- return x.strip('hlo')" "def pyel_test_split_method_399():
+ return x.strip('hlo')" "def pyel_test_split_method_403():
  x = 'a b c'
  y = x.split()
- return y" "def pyel_test_split_method_398(n):
+ return y" "def pyel_test_split_method_402(n):
  y = 'a x b x d x'.split()
  if n == 1:
   return y
 
  if n == 2:
-  return len(y)" "def pyel_test_upper_method_397(n):
+  return len(y)" "def pyel_test_upper_method_401(n):
  x = 'aB'
  y = x
  y = x.upper()
@@ -77,7 +77,7 @@
   return y
 
  if n == 2:
-  return x" "def pyel_test_lower_method_396(n):
+  return x" "def pyel_test_lower_method_400(n):
  x = 'aB'
  y = x
  y = x.lower()
@@ -85,7 +85,7 @@
   return y
 
  if n == 2:
-  return x" "def pyel_test_reverse_method_395(n):
+  return x" "def pyel_test_reverse_method_399(n):
  x = [1,2,3]
  y = x
  x.reverse()
@@ -93,7 +93,7 @@
   return x
 
  if n == 2:
-  return x is y" "def pyel_test_pop_method_394(n):
+  return x is y" "def pyel_test_pop_method_398(n):
  x = [[1],'s',(2,), 1, 4]
  y = x
  a = x.pop()
@@ -110,14 +110,14 @@
   return c
 
  if n == 4:
-  return x is y" "def pyel_test_pop_method_393(n):
+  return x is y" "def pyel_test_pop_method_397(n):
  x = {1:'one',2:'two',3:'three'}
  y = x.pop(2)
  if n == 1:
   return y
 
  if n == 2:
-  return repr(x)" "def pyel_test_extend_method_392(n):
+  return repr(x)" "def pyel_test_extend_method_396(n):
  x = [1]
  y = x
  x.extend([1,'2',(3,)])
@@ -125,7 +125,7 @@
   return x is y
 
  if n == 2:
-  return x" "def pyel_test_extend_method_391(n):
+  return x" "def pyel_test_extend_method_395(n):
  x = [1]
  y = x
  x.extend((1,'2',(3,)))
@@ -133,7 +133,7 @@
   return x is y
 
  if n == 2:
-  return x" "def pyel_test_extend_method_390(n):
+  return x" "def pyel_test_extend_method_394(n):
  x = [1]
  y = x
  x.extend('extended')
@@ -141,7 +141,7 @@
   return x is y
 
  if n == 2:
-  return x" "def pyel_test_extend_method_389(n):
+  return x" "def pyel_test_extend_method_393(n):
  class a:
   x = 5
   def __iter__(self):
@@ -160,7 +160,7 @@
   return y is x
 
  if n == 2:
-  return x" "def pyel_test_count_method_388(n):
+  return x" "def pyel_test_count_method_392(n):
  x = [1,2,3,3,[2],'s']
  if n == 1:
   return x.count(3)
@@ -172,7 +172,7 @@
   return x.count([3,4])
 
  if n == 4:
-  return x.count('s')" "def pyel_test_count_method_387(n):
+  return x.count('s')" "def pyel_test_count_method_391(n):
  x = (1,2,3,3,[2],'s')
  if n == 1:
   return x.count(3)
@@ -184,20 +184,20 @@
   return x.count([3,4])
 
  if n == 4:
-  return x.count('s')" "def pyel_test_remove_method_386():
+  return x.count('s')" "def pyel_test_remove_method_390():
  x = [1,'2','2',(1,)]
  y = x
  x.remove('2')
- return x is y" "def pyel_test_remove_method_385():
+ return x is y" "def pyel_test_remove_method_389():
  x = [1,'2','2',(1,)]
  x.remove('2')
- return x" "def pyel_test_remove_method_384():
+ return x" "def pyel_test_remove_method_388():
  x = [1,'2','2',(1,)]
  x.remove(1)
- return x" "def pyel_test_remove_method_383():
+ return x" "def pyel_test_remove_method_387():
  x = [1,'2','2',(1,)]
  x.remove((1,))
- return x" "def pyel_test_index_method_382(n):
+ return x" "def pyel_test_index_method_386(n):
  x = [1,(1,2),'5']
  if n == 1:
   return x.index(1)
@@ -206,7 +206,7 @@
   return x.index((1,2))
 
  if n == 3:
-  return x.index('5')" "def pyel_test_index_method_381(n):
+  return x.index('5')" "def pyel_test_index_method_385(n):
  x = 'importantstring'
  if n == 1:
   return x.index('t')
@@ -218,9 +218,9 @@
   return x.index('g')
 
  if n == 4:
-  return x.index(x)" "def pyel_test_index_method_380():
+  return x.index(x)" "def pyel_test_index_method_384():
  x = 'str.ing'
- return x.index('.')" "def pyel_test_index_method_379(n):
+ return x.index('.')" "def pyel_test_index_method_383(n):
  x = (1,2,'tree',(3,))
  if n == 1:
   return x.index(1)
@@ -229,7 +229,7 @@
   return x.index('tree')
 
  if n == 3:
-  return x.index((3,))" "def pyel_test_insert_378(n):
+  return x.index((3,))" "def pyel_test_insert_382(n):
  x = [1,2,3]
  y = x
  x.insert(1,'hi')
@@ -237,7 +237,7 @@
   return x
 
  if n == 2:
-  return x is y" "def pyel_test_append_377(n):
+  return x is y" "def pyel_test_append_381(n):
  a = [1,2,3]
  c = ['a','a']
  b = a
@@ -259,7 +259,47 @@
   return a[3] is c
 
  if n == 5:
-  return e" "def pyel_test_abs_function_376():
+  return e" "def pyel_test_float_function_380(n):
+ x = '3.1'
+ y = ['4']
+ z = 2
+ a = 3.3
+ if n == 1:
+  return float(x)
+
+ if n == 2:
+  return float(y[0])
+
+ if n == 3:
+  return float(z)
+
+ if n == 4:
+  return float(a)" "def pyel_test_float_function_379():
+ class test:
+  def __float__(self):
+   return 342.1
+ o = test()
+ return float(o)" "def pyel_test_int_function_378(n):
+ x = '3'
+   y = ['4']
+   z = 2
+   a = 3.3
+ if n == 1:
+  return int(x)
+
+ if n == 2:
+  return int(y[0])
+
+ if n == 3:
+  return int(z)
+
+ if n == 4:
+  return int(a)" "def pyel_test_int_function_377():
+ class test:
+    def __int__(self):
+     return 342
+   o = test()
+ return int(o)" "def pyel_test_abs_function_376():
  class C:
   def __abs__(self):
    'doc'
@@ -766,6 +806,30 @@ _pyel21312()")) 1))
 (ert-deftest pyel-count-method1 nil (equal (eval (pyel "def _pyel21312():
  (1,1,1).count(1)
 _pyel21312()")) 3))
+(ert-deftest pyel-float-function9 nil (equal (eval (pyel "def _pyel21312():
+ float('34')
+_pyel21312()")) 34.0))
+(ert-deftest pyel-float-function8 nil (equal (eval (pyel "def _pyel21312():
+ float('3.3')
+_pyel21312()")) 3.3))
+(ert-deftest pyel-float-function7 nil (equal (eval (pyel "def _pyel21312():
+ float(2)
+_pyel21312()")) 2.0))
+(ert-deftest pyel-float-function6 nil (equal (eval (pyel "def _pyel21312():
+ float(23.2)
+_pyel21312()")) 23.2))
+(ert-deftest pyel-int-function9 nil (equal (eval (pyel "def _pyel21312():
+ int('34')
+_pyel21312()")) 34))
+(ert-deftest pyel-int-function8 nil (equal (eval (pyel "def _pyel21312():
+ int('3.3')
+_pyel21312()")) 3))
+(ert-deftest pyel-int-function7 nil (equal (eval (pyel "def _pyel21312():
+ int(2)
+_pyel21312()")) 2))
+(ert-deftest pyel-int-function6 nil (equal (eval (pyel "def _pyel21312():
+ int(23.2)
+_pyel21312()")) 23))
 (ert-deftest pyel-chr-function2 nil (equal (eval (pyel "def _pyel21312():
  ord('F')
 _pyel21312()")) 70))
@@ -1100,77 +1164,87 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-type-1 nil (equal (eval (pyel "pyel_test_type_375(1)")) "<class 'testc'>"))
 (ert-deftest pyel-test-type-2 nil (equal (eval (pyel "pyel_test_type_375(2)")) t))
 (ert-deftest pyel-test-abs_function-1 nil (equal (eval (pyel "pyel_test_abs_function_376()")) "hi"))
-(ert-deftest pyel-test-append-1 nil (equal (eval (pyel "pyel_test_append_377(1)")) (quote (1 2 3 "hi"))))
-(ert-deftest pyel-test-append-2 nil (equal (eval (pyel "pyel_test_append_377(2)")) t))
-(ert-deftest pyel-test-append-3 nil (equal (eval (pyel "pyel_test_append_377(3)")) t))
-(ert-deftest pyel-test-append-4 nil (equal (eval (pyel "pyel_test_append_377(4)")) t))
-(ert-deftest pyel-test-append-5 nil (equal (eval (pyel "pyel_test_append_377(5)")) (quote (3))))
-(ert-deftest pyel-test-insert-1 nil (equal (eval (pyel "pyel_test_insert_378(1)")) (quote (1 "hi" 2 3))))
-(ert-deftest pyel-test-insert-2 nil (equal (eval (pyel "pyel_test_insert_378(2)")) t))
-(ert-deftest pyel-test-index_method-1 nil (equal (eval (pyel "pyel_test_index_method_379(1)")) 0))
-(ert-deftest pyel-test-index_method-2 nil (equal (eval (pyel "pyel_test_index_method_379(2)")) 2))
-(ert-deftest pyel-test-index_method-3 nil (equal (eval (pyel "pyel_test_index_method_379(3)")) 3))
-(ert-deftest pyel-test-index_method-4 nil (equal (eval (pyel "pyel_test_index_method_380()")) 3))
-(ert-deftest pyel-test-index_method-5 nil (equal (eval (pyel "pyel_test_index_method_381(1)")) 5))
-(ert-deftest pyel-test-index_method-6 nil (equal (eval (pyel "pyel_test_index_method_381(2)")) 3))
-(ert-deftest pyel-test-index_method-7 nil (equal (eval (pyel "pyel_test_index_method_381(3)")) 14))
-(ert-deftest pyel-test-index_method-8 nil (equal (eval (pyel "pyel_test_index_method_381(4)")) 0))
-(ert-deftest pyel-test-index_method-9 nil (equal (eval (pyel "pyel_test_index_method_382(1)")) 0))
-(ert-deftest pyel-test-index_method-10 nil (equal (eval (pyel "pyel_test_index_method_382(2)")) 1))
-(ert-deftest pyel-test-index_method-11 nil (equal (eval (pyel "pyel_test_index_method_382(3)")) 2))
-(ert-deftest pyel-test-remove_method-1 nil (equal (eval (pyel "pyel_test_remove_method_383()")) (quote (1 "2" "2"))))
-(ert-deftest pyel-test-remove_method-2 nil (equal (eval (pyel "pyel_test_remove_method_384()")) (quote ("2" "2" [1]))))
-(ert-deftest pyel-test-remove_method-3 nil (equal (eval (pyel "pyel_test_remove_method_385()")) (quote (1 "2" [1]))))
-(ert-deftest pyel-test-remove_method-4 nil (equal (eval (pyel "pyel_test_remove_method_386()")) t))
-(ert-deftest pyel-test-count_method-2 nil (equal (eval (pyel "pyel_test_count_method_387(1)")) 2))
-(ert-deftest pyel-test-count_method-3 nil (equal (eval (pyel "pyel_test_count_method_387(2)")) 1))
-(ert-deftest pyel-test-count_method-4 nil (equal (eval (pyel "pyel_test_count_method_387(3)")) 1))
-(ert-deftest pyel-test-count_method-5 nil (equal (eval (pyel "pyel_test_count_method_387(4)")) 1))
-(ert-deftest pyel-test-count_method-6 nil (equal (eval (pyel "pyel_test_count_method_388(1)")) 2))
-(ert-deftest pyel-test-count_method-7 nil (equal (eval (pyel "pyel_test_count_method_388(2)")) 1))
-(ert-deftest pyel-test-count_method-8 nil (equal (eval (pyel "pyel_test_count_method_388(3)")) 1))
-(ert-deftest pyel-test-count_method-9 nil (equal (eval (pyel "pyel_test_count_method_388(4)")) 1))
-(ert-deftest pyel-test-extend_method-1 nil (equal (eval (pyel "pyel_test_extend_method_389(1)")) t))
-(ert-deftest pyel-test-extend_method-2 nil (equal (eval (pyel "pyel_test_extend_method_389(2)")) (quote (1 "5" "4" "3" "2" "1"))))
-(ert-deftest pyel-test-extend_method-3 nil (equal (eval (pyel "pyel_test_extend_method_390(1)")) t))
-(ert-deftest pyel-test-extend_method-4 nil (equal (eval (pyel "pyel_test_extend_method_390(2)")) (quote (1 "e" "x" "t" "e" "n" "d" "e" "d"))))
-(ert-deftest pyel-test-extend_method-5 nil (equal (eval (pyel "pyel_test_extend_method_391(1)")) t))
-(ert-deftest pyel-test-extend_method-6 nil (equal (eval (pyel "pyel_test_extend_method_391(2)")) (quote (1 1 "2" [3]))))
-(ert-deftest pyel-test-extend_method-7 nil (equal (eval (pyel "pyel_test_extend_method_392(1)")) t))
-(ert-deftest pyel-test-extend_method-8 nil (equal (eval (pyel "pyel_test_extend_method_392(2)")) (quote (1 1 "2" [3]))))
-(ert-deftest pyel-test-pop_method-1 nil (equal (eval (pyel "pyel_test_pop_method_393(1)")) "two"))
-(ert-deftest pyel-test-pop_method-2 nil (equal (eval (pyel "pyel_test_pop_method_393(2)")) "{1: \"one\", 3: \"three\"}"))
-(ert-deftest pyel-test-pop_method-3 nil (equal (eval (pyel "pyel_test_pop_method_394(1)")) 4))
-(ert-deftest pyel-test-pop_method-4 nil (equal (eval (pyel "pyel_test_pop_method_394(2)")) (quote (1))))
-(ert-deftest pyel-test-pop_method-5 nil (equal (eval (pyel "pyel_test_pop_method_394(3)")) 1))
-(ert-deftest pyel-test-pop_method-6 nil (equal (eval (pyel "pyel_test_pop_method_394(4)")) t))
-(ert-deftest pyel-test-reverse_method-1 nil (equal (eval (pyel "pyel_test_reverse_method_395(1)")) (quote (3 2 1))))
-(ert-deftest pyel-test-reverse_method-2 nil (equal (eval (pyel "pyel_test_reverse_method_395(2)")) t))
-(ert-deftest pyel-test-lower_method-1 nil (equal (eval (pyel "pyel_test_lower_method_396(1)")) "ab"))
-(ert-deftest pyel-test-lower_method-2 nil (equal (eval (pyel "pyel_test_lower_method_396(2)")) "aB"))
-(ert-deftest pyel-test-upper_method-1 nil (equal (eval (pyel "pyel_test_upper_method_397(1)")) "AB"))
-(ert-deftest pyel-test-upper_method-2 nil (equal (eval (pyel "pyel_test_upper_method_397(2)")) "aB"))
-(ert-deftest pyel-test-split_method-1 nil (equal (eval (pyel "pyel_test_split_method_398(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
-(ert-deftest pyel-test-split_method-2 nil (equal (eval (pyel "pyel_test_split_method_398(2)")) 6))
-(ert-deftest pyel-test-split_method-4 nil (equal (eval (pyel "pyel_test_split_method_399()")) (quote ("a" "b" "c"))))
-(ert-deftest pyel-test-strip_method-1 nil (equal (eval (pyel "pyel_test_strip_method_400()")) "e"))
-(ert-deftest pyel-test-get_method-1 nil (equal (eval (pyel "pyel_test_get_method_401(1)")) "one"))
-(ert-deftest pyel-test-get_method-2 nil (equal (eval (pyel "pyel_test_get_method_401(2)")) t))
-(ert-deftest pyel-test-get_method-3 nil (equal (eval (pyel "pyel_test_get_method_401(3)")) "three"))
-(ert-deftest pyel-test-get_method-4 nil (equal (eval (pyel "pyel_test_get_method_401(4)")) "d"))
-(ert-deftest pyel-test-items_method-1 nil (equal (eval (pyel "pyel_test_items_method_402(1)")) (quote ((3 "three") (2 "two") (1 "one")))))
-(ert-deftest pyel-test-items_method-2 nil (equal (eval (pyel "pyel_test_items_method_402(2)")) (quote ((8 88)))))
-(ert-deftest pyel-test-items_method-3 nil (equal (eval (pyel "pyel_test_items_method_402(3)")) nil))
-(ert-deftest pyel-test-keys_method-1 nil (equal (eval (pyel "pyel_test_keys_method_403(1)")) (quote (3 2 1))))
-(ert-deftest pyel-test-keys_method-2 nil (equal (eval (pyel "pyel_test_keys_method_403(2)")) (quote ((8)))))
-(ert-deftest pyel-test-keys_method-3 nil (equal (eval (pyel "pyel_test_keys_method_403(3)")) nil))
-(ert-deftest pyel-test-values_method-1 nil (equal (eval (pyel "pyel_test_values_method_404(1)")) (quote ("three" "two" "one"))))
-(ert-deftest pyel-test-values_method-2 nil (equal (eval (pyel "pyel_test_values_method_404(2)")) (quote (88))))
-(ert-deftest pyel-test-values_method-3 nil (equal (eval (pyel "pyel_test_values_method_404(3)")) nil))
-(ert-deftest pyel-test-popitem_method-1 nil (equal (eval (pyel "pyel_test_popitem_method_405(1)")) (quote (1 "one"))))
-(ert-deftest pyel-test-popitem_method-2 nil (equal (eval (pyel "pyel_test_popitem_method_405(2)")) "{2: \"two\", 3: \"three\"}"))
-(ert-deftest pyel-test-copy_method-1 nil (equal (eval (pyel "pyel_test_copy_method_406(1)")) nil))
-(ert-deftest pyel-test-copy_method-2 nil (equal (eval (pyel "pyel_test_copy_method_406(2)")) t))
+(ert-deftest pyel-test-int_function-1 nil (equal (eval (pyel "pyel_test_int_function_377()")) 342))
+(ert-deftest pyel-test-int_function-2 nil (equal (eval (pyel "pyel_test_int_function_378(1)")) 3))
+(ert-deftest pyel-test-int_function-3 nil (equal (eval (pyel "pyel_test_int_function_378(2)")) 4))
+(ert-deftest pyel-test-int_function-4 nil (equal (eval (pyel "pyel_test_int_function_378(3)")) 2))
+(ert-deftest pyel-test-int_function-5 nil (equal (eval (pyel "pyel_test_int_function_378(4)")) 3))
+(ert-deftest pyel-test-float_function-1 nil (equal (eval (pyel "pyel_test_float_function_379()")) 342.1))
+(ert-deftest pyel-test-float_function-2 nil (equal (eval (pyel "pyel_test_float_function_380(1)")) 3.1))
+(ert-deftest pyel-test-float_function-3 nil (equal (eval (pyel "pyel_test_float_function_380(2)")) 4.0))
+(ert-deftest pyel-test-float_function-4 nil (equal (eval (pyel "pyel_test_float_function_380(3)")) 2.0))
+(ert-deftest pyel-test-float_function-5 nil (equal (eval (pyel "pyel_test_float_function_380(4)")) 3.3))
+(ert-deftest pyel-test-append-1 nil (equal (eval (pyel "pyel_test_append_381(1)")) (quote (1 2 3 "hi"))))
+(ert-deftest pyel-test-append-2 nil (equal (eval (pyel "pyel_test_append_381(2)")) t))
+(ert-deftest pyel-test-append-3 nil (equal (eval (pyel "pyel_test_append_381(3)")) t))
+(ert-deftest pyel-test-append-4 nil (equal (eval (pyel "pyel_test_append_381(4)")) t))
+(ert-deftest pyel-test-append-5 nil (equal (eval (pyel "pyel_test_append_381(5)")) (quote (3))))
+(ert-deftest pyel-test-insert-1 nil (equal (eval (pyel "pyel_test_insert_382(1)")) (quote (1 "hi" 2 3))))
+(ert-deftest pyel-test-insert-2 nil (equal (eval (pyel "pyel_test_insert_382(2)")) t))
+(ert-deftest pyel-test-index_method-1 nil (equal (eval (pyel "pyel_test_index_method_383(1)")) 0))
+(ert-deftest pyel-test-index_method-2 nil (equal (eval (pyel "pyel_test_index_method_383(2)")) 2))
+(ert-deftest pyel-test-index_method-3 nil (equal (eval (pyel "pyel_test_index_method_383(3)")) 3))
+(ert-deftest pyel-test-index_method-4 nil (equal (eval (pyel "pyel_test_index_method_384()")) 3))
+(ert-deftest pyel-test-index_method-5 nil (equal (eval (pyel "pyel_test_index_method_385(1)")) 5))
+(ert-deftest pyel-test-index_method-6 nil (equal (eval (pyel "pyel_test_index_method_385(2)")) 3))
+(ert-deftest pyel-test-index_method-7 nil (equal (eval (pyel "pyel_test_index_method_385(3)")) 14))
+(ert-deftest pyel-test-index_method-8 nil (equal (eval (pyel "pyel_test_index_method_385(4)")) 0))
+(ert-deftest pyel-test-index_method-9 nil (equal (eval (pyel "pyel_test_index_method_386(1)")) 0))
+(ert-deftest pyel-test-index_method-10 nil (equal (eval (pyel "pyel_test_index_method_386(2)")) 1))
+(ert-deftest pyel-test-index_method-11 nil (equal (eval (pyel "pyel_test_index_method_386(3)")) 2))
+(ert-deftest pyel-test-remove_method-1 nil (equal (eval (pyel "pyel_test_remove_method_387()")) (quote (1 "2" "2"))))
+(ert-deftest pyel-test-remove_method-2 nil (equal (eval (pyel "pyel_test_remove_method_388()")) (quote ("2" "2" [1]))))
+(ert-deftest pyel-test-remove_method-3 nil (equal (eval (pyel "pyel_test_remove_method_389()")) (quote (1 "2" [1]))))
+(ert-deftest pyel-test-remove_method-4 nil (equal (eval (pyel "pyel_test_remove_method_390()")) t))
+(ert-deftest pyel-test-count_method-2 nil (equal (eval (pyel "pyel_test_count_method_391(1)")) 2))
+(ert-deftest pyel-test-count_method-3 nil (equal (eval (pyel "pyel_test_count_method_391(2)")) 1))
+(ert-deftest pyel-test-count_method-4 nil (equal (eval (pyel "pyel_test_count_method_391(3)")) 1))
+(ert-deftest pyel-test-count_method-5 nil (equal (eval (pyel "pyel_test_count_method_391(4)")) 1))
+(ert-deftest pyel-test-count_method-6 nil (equal (eval (pyel "pyel_test_count_method_392(1)")) 2))
+(ert-deftest pyel-test-count_method-7 nil (equal (eval (pyel "pyel_test_count_method_392(2)")) 1))
+(ert-deftest pyel-test-count_method-8 nil (equal (eval (pyel "pyel_test_count_method_392(3)")) 1))
+(ert-deftest pyel-test-count_method-9 nil (equal (eval (pyel "pyel_test_count_method_392(4)")) 1))
+(ert-deftest pyel-test-extend_method-1 nil (equal (eval (pyel "pyel_test_extend_method_393(1)")) t))
+(ert-deftest pyel-test-extend_method-2 nil (equal (eval (pyel "pyel_test_extend_method_393(2)")) (quote (1 "5" "4" "3" "2" "1"))))
+(ert-deftest pyel-test-extend_method-3 nil (equal (eval (pyel "pyel_test_extend_method_394(1)")) t))
+(ert-deftest pyel-test-extend_method-4 nil (equal (eval (pyel "pyel_test_extend_method_394(2)")) (quote (1 "e" "x" "t" "e" "n" "d" "e" "d"))))
+(ert-deftest pyel-test-extend_method-5 nil (equal (eval (pyel "pyel_test_extend_method_395(1)")) t))
+(ert-deftest pyel-test-extend_method-6 nil (equal (eval (pyel "pyel_test_extend_method_395(2)")) (quote (1 1 "2" [3]))))
+(ert-deftest pyel-test-extend_method-7 nil (equal (eval (pyel "pyel_test_extend_method_396(1)")) t))
+(ert-deftest pyel-test-extend_method-8 nil (equal (eval (pyel "pyel_test_extend_method_396(2)")) (quote (1 1 "2" [3]))))
+(ert-deftest pyel-test-pop_method-1 nil (equal (eval (pyel "pyel_test_pop_method_397(1)")) "two"))
+(ert-deftest pyel-test-pop_method-2 nil (equal (eval (pyel "pyel_test_pop_method_397(2)")) "{1: \"one\", 3: \"three\"}"))
+(ert-deftest pyel-test-pop_method-3 nil (equal (eval (pyel "pyel_test_pop_method_398(1)")) 4))
+(ert-deftest pyel-test-pop_method-4 nil (equal (eval (pyel "pyel_test_pop_method_398(2)")) (quote (1))))
+(ert-deftest pyel-test-pop_method-5 nil (equal (eval (pyel "pyel_test_pop_method_398(3)")) 1))
+(ert-deftest pyel-test-pop_method-6 nil (equal (eval (pyel "pyel_test_pop_method_398(4)")) t))
+(ert-deftest pyel-test-reverse_method-1 nil (equal (eval (pyel "pyel_test_reverse_method_399(1)")) (quote (3 2 1))))
+(ert-deftest pyel-test-reverse_method-2 nil (equal (eval (pyel "pyel_test_reverse_method_399(2)")) t))
+(ert-deftest pyel-test-lower_method-1 nil (equal (eval (pyel "pyel_test_lower_method_400(1)")) "ab"))
+(ert-deftest pyel-test-lower_method-2 nil (equal (eval (pyel "pyel_test_lower_method_400(2)")) "aB"))
+(ert-deftest pyel-test-upper_method-1 nil (equal (eval (pyel "pyel_test_upper_method_401(1)")) "AB"))
+(ert-deftest pyel-test-upper_method-2 nil (equal (eval (pyel "pyel_test_upper_method_401(2)")) "aB"))
+(ert-deftest pyel-test-split_method-1 nil (equal (eval (pyel "pyel_test_split_method_402(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
+(ert-deftest pyel-test-split_method-2 nil (equal (eval (pyel "pyel_test_split_method_402(2)")) 6))
+(ert-deftest pyel-test-split_method-4 nil (equal (eval (pyel "pyel_test_split_method_403()")) (quote ("a" "b" "c"))))
+(ert-deftest pyel-test-strip_method-1 nil (equal (eval (pyel "pyel_test_strip_method_404()")) "e"))
+(ert-deftest pyel-test-get_method-1 nil (equal (eval (pyel "pyel_test_get_method_405(1)")) "one"))
+(ert-deftest pyel-test-get_method-2 nil (equal (eval (pyel "pyel_test_get_method_405(2)")) t))
+(ert-deftest pyel-test-get_method-3 nil (equal (eval (pyel "pyel_test_get_method_405(3)")) "three"))
+(ert-deftest pyel-test-get_method-4 nil (equal (eval (pyel "pyel_test_get_method_405(4)")) "d"))
+(ert-deftest pyel-test-items_method-1 nil (equal (eval (pyel "pyel_test_items_method_406(1)")) (quote ((3 "three") (2 "two") (1 "one")))))
+(ert-deftest pyel-test-items_method-2 nil (equal (eval (pyel "pyel_test_items_method_406(2)")) (quote ((8 88)))))
+(ert-deftest pyel-test-items_method-3 nil (equal (eval (pyel "pyel_test_items_method_406(3)")) nil))
+(ert-deftest pyel-test-keys_method-1 nil (equal (eval (pyel "pyel_test_keys_method_407(1)")) (quote (3 2 1))))
+(ert-deftest pyel-test-keys_method-2 nil (equal (eval (pyel "pyel_test_keys_method_407(2)")) (quote ((8)))))
+(ert-deftest pyel-test-keys_method-3 nil (equal (eval (pyel "pyel_test_keys_method_407(3)")) nil))
+(ert-deftest pyel-test-values_method-1 nil (equal (eval (pyel "pyel_test_values_method_408(1)")) (quote ("three" "two" "one"))))
+(ert-deftest pyel-test-values_method-2 nil (equal (eval (pyel "pyel_test_values_method_408(2)")) (quote (88))))
+(ert-deftest pyel-test-values_method-3 nil (equal (eval (pyel "pyel_test_values_method_408(3)")) nil))
+(ert-deftest pyel-test-popitem_method-1 nil (equal (eval (pyel "pyel_test_popitem_method_409(1)")) (quote (1 "one"))))
+(ert-deftest pyel-test-popitem_method-2 nil (equal (eval (pyel "pyel_test_popitem_method_409(2)")) "{2: \"two\", 3: \"three\"}"))
+(ert-deftest pyel-test-copy_method-1 nil (equal (eval (pyel "pyel_test_copy_method_410(1)")) nil))
+(ert-deftest pyel-test-copy_method-2 nil (equal (eval (pyel "pyel_test_copy_method_410(2)")) t))
 (ert-deftest pyel-el-ast-test-conditional-expressions-368 nil (string= (pyel "1 if True else 0" nil nil t) "(if-exp (name  \"True\" 'load 1 5) (num 1 1 0) (num 0 1 15) 1 0)
 "))
 (ert-deftest pyel-py-ast-test-conditional-expressions-367 nil (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])

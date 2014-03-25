@@ -93,15 +93,15 @@ http://docs.python.org/2/library/functions.html
 
 | function     | status | tests | notes                                    |
 |--------------+--------+-------+------------------------------------------|
-| abs          | x      |       |                                          |
+| abs          | x      | x     |                                          |
 | divmod       |        |       |                                          |
 | input        | x      |       |                                          |
 | open         |        |       |                                          |
 | staticmethod |        |       |                                          |
 | all          |        |       |                                          |
 | enumerate    |        |       |                                          |
-| int          |        |       |                                          |
-| ord          | x      |       | strings > 1 char does not raise an error |
+| int          | x      | x     |                                          |
+| ord          | x      | x     | strings > 1 char does not raise an error |
 | str          |        |       |                                          |
 | any          |        |       |                                          |
 | eval         | x      |       |                                          |
@@ -113,7 +113,7 @@ http://docs.python.org/2/library/functions.html
 | issubclass   |        |       |                                          |
 | print        | -      |       | does not call pyel str functions         |
 | super        |        |       |                                          |
-| bin          | x      |       |                                          |
+| bin          | x      | x     |                                          |
 | file         |        |       |                                          |
 | iter         |        |       |                                          |
 | property     |        |       |                                          |
@@ -124,8 +124,8 @@ http://docs.python.org/2/library/functions.html
 | range        | x      |       |                                          |
 | type         |        |       |                                          |
 | bytearray    |        |       |                                          |
-| float        |        |       |                                          |
-| list         | x      |       |                                          |
+| float        | x      | x     |                                          |
+| list         | x      | x     |                                          |
 | raw_input    |        |       |                                          |
 | unichr       |        |       |                                          |
 | callable     |        |       |                                          |
@@ -164,7 +164,7 @@ http://docs.python.org/2/library/functions.html
 | setattr      |        |       |                                          |
 | buffer       |        |       |                                          |
 | dict         |        |       |                                          |
-| hex          | x      |       |                                          |
+| hex          | x      | x     |                                          |
 | object       |        |       |                                          |
 | slice        |        |       |                                          |
 | coerce       |        |       |                                          |
