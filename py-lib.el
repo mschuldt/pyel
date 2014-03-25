@@ -365,6 +365,12 @@ EXC must be derived from BaseException"
           (setq list (cons (call-method iter --next--) list)))
       (StopIteration (reverse list)))))
 
+(defun pyel-hash-to-list (hash)
+  (let (keys)
+    (maphash (lambda (key value)
+               (setq keys (cons key keys))) hash)
+    keys))
+
 (defun _py-str-sequence (seq)
   "convert SEQ to a string of its python representation
     does not include starting/ending parens or brackets"

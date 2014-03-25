@@ -4540,6 +4540,12 @@ This will help notify the user when some syntax has not been implemented
           (while t
             (setq list (cons (call-method iter --next--) list)))
         (StopIteration (reverse list)))))
+  
+  (defun pyel-hash-to-list (hash)
+    (let (keys)
+      (maphash (lambda (key value)
+                 (setq keys (cons key keys))) hash)
+      keys))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
