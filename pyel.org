@@ -5040,7 +5040,7 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-(pyel-create-tests
+  (pyel-create-tests
    int-function
    ("int('34')" 34)
    ("int('3.3')" 3)
@@ -5059,7 +5059,6 @@ This will help notify the user when some syntax has not been implemented
     return 342
   o = test()"
     ("int(o)" 342)))
-  
 #+END_SRC
 
 ** float

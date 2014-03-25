@@ -930,24 +930,24 @@ obj = C()"
  ("ord('2')" 50))
 
 (pyel-create-tests
-   int-function
-   ("int('34')" 34)
-   ("int('3.3')" 3)
-   ("int(2)" 2)
-   ("int(23.2)" 23)
-   ("x = '3'
-  y = ['4']
-  z = 2
-  a = 3.3"
-    ("int(x)" 3)
-    ("int(y[0])" 4)
-    ("int(z)" 2)
-    ("int(a)" 3))
-   ("class test:
-   def __int__(self):
-    return 342
-  o = test()"
-    ("int(o)" 342)))
+ int-function
+ ("int('34')" 34)
+ ("int('3.3')" 3)
+ ("int(2)" 2)
+ ("int(23.2)" 23)
+ ("x = '3'
+y = ['4']
+z = 2
+a = 3.3"
+  ("int(x)" 3)
+  ("int(y[0])" 4)
+  ("int(z)" 2)
+  ("int(a)" 3))
+ ("class test:
+ def __int__(self):
+  return 342
+o = test()"
+  ("int(o)" 342)))
 
 (pyel-create-tests
  float-function

@@ -281,9 +281,9 @@
  o = test()
  return float(o)" "def pyel_test_int_function_378(n):
  x = '3'
-   y = ['4']
-   z = 2
-   a = 3.3
+ y = ['4']
+ z = 2
+ a = 3.3
  if n == 1:
   return int(x)
 
@@ -296,9 +296,9 @@
  if n == 4:
   return int(a)" "def pyel_test_int_function_377():
  class test:
-    def __int__(self):
-     return 342
-   o = test()
+  def __int__(self):
+   return 342
+ o = test()
  return int(o)" "def pyel_test_abs_function_376():
  class C:
   def __abs__(self):
