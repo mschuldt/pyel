@@ -336,21 +336,6 @@ EXC must be derived from BaseException"
    start 0))
  (number-sequence start (1- end) step))
 
-(defun py-list (object)
-  "tries to be like python's list function"
-  (cond
-   ((stringp object)
-    (split-string object "" :omit-nulls))
-   ((py-object-p object) (pyel-object-to-list object))
-   ((vectorp object)
-    (mapcar 'identity object))
-   ((hash-table-p object)
-    (let (keys)
-      (maphash (lambda (key value)
-                 (setq keys (cons key keys))) object)
-      keys))
-   ((listp object) (copy-list object))))
-
 (defun pyel-object-to-list (object)
   "assumes that py-object(OBJECT) == t"
   (let ((iter (condition-case nil

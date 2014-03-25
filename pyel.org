@@ -4508,25 +4508,16 @@ This will help notify the user when some syntax has not been implemented
 ** list
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'list 'py-list)
+  (defalias 'py-list 'pyel-list-function)
+  (pyel-func-transform list (object)
+                       (string) -> (split-string object "" :omit-nulls)
+                       (object) -> (pyel-object-to-list object)
+                       (vector) -> (mapcar 'identity object)
+                       (hash)   -> (pyel-hash-to-list object)
+                       (list)   -> (copy-list object))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun py-list (object)
-    "tries to be like python's list function"
-    (cond
-     ((stringp object)
-      (split-string object "" :omit-nulls))
-     ((py-object-p object) (pyel-object-to-list object))
-     ((vectorp object)
-      (mapcar 'identity object))
-     ((hash-table-p object)
-      (let (keys)
-        (maphash (lambda (key value)
-                   (setq keys (cons key keys))) object)
-        keys))
-     ((listp object) (copy-list object))))
-  
   (defun pyel-object-to-list (object)
     "assumes that py-object(OBJECT) == t"
     (let ((iter (condition-case nil

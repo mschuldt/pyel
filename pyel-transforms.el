@@ -1068,7 +1068,13 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'input 'read-string)
 
-(pyel-translate-function-name 'list 'py-list)
+(defalias 'py-list 'pyel-list-function)
+(pyel-func-transform list (object)
+                     (string) -> (split-string object "" :omit-nulls)
+                     (object) -> (pyel-object-to-list object)
+                     (vector) -> (mapcar 'identity object)
+                     (hash)   -> (pyel-hash-to-list object)
+                     (list)   -> (copy-list object))
 
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 
