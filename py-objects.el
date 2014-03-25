@@ -92,7 +92,8 @@ These names will be set globally to their index in this list")
          (doc (if (eq (type-of (car attributes)) 'string)
                   (pop attributes) nil))
          class-variables
-         methods non-method)
+         methods non-method
+         has-init-method)
 
     (when (eq name 'object) ;;give the first one some help...
       (aset new setattr-index
@@ -132,6 +133,10 @@ These names will be set globally to their index in this list")
                                (pop attr) nil))
                       (func `(lambda ,args ,@attr))
                       attr type )
+
+                 (if (eq name '--init--)
+                     (setq has-init-method t))
+
                  (setq type (cond ((assoc name special-method-names) 'special)
                                   ((member 'property decorators) 'property)
                                   (t 'method)))
@@ -143,6 +148,10 @@ These names will be set globally to their index in this list")
                    ;;else normal method
                    (setq methods (cons (cons name func) methods))))))
             (t (push attr non-method))))
+
+    (unless has-init-method
+      (aset new (cdr (assoc '--init-- special-method-names))
+            (list (list (lambda (self) nil)))))
 
     ;;eval non-method bits
     (setq class-variables
