@@ -5018,6 +5018,51 @@ This will help notify the user when some syntax has not been implemented
     ;;(kill-emacs)
     (save-buffers-kill-terminal)))
 #+END_SRC
+** int
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform int (object)
+                       (string) -> (py-str-to-int object)
+                       (number) -> (py-number-to-int object)
+                       (object) -> (call-method object --int--))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-number-to-int (num)
+    (if (numberp num)
+        (floor num)
+      (list 'floor num)))
+  
+  (defmacro py-str-to-int (str)
+    (if (stringp str)
+        (floor (string-to-int str))
+      `(floor (string-to-int ,str))))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+(pyel-create-tests
+   int-function
+   ("int('34')" 34)
+   ("int('3.3')" 3)
+   ("int(2)" 2)
+   ("int(23.2)" 23)
+   ("x = '3'
+  y = ['4']
+  z = 2
+  a = 3.3"
+    ("int(x)" 3)
+    ("int(y[0])" 4)
+    ("int(z)" 2)
+    ("int(a)" 3))
+   ("class test:
+   def __int__(self):
+    return 342
+  o = test()"
+    ("int(o)" 342)))
+  
+#+END_SRC
+
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

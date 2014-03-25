@@ -519,6 +519,16 @@ EXC must be derived from BaseException"
     ;;(kill-emacs)
     (save-buffers-kill-terminal)))
 
+(defmacro py-number-to-int (num)
+  (if (numberp num)
+      (floor num)
+    (list 'floor num)))
+
+(defmacro py-str-to-int (str)
+  (if (stringp str)
+      (floor (string-to-int str))
+    `(floor (string-to-int ,str))))
+
 
 
 (defun py-list-append (list thing)

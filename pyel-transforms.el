@@ -1138,6 +1138,11 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'exit 'pyel-exit)
 
+(pyel-func-transform int (object)
+                     (string) -> (py-str-to-int object)
+                     (number) -> (py-number-to-int object)
+                     (object) -> (call-method object --int--))
+
 ;;
 
 (pyel-method-transform append (obj thing)
