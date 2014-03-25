@@ -793,6 +793,17 @@ c = list(b)"
 
  ("list({1:'one', 2:'two', 3:'three'})" '(3 2 1))
 
+ ("list((1,2,3))" [1, 2, 3])
+ 
+ ("s = '123'
+l = [1,2,3]
+tu = (1,2,3,)
+d = {1:'1',2:'2',3:'3'}"
+  ("list(s)" ["1", "2", "3"])
+  ("list(l)" [1, 2, 3])
+  ("list(tu)" [1, 2, 3])
+  ("list(d)" [3, 2, 1]))
+ 
  ("class a:
  x = 5
  def __iter__(self):
@@ -829,7 +840,15 @@ str(f)"
   "<function <lambda> at 0x18b071>")
  ("def __ff_(): pass
 str(__ff_)"
-  "<function --ff- at 0x18b071>"))
+  "<function --ff- at 0x18b071>")
+
+ ("class strtest:
+ def __init__ (self, n):
+  self.x = n
+ def __str__(self):
+  return 'str' + str(self.x)
+obj = strtest(4)"
+ ("str(obj)" "str4")))
 
 (pyel-create-tests
  repr
