@@ -407,10 +407,12 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
      (let ((index (cdr (assoc attr special-method-names))))
        (if index
            (let ((val (_getattr-special-implicit object index)))
-             (cond ((functionp val)
+             (cond ((and (not (py-class-p object))
+                         (functionp val))
                     (bind-method object val attr))
-                   ((non-data-descriptor-p val)
-                    (call-method val --get-- class object))
+                   ;;TODO: fix this
+                   ;; ((non-data-descriptor-p val)
+                   ;;  (call-method val --get-- class object))
                    (t val)))
          (signal 'AttributeError nil))))))
 
