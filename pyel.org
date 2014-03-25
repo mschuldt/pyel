@@ -5062,6 +5062,48 @@ This will help notify the user when some syntax has not been implemented
   
 #+END_SRC
 
+** float
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform float (object)
+                       (string) -> (py-str-to-float object)
+                       (number) -> (py-number-to-float object)
+                       (object) -> (call-method object --float--))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-number-to-float (num)
+    (if (numberp num)
+        (* 1.0 num)
+      (list '* 1.0 num)))
+  
+  (defmacro py-str-to-float (str)
+    (if (stringp str)
+        (* 1.0 (string-to-int str))
+      (list '* 1.0 (list 'string-to-int str))))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   float-function
+   ("float('34')" 34.0)
+   ("float('3.3')" 3.3)
+   ("float(2)" 2.0)
+   ("float(23.2)" 23.2)
+   ("x = '3.1'
+  y = ['4']
+  z = 2
+  a = 3.3"
+    ("float(x)" 3.1)
+    ("float(y[0])" 4.0)
+    ("float(z)" 2.0)
+    ("float(a)" 3.3))
+   ("class test:
+   def __float__(self):
+    return 342.1
+  o = test()"
+    ("float(o)" 342.1)))
+#+END_SRC
 
 ** transform template
 *** transform

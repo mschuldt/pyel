@@ -1143,6 +1143,11 @@ Recognizes keyword args in the form 'arg = value'."
                      (number) -> (py-number-to-int object)
                      (object) -> (call-method object --int--))
 
+(pyel-func-transform float (object)
+                     (string) -> (py-str-to-float object)
+                     (number) -> (py-number-to-float object)
+                     (object) -> (call-method object --float--))
+
 ;;
 
 (pyel-method-transform append (obj thing)

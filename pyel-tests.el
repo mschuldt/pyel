@@ -949,6 +949,26 @@ obj = C()"
   o = test()"
     ("int(o)" 342)))
 
+(pyel-create-tests
+ float-function
+ ("float('34')" 34.0)
+ ("float('3.3')" 3.3)
+ ("float(2)" 2.0)
+ ("float(23.2)" 23.2)
+ ("x = '3.1'
+y = ['4']
+z = 2
+a = 3.3"
+  ("float(x)" 3.1)
+  ("float(y[0])" 4.0)
+  ("float(z)" 2.0)
+  ("float(a)" 3.3))
+ ("class test:
+ def __float__(self):
+  return 342.1
+o = test()"
+  ("float(o)" 342.1)))
+
 ;;
 
 (pyel-create-tests

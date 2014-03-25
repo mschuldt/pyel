@@ -529,6 +529,16 @@ EXC must be derived from BaseException"
       (floor (string-to-int str))
     `(floor (string-to-int ,str))))
 
+(defmacro py-number-to-float (num)
+  (if (numberp num)
+      (* 1.0 num)
+    (list '* 1.0 num)))
+
+(defmacro py-str-to-float (str)
+  (if (stringp str)
+      (* 1.0 (string-to-int str))
+    (list '* 1.0 (list 'string-to-int str))))
+
 
 
 (defun py-list-append (list thing)
