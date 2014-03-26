@@ -969,7 +969,28 @@ a = 3.3"
 o = test()"
   ("float(o)" 342.1)))
 
-;;
+(pyel-create-tests
+ dict-function
+ ("repr(dict())" "{}")
+ ("repr(dict(__a = 1,__b = 2,__c = 4))" "{--a: 1, --b: 2, --c: 4}")
+ ("repr(dict([('a',3),('b', 5),('c',8)]))" "{\"a\": 3, \"b\": 5, \"c\": 8}")
+ ("repr(dict((('a',3),('b', 5),('c',8))))" "{\"a\": 3, \"b\": 5, \"c\": 8}")
+ ("a = [('ab'),['b', 5],('c',8)]
+x = dict(a)"
+  ("repr(x)" "{\"a\": \"b\", \"b\": 5, \"c\": 8}"))
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = self.x
+   self.x -= 1
+   return ret, ret**2
+  raise StopIteration
+o = a()
+x = dict(o)"
+  ("repr((x))" "{5: 25, 4: 16, 3: 9, 2: 4, 1: 1}")))
 
 ;;
 
