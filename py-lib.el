@@ -539,6 +539,59 @@ EXC must be derived from BaseException"
       (* 1.0 (string-to-int str))
     (list '* 1.0 (list 'string-to-int str))))
 
+(defun pyel-list-to-dict (list)
+  (let ((h (make-hash-table :test pyel-dict-test)) ;;default length??
+        key-val)
+    (mapcar (lambda (elem)
+              (setq key-val (pyel-get-key-val elem))
+              (puthash (car key-val) (cdr key-val) h))
+            list)
+    h))
+
+(defun pyel-vector-to-dict (vec)
+  (let ((h (make-hash-table :test pyel-dict-test)) ;;default length??
+        key-val)
+    (dotimes (i (length vec))
+      (setq key-val (pyel-get-key-val (aref vec i)))
+      (puthash (car key-val) (cdr key-val) h))
+    h))
+
+(defun pyel-object-to-dict (object)
+  (let ((iter (condition-case nil
+                  (call-method object --iter--)
+                (AttributeError
+                 (py-raise (TypeError (format
+                                       "'%s' object is not iterable"
+                                       (getattr object --name--)))))))
+        (ht (make-hash-table :test pyel-dict-test))
+        key-val)
+    (condition-case nil
+        (while t
+          (setq key-val (pyel-get-key-val (call-method iter --next--)))
+          (puthash (car key-val) (cdr key-val) ht))
+      (StopIteration ht))))
+
+(defun pyel-get-key-val (obj)
+  "(k . v) -> (k . v)
+\(k v) -> (k . v)
+\[k v] -> (k . v)
+'kv' -> ('k' . 'v')"
+  (cond ((listp obj)
+         (if (listp (cdr obj))
+             (if (= (length obj) 2)
+                 (cons (car obj) (cadr obj))
+               (error "invalid length"))
+           obj))
+        ((vectorp obj)
+         (if (= (length obj) 2)
+             (cons (aref obj 0) (aref obj 1))
+           (error "invalid length")))
+        ((stringp obj)
+         (if (= (length obj) 2)
+             (cons (subseq obj 0 1) (subseq obj 1 2))
+           (error "invalid length")))
+        (t (error "invalid type"))))
+
 
 
 (defun py-list-append (list thing)

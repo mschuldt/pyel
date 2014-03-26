@@ -356,7 +356,7 @@
                                               ,@(pyel-sort-kwargs args))
 
                     (instance _) -> (call-method $func --call--
-                                             ,@(pyel-sort-kwargs args))
+                                                 ,@(pyel-sort-kwargs args))
                     (_ _) -> ($func ,@(pyel-sort-kwargs args))
                     )
 
@@ -1154,6 +1154,15 @@ Recognizes keyword args in the form 'arg = value'."
                      (string) -> (py-str-to-float object)
                      (number) -> (py-number-to-float object)
                      (object) -> (call-method object --float--))
+
+(pyel-func-kwarg-transform dict (kwargs)
+                           (_)-> (pyel-alist-to-hash 'kwargs))
+
+(pyel-func-transform dict (&optional object)
+                     (list)   -> (pyel-list-to-dict object)
+                     (object) -> (pyel-object-to-dict object)
+                     (vector) -> (pyel-vector-to-dict object)
+                     (hash)   -> (copy-hash-table object))
 
 ;;
 

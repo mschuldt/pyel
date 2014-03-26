@@ -230,7 +230,7 @@ and its arg signature")
   "Return the name of the temlate that transform the method METHOD-NAME.
     template names are modified to avoid potential conflict with other templates
   the arglist must be placed in a list before passing so that the code can
-   tell if the arglist is empty or not provided.
+   tell if the arglist is empty or not provided. 
   ARGLIST is used to generate a name that is unique to that arglist signature"
   (assert (and (listp arglist) (listp (car arglist)))
           "Invalid arglist. Expected a list of a list")
@@ -382,13 +382,13 @@ This is used when the ast form is needed by a transform that is manually
   The return value is the two sub-lists consed together"
   (let ((current (not sym))
         first)
-
+    
     (while (and (not (eq current sym))
                 lst)
       (setq current (pop lst))
       (push current first)
       )
-
+    
     (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
 
 
@@ -414,7 +414,7 @@ in `pyel-orig-eval-last-sexp-1'"
 (defvar pyel-object-prettyprint t
   "if non-nil, objects will be printed with their pyel repr value
 during interactive emacs-lisp sessions where possible")
-
+        
 (defun pyel-toggle-object-prettyprint ()
   (interactive)
   (setq pyel-object-prettyprint (not pyel-object-prettyprint)))
@@ -528,7 +528,7 @@ during interactive emacs-lisp sessions where possible")
 
 (defvar pyel-function-name-translations nil
   "alist of function name translations, python->e-lisp.
-
+    
         Entries in `pyel-function-name-translations' are applied before
         checking for function transforms.
         If a translation len->length is defined then the function transform for
@@ -539,7 +539,7 @@ during interactive emacs-lisp sessions where possible")
   "alist of variable name translations, python->e-lisp.")
 
 (setq pyel-function-name-translations `(
-
+                                        
                                         ))
 ;;TODO: list, vector, etc
 ;;      map?
@@ -721,7 +721,7 @@ The transform will have the same NAME and ARGS and must be called with a
 function like `call-transform', it will return a call to
 the function it creates.
 After the resulting transform is called, it adds the name of the
-created function in `pyel-defined-functions' and adds the function
+created function in `pyel-defined-functions' and adds the function 
 definition to `pyel-function-definitions'
 
 Use `pyel-func-transform' to define transforms for functions that
@@ -742,7 +742,7 @@ NOTE: if the name of the function to be created is already in
                (body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches)))
+                                             ',type-switches))) 
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',striped-args
                          body)
@@ -774,13 +774,13 @@ matches NAME and has the proper arg length then no transform will be called."
          (transform-name (pyel-method-transform-name name (list args))))
 
     (pyel-add-method-name-sig name args)
-
+    
     `(def-transform ,transform-name pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches)))
+                                             ',type-switches))) 
 
            (unless (member ',fsym pyel-defined-functions)
              (push (list 'defmacro ',fsym ',striped-args
@@ -805,7 +805,7 @@ matches NAME and has the proper arg length then no transform will be called."
   "Define a transform for function calls.
 This is just like `pyel-method-transform' except that the
 ARG signature has no effect on the transform dispatch"
-
+  
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)

@@ -971,6 +971,8 @@ o = test()"
 
 ;;
 
+;;
+
 (pyel-create-tests
  append
  ("a = [1,2,3]
