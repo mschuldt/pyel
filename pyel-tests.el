@@ -925,7 +925,7 @@ obj = C()"
  ("chr(50)" "2"))
 
 (pyel-create-tests
- chr-function
+ ord-function
  ("ord('F')" 70)
  ("ord('2')" 50))
 
