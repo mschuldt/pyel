@@ -230,7 +230,7 @@ and its arg signature")
   "Return the name of the temlate that transform the method METHOD-NAME.
     template names are modified to avoid potential conflict with other templates
   the arglist must be placed in a list before passing so that the code can
-   tell if the arglist is empty or not provided. 
+   tell if the arglist is empty or not provided.
   ARGLIST is used to generate a name that is unique to that arglist signature"
   (assert (and (listp arglist) (listp (car arglist)))
           "Invalid arglist. Expected a list of a list")
@@ -380,13 +380,13 @@ This is used when the ast form is needed by a transform that is manually
   The return value is the two sub-lists consed together"
   (let ((current (not sym))
         first)
-    
+
     (while (and (not (eq current sym))
                 lst)
       (setq current (pop lst))
       (push current first)
       )
-    
+
     (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
 
 
@@ -412,7 +412,7 @@ in `pyel-orig-eval-last-sexp-1'"
 (defvar pyel-object-prettyprint t
   "if non-nil, objects will be printed with their pyel repr value
 during interactive emacs-lisp sessions where possible")
-        
+
 (defun pyel-toggle-object-prettyprint ()
   (interactive)
   (setq pyel-object-prettyprint (not pyel-object-prettyprint)))
@@ -456,7 +456,7 @@ during interactive emacs-lisp sessions where possible")
 
 (set (defvar pyel-type-test-funcs nil
        "alist of types used in pyel-call-transform for the switch-type
-        and the function used to test for that type")
+            and the function used to test for that type")
      '((string stringp)
        (number numberp)
        (integer integerp)
@@ -504,22 +504,22 @@ during interactive emacs-lisp sessions where possible")
 
 (defvar pyel-defined-functions nil
   "list of some functions defined pyel
-      used by some templates to determine if a needed function has been defined yet")
+          used by some templates to determine if a needed function has been defined yet")
 
 (defvar pyel-function-definitions nil
   "used to store function definitions created by pyel, not the user.")
 
 (defvar pyel-replace-args nil
   "if non-nil, pyel-do-call-transform will replace the arg symbols with their
-      value, used if the code is to be inlined
-      TODO: the option to replace the args should probably be obsoletede")
+          value, used if the code is to be inlined
+          TODO: the option to replace the args should probably be obsoletede")
 
 (defvar pyel-unique-obj-names nil
   "if non-nil, uniquely name object instantces")
 
 (defvar pyel-context-groups nil ;;TODO: still used?
   "groups of contexts that cannot exist at the same time.
-    `context-p' will stop at the first one in the list,")
+        `context-p' will stop at the first one in the list,")
 
 (setq pyel-context-groups
       '((assign-target assign-value)))
@@ -527,11 +527,11 @@ during interactive emacs-lisp sessions where possible")
 (defvar pyel-function-name-translations nil
   "alist of function name translations, python->e-lisp.
 
-    Entries in `pyel-function-name-translations' are applied before
-    checking for function transforms.
-    If a translation len->length is defined then the function transform for
-    'len' will not be detected because the name is now 'length'
-    ")
+        Entries in `pyel-function-name-translations' are applied before
+        checking for function transforms.
+        If a translation len->length is defined then the function transform for
+        'len' will not be detected because the name is now 'length'
+        ")
 
 (defvar pyel-variable-name-translations nil
   "alist of variable name translations, python->e-lisp.")
@@ -548,15 +548,18 @@ during interactive emacs-lisp sessions where possible")
 
 (defvar pyel-method-transforms nil
   "List of names of methods for which a transform has been defined
-    For internal use only--do not modify by hand"
+        For internal use only--do not modify by hand"
   )
 
 (defvar pyel-func-transforms nil
   "list of function names that have transforms defined for them")
 
+(defvar pyel-func-kwarg-transforms nil
+  "list of function names that have kwarg transforms defined for them")
+
 (defconst pyel-nothing '(@)
   "value to return from a function/transform when it should
-    not contribute to the output code")
+        not contribute to the output code")
 
 (defconst pyel-python-version "3.2.3"
   "python interpreter version whose ast pyel is written for")
@@ -716,7 +719,7 @@ The transform will have the same NAME and ARGS and must be called with a
 function like `call-transform', it will return a call to
 the function it creates.
 After the resulting transform is called, it adds the name of the
-created function in `pyel-defined-functions' and adds the function 
+created function in `pyel-defined-functions' and adds the function
 definition to `pyel-function-definitions'
 
 Use `pyel-func-transform' to define transforms for functions that
@@ -737,7 +740,7 @@ NOTE: if the name of the function to be created is already in
                (body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches))) 
+                                             ',type-switches)))
            (unless (member fsym pyel-defined-functions)
              (push (list 'defmacro fsym ',striped-args
                          body)
@@ -769,13 +772,13 @@ matches NAME and has the proper arg length then no transform will be called."
          (transform-name (pyel-method-transform-name name (list args))))
 
     (pyel-add-method-name-sig name args)
-    
+
     `(def-transform ,transform-name pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches))) 
+                                             ',type-switches)))
 
            (unless (member ',fsym pyel-defined-functions)
              (push (list 'defmacro ',fsym ',striped-args
