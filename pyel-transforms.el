@@ -411,11 +411,18 @@
         (setq t-func (cadr new-func)))
 
       ;;call function transform if one was defined
-      (cond ((member t-func pyel-func-transforms)
+      (cond ((and keyword-args
+                  (member t-func pyel-func-kwarg-transforms))
+             ;;transform defined with `pyel-func-kwarg-transform'
+             (eval `(call-transform ',(pyel-func-transform-name t-func t)
+                                    ',keyword-args
+                                    ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+            ((member t-func pyel-func-transforms)
              ;;transform defined with `pyel-func-transform'
              (eval `(call-transform ',(pyel-func-transform-name t-func)
                                     ;;',(transform (cadr func))
                                     ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+            
 
             ((member t-func pyel-func-transforms2)
              ;;transform defined with `pyel-define-function-translation'
@@ -424,16 +431,16 @@
                                     (mapcar 'transform args)
                                     keyword-args)))
 
-            ;;normal function call
-            ;;`(,t-func ,@(mapcar 'transform args))
-            ;;TODO: this is dumb, convert `call-transform' to a macro?
-            (t (eval `(call-transform 'fcall ,@(cons 't-func
-                                                     (mapcar (lambda (x)
-                                                               `(quote ,x))
-                                                             (append args
-                                                                     (mapcar 'car
-                                                                             keywords))
-                                                             )))))))))
+             ;;normal function call
+             ;;`(,t-func ,@(mapcar 'transform args))
+             ;;TODO: this is dumb, convert `call-transform' to a macro?
+             (t (eval `(call-transform 'fcall ,@(cons 't-func
+                                                      (mapcar (lambda (x)
+                                                                `(quote ,x))
+                                                              (append args
+                                                                      (mapcar 'car
+                                                                              keywords))
+                                                              )))))))))
 
 (def-transform while pyel ()
   (lambda (test body orelse &optional line col)

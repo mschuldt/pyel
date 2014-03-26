@@ -243,9 +243,11 @@ and its arg signature")
                 "Invalid method name"))
     (intern name)))
 
-(defun pyel-func-transform-name (func-name)
+(defun pyel-func-transform-name (func-name &optional kwarg)
   "like `pyel-method-transform-name' for functions"
-  (intern (format "_%s-function_" (symbol-name func-name))))
+  (intern (format "_%s%s-function_"
+                  (if kwarg "-kwarg" "")
+                  (symbol-name func-name))))
 
 (defmacro push-back (val place)
   "Add VAL to the end of the sequence stored in PLACE. Return the new
@@ -791,18 +793,28 @@ matches NAME and has the proper arg length then no transform will be called."
                            (cons 'list args-just-vars))))))))
 
 (defmacro pyel-func-transform (name args &rest type-switches)
+  (add-to-list 'pyel-func-transforms name)
+  ;;TODO: should name be modified to avoid conflicts ?
+  `(pyel-func-transform-1 ,name ,args nil ,@type-switches))
+
+(defmacro pyel-func-kwarg-transform (name args &rest type-switches)
+  (add-to-list 'pyel-func-kwarg-transforms name)
+  `(pyel-func-transform-1 ,name ,args t ,@type-switches))
+
+(defmacro pyel-func-transform-1 (name args is-kwarg-transform &rest type-switches)
   "Define a transform for function calls.
 This is just like `pyel-method-transform' except that the
 ARG signature has no effect on the transform dispatch"
-  (add-to-list 'pyel-func-transforms name)
-  ;;TODO: should name be modified to avoid conflicts ?
-  
+
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
-         (fsym (intern (concat "pyel-" (symbol-name name) "-function"))))
-    `(def-transform ,(pyel-func-transform-name name) pyel ()
+         (fsym (intern (concat "pyel-"
+                               (symbol-name name) "-"
+                               (if is-kwarg-transform "kwarg-" "")
+                               "function"))))
+    `(def-transform ,(pyel-func-transform-name name is-kwarg-transform) pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
