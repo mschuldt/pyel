@@ -999,6 +999,27 @@ x = dict(o)"
  ("round(342.834,1)" 342.8)
  ("round(342.834,2)" 342.83))
 
+(pyel-create-tests
+ enumerate-function
+ ("enumerate(['a','b','c'])" '((0 "a") (1 "b") (2 "c")))
+ ("enumerate(('a','b','c'))" '((0 "a") (1 "b") (2 "c")))
+ ("enumerate('abc')" '((0 "a") (1 "b") (2 "c")))
+ ("enumerate(['a','b','c'],10)" '((10 "a") (11 "b") (12 "c")))
+ ("enumerate(('a','b','c'),10)" '((10 "a") (11 "b") (12 "c")))
+ ("enumerate('abc',10)" '((10 "a") (11 "b") (12 "c")))
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = a()"
+  ("enumerate(obj)" '((0 "5") (1 "4") (2 "3") (3 "2") (4 "1")))))
+
 ;;
 
 (pyel-create-tests

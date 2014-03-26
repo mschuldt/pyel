@@ -608,6 +608,27 @@ EXC must be derived from BaseException"
       (round-float number ndigits)
     (round number)))
 
+(defun pyel-enumerate-list (list &optional start)
+  (let ((ret nil)
+        (c (or start 0)))
+    (while list
+      (setq ret (cons (list c (car list)) ret)
+            list (cdr list)
+            c (1+ c)))
+    (reverse ret)))
+
+(defun pyel-enumerate-vector (vec &optional start)
+  (pyel-enumerate-list (mapcar 'identity vec) start))
+
+(defun pyel-enumerate-hash (hash &optional start)
+  (pyel-enumerate-list (pyel-hash-to-list hash) start))
+
+(defun pyel-enumerate-string (str &optional start)
+  (pyel-enumerate-list (split-string str "" :omit-nulls) start))
+
+(defun pyel-enumerate-object (obj &optional start)
+  (pyel-enumerate-list (pyel-object-to-list obj) start))
+
 
 
 (defun py-list-append (list thing)

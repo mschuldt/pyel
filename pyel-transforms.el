@@ -1166,6 +1166,13 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'round 'py-round)
 
+(pyel-func-transform enumerate (obj &optional start)
+                     (list)   -> (pyel-enumerate-list obj start)
+                     (string) -> (pyel-enumerate-string obj start)
+                     (object) -> (pyel-enumerate-object obj start)
+                     (vector) -> (pyel-enumerate-vector obj start)
+                     (hash)   -> (copy-enumerate-hash obj start))
+
 ;;
 
 (pyel-method-transform append (obj thing)
