@@ -2973,7 +2973,8 @@ FunctionDef(name='a',
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun pyel-alist-to-hash (alist)
-    "Turn ALIST a hash table."
+    "Turn ALIST a hash table.
+  Each element in ALIST must have for form (a . b)"
     (let ((ht (make-hash-table
                :test 'equal
                :size (length alist))))
@@ -5130,7 +5131,7 @@ This will help notify the user when some syntax has not been implemented
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-kwarg-transform dict (kwargs)
-                             (_)-> (pyel-alist-to-hash 'kwargs))
+                             (_)-> (pyel-alist-to-hash2 'kwargs))
   
   (pyel-func-transform dict (&optional object)
                        (list)   -> (pyel-list-to-dict object)
@@ -5141,6 +5142,16 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-alist-to-hash2 (alist)
+    "like `pyel-alist-to-hash' but elements hav the form (a b)"
+    (let ((ht (make-hash-table
+               :test 'equal
+               :size (length alist))))
+      (mapc (lambda (x)
+              (puthash (car x) (cadr x) ht))
+            alist)
+      ht))
+  
   (defun pyel-list-to-dict (list)
     (let ((h (make-hash-table :test pyel-dict-test)) ;;default length??
           key-val)

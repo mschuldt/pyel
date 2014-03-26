@@ -1156,7 +1156,7 @@ Recognizes keyword args in the form 'arg = value'."
                      (object) -> (call-method object --float--))
 
 (pyel-func-kwarg-transform dict (kwargs)
-                           (_)-> (pyel-alist-to-hash 'kwargs))
+                           (_)-> (pyel-alist-to-hash2 'kwargs))
 
 (pyel-func-transform dict (&optional object)
                      (list)   -> (pyel-list-to-dict object)

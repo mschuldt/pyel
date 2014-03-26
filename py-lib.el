@@ -86,7 +86,8 @@
   (not (equal a b)))
 
 (defun pyel-alist-to-hash (alist)
-  "Turn ALIST a hash table."
+  "Turn ALIST a hash table.
+Each element in ALIST must have for form (a . b)"
   (let ((ht (make-hash-table
              :test 'equal
              :size (length alist))))
@@ -538,6 +539,16 @@ EXC must be derived from BaseException"
   (if (stringp str)
       (* 1.0 (string-to-int str))
     (list '* 1.0 (list 'string-to-int str))))
+
+(defun pyel-alist-to-hash2 (alist)
+  "like `pyel-alist-to-hash' but elements hav the form (a b)"
+  (let ((ht (make-hash-table
+             :test 'equal
+             :size (length alist))))
+    (mapc (lambda (x)
+            (puthash (car x) (cadr x) ht))
+          alist)
+    ht))
 
 (defun pyel-list-to-dict (list)
   (let ((h (make-hash-table :test pyel-dict-test)) ;;default length??
