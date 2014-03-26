@@ -1164,6 +1164,8 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (pyel-vector-to-dict object)
                      (hash)   -> (copy-hash-table object))
 
+(pyel-translate-function-name 'round 'py-round)
+
 ;;
 
 (pyel-method-transform append (obj thing)

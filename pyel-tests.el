@@ -992,6 +992,13 @@ o = a()
 x = dict(o)"
   ("repr((x))" "{5: 25, 4: 16, 3: 9, 2: 4, 1: 1}")))
 
+(pyel-create-tests
+ round-function
+ ("round(342.234)" 342)
+ ("round(342.834)" 343)
+ ("round(342.834,1)" 342.8)
+ ("round(342.834,2)" 342.83))
+
 ;;
 
 (pyel-create-tests

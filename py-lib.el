@@ -603,6 +603,11 @@ EXC must be derived from BaseException"
            (error "invalid length")))
         (t (error "invalid type"))))
 
+(defun py-round (number &optional ndigits)
+  (if ndigits
+      (round-float number ndigits)
+    (round number)))
+
 
 
 (defun py-list-append (list thing)

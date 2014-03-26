@@ -5231,6 +5231,27 @@ This will help notify the user when some syntax has not been implemented
     ("repr((x))" "{5: 25, 4: 16, 3: 9, 2: 4, 1: 1}")))
 #+END_SRC
 
+** round
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-translate-function-name 'round 'py-round)
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-round (number &optional ndigits)
+    (if ndigits
+        (round-float number ndigits)
+      (round number)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   round-function
+   ("round(342.234)" 342)
+   ("round(342.834)" 343)
+   ("round(342.834,1)" 342.8)
+   ("round(342.834,2)" 342.83))
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
