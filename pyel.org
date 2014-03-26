@@ -99,10 +99,10 @@ http://docs.python.org/2/library/functions.html
 | open         |        |       |                                          |
 | staticmethod |        |       |                                          |
 | all          |        |       |                                          |
-| enumerate    |        |       |                                          |
+| enumerate    | x      | x     |                                          |
 | int          | x      | x     |                                          |
 | ord          | x      | x     | strings > 1 char does not raise an error |
-| str          |        |       |                                          |
+| str          | x      | x     |                                          |
 | any          |        |       |                                          |
 | eval         | x      |       |                                          |
 | isinstance   | x      |       |                                          |
@@ -120,8 +120,8 @@ http://docs.python.org/2/library/functions.html
 | tuple        |        |       |                                          |
 | bool         |        |       |                                          |
 | filter       |        |       |                                          |
-| len          | x      |       |                                          |
-| range        | x      |       |                                          |
+| len          | x      | x     |                                          |
+| range        | x      | x     |                                          |
 | type         |        |       |                                          |
 | bytearray    |        |       |                                          |
 | float        | x      | x     |                                          |
@@ -151,7 +151,7 @@ http://docs.python.org/2/library/functions.html
 | compile      |        |       |                                          |
 | hasattr      | x      |       |                                          |
 | memoryview   |        |       |                                          |
-| round        |        |       |                                          |
+| round        | x      | x     |                                          |
 | __import__   |        |       |                                          |
 | complex      |        |       |                                          |
 | hash         |        |       |                                          |
@@ -163,7 +163,7 @@ http://docs.python.org/2/library/functions.html
 | next         |        |       |                                          |
 | setattr      |        |       |                                          |
 | buffer       |        |       |                                          |
-| dict         |        |       |                                          |
+| dict         | x      | x     |                                          |
 | hex          | x      | x     |                                          |
 | object       | x      |       |                                          |
 | slice        |        |       |                                          |
