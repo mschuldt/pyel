@@ -165,7 +165,7 @@ http://docs.python.org/2/library/functions.html
 | buffer       |        |       |                                          |
 | dict         |        |       |                                          |
 | hex          | x      | x     |                                          |
-| object       |        |       |                                          |
+| object       | x      |       |                                          |
 | slice        |        |       |                                          |
 | coerce       |        |       |                                          |
 | dir          |        |       |                                          |
