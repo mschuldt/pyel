@@ -183,6 +183,8 @@ http://docs.python.org/2/library/functions.html
 (while t
   (if (pyel-== x 3) nil))
 
+*** list augmented assignment
+a = [1,2,3]; a += ['hello']
 * documentation
 TODO: how to export a heading as pdf or into a seporate file?
 
