@@ -893,6 +893,23 @@ EXC must be derived from BaseException"
 
 
 
+(defun pyel-gen-match-code (regex str)
+  "return code that tests if REGEX matches STR
+if STR is constant, return t if it matches, else nil"
+  (let ((case-fold-search nil))
+    (if (stringp str)
+        (numberp (string-match regex str))
+      `(let ((case-fold-search nil))
+         (numberp (string-match ,regex ,str))))))
+
+
+(defmacro py-islower (s)
+  "S.islower() -> bool
+
+Return t if all cased characters in S are lowercase and there is
+at least one cased character in S, False otherwise."
+  (pyel-gen-match-code "^[^A-Z]*[a-z]+[^A-Z]*$" s))
+
 
 
 (provide 'py-lib)

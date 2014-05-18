@@ -47,7 +47,7 @@
 | isspace          | na    | na     |      | na    |       |       |
 | isprintable      | na    | na     |      | na    |       |       |
 | isnumeric        | na    | na     |      | na    |       |       |
-| islower          | na    | na     |      | na    |       |       |
+| islower          | na    | na     | YES  | na    |       |       |
 | isidentifier     | na    | na     |      | na    |       |       |
 | isdigit          | na    | na     |      | na    |       |       |
 | isdecimal        | na    | na     |      | na    |       |       |
@@ -6074,6 +6074,37 @@ x.insert(1,'hi')"
     ("x is z" nil)
     ("x[1] is z[1]" t)))
 #+END_SRC
+** islower
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform islower (obj)
+                         (str) -> (py-islower obj)
+                         (_)    -> (call-method obj islower))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-gen-match-code (regex str)
+    "return code that tests if REGEX matches STR
+  if STR is constant, return t if it matches, else nil"
+    (let ((case-fold-search nil))
+      (if (stringp str)
+          (numberp (string-match regex str))
+        `(let ((case-fold-search nil))
+           (numberp (string-match ,regex ,str))))))
+  
+  
+  (defmacro py-islower (s)
+    "S.islower() -> bool
+  
+  Return t if all cased characters in S are lowercase and there is
+  at least one cased character in S, False otherwise."
+    (pyel-gen-match-code "^[^A-Z]*[a-z]+[^A-Z]*$" s))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

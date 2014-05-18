@@ -1265,6 +1265,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (hash) -> (copy-hash-table obj)
                        (_)    -> (call-method obj popitem))
 
+(pyel-method-transform islower (obj)
+                       (str) -> (py-islower obj)
+                       (_)    -> (call-method obj islower))
+
 ;;
 
 ;;
