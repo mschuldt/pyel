@@ -65,7 +65,7 @@
            (py-assign2 (car targets)
                        (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
 
-          ;;form: a,b = c
+          ;;form: a,b = c or a = b = c
           ((and (> (length targets) 1) (= (length values) 1))
            (list '@ (py-assign2 (car (last targets)) (car values))
                     (py-assign  (butlast targets)
@@ -722,7 +722,7 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-dispatch-func & (l r) ;;bit and
                     (number _) -> (logand l r)
-                    (object _) (call-method l --and-- r)
+                    (object _) -> (call-method l --and-- r)
                     (_ number) -> (logand l r))
 
 (pyel-dispatch-func | (l r) ;;bit or
