@@ -79,11 +79,20 @@ d = a,b,c"
  "a = b = c"
  "a = b = c.e"
  "a = b = c.e()"
- ("a = b = c = 9"
+ ("class x:
+ a = 1
+xx = x()
+l = [1,2,3]
+a = xx.a = l[1] = b = c = 9
+z = l[2] = xx.a"
   ("a" 9)
   ("b" 9)
-  ("c" 9))
- )
+  ("c" 9)
+  ("xx.a" 9)
+  ("l[1]" 9)
+  ("z" 9)
+  ("l[2]" 9))
+  )
 
 (pyel-create-tests attribute
                    "a.b"
