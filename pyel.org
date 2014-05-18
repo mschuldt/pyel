@@ -6148,7 +6148,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
-** py-isalpha
+** isalpha
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform isalpha (obj)
@@ -6169,7 +6169,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
-** py-isalnum
+** isalnum
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform isalnum (obj)
@@ -6190,7 +6190,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
-** py-zfill
+** zfill
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform zfill (obj)
@@ -6213,7 +6213,7 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
-** py-title
+** title
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform title (obj)
