@@ -1273,6 +1273,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (str) -> (py-isupper obj)
                        (_)    -> (call-method obj isupper))
 
+(pyel-method-transform istitle (obj)
+                       (str) -> (py-istitle obj)
+                       (_)    -> (call-method obj istitle))
+
 ;;
 
 ;;

@@ -917,6 +917,16 @@ Return True if all cased characters in S are uppercase and there is
 at least one cased character in S, False otherwise."
 (pyel-gen-match-code "^[^a-z]*[A-Z]+[^a-z]*$" s))
 
+(defmacro py-istitle (s)
+"  S.istitle() -> bool
+
+    Return True if S is a titlecased string and there is at least one
+    character in S, i.e. upper- and titlecase characters may only
+    follow uncased characters and lowercase characters only cased ones.
+    Return False otherwise.  "
+
+  (pyel-gen-match-code "^[^a-zA-Z]*[A-Z][^A-Z]*$" s))
+
 
 
 (provide 'py-lib)

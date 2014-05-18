@@ -43,7 +43,7 @@
 | ljust            | na    | na     |      | na    |       |       |
 | join             | na    | na     | YES  | na    | YES   |       |
 | isupper          | na    | na     | YES  | na    |       |       |
-| istitle          | na    | na     |      | na    |       |       |
+| istitle          | na    | na     | YES  | na    |       |       |
 | isspace          | na    | na     |      | na    |       |       |
 | isprintable      | na    | na     |      | na    |       |       |
 | isnumeric        | na    | na     |      | na    |       |       |
@@ -6120,6 +6120,29 @@ x.insert(1,'hi')"
   Return True if all cased characters in S are uppercase and there is
   at least one cased character in S, False otherwise."
   (pyel-gen-match-code "^[^a-z]*[A-Z]+[^a-z]*$" s))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** istitle
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform istitle (obj)
+                         (str) -> (py-istitle obj)
+                         (_)    -> (call-method obj istitle))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-istitle (s)
+  "  S.istitle() -> bool
+  
+      Return True if S is a titlecased string and there is at least one
+      character in S, i.e. upper- and titlecase characters may only
+      follow uncased characters and lowercase characters only cased ones.
+      Return False otherwise.  "
+  
+    (pyel-gen-match-code "^[^a-zA-Z]*[A-Z][^A-Z]*$" s))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
