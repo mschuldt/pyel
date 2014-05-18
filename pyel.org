@@ -42,7 +42,7 @@
 | lower            | na    | na     | YES  | YES   | YES   |       |
 | ljust            | na    | na     |      | na    |       |       |
 | join             | na    | na     | YES  | na    | YES   |       |
-| isupper          | na    | na     |      | na    |       |       |
+| isupper          | na    | na     | YES  | na    |       |       |
 | istitle          | na    | na     |      | na    |       |       |
 | isspace          | na    | na     |      | na    |       |       |
 | isprintable      | na    | na     |      | na    |       |       |
@@ -6105,6 +6105,26 @@ x.insert(1,'hi')"
   
 #+END_SRC
 
+** isupper
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform isupper (obj)
+                         (str) -> (py-isupper obj)
+                         (_)    -> (call-method obj isupper))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-isupper (s)
+    "S.isupper() -> bool
+  
+  Return True if all cased characters in S are uppercase and there is
+  at least one cased character in S, False otherwise."
+  (pyel-gen-match-code "^[^a-z]*[A-Z]+[^a-z]*$" s))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

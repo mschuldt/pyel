@@ -910,6 +910,13 @@ Return t if all cased characters in S are lowercase and there is
 at least one cased character in S, False otherwise."
   (pyel-gen-match-code "^[^A-Z]*[a-z]+[^A-Z]*$" s))
 
+(defmacro py-isupper (s)
+  "S.isupper() -> bool
+
+Return True if all cased characters in S are uppercase and there is
+at least one cased character in S, False otherwise."
+(pyel-gen-match-code "^[^a-z]*[A-Z]+[^a-z]*$" s))
+
 
 
 (provide 'py-lib)
