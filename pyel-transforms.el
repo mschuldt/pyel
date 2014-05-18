@@ -1289,6 +1289,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (str) -> (py-zfill obj)
                        (_)    -> (call-method obj zfill))
 
+(pyel-method-transform title (obj)
+                       (str) -> (py-title obj)
+                       (_)    -> (call-method obj title))
+
 ;;
 
 ;;

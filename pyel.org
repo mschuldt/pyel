@@ -24,7 +24,7 @@
 | zfill            | na    | na     | YES  | na    |       |       |
 | upper            | na    | na     | YES  | YES   | YES   |       |
 | translate        | na    | na     |      | na    |       |       |
-| title            | na    | na     |      | na    |       |       |
+| title            | na    | na     | YES  | na    |       |       |
 | swapcase         | na    | na     |      | na    |       |       |
 | strip            | na    | na     | YES  | YES   | YES   |       |
 | startswith       | na    | na     |      | na    |       |       |
@@ -6208,6 +6208,31 @@ x.insert(1,'hi')"
       (if (> diff 0)
           (concat (make-string diff ?0) str)
         str)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** py-title
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform title (obj)
+                         (str) -> (py-title obj)
+                         (_)    -> (call-method obj title))  
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-title (s)
+    "Return a titlecased version of S, i.e. words start with title case
+  characters, all remaining cased characters have lower case."
+    (let ((case-fold-search nil))
+      (if (eq s "")
+          ""
+        (if (string-match "^\\([^A-Za-z]*\\)\\([A-Za-z]\\)\\(.*\\)$" s)
+            (concat (match-string 1 s)
+                    (upcase (match-string 2 s))
+                    (downcase (match-string 3 s)))
+          s))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

@@ -953,6 +953,18 @@ of the specified width. The string S is never truncated."
         (concat (make-string diff ?0) str)
       str)))
 
+(defun py-title (s)
+  "Return a titlecased version of S, i.e. words start with title case
+characters, all remaining cased characters have lower case."
+  (let ((case-fold-search nil))
+    (if (eq s "")
+        ""
+      (if (string-match "^\\([^A-Za-z]*\\)\\([A-Za-z]\\)\\(.*\\)$" s)
+          (concat (match-string 1 s)
+                  (upcase (match-string 2 s))
+                  (downcase (match-string 3 s)))
+        s))))
+
 
 
 (provide 'py-lib)
