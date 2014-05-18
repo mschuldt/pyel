@@ -21,7 +21,7 @@
 | setdefault       | na    | na     | na   |       |       |       |
 | update           | na    | na     | na   |       |       |       |
 | values           | na    | na     | na   | YES   | YES   |       |
-| zfill            | na    | na     |      | na    |       |       |
+| zfill            | na    | na     | YES  | na    |       |       |
 | upper            | na    | na     | YES  | YES   | YES   |       |
 | translate        | na    | na     |      | na    |       |       |
 | title            | na    | na     |      | na    |       |       |
@@ -6185,6 +6185,29 @@ x.insert(1,'hi')"
       and there is at least one character in S, False otherwise."
   
     (pyel-gen-match-code "^[0-9]+$" s))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** py-zfill
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform zfill (obj)
+                         (str) -> (py-zfill obj)
+                         (_)    -> (call-method obj zfill))  
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-zfill (str width)
+    " S.zfill(width) -> str
+  
+  Pad a numeric string S with zeros on the left, to fill a field
+  of the specified width. The string S is never truncated."
+    (let ((diff (- width (length str))))
+      (if (> diff 0)
+          (concat (make-string diff ?0) str)
+        str)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

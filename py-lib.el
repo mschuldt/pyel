@@ -943,6 +943,16 @@ at least one cased character in S, False otherwise."
 
   (pyel-gen-match-code "^[0-9]+$" s))
 
+(defun py-zfill (str width)
+  " S.zfill(width) -> str
+
+Pad a numeric string S with zeros on the left, to fill a field
+of the specified width. The string S is never truncated."
+  (let ((diff (- width (length str))))
+    (if (> diff 0)
+        (concat (make-string diff ?0) str)
+      str)))
+
 
 
 (provide 'py-lib)
