@@ -1892,11 +1892,19 @@ This is for all non template specific code.
              (py-assign2 (car targets)
                          (car values))) ;;if this is the second call of a "a,b = c" type form, then the ctx of values will be store instead of load which leads to an error
   
-            ;;form: a,b = c or a = b = c
+            ;;form: a = b = c
             ((and (> (length targets) 1) (= (length values) 1))
-             (list '@ (py-assign2 (car (last targets)) (car values))
-                      (py-assign  (butlast targets)
-                                  (pyel-change-ctx (car (last targets)) 'load))))
+             ;; (list '@ (py-assign2 (car (last targets)) (car values))
+             ;;          (py-assign  (butlast targets)
+             ;;                      (pyel-change-ctx (car (last targets)) 'load))))
+             (let ((out (py-assign2 (car (last targets)) (car values))))
+               (setq values (car (last targets))
+                     targets (butlast targets))
+               (while targets
+                 (setq out (py-assign2 (car (last targets)) out)
+                       targets (butlast targets)))
+               out))
+  
   
             ;;form: a,b = x,y
             (t (let* ((tmp-vars (loop for i from 1 to (length targets)
