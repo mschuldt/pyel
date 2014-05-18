@@ -927,6 +927,14 @@ at least one cased character in S, False otherwise."
 
   (pyel-gen-match-code "^[^a-zA-Z]*[A-Z][^A-Z]*$" s))
 
+(defun py-isalpha (s)
+    "S.isalpha() -> bool
+  
+  Return True if all characters in S are alphabetic
+  and there is at least one character in S, False otherwise."
+  
+    (pyel-gen-match-code "^[a-zA-Z]+$" s))
+
 
 
 (provide 'py-lib)

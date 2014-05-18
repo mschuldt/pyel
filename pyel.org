@@ -51,7 +51,7 @@
 | isidentifier     | na    | na     |      | na    |       |       |
 | isdigit          | na    | na     |      | na    |       |       |
 | isdecimal        | na    | na     |      | na    |       |       |
-| isalpha          | na    | na     |      | na    |       |       |
+| isalpha          | na    | na     | YES  | na    |       |       |
 | isalnum          | na    | na     |      | na    |       |       |
 | format_map       | na    | na     |      | na    |       |       |
 | format           | na    | na     |      | na    |       |       |
@@ -6143,6 +6143,27 @@ x.insert(1,'hi')"
       Return False otherwise.  "
   
     (pyel-gen-match-code "^[^a-zA-Z]*[A-Z][^A-Z]*$" s))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** py-isalpha
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform isalpha (obj)
+                         (str) -> (py-isalpha obj)
+                         (_)    -> (call-method obj isalpha))  
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-isalpha (s)
+      "S.isalpha() -> bool
+    
+    Return True if all characters in S are alphabetic
+    and there is at least one character in S, False otherwise."
+    
+      (pyel-gen-match-code "^[a-zA-Z]+$" s))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
