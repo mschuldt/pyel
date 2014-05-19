@@ -6244,7 +6244,13 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   zfill-method
+   ("a = 'asdf'"
+    ("a.zfill(10)" "000000asdf"))
+   ("'34'.zfill(5)" "00034")
+   ("'234789'.zfill(5)" "234789")
+   ("''.zfill(5)" "00000"))  
 #+END_SRC
 ** title
 *** transform

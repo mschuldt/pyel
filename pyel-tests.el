@@ -1309,7 +1309,13 @@ c = 'aDsldk'"
 
 
 
-
+(pyel-create-tests
+ zfill-method
+ ("a = 'asdf'"
+  ("a.zfill(10)" "000000asdf"))
+ ("'34'.zfill(5)" "00034")
+ ("'234789'.zfill(5)" "234789")
+ ("''.zfill(5)" "00000"))
 
 
 
