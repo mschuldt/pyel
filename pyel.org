@@ -6167,7 +6167,18 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   istitle-method
+   ("a = 'sldk'
+  b = 'Dsldk'
+  c = 'aDsldk'"
+    ("a.istitle()" nil)
+    ("b.istitle()" t)
+    ("c.istitle()" nil))
+   ("'2Dsldk'.istitle()" t)
+   ("'DDsldk'.istitle()" nil)
+   ("'LDKJ'.istitle()" nil)
+   ("''.istitle()" nil))
 #+END_SRC
 ** isalpha
 *** transform

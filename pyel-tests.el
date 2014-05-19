@@ -1292,7 +1292,18 @@ c = 'Aa'"
  ("'a1'.isupper()" nil)
  ("'11'.isupper()" nil))
 
-
+(pyel-create-tests
+ istitle-method
+ ("a = 'sldk'
+b = 'Dsldk'
+c = 'aDsldk'"
+  ("a.istitle()" nil)
+  ("b.istitle()" t)
+  ("c.istitle()" nil))
+ ("'2Dsldk'.istitle()" t)
+ ("'DDsldk'.istitle()" nil)
+ ("'LDKJ'.istitle()" nil)
+ ("''.istitle()" nil))
 
 
 
