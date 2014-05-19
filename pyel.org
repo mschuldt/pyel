@@ -6199,7 +6199,15 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+(pyel-create-tests
+ isalpha-method
+ ("'a'.isalpha()" t)
+ ("'aBc'.isalpha()" t)
+ ("'2'.isalpha()" nil)
+ ("'a2B'.isalpha()" nil)
+ ("''.isalpha()" nil)
+ ("x = 'asd'"
+  ("x.isalpha()" t)))  
 #+END_SRC
 ** isalnum
 *** transform

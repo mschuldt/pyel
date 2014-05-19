@@ -1305,7 +1305,15 @@ c = 'aDsldk'"
  ("'LDKJ'.istitle()" nil)
  ("''.istitle()" nil))
 
-
+(pyel-create-tests
+ isalpha-method
+ ("'a'.isalpha()" t)
+ ("'aBc'.isalpha()" t)
+ ("'2'.isalpha()" nil)
+ ("'a2B'.isalpha()" nil)
+ ("''.isalpha()" nil)
+ ("x = 'asd'"
+  ("x.isalpha()" t)))
 
 
 
