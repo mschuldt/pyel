@@ -6385,6 +6385,30 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
+** rsplit
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform rsplit (obj &optional sep maxsplit)
+                         (string) ->  (pyel-rsplit obj sep maxsplit)
+                         (_)    ->  (call-method obj rsplit sep maxsplit))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-rsplit (string &optional sep maxsplit)
+    (pyel-split string sep maxsplit)) ;;TODO: properly implement this
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   rsplit-method
+   ("x = 'a b c'
+  y = x.rsplit()"
+    ("y" '("a" "b" "c")))
+   ("'a b c'.rsplit()" '("a" "b" "c"))
+   ("y = 'a x b x d x'.rsplit()"
+    ("y" '("a" "x" "b" "x" "d" "x"))
+    ("len(y)" 6)))
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

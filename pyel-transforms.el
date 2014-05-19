@@ -1313,6 +1313,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) -> (py-lstrip obj chars)
                        (_)      -> (call-method obj lstrip chars))
 
+(pyel-method-transform rsplit (obj &optional sep maxsplit)
+                       (string) ->  (pyel-rsplit obj sep maxsplit)
+                       (_)    ->  (call-method obj rsplit sep maxsplit))
+
 ;;
 
 ;;

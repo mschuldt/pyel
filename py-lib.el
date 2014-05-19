@@ -1025,6 +1025,9 @@ Return a copy of the string S with leading whitespace removed.
 If chars is given and not None, remove characters in chars instead."
   (pyel-strip-left s chars))
 
+(defun pyel-rsplit (string &optional sep maxsplit)
+  (pyel-split string sep maxsplit)) ;;TODO: properly implement this
+
 
 
 (provide 'py-lib)

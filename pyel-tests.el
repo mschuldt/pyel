@@ -1312,6 +1312,16 @@ c = 'Aa'"
 
 
 
+(pyel-create-tests
+ rsplit-method
+ ("x = 'a b c'
+y = x.rsplit()"
+  ("y" '("a" "b" "c")))
+ ("'a b c'.rsplit()" '("a" "b" "c"))
+ ("y = 'a x b x d x'.rsplit()"
+  ("y" '("a" "x" "b" "x" "d" "x"))
+  ("len(y)" 6)))
+
 ;;
 
 ;;;;errors with these
