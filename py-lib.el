@@ -980,6 +980,11 @@ and vice versa."
                     (downcase char)))))
     s))
 
+(defun py-startswith (s prefix &optional start end)
+  (setq start (or start 0))
+  (if (string-match (concat "^" (regexp-quote prefix)) (substring s start end))
+      t nil))
+
 
 
 (provide 'py-lib)

@@ -1297,6 +1297,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (str) -> (py-swapcase obj)
                        (_)    -> (call-method obj swapcase))
 
+(pyel-method-transform startswith (obj)
+                       (str) -> (py-startswith obj)
+                       (_)    -> (call-method obj startswith))
+
 ;;
 
 ;;

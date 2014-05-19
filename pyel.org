@@ -28,7 +28,7 @@
 | title            | na    | na     | YES  | na    |       |       |
 | swapcase         | na    | na     | YES  | na    |       |       |
 | strip            | na    | na     | YES  | YES   | YES   |       |
-| startswith       | na    | na     |      | na    |       |       |
+| startswith       | na    | na     | YES  | na    |       |       |
 | splitlines       | na    | na     |      | na    |       |       |
 | split            | na    | na     | YES  | YES   | YES   |       |
 | rstrip           | na    | na     |      | na    |       |       |
@@ -6263,6 +6263,24 @@ x.insert(1,'hi')"
                         (upcase char)
                       (downcase char)))))
       s))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** startswith
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform startswith (obj)
+                         (str) -> (py-startswith obj)
+                         (_)    -> (call-method obj startswith))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-startswith (s prefix &optional start end)
+    (setq start (or start 0))
+    (if (string-match (concat "^" (regexp-quote prefix)) (substring s start end))
+        t nil))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
