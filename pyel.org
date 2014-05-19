@@ -6079,8 +6079,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform islower (obj)
-                         (str) -> (py-islower obj)
-                         (_)    -> (call-method obj islower))
+                         (string) -> (py-islower obj)
+                         (_)      -> (call-method obj islower))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6110,8 +6110,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform isupper (obj)
-                         (str) -> (py-isupper obj)
-                         (_)    -> (call-method obj isupper))
+                         (string) -> (py-isupper obj)
+                         (_)      -> (call-method obj isupper))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6130,8 +6130,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform istitle (obj)
-                         (str) -> (py-istitle obj)
-                         (_)    -> (call-method obj istitle))
+                         (string) -> (py-istitle obj)
+                         (_)      -> (call-method obj istitle))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6153,8 +6153,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform isalpha (obj)
-                         (str) -> (py-isalpha obj)
-                         (_)    -> (call-method obj isalpha))  
+                         (string) -> (py-isalpha obj)
+                         (_)      -> (call-method obj isalpha))  
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6174,8 +6174,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform isalnum (obj)
-                         (str) -> (py-isalnum obj)
-                         (_)    -> (call-method obj isalnum))  
+                         (string) -> (py-isalnum obj)
+                         (_)      -> (call-method obj isalnum))  
 
 #+END_SRC
 *** python el lib
@@ -6196,8 +6196,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform zfill (obj)
-                         (str) -> (py-zfill obj)
-                         (_)    -> (call-method obj zfill))  
+                         (string) -> (py-zfill obj)
+                         (_)      -> (call-method obj zfill))  
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6219,8 +6219,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform title (obj)
-                         (str) -> (py-title obj)
-                         (_)    -> (call-method obj title))  
+                         (string) -> (py-title obj)
+                         (_)      -> (call-method obj title))  
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6244,8 +6244,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform swapcase (obj)
-                         (str) -> (py-swapcase obj)
-                         (_)    -> (call-method obj swapcase))
+                         (string) -> (py-swapcase obj)
+                         (_)      -> (call-method obj swapcase))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6272,8 +6272,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform startswith (obj)
-                         (str) -> (py-startswith obj)
-                         (_)    -> (call-method obj startswith))
+                         (string) -> (py-startswith obj)
+                         (_)      -> (call-method obj startswith))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6290,8 +6290,8 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform splitlines (obj &optional keepends)
-                         (str) -> (py-splitlines obj keepends)
-                         (_)    -> (call-method obj splitlines keepends))
+                         (string) -> (py-splitlines obj keepends)
+                         (_)      -> (call-method obj splitlines keepends))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el

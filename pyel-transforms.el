@@ -1266,44 +1266,44 @@ Recognizes keyword args in the form 'arg = value'."
                        (_)    -> (call-method obj popitem))
 
 (pyel-method-transform islower (obj)
-                       (str) -> (py-islower obj)
-                       (_)    -> (call-method obj islower))
+                       (string) -> (py-islower obj)
+                       (_)      -> (call-method obj islower))
 
 (pyel-method-transform isupper (obj)
-                       (str) -> (py-isupper obj)
-                       (_)    -> (call-method obj isupper))
+                       (string) -> (py-isupper obj)
+                       (_)      -> (call-method obj isupper))
 
 (pyel-method-transform istitle (obj)
-                       (str) -> (py-istitle obj)
-                       (_)    -> (call-method obj istitle))
+                       (string) -> (py-istitle obj)
+                       (_)      -> (call-method obj istitle))
 
 (pyel-method-transform isalpha (obj)
-                       (str) -> (py-isalpha obj)
-                       (_)    -> (call-method obj isalpha))
+                       (string) -> (py-isalpha obj)
+                       (_)      -> (call-method obj isalpha))
 
 (pyel-method-transform isalnum (obj)
-                       (str) -> (py-isalnum obj)
-                       (_)    -> (call-method obj isalnum))
+                       (string) -> (py-isalnum obj)
+                       (_)      -> (call-method obj isalnum))
 
 (pyel-method-transform zfill (obj)
-                       (str) -> (py-zfill obj)
-                       (_)    -> (call-method obj zfill))
+                       (string) -> (py-zfill obj)
+                       (_)      -> (call-method obj zfill))
 
 (pyel-method-transform title (obj)
-                       (str) -> (py-title obj)
-                       (_)    -> (call-method obj title))
+                       (string) -> (py-title obj)
+                       (_)      -> (call-method obj title))
 
 (pyel-method-transform swapcase (obj)
-                       (str) -> (py-swapcase obj)
-                       (_)    -> (call-method obj swapcase))
+                       (string) -> (py-swapcase obj)
+                       (_)      -> (call-method obj swapcase))
 
 (pyel-method-transform startswith (obj)
-                       (str) -> (py-startswith obj)
-                       (_)    -> (call-method obj startswith))
+                       (string) -> (py-startswith obj)
+                       (_)      -> (call-method obj startswith))
 
 (pyel-method-transform splitlines (obj &optional keepends)
-                       (str) -> (py-splitlines obj keepends)
-                       (_)    -> (call-method obj splitlines keepends))
+                       (string) -> (py-splitlines obj keepends)
+                       (_)      -> (call-method obj splitlines keepends))
 
 ;;
 
