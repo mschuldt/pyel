@@ -1038,6 +1038,8 @@ found, return S and two empty strings."
       (vector (match-string 1 s) sep (match-string 2 s))
     (vector s "" "")))
 
+(defalias 'py-rpartition 'py-partition)
+
 
 
 (provide 'py-lib)

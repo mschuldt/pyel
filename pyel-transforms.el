@@ -1321,6 +1321,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) ->  (pyel-partition obj sep)
                        (_)    ->  (call-method obj partition sep))
 
+(pyel-method-transform rpartition (obj sep)
+                       (string) ->  (pyel-rpartition obj sep)
+                       (_)      ->  (call-method obj rpartition sep))
+
 ;;
 
 ;;

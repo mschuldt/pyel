@@ -6432,6 +6432,21 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
+** rpartition
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform rpartition (obj sep)
+                         (string) ->  (pyel-rpartition obj sep)
+                         (_)      ->  (call-method obj rpartition sep))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defalias 'py-rpartition 'py-partition)
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
