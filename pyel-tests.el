@@ -1315,7 +1315,15 @@ c = 'aDsldk'"
  ("x = 'asd'"
   ("x.isalpha()" t)))
 
-
+(pyel-create-tests
+ isalnum-method
+ ("'0'isalnum()" t)
+ ("'0'isalnum()"  t)
+ ("'0s'.isalnum()" nil)
+ ("''.isalnum()" nil)
+ ("'0.1'.isalnum()" nil)
+ ("x = '23'"
+  ("x.isalnum()" t)))
 
 (pyel-create-tests
  zfill-method
