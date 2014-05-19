@@ -6103,7 +6103,17 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   islower-method
+   ("a = 'A'
+  b = 'a'
+  c = 'Aa'"
+    ("a.islower()" nil)
+    ("b.islower()" t)
+    ("c.islower()" nil))
+   ("'A1'.islower()" nil)
+   ("'a1'.islower()" t)
+   ("'11'.islower()" nil))
 #+END_SRC
 
 ** isupper

@@ -1268,7 +1268,17 @@ z = x.copy()"
   ("x is z" nil)
   ("x[1] is z[1]" t)))
 
-
+(pyel-create-tests
+ islower-method
+ ("a = 'A'
+b = 'a'
+c = 'Aa'"
+  ("a.islower()" nil)
+  ("b.islower()" t)
+  ("c.islower()" nil))
+ ("'A1'.islower()" nil)
+ ("'a1'.islower()" t)
+ ("'11'.islower()" nil))
 
 
 
