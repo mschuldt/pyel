@@ -1018,6 +1018,13 @@ Return a copy of the string S with trailing whitespace removed.
 If chars is given and not None, remove characters in chars instead."
   (pyel-strip-right s chars))
 
+(defun py-lstrip (s &optional chars)
+  "S.lstrip([chars]) -> str
+
+Return a copy of the string S with leading whitespace removed.
+If chars is given and not None, remove characters in chars instead."
+  (pyel-strip-left s chars))
+
 
 
 (provide 'py-lib)
