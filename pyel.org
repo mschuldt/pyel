@@ -6189,7 +6189,7 @@ x.insert(1,'hi')"
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun py-isalpha (s)
+  (defmacro py-isalpha (s)
       "S.isalpha() -> bool
     
     Return True if all characters in S are alphabetic
