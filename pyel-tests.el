@@ -1333,7 +1333,17 @@ c = 'aDsldk'"
  ("'234789'.zfill(5)" "234789")
  ("''.zfill(5)" "00000"))
 
-
+(pyel-create-tests
+ title-method
+ ("'sldk'.title()" "Sldk")
+ ("'s'.title()" "S")
+ ("''.title()" "")
+ ("'2dd'.title()" "2Dd")
+ ("'2ddlkDd'.title()" "2Ddlkdd")
+ ("'23(23aaaaa'.title()" "23(23Aaaaa")
+ ("'343'.title()" "343")
+ ("x = '2dd'"
+  ("x.title()" "2dd")))
 
 
 

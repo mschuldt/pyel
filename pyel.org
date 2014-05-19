@@ -6292,7 +6292,18 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   title-method
+   ("'sldk'.title()" "Sldk")
+   ("'s'.title()" "S")
+   ("''.title()" "")
+   ("'2dd'.title()" "2Dd")
+   ("'2ddlkDd'.title()" "2Ddlkdd")
+   ("'23(23aaaaa'.title()" "23(23Aaaaa")
+   ("'343'.title()" "343")
+   ("x = '2dd'"
+    ("x.title()" "2dd")))
+    
 #+END_SRC
 ** swapcase
 *** transform
