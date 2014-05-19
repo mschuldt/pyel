@@ -965,6 +965,21 @@ characters, all remaining cased characters have lower case."
                   (downcase (match-string 3 s)))
         s))))
 
+(defun py-swapcase (s)
+  "swapcase(...)
+S.swapcase() -> str
+
+Return a copy of S with uppercase characters converted to lowercase
+and vice versa."
+  (let ((i (length s)))
+    (while (> i 0)
+      (setq i (1- i))
+      (aset s i (let ((char (aref s i)))
+                  (if (eq (downcase char) char)
+                      (upcase char)
+                    (downcase char)))))
+    s))
+
 
 
 (provide 'py-lib)

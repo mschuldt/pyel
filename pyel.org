@@ -1,5 +1,6 @@
 * todo
 ** built-in methods
+
 | method           | list? | tuple? | str? | dict? | tests | notes |
 |------------------+-------+--------+------+-------+-------+-------|
 | append           | YES   | na     | na   | na    | YES   |       |
@@ -25,7 +26,7 @@
 | upper            | na    | na     | YES  | YES   | YES   |       |
 | translate        | na    | na     |      | na    |       |       |
 | title            | na    | na     | YES  | na    |       |       |
-| swapcase         | na    | na     |      | na    |       |       |
+| swapcase         | na    | na     | YES  | na    |       |       |
 | strip            | na    | na     | YES  | YES   | YES   |       |
 | startswith       | na    | na     |      | na    |       |       |
 | splitlines       | na    | na     |      | na    |       |       |
@@ -6175,6 +6176,7 @@ x.insert(1,'hi')"
   (pyel-method-transform isalnum (obj)
                          (str) -> (py-isalnum obj)
                          (_)    -> (call-method obj isalnum))  
+
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6233,6 +6235,34 @@ x.insert(1,'hi')"
                     (upcase (match-string 2 s))
                     (downcase (match-string 3 s)))
           s))))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** swapcase
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform swapcase (obj)
+                         (str) -> (py-swapcase obj)
+                         (_)    -> (call-method obj swapcase))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-swapcase (s)
+    "swapcase(...)
+  S.swapcase() -> str
+  
+  Return a copy of S with uppercase characters converted to lowercase
+  and vice versa."
+    (let ((i (length s)))
+      (while (> i 0)
+        (setq i (1- i))
+        (aset s i (let ((char (aref s i)))
+                    (if (eq (downcase char) char)
+                        (upcase char)
+                      (downcase char)))))
+      s))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

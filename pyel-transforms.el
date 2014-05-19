@@ -1293,6 +1293,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (str) -> (py-title obj)
                        (_)    -> (call-method obj title))
 
+(pyel-method-transform swapcase (obj)
+                       (str) -> (py-swapcase obj)
+                       (_)    -> (call-method obj swapcase))
+
 ;;
 
 ;;
