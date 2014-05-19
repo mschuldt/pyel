@@ -6214,12 +6214,12 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform isalnum (obj)
                          (string) -> (py-isalnum obj)
-                         (_)      -> (call-method obj isalnum))  
+                         (_)      -> (call-method obj isalnum))
 
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun py-isalnum (s)
+  (defmacro py-isalnum (s)
     "S.isalnum() -> bool
   
       Return True if all characters in S are alphanumeric

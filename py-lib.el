@@ -935,7 +935,7 @@ at least one cased character in S, False otherwise."
   
     (pyel-gen-match-code "^[a-zA-Z]+$" s))
 
-(defun py-isalnum (s)
+(defmacro py-isalnum (s)
   "S.isalnum() -> bool
 
     Return True if all characters in S are alphanumeric
