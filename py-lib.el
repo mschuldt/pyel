@@ -1011,6 +1011,13 @@ and vice versa."
       (setq list (cons str list)))
     (nreverse list)))
 
+(defun py-rstrip (s &optional chars)
+  "S.rstrip([chars]) -> str
+
+Return a copy of the string S with trailing whitespace removed.
+If chars is given and not None, remove characters in chars instead."
+  (pyel-strip-right s chars))
+
 
 
 (provide 'py-lib)

@@ -6335,6 +6335,26 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   
 #+END_SRC
+** rstrip
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform rstrip (obj &optional chars)
+                         (string) -> (py-rstrip obj chars)
+                         (_)      -> (call-method obj strip chars))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-rstrip (s &optional chars)
+    "S.rstrip([chars]) -> str
+  
+  Return a copy of the string S with trailing whitespace removed.
+  If chars is given and not None, remove characters in chars instead."
+    (pyel-strip-right s chars))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
