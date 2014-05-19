@@ -6226,9 +6226,9 @@ x.insert(1,'hi')"
 ** zfill
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform zfill (obj)
-                         (string) -> (py-zfill obj)
-                         (_)      -> (call-method obj zfill))  
+  (pyel-method-transform zfill (obj width)
+                         (string) -> (py-zfill obj width)
+                         (_)      -> (call-method obj zfill width))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el

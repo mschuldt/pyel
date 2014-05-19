@@ -1285,9 +1285,9 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) -> (py-isalnum obj)
                        (_)      -> (call-method obj isalnum))
 
-(pyel-method-transform zfill (obj)
-                       (string) -> (py-zfill obj)
-                       (_)      -> (call-method obj zfill))
+(pyel-method-transform zfill (obj width)
+                       (string) -> (py-zfill obj width)
+                       (_)      -> (call-method obj zfill width))
 
 (pyel-method-transform title (obj)
                        (string) -> (py-title obj)
