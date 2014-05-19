@@ -1307,11 +1307,11 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-method-transform rstrip (obj &optional chars)
                        (string) -> (py-rstrip obj chars)
-                       (_)      -> (call-method obj strip chars))
+                       (_)      -> (call-method obj rstrip chars))
 
 (pyel-method-transform lstrip (obj &optional chars)
                        (string) -> (py-lstrip obj chars)
-                       (_)      -> (call-method obj strip chars))
+                       (_)      -> (call-method obj lstrip chars))
 
 ;;
 
