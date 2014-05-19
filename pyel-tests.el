@@ -1280,7 +1280,17 @@ c = 'Aa'"
  ("'a1'.islower()" t)
  ("'11'.islower()" nil))
 
-
+(pyel-create-tests
+ isupper-method
+ ("a = 'A'
+  b = 'a'
+  c = 'Aa'"
+  ("a.isupper()" t)
+  ("b.isupper()" nil)
+  ("c.isupper()" nil))
+ ("'A1'.isupper()" t)
+ ("'a1'.isupper()" nil)
+ ("'11'.isupper()" nil))
 
 
 
