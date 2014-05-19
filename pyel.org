@@ -29,7 +29,7 @@
 | swapcase         | na    | na     | YES  | na    |       |       |
 | strip            | na    | na     | YES  | YES   | YES   |       |
 | startswith       | na    | na     | YES  | na    |       |       |
-| splitlines       | na    | na     |      | na    |       |       |
+| splitlines       | na    | na     | YES  | na    |       |       |
 | split            | na    | na     | YES  | YES   | YES   |       |
 | rstrip           | na    | na     |      | na    |       |       |
 | rsplit           | na    | na     |      | na    |       |       |
@@ -6281,6 +6281,45 @@ x.insert(1,'hi')"
     (setq start (or start 0))
     (if (string-match (concat "^" (regexp-quote prefix)) (substring s start end))
         t nil))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** splitlines
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform splitlines (obj &optional keepends)
+                         (str) -> (py-splitlines obj keepends)
+                         (_)    -> (call-method obj splitlines keepends))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-splitlines (string &optional keepends)
+    ;;based off code from `split-string'
+    (let ((start 0)
+          notfirst
+          (list nil)
+          (len (length string))
+          str)
+  
+      (while (and (string-match "\n" string
+                                (if (and notfirst
+                                         (= start (match-beginning 0))
+                                         (< start len))
+                                    (1+ start) start))
+                  (< start len))
+        (setq notfirst t
+              str (substring string start (match-beginning 0)))
+        (if keepends (setq str (concat str "\n")))
+        (setq list (cons str list)
+              start (match-end 0)))
+  
+      (setq str (substring string start))
+      (unless (eq str "")
+        (if keepends (setq str (concat str "\n")))
+        (setq list (cons str list)))
+      (nreverse list)))  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

@@ -985,6 +985,32 @@ and vice versa."
   (if (string-match (concat "^" (regexp-quote prefix)) (substring s start end))
       t nil))
 
+(defun py-splitlines (string &optional keepends)
+  ;;based off code from `split-string'
+  (let ((start 0)
+        notfirst
+        (list nil)
+        (len (length string))
+        str)
+
+    (while (and (string-match "\n" string
+                              (if (and notfirst
+                                       (= start (match-beginning 0))
+                                       (< start len))
+                                  (1+ start) start))
+                (< start len))
+      (setq notfirst t
+            str (substring string start (match-beginning 0)))
+      (if keepends (setq str (concat str "\n")))
+      (setq list (cons str list)
+            start (match-end 0)))
+
+    (setq str (substring string start))
+    (unless (eq str "")
+      (if keepends (setq str (concat str "\n")))
+      (setq list (cons str list)))
+    (nreverse list)))
+
 
 
 (provide 'py-lib)

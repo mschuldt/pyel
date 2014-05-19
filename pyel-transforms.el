@@ -1301,6 +1301,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (str) -> (py-startswith obj)
                        (_)    -> (call-method obj startswith))
 
+(pyel-method-transform splitlines (obj &optional keepends)
+                       (str) -> (py-splitlines obj keepends)
+                       (_)    -> (call-method obj splitlines keepends))
+
 ;;
 
 ;;
