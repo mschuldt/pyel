@@ -1345,7 +1345,15 @@ c = 'aDsldk'"
  ("x = '2dd'"
   ("x.title()" "2dd")))
 
-
+(pyel-create-tests
+ swapcase-method
+ ("'ab'.swapcase()"  "AB")
+ ("'aB'.swapcase()"  "Ab")
+ ("'aB1'.swapcase()"  "Ab1")
+ ("'11'.swapcase()" "11")
+ ("''.swapcase()"  "")
+ ("x = 'aaBB1'"
+  ("x.swapcase()" "AAbb1")))
 
 
 

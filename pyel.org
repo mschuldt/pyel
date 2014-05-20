@@ -6330,7 +6330,15 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   swapcase-method
+   ("'ab'.swapcase()"  "AB")
+   ("'aB'.swapcase()"  "Ab")
+   ("'aB1'.swapcase()"  "Ab1")
+   ("'11'.swapcase()" "11")
+   ("''.swapcase()"  "")
+   ("x = 'aaBB1'"
+    ("x.swapcase()" "AAbb1")))  
 #+END_SRC
 ** startswith
 *** transform
