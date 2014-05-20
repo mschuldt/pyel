@@ -1040,6 +1040,20 @@ found, return S and two empty strings."
 
 (defalias 'py-rpartition 'py-partition)
 
+(defun py-rjust (str width &optional fillchar)
+  "S.rjust(width[, fillchar]) -> str
+
+Return S right-justified in a string of length width. Padding is
+done using the specified fill character (default is a space)."
+  (if (> (length fillchar) 1)
+      (py-raise (TypeError
+                 "The fill character must be exactly one character long")))
+  (let ((diff (- width (length str)))
+        (fillchar (or fillchar " ")))
+    (if (> diff 0)
+        (concat (make-string diff (string-to-char fillchar)) str)
+      str)))
+
 
 
 (provide 'py-lib)

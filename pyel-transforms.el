@@ -1325,6 +1325,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) ->  (pyel-rpartition obj sep)
                        (_)      ->  (call-method obj rpartition sep))
 
+(pyel-method-transform rjust (obj width &optional fillchar)
+                       (string) -> (py-rjust obj width fillchar)
+                       (_)      -> (call-method obj rjust width fillchar))
+
 ;;
 
 ;;

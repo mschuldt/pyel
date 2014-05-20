@@ -6303,7 +6303,6 @@ x.insert(1,'hi')"
    ("'343'.title()" "343")
    ("x = '2dd'"
     ("x.title()" "2dd")))
-    
 #+END_SRC
 ** swapcase
 *** transform
@@ -6487,6 +6486,33 @@ x.insert(1,'hi')"
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defalias 'py-rpartition 'py-partition)
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  
+#+END_SRC
+** rjust
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform rjust (obj width &optional fillchar)
+                         (string) -> (py-rjust obj width fillchar)
+                         (_)      -> (call-method obj rjust width fillchar))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-rjust (str width &optional fillchar)
+    "S.rjust(width[, fillchar]) -> str
+  
+  Return S right-justified in a string of length width. Padding is
+  done using the specified fill character (default is a space)."
+    (if (> (length fillchar) 1)
+        (py-raise (TypeError
+                   "The fill character must be exactly one character long")))
+    (let ((diff (- width (length str)))
+          (fillchar (or fillchar " ")))
+      (if (> diff 0)
+          (concat (make-string diff (string-to-char fillchar)) str)
+        str)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
