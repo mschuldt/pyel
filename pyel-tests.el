@@ -1372,9 +1372,19 @@ c = 'aDsldk'"
 
 
 
+(pyel-create-tests
+ rstrip-method
+ ("'hello'.rstrip('heo')" "hell")
+ ("'\thello\t  '.rstrip()" "    hello")
+ ("x = 'hello'"
+  ("x.rstrip('hlo')" "he")))
 
-
-
+(pyel-create-tests
+ lstrip-method
+ ("'hello'.lstrip('heo')" "llo")
+ ("'\thello\t  '.lstrip()" "hello         ")
+ ("x = 'hello'"
+  ("x.lstrip('hlo')" "ello")))
 
 (pyel-create-tests
  rsplit-method

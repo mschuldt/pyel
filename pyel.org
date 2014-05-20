@@ -6446,7 +6446,12 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   rstrip-method
+   ("'hello'.rstrip('heo')" "hell")
+   ("'\thello\t  '.rstrip()" "    hello")
+   ("x = 'hello'"
+    ("x.rstrip('hlo')" "he")))  
 #+END_SRC
 ** lstrip
 *** transform
@@ -6466,7 +6471,12 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   lstrip-method
+   ("'hello'.lstrip('heo')" "llo")
+   ("'\thello\t  '.lstrip()" "hello         ")
+   ("x = 'hello'"
+    ("x.lstrip('hlo')" "ello")))
 #+END_SRC
 ** rsplit
 *** transform
