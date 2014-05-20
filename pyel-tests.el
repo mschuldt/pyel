@@ -1355,7 +1355,18 @@ c = 'aDsldk'"
  ("x = 'aaBB1'"
   ("x.swapcase()" "AAbb1")))
 
-
+(pyel-create-tests
+ startswith-method
+ ("'abcde'.startswith('bcd', 1, 2)" nil)
+ ("'abcde'.startswith('bcd', 1, 3)" nil)
+ ("'abcde'.startswith('bcd', 1, 4)" t)
+ ("'abcde'.startswith('bcd', 1)" t)
+ ("'abcde'.startswith('x', 1)" nil)
+ ("'abcde'.startswith('abc')" t)
+ ("'$abcde'.startswith('$abc')" t)
+ ("'abcde'.startswith('.')" nil)
+ ("x = 'abcde'"
+  ("x.startswith('.')" nil)))
 
 
 
