@@ -5489,9 +5489,12 @@ x.insert(1,'hi')"
           (setq i (1+ i))))
       found))
   
-  (defsubst py-string-index (obj str)
-    (string-match (regexp-quote str) obj))
-  
+  (defun py-string-index (str sub)
+    "Like STR.find() but raise ValueError when the substring SUB is not found."
+    (let ((ret (py-find str sub)))
+      (if (= ret -1)
+          (py-raise (ValueError "substring not found"))
+        ret)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

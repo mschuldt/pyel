@@ -685,8 +685,12 @@ Return -1 on failure."
         (setq i (1+ i))))
     found))
 
-(defsubst py-string-index (obj str)
-  (string-match (regexp-quote str) obj))
+(defun py-string-index (str sub)
+  "Like STR.find() but raise ValueError when the substring SUB is not found."
+  (let ((ret (py-find str sub)))
+    (if (= ret -1)
+        (py-raise (ValueError "substring not found"))
+      ret)))
 
 (defun py-list-remove (list item)
   "remove ITEM from LIST"
