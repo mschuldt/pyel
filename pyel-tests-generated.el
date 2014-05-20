@@ -1,4 +1,62 @@
-(setq pyel-test-py-functions '("def pyel_test_copy_method_413(n):
+(setq pyel-test-py-functions '("def pyel_test_rsplit_method_426():
+ x = 'a b c'
+ y = x.rsplit()
+ return y" "def pyel_test_rsplit_method_425(n):
+ y = 'a x b x d x'.rsplit()
+ if n == 1:
+  return y
+
+ if n == 2:
+  return len(y)" "def pyel_test_lstrip_method_424():
+ x = 'hello'
+ return x.lstrip('hlo')" "def pyel_test_rstrip_method_423():
+ x = 'hello'
+ return x.rstrip('hlo')" "def pyel_test_startswith_method_422():
+ x = 'abcde'
+ return x.startswith('.')" "def pyel_test_swapcase_method_421():
+ x = 'aaBB1'
+ return x.swapcase()" "def pyel_test_title_method_420():
+ x = '2dd'
+ return x.title()" "def pyel_test_zfill_method_419():
+ a = 'asdf'
+ return a.zfill(10)" "def pyel_test_isalnum_method_418():
+ x = '23'
+ return x.isalnum()" "def pyel_test_isalpha_method_417():
+ x = 'asd'
+ return x.isalpha()" "def pyel_test_istitle_method_416(n):
+ a = 'sldk'
+ b = 'Dsldk'
+ c = 'aDsldk'
+ if n == 1:
+  return a.istitle()
+
+ if n == 2:
+  return b.istitle()
+
+ if n == 3:
+  return c.istitle()" "def pyel_test_isupper_method_415(n):
+ a = 'A'
+   b = 'a'
+   c = 'Aa'
+ if n == 1:
+  return a.isupper()
+
+ if n == 2:
+  return b.isupper()
+
+ if n == 3:
+  return c.isupper()" "def pyel_test_islower_method_414(n):
+ a = 'A'
+ b = 'a'
+ c = 'Aa'
+ if n == 1:
+  return a.islower()
+
+ if n == 2:
+  return b.islower()
+
+ if n == 3:
+  return c.islower()" "def pyel_test_copy_method_413(n):
  x = {1:['one'],2:'two',3:'three'}
  y = x
  z = x.copy()
@@ -792,7 +850,12 @@
  c = 3
  d = a,b,c
  return d" "def pyel_test_assign_1(n):
- a = b = c = 9
+ class x:
+  a = 1
+ xx = x()
+ l = [1,2,3]
+ a = xx.a = l[1] = b = c = 9
+ z = l[2] = xx.a
  if n == 1:
   return a
 
@@ -800,7 +863,169 @@
   return b
 
  if n == 3:
-  return c"))(ert-deftest pyel-strip-method3 nil (equal (eval (pyel "def _pyel21312():
+  return c
+
+ if n == 4:
+  return xx.a
+
+ if n == 5:
+  return l[1]
+
+ if n == 6:
+  return z
+
+ if n == 7:
+  return l[2]"))(ert-deftest pyel-rsplit-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'a b c'.rsplit()
+_pyel21312()")) (quote ("a" "b" "c"))))
+(ert-deftest pyel-lstrip-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'hello'.lstrip('heo')
+_pyel21312()")) "llo"))
+(ert-deftest pyel-lstrip-method2 nil (equal (eval (pyel "def _pyel21312():
+ '      hello     '.lstrip()
+_pyel21312()")) "hello         "))
+(ert-deftest pyel-rstrip-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'hello'.rstrip('heo')
+_pyel21312()")) "hell"))
+(ert-deftest pyel-rstrip-method2 nil (equal (eval (pyel "def _pyel21312():
+ '      hello     '.rstrip()
+_pyel21312()")) "    hello"))
+(ert-deftest pyel-startswith-method11 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('bcd', 1, 2)
+_pyel21312()")) nil))
+(ert-deftest pyel-startswith-method10 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('bcd', 1, 3)
+_pyel21312()")) nil))
+(ert-deftest pyel-startswith-method9 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('bcd', 1, 4)
+_pyel21312()")) t))
+(ert-deftest pyel-startswith-method8 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('bcd', 1)
+_pyel21312()")) t))
+(ert-deftest pyel-startswith-method7 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('x', 1)
+_pyel21312()")) nil))
+(ert-deftest pyel-startswith-method6 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('abc')
+_pyel21312()")) t))
+(ert-deftest pyel-startswith-method5 nil (equal (eval (pyel "def _pyel21312():
+ '$abcde'.startswith('$abc')
+_pyel21312()")) t))
+(ert-deftest pyel-startswith-method4 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith('.')
+_pyel21312()")) nil))
+(ert-deftest pyel-startswith-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith(('.', 'b'))
+_pyel21312()")) nil))
+(ert-deftest pyel-startswith-method1 nil (equal (eval (pyel "def _pyel21312():
+ 'abcde'.startswith(('.', 'b','a'))
+_pyel21312()")) t))
+(ert-deftest pyel-swapcase-method6 nil (equal (eval (pyel "def _pyel21312():
+ 'ab'.swapcase()
+_pyel21312()")) "AB"))
+(ert-deftest pyel-swapcase-method5 nil (equal (eval (pyel "def _pyel21312():
+ 'aB'.swapcase()
+_pyel21312()")) "Ab"))
+(ert-deftest pyel-swapcase-method4 nil (equal (eval (pyel "def _pyel21312():
+ 'aB1'.swapcase()
+_pyel21312()")) "Ab1"))
+(ert-deftest pyel-swapcase-method3 nil (equal (eval (pyel "def _pyel21312():
+ '11'.swapcase()
+_pyel21312()")) "11"))
+(ert-deftest pyel-swapcase-method2 nil (equal (eval (pyel "def _pyel21312():
+ ''.swapcase()
+_pyel21312()")) ""))
+(ert-deftest pyel-title-method8 nil (equal (eval (pyel "def _pyel21312():
+ 'sldk'.title()
+_pyel21312()")) "Sldk"))
+(ert-deftest pyel-title-method7 nil (equal (eval (pyel "def _pyel21312():
+ 's'.title()
+_pyel21312()")) "S"))
+(ert-deftest pyel-title-method6 nil (equal (eval (pyel "def _pyel21312():
+ ''.title()
+_pyel21312()")) ""))
+(ert-deftest pyel-title-method5 nil (equal (eval (pyel "def _pyel21312():
+ '2dd'.title()
+_pyel21312()")) "2Dd"))
+(ert-deftest pyel-title-method4 nil (equal (eval (pyel "def _pyel21312():
+ '2ddlkDd'.title()
+_pyel21312()")) "2Ddlkdd"))
+(ert-deftest pyel-title-method3 nil (equal (eval (pyel "def _pyel21312():
+ '23(23aaaaa'.title()
+_pyel21312()")) "23(23Aaaaa"))
+(ert-deftest pyel-title-method2 nil (equal (eval (pyel "def _pyel21312():
+ '343'.title()
+_pyel21312()")) "343"))
+(ert-deftest pyel-zfill-method3 nil (equal (eval (pyel "def _pyel21312():
+ '34'.zfill(5)
+_pyel21312()")) "00034"))
+(ert-deftest pyel-zfill-method2 nil (equal (eval (pyel "def _pyel21312():
+ '234789'.zfill(5)
+_pyel21312()")) "234789"))
+(ert-deftest pyel-zfill-method1 nil (equal (eval (pyel "def _pyel21312():
+ ''.zfill(5)
+_pyel21312()")) "00000"))
+(ert-deftest pyel-isalnum-method6 nil (equal (eval (pyel "def _pyel21312():
+ '0'isalnum()
+_pyel21312()")) t))
+(ert-deftest pyel-isalnum-method5 nil (equal (eval (pyel "def _pyel21312():
+ '0'isalnum()
+_pyel21312()")) t))
+(ert-deftest pyel-isalnum-method4 nil (equal (eval (pyel "def _pyel21312():
+ '0s'.isalnum()
+_pyel21312()")) nil))
+(ert-deftest pyel-isalnum-method3 nil (equal (eval (pyel "def _pyel21312():
+ ''.isalnum()
+_pyel21312()")) nil))
+(ert-deftest pyel-isalnum-method2 nil (equal (eval (pyel "def _pyel21312():
+ '0.1'.isalnum()
+_pyel21312()")) nil))
+(ert-deftest pyel-isalpha-method6 nil (equal (eval (pyel "def _pyel21312():
+ 'a'.isalpha()
+_pyel21312()")) t))
+(ert-deftest pyel-isalpha-method5 nil (equal (eval (pyel "def _pyel21312():
+ 'aBc'.isalpha()
+_pyel21312()")) t))
+(ert-deftest pyel-isalpha-method4 nil (equal (eval (pyel "def _pyel21312():
+ '2'.isalpha()
+_pyel21312()")) nil))
+(ert-deftest pyel-isalpha-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'a2B'.isalpha()
+_pyel21312()")) nil))
+(ert-deftest pyel-isalpha-method2 nil (equal (eval (pyel "def _pyel21312():
+ ''.isalpha()
+_pyel21312()")) nil))
+(ert-deftest pyel-istitle-method4 nil (equal (eval (pyel "def _pyel21312():
+ '2Dsldk'.istitle()
+_pyel21312()")) t))
+(ert-deftest pyel-istitle-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'DDsldk'.istitle()
+_pyel21312()")) nil))
+(ert-deftest pyel-istitle-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'LDKJ'.istitle()
+_pyel21312()")) nil))
+(ert-deftest pyel-istitle-method1 nil (equal (eval (pyel "def _pyel21312():
+ ''.istitle()
+_pyel21312()")) nil))
+(ert-deftest pyel-isupper-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'A1'.isupper()
+_pyel21312()")) t))
+(ert-deftest pyel-isupper-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'a1'.isupper()
+_pyel21312()")) nil))
+(ert-deftest pyel-isupper-method1 nil (equal (eval (pyel "def _pyel21312():
+ '11'.isupper()
+_pyel21312()")) nil))
+(ert-deftest pyel-islower-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'A1'.islower()
+_pyel21312()")) nil))
+(ert-deftest pyel-islower-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'a1'.islower()
+_pyel21312()")) t))
+(ert-deftest pyel-islower-method1 nil (equal (eval (pyel "def _pyel21312():
+ '11'.islower()
+_pyel21312()")) nil))
+(ert-deftest pyel-strip-method3 nil (equal (eval (pyel "def _pyel21312():
  '
  hello  '.strip('heo')
 _pyel21312()")) "hello"))
@@ -1127,23 +1352,27 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-assign-1 nil (equal (eval (pyel "pyel_test_assign_1(1)")) 9))
 (ert-deftest pyel-test-assign-2 nil (equal (eval (pyel "pyel_test_assign_1(2)")) 9))
 (ert-deftest pyel-test-assign-3 nil (equal (eval (pyel "pyel_test_assign_1(3)")) 9))
-(ert-deftest pyel-test-assign-4 nil (equal (eval (pyel "pyel_test_assign_17()")) [1 2 3]))
-(ert-deftest pyel-test-assign-5 nil (equal (eval (pyel "pyel_test_assign_18(1)")) 11))
-(ert-deftest pyel-test-assign-6 nil (equal (eval (pyel "pyel_test_assign_18(2)")) 22))
-(ert-deftest pyel-test-assign-7 nil (equal (eval (pyel "pyel_test_assign_18(3)")) 33))
-(ert-deftest pyel-test-assign-8 nil (equal (eval (pyel "pyel_test_assign_19(1)")) 1))
-(ert-deftest pyel-test-assign-9 nil (equal (eval (pyel "pyel_test_assign_19(2)")) 2))
-(ert-deftest pyel-test-assign-10 nil (equal (eval (pyel "pyel_test_assign_19(3)")) 3))
-(ert-deftest pyel-test-assign-11 nil (equal (eval (pyel "pyel_test_assign_19(4)")) 3))
-(ert-deftest pyel-test-assign-12 nil (equal (eval (pyel "pyel_test_assign_20(1)")) 2))
-(ert-deftest pyel-test-assign-13 nil (equal (eval (pyel "pyel_test_assign_20(2)")) 1))
-(ert-deftest pyel-test-assign-14 nil (equal (eval (pyel "pyel_test_assign_21(1)")) 3))
-(ert-deftest pyel-test-assign-15 nil (equal (eval (pyel "pyel_test_assign_21(2)")) 1.1))
-(ert-deftest pyel-test-assign-16 nil (equal (eval (pyel "pyel_test_assign_21(3)")) 1))
-(ert-deftest pyel-test-assign-17 nil (equal (eval (pyel "pyel_test_assign_22(1)")) 1))
-(ert-deftest pyel-test-assign-18 nil (equal (eval (pyel "pyel_test_assign_22(2)")) 2))
-(ert-deftest pyel-test-assign-19 nil (equal (eval (pyel "pyel_test_assign_32()")) 1))
-(ert-deftest pyel-test-assign-20 nil (equal (eval (pyel "pyel_test_assign_33()")) 1))
+(ert-deftest pyel-test-assign-4 nil (equal (eval (pyel "pyel_test_assign_1(4)")) 9))
+(ert-deftest pyel-test-assign-5 nil (equal (eval (pyel "pyel_test_assign_1(5)")) 9))
+(ert-deftest pyel-test-assign-6 nil (equal (eval (pyel "pyel_test_assign_1(6)")) 9))
+(ert-deftest pyel-test-assign-7 nil (equal (eval (pyel "pyel_test_assign_1(7)")) 9))
+(ert-deftest pyel-test-assign-8 nil (equal (eval (pyel "pyel_test_assign_17()")) [1 2 3]))
+(ert-deftest pyel-test-assign-9 nil (equal (eval (pyel "pyel_test_assign_18(1)")) 11))
+(ert-deftest pyel-test-assign-10 nil (equal (eval (pyel "pyel_test_assign_18(2)")) 22))
+(ert-deftest pyel-test-assign-11 nil (equal (eval (pyel "pyel_test_assign_18(3)")) 33))
+(ert-deftest pyel-test-assign-12 nil (equal (eval (pyel "pyel_test_assign_19(1)")) 1))
+(ert-deftest pyel-test-assign-13 nil (equal (eval (pyel "pyel_test_assign_19(2)")) 2))
+(ert-deftest pyel-test-assign-14 nil (equal (eval (pyel "pyel_test_assign_19(3)")) 3))
+(ert-deftest pyel-test-assign-15 nil (equal (eval (pyel "pyel_test_assign_19(4)")) 3))
+(ert-deftest pyel-test-assign-16 nil (equal (eval (pyel "pyel_test_assign_20(1)")) 2))
+(ert-deftest pyel-test-assign-17 nil (equal (eval (pyel "pyel_test_assign_20(2)")) 1))
+(ert-deftest pyel-test-assign-18 nil (equal (eval (pyel "pyel_test_assign_21(1)")) 3))
+(ert-deftest pyel-test-assign-19 nil (equal (eval (pyel "pyel_test_assign_21(2)")) 1.1))
+(ert-deftest pyel-test-assign-20 nil (equal (eval (pyel "pyel_test_assign_21(3)")) 1))
+(ert-deftest pyel-test-assign-21 nil (equal (eval (pyel "pyel_test_assign_22(1)")) 1))
+(ert-deftest pyel-test-assign-22 nil (equal (eval (pyel "pyel_test_assign_22(2)")) 2))
+(ert-deftest pyel-test-assign-23 nil (equal (eval (pyel "pyel_test_assign_32()")) 1))
+(ert-deftest pyel-test-assign-24 nil (equal (eval (pyel "pyel_test_assign_33()")) 1))
 (ert-deftest pyel-test-list-2 nil (equal (eval (pyel "pyel_test_list_85(1)")) (quote (1 2 "b"))))
 (ert-deftest pyel-test-list-3 nil (equal (eval (pyel "pyel_test_list_85(2)")) (quote (1 (1 "3" (1 2 "b") nil 3)))))
 (ert-deftest pyel-test-function_arguments-1 nil (equal (eval (pyel "pyel_test_function_arguments_233(1)")) "[1, 2, 1, \"two\", [], {}]"))
@@ -1318,6 +1547,26 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-popitem_method-2 nil (equal (eval (pyel "pyel_test_popitem_method_412(2)")) "{2: \"two\", 3: \"three\"}"))
 (ert-deftest pyel-test-copy_method-1 nil (equal (eval (pyel "pyel_test_copy_method_413(1)")) nil))
 (ert-deftest pyel-test-copy_method-2 nil (equal (eval (pyel "pyel_test_copy_method_413(2)")) t))
+(ert-deftest pyel-test-islower_method-4 nil (equal (eval (pyel "pyel_test_islower_method_414(1)")) nil))
+(ert-deftest pyel-test-islower_method-5 nil (equal (eval (pyel "pyel_test_islower_method_414(2)")) t))
+(ert-deftest pyel-test-islower_method-6 nil (equal (eval (pyel "pyel_test_islower_method_414(3)")) nil))
+(ert-deftest pyel-test-isupper_method-4 nil (equal (eval (pyel "pyel_test_isupper_method_415(1)")) t))
+(ert-deftest pyel-test-isupper_method-5 nil (equal (eval (pyel "pyel_test_isupper_method_415(2)")) nil))
+(ert-deftest pyel-test-isupper_method-6 nil (equal (eval (pyel "pyel_test_isupper_method_415(3)")) nil))
+(ert-deftest pyel-test-istitle_method-5 nil (equal (eval (pyel "pyel_test_istitle_method_416(1)")) nil))
+(ert-deftest pyel-test-istitle_method-6 nil (equal (eval (pyel "pyel_test_istitle_method_416(2)")) t))
+(ert-deftest pyel-test-istitle_method-7 nil (equal (eval (pyel "pyel_test_istitle_method_416(3)")) nil))
+(ert-deftest pyel-test-isalpha_method-1 nil (equal (eval (pyel "pyel_test_isalpha_method_417()")) t))
+(ert-deftest pyel-test-isalnum_method-1 nil (equal (eval (pyel "pyel_test_isalnum_method_418()")) t))
+(ert-deftest pyel-test-zfill_method-4 nil (equal (eval (pyel "pyel_test_zfill_method_419()")) "000000asdf"))
+(ert-deftest pyel-test-title_method-1 nil (equal (eval (pyel "pyel_test_title_method_420()")) "2dd"))
+(ert-deftest pyel-test-swapcase_method-1 nil (equal (eval (pyel "pyel_test_swapcase_method_421()")) "AAbb1"))
+(ert-deftest pyel-test-startswith_method-3 nil (equal (eval (pyel "pyel_test_startswith_method_422()")) nil))
+(ert-deftest pyel-test-rstrip_method-1 nil (equal (eval (pyel "pyel_test_rstrip_method_423()")) "he"))
+(ert-deftest pyel-test-lstrip_method-1 nil (equal (eval (pyel "pyel_test_lstrip_method_424()")) "ello"))
+(ert-deftest pyel-test-rsplit_method-1 nil (equal (eval (pyel "pyel_test_rsplit_method_425(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
+(ert-deftest pyel-test-rsplit_method-2 nil (equal (eval (pyel "pyel_test_rsplit_method_425(2)")) 6))
+(ert-deftest pyel-test-rsplit_method-4 nil (equal (eval (pyel "pyel_test_rsplit_method_426()")) (quote ("a" "b" "c"))))
 (ert-deftest pyel-el-ast-test-conditional-expressions-368 nil (string= (pyel "1 if True else 0" nil nil t) "(if-exp (name  \"True\" 'load 1 5) (num 1 1 0) (num 0 1 15) 1 0)
 "))
 (ert-deftest pyel-py-ast-test-conditional-expressions-367 nil (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])
@@ -2339,16 +2588,16 @@ else:
 "))
 (ert-deftest pyel-py-ast-test-assign-9 nil (equal (py-ast "a = b = c") "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Name(id='c', ctx=Load()))])
 "))
-(ert-deftest pyel-transform-test-assign-8 nil (equal (pyel "a = b = c") (quote (progn (pyel-set b c) (pyel-set a b)))))
+(ert-deftest pyel-transform-test-assign-8 nil (equal (pyel "a = b = c") (quote (pyel-set a (pyel-set b c)))))
 (ert-deftest pyel-el-ast-test-assign-7 nil (string= (pyel "a = b = c.e" nil nil t) "(assign  ((name  \"a\" 'store 1 0) (name  \"b\" 'store 1 4)) (attribute  (name  \"c\" 'load 1 8) \"e\" 'load 1 8) 1 0)
 "))
 (ert-deftest pyel-py-ast-test-assign-6 nil (equal (py-ast "a = b = c.e") "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()))])
 "))
-(ert-deftest pyel-transform-test-assign-5 nil (equal (pyel "a = b = c.e") (quote (progn (pyel-set b (getattr c e)) (pyel-set a b)))))
+(ert-deftest pyel-transform-test-assign-5 nil (equal (pyel "a = b = c.e") (quote (pyel-set a (pyel-set b (getattr c e))))))
 (ert-deftest pyel-el-ast-test-assign-4 nil (string= (pyel "a = b = c.e()" nil nil t) "(assign  ((name  \"a\" 'store 1 0) (name  \"b\" 'store 1 4)) (call  (attribute  (name  \"c\" 'load 1 8) \"e\" 'load 1 8) nil nil nil nil 1 8) 1 0)
 "))
 (ert-deftest pyel-py-ast-test-assign-3 nil (equal (py-ast "a = b = c.e()") "Module(body=[Assign(targets=[Name(id='a', ctx=Store()), Name(id='b', ctx=Store())], value=Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])
 "))
-(ert-deftest pyel-transform-test-assign-2 nil (equal (pyel "a = b = c.e()") (quote (progn (pyel-set b (call-method c e)) (pyel-set a b)))))
+(ert-deftest pyel-transform-test-assign-2 nil (equal (pyel "a = b = c.e()") (quote (pyel-set a (pyel-set b (call-method c e))))))
 
 (provide 'pyel-tests-generated)
