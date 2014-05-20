@@ -1054,6 +1054,20 @@ done using the specified fill character (default is a space)."
         (concat (make-string diff (string-to-char fillchar)) str)
       str)))
 
+(defun py-ljust (str width &optional fillchar)
+"S.ljust(width[, fillchar]) -> str
+
+Return S left-justified in a Unicode string of length width. Padding is
+done using the specified fill character (default is a space)."
+  (if (> (length fillchar) 1)
+      (py-raise (TypeError
+                 "The fill character must be exactly one character long")))
+  (let ((diff (- width (length str)))
+        (fillchar (or fillchar " ")))
+    (if (> diff 0)
+        (concat str (make-string diff (string-to-char fillchar)))
+      str)))
+
 
 
 (provide 'py-lib)
