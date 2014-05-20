@@ -1366,7 +1366,9 @@ c = 'aDsldk'"
  ("'$abcde'.startswith('$abc')" t)
  ("'abcde'.startswith('.')" nil)
  ("x = 'abcde'"
-  ("x.startswith('.')" nil)))
+  ("x.startswith('.')" nil))
+ ("'abcde'.startswith(('.', 'b'))" nil)
+ ("'abcde'.startswith(('.', 'b','a'))" t))
 
 
 

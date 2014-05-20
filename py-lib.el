@@ -981,9 +981,27 @@ and vice versa."
     s))
 
 (defun py-startswith (s prefix &optional start end)
+  "S.startswith(prefix[, start[, end]]) -> bool
+
+Return True if S starts with the specified prefix, False otherwise.
+With optional start, test S beginning at that position.
+With optional end, stop comparing S at that position.
+prefix can also be a tuple of strings to try."  
   (setq start (or start 0))
-  (if (string-match (concat "^" (regexp-quote prefix)) (substring s start end))
-      t nil))
+  (cond ((stringp prefix)
+         (if (string-match (concat "^" (regexp-quote prefix)) (substring s start end))
+             t nil))
+        ((vectorp prefix)
+         (let ((found nil)
+               (i 0)
+               (len (length prefix)))
+           (while (< i len)
+             (if (py-startswith s (aref prefix i) start end)
+                 (setq found t
+                       i len)
+               (setq i (1+ i))))
+           found))
+        (t (py-raise (TypeError (format "startswith first arg must be str or a tuple of str, not %s" (py-type prefix)))))))
 
 (defun py-splitlines (string &optional keepends)
   ;;based off code from `split-string'

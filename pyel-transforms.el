@@ -1297,9 +1297,9 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) -> (py-swapcase obj)
                        (_)      -> (call-method obj swapcase))
 
-(pyel-method-transform startswith (obj)
-                       (string) -> (py-startswith obj)
-                       (_)      -> (call-method obj startswith))
+(pyel-method-transform startswith (obj prefix &optional start end)
+                       (string _ _ _) -> (py-startswith obj prefix start end)
+                       (_ _ _ _)            -> (call-method obj startswith prefix start end))
 
 (pyel-method-transform splitlines (obj &optional keepends)
                        (string) -> (py-splitlines obj keepends)
