@@ -1191,6 +1191,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (list _) -> (py-insert obj i x)
                        (_ _) -> (call-method obj insert i x))
 
+(pyel-method-transform find (obj sub &optional start end)
+                       (string _ _ _) -> (py-find obj sub start end)
+                       (_ _ _ _)      -> (call-method obj find sub start end))
+
 (pyel-method-transform index (obj elem)
                        (list _) -> (list-index elem obj)
                        (string _) -> (py-string-index obj elem)

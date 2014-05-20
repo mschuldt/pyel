@@ -5434,14 +5434,39 @@ x.insert(1,'hi')"
   ("x" '(1 "hi" 2 3))
   ("x is y" t)))
 #+END_SRC
+** find
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform find (obj sub &optional start end)
+                         (string _ _ _) -> (py-find obj sub start end)
+                         (_ _ _ _)      -> (call-method obj find sub start end))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-find (str sub &optional start end)
+    "Return the lowest index in S where substring sub is found,
+  such that sub is contained within S[start:end].  Optional
+  arguments start and end are interpreted as in slice notation.
+  
+  Return -1 on failure."
+    (let* ((start (or start 0))
+          (index (string-match (regexp-quote sub) (substring str start end))))
+      (if index
+          (+ index start)
+        -1)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+    
+#+END_SRC
 ** index
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-    (pyel-method-transform index (obj elem)
-                           (list _) -> (list-index elem obj)
-                           (string _) -> (py-string-index obj elem)
-                           (object _) -> (call-method obj index elem)
-                           (vector _) -> (vector-index elem obj))
+  (pyel-method-transform index (obj elem)
+                         (list _) -> (list-index elem obj)
+                         (string _) -> (py-string-index obj elem)
+                         (object _) -> (call-method obj index elem)
+                         (vector _) -> (vector-index elem obj))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el

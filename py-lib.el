@@ -654,6 +654,18 @@ EXC must be derived from BaseException"
     (setcdr first (cons object rest)))
   nil)
 
+(defun py-find (str sub &optional start end)
+  "Return the lowest index in S where substring sub is found,
+such that sub is contained within S[start:end].  Optional
+arguments start and end are interpreted as in slice notation.
+
+Return -1 on failure."
+  (let* ((start (or start 0))
+        (index (string-match (regexp-quote sub) (substring str start end))))
+    (if index
+        (+ index start)
+      -1)))
+
 (defun list-index (elem list)
   "return the index of ELEM in LIST"
   (let ((m (member elem list)))
