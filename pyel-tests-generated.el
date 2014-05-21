@@ -1,4 +1,8 @@
-(setq pyel-test-py-functions '("def pyel_test_rsplit_method_426():
+(setq pyel-test-py-functions '("def pyel_test_rpartition_method_428():
+ x = 'abcdefghi'
+ return x.rpartition('c')" "def pyel_test_partition_method_427():
+ x = 'abcdefghi'
+ return x.partition('c')" "def pyel_test_rsplit_method_426():
  x = 'a b c'
  y = x.rsplit()
  return y" "def pyel_test_rsplit_method_425(n):
@@ -875,7 +879,31 @@
   return z
 
  if n == 7:
-  return l[2]"))(ert-deftest pyel-rsplit-method3 nil (equal (eval (pyel "def _pyel21312():
+  return l[2]"))(ert-deftest pyel-rpartition-method5 nil (equal (eval (pyel "def _pyel21312():
+ 'abcdefghi'.rpartition('c')
+_pyel21312()")) ["ab" "c" "defghi"]))
+(ert-deftest pyel-rpartition-method4 nil (equal (eval (pyel "def _pyel21312():
+ 'abcdefghi'.rpartition('cde')
+_pyel21312()")) ["ab" "cde" "fghi"]))
+(ert-deftest pyel-rpartition-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'abcdefghi'.rpartition('x')
+_pyel21312()")) ["abcdefghi" "" ""]))
+(ert-deftest pyel-rpartition-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'x'.rpartition('x')
+_pyel21312()")) ["" "x" ""]))
+(ert-deftest pyel-partition-method5 nil (equal (eval (pyel "def _pyel21312():
+ 'abcdefghi'.partition('c')
+_pyel21312()")) ["ab" "c" "defghi"]))
+(ert-deftest pyel-partition-method4 nil (equal (eval (pyel "def _pyel21312():
+ 'abcdefghi'.partition('cde')
+_pyel21312()")) ["ab" "cde" "fghi"]))
+(ert-deftest pyel-partition-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'abcdefghi'.partition('x')
+_pyel21312()")) ["abcdefghi" "" ""]))
+(ert-deftest pyel-partition-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'x'.partition('x')
+_pyel21312()")) ["" "x" ""]))
+(ert-deftest pyel-rsplit-method3 nil (equal (eval (pyel "def _pyel21312():
  'a b c'.rsplit()
 _pyel21312()")) (quote ("a" "b" "c"))))
 (ert-deftest pyel-lstrip-method3 nil (equal (eval (pyel "def _pyel21312():
@@ -1588,6 +1616,8 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-rsplit_method-1 nil (equal (eval (pyel "pyel_test_rsplit_method_425(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
 (ert-deftest pyel-test-rsplit_method-2 nil (equal (eval (pyel "pyel_test_rsplit_method_425(2)")) 6))
 (ert-deftest pyel-test-rsplit_method-4 nil (equal (eval (pyel "pyel_test_rsplit_method_426()")) (quote ("a" "b" "c"))))
+(ert-deftest pyel-test-partition_method-1 nil (equal (eval (pyel "pyel_test_partition_method_427()")) ["ab" "c" "defghi"]))
+(ert-deftest pyel-test-rpartition_method-1 nil (equal (eval (pyel "pyel_test_rpartition_method_428()")) ["ab" "c" "defghi"]))
 (ert-deftest pyel-el-ast-test-conditional-expressions-368 nil (string= (pyel "1 if True else 0" nil nil t) "(if-exp (name  \"True\" 'load 1 5) (num 1 1 0) (num 0 1 15) 1 0)
 "))
 (ert-deftest pyel-py-ast-test-conditional-expressions-367 nil (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])

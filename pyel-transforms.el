@@ -1322,11 +1322,11 @@ Recognizes keyword args in the form 'arg = value'."
                        (_)    ->  (call-method obj rsplit sep maxsplit))
 
 (pyel-method-transform partition (obj sep)
-                       (string) ->  (pyel-partition obj sep)
+                       (string) ->  (py-partition obj sep)
                        (_)    ->  (call-method obj partition sep))
 
 (pyel-method-transform rpartition (obj sep)
-                       (string) ->  (pyel-rpartition obj sep)
+                       (string) ->  (py-rpartition obj sep)
                        (_)      ->  (call-method obj rpartition sep))
 
 (pyel-method-transform rjust (obj width &optional fillchar)

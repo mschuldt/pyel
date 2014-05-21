@@ -1412,9 +1412,23 @@ y = x.rsplit()"
   ("y" '("a" "x" "b" "x" "d" "x"))
   ("len(y)" 6)))
 
+(pyel-create-tests
+ partition-method
+ ("'abcdefghi'.partition('c')" ["ab" "c" "defghi"])
+ ("'abcdefghi'.partition('cde')" ["ab" "cde" "fghi"])
+ ("'abcdefghi'.partition('x')" ["abcdefghi" "" ""])
+ ("'x'.partition('x')" ["" "x" ""])
+ ("x = 'abcdefghi'"
+  ("x.partition('c')" ["ab" "c" "defghi"])))
 
-
-
+(pyel-create-tests
+ rpartition-method
+ ("'abcdefghi'.rpartition('c')" ["ab" "c" "defghi"])
+ ("'abcdefghi'.rpartition('cde')" ["ab" "cde" "fghi"])
+ ("'abcdefghi'.rpartition('x')" ["abcdefghi" "" ""])
+ ("'x'.rpartition('x')" ["" "x" ""])
+ ("x = 'abcdefghi'"
+  ("x.rpartition('c')" ["ab" "c" "defghi"])))
 
 
 

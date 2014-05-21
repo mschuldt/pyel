@@ -6548,7 +6548,7 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform partition (obj sep)
-                         (string) ->  (pyel-partition obj sep)
+                         (string) ->  (py-partition obj sep)
                          (_)    ->  (call-method obj partition sep))
 #+END_SRC
 *** python el lib
@@ -6565,13 +6565,20 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   partition-method
+   ("'abcdefghi'.partition('c')" ["ab" "c" "defghi"])
+   ("'abcdefghi'.partition('cde')" ["ab" "cde" "fghi"])
+   ("'abcdefghi'.partition('x')" ["abcdefghi" "" ""])
+   ("'x'.partition('x')" ["" "x" ""])
+   ("x = 'abcdefghi'"
+    ("x.partition('c')" ["ab" "c" "defghi"])))
 #+END_SRC
 ** rpartition
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform rpartition (obj sep)
-                         (string) ->  (pyel-rpartition obj sep)
+                         (string) ->  (py-rpartition obj sep)
                          (_)      ->  (call-method obj rpartition sep))
 #+END_SRC
 *** python el lib
@@ -6580,7 +6587,14 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   rpartition-method
+   ("'abcdefghi'.rpartition('c')" ["ab" "c" "defghi"])
+   ("'abcdefghi'.rpartition('cde')" ["ab" "cde" "fghi"])
+   ("'abcdefghi'.rpartition('x')" ["abcdefghi" "" ""])
+   ("'x'.rpartition('x')" ["" "x" ""])
+   ("x = 'abcdefghi'"
+    ("x.rpartition('c')" ["ab" "c" "defghi"])))
 #+END_SRC
 ** rjust
 *** transform
