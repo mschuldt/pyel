@@ -11,7 +11,7 @@
 | remove           | X     | -      | -    | -     | X     |                             |
 | reverse          | X     | -      | -    | -     | X     |                             |
 | sort             |       | -      | -    | -     |       |                             |
-| clear            | -     | -      | -    |       |       |                             |
+| clear            | -     | -      | -    | X     |       |                             |
 | copy             | -     | -      | -    | X     | X     |                             |
 | fromkeys         | -     | -      | -    |       |       |                             |
 | get              | -     | -      | -    | X     | X     |                             |
@@ -6802,6 +6802,25 @@ x.insert(1,'hi')"
         ;; Reconstruct a string from the pieces.
         (setq matches (cons (substring string start l) matches)) ; leftover
         (apply #'concat (nreverse matches)))))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+    
+#+END_SRC
+** clear
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform clear (obj)
+                         (hash) -> (py-hash-table-clear obj)
+                         (_)      -> (call-method obj clear))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-hash-table-clear (ht)
+    "Remove all items from hash table HT"
+    (maphash (lambda (key value)
+               (remhash key ht))
+             ht))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

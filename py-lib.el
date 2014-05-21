@@ -1186,6 +1186,12 @@ given, only the first COUNT occurrences are replaced."
       (setq matches (cons (substring string start l) matches)) ; leftover
       (apply #'concat (nreverse matches)))))
 
+(defun py-hash-table-clear (ht)
+  "Remove all items from hash table HT"
+  (maphash (lambda (key value)
+             (remhash key ht))
+           ht))
+
 
 
 (provide 'py-lib)

@@ -1349,6 +1349,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) -> (py-replace obj old new count)
                        (_)      -> (call-method obj old new count))
 
+(pyel-method-transform clear (obj)
+                       (hash) -> (py-hash-table-clear obj)
+                       (_)      -> (call-method obj clear))
+
 ;;
 
 ;;
