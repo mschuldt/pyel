@@ -1,92 +1,91 @@
 * todo
 ** built-in methods
-
 | method           | list? | tuple? | str? | dict? | tests | notes                       |
 |------------------+-------+--------+------+-------+-------+-----------------------------|
-| append           | YES   | na     | na   | na    | YES   |                             |
-| count            | YES   | YES    | YES  | na    | YES   |                             |
-| extend           | YES   | na     | na   | na    | YES   |                             |
-| index            | YES   | YES    | YES  | na    | YES   |                             |
-| insert           | YES   | na     | na   | na    | YES   |                             |
-| pop              | YES   | na     | na   | YES   | YES   |                             |
-| remove           | YES   | na     | na   | na    | YES   |                             |
-| reverse          | YES   | na     | na   | na    | YES   |                             |
-| sort             |       | na     | na   | na    |       |                             |
-| clear            | na    | na     | na   |       |       |                             |
-| copy             | na    | na     | na   | YES   | YES   |                             |
-| fromkeys         | na    | na     | na   |       |       |                             |
-| get              | na    | na     | na   | YES   | YES   |                             |
-| items            | na    | na     | na   | YES   | YES   |                             |
-| keys             | na    | na     | na   | YES   | YES   |                             |
-| popitem          | na    | na     | na   | YES   | YES   |                             |
-| setdefault       | na    | na     | na   |       |       |                             |
-| update           | na    | na     | na   |       |       |                             |
-| values           | na    | na     | na   | YES   | YES   |                             |
-| zfill            | na    | na     | YES  | na    | YES   |                             |
-| upper            | na    | na     | YES  | YES   | YES   |                             |
-| translate        | na    | na     |      | na    |       |                             |
-| title            | na    | na     | YES  | na    | YES   |                             |
-| swapcase         | na    | na     | YES  | na    | YES   |                             |
-| strip            | na    | na     | YES  | YES   | YES   |                             |
-| startswith       | na    | na     | YES  | na    | YES   |                             |
-| splitlines       | na    | na     | YES  | na    | YES   |                             |
-| split            | na    | na     | YES  | YES   | YES   |                             |
-| rstrip           | na    | na     | YES  | na    | YES   |                             |
-| rsplit           | na    | na     | YES  | na    | YES   | equivalent to str.split     |
-| rpartition       | na    | na     | YES  | na    | YES   | equivalent to str.partition |
-| rjust            | na    | na     | YES  | na    | YES   |                             |
-| rindex           | na    | na     | YES  | na    |       |                             |
-| rfind            | na    | na     | YES  | na    |       |                             |
-| replace          | na    | na     | YES  | na    |       |                             |
-| partition        | na    | na     | YES  | na    | YES   |                             |
-| lstrip           | na    | na     | YES  | na    | YES   |                             |
-| lower            | na    | na     | YES  | YES   | YES   |                             |
-| ljust            | na    | na     | YES  | na    | YES   |                             |
-| join             | na    | na     | YES  | na    | YES   |                             |
-| isupper          | na    | na     | YES  | na    | YES   |                             |
-| istitle          | na    | na     | YES  | na    | YES   |                             |
-| isspace          | na    | na     |      | na    |       |                             |
-| isprintable      | na    | na     |      | na    |       |                             |
-| isnumeric        | na    | na     |      | na    |       |                             |
-| islower          | na    | na     | YES  | na    | YES   |                             |
-| isidentifier     | na    | na     |      | na    |       |                             |
-| isdigit          | na    | na     |      | na    |       |                             |
-| isdecimal        | na    | na     |      | na    |       |                             |
-| isalpha          | na    | na     | YES  | na    | YES   |                             |
-| isalnum          | na    | na     | YES  | na    | YES   |                             |
-| format_map       | na    | na     |      | na    |       |                             |
-| format           | na    | na     |      | na    |       |                             |
-| find             | na    | na     |      | na    |       |                             |
-| expandtabs       | na    | na     |      | na    |       |                             |
-| capitalize       | na    | na     |      | na    |       |                             |
-| center           | na    | na     |      | na    |       |                             |
-| encode           | na    | na     |      | na    |       |                             |
-| endswith         | na    | na     |      | na    |       |                             |
-| maketrans        | na    | na     |      | na    |       |                             |
-| __add__          |       |        |      | na    |       |                             |
+| append           | X     | -      | -    | -     | X     |                             |
+| count            | X     | X      | X    | -     | X     |                             |
+| extend           | X     | -      | -    | -     | X     |                             |
+| index            | X     | X      | X    | -     | X     |                             |
+| insert           | X     | -      | -    | -     | X     |                             |
+| pop              | X     | -      | -    | X     | X     |                             |
+| remove           | X     | -      | -    | -     | X     |                             |
+| reverse          | X     | -      | -    | -     | X     |                             |
+| sort             |       | -      | -    | -     |       |                             |
+| clear            | -     | -      | -    |       |       |                             |
+| copy             | -     | -      | -    | X     | X     |                             |
+| fromkeys         | -     | -      | -    |       |       |                             |
+| get              | -     | -      | -    | X     | X     |                             |
+| items            | -     | -      | -    | X     | X     |                             |
+| keys             | -     | -      | -    | X     | X     |                             |
+| popitem          | -     | -      | -    | X     | X     |                             |
+| setdefault       | -     | -      | -    |       |       |                             |
+| update           | -     | -      | -    |       |       |                             |
+| values           | -     | -      | -    | X     | X     |                             |
+| zfill            | -     | -      | X    | -     | X     |                             |
+| upper            | -     | -      | X    | X     | X     |                             |
+| translate        | -     | -      |      | -     |       |                             |
+| title            | -     | -      | X    | -     | X     |                             |
+| swapcase         | -     | -      | X    | -     | X     |                             |
+| strip            | -     | -      | X    | X     | X     |                             |
+| startswith       | -     | -      | X    | -     | X     |                             |
+| splitlines       | -     | -      | X    | -     | X     |                             |
+| split            | -     | -      | X    | X     | X     |                             |
+| rstrip           | -     | -      | X    | -     | X     |                             |
+| rsplit           | -     | -      | X    | -     | X     | equivalent to str.split     |
+| rpartition       | -     | -      | X    | -     | X     | equivalent to str.partition |
+| rjust            | -     | -      | X    | -     | X     |                             |
+| rindex           | -     | -      | X    | -     |       |                             |
+| rfind            | -     | -      | X    | -     |       |                             |
+| replace          | -     | -      | X    | -     |       |                             |
+| partition        | -     | -      | X    | -     | X     |                             |
+| lstrip           | -     | -      | X    | -     | X     |                             |
+| lower            | -     | -      | X    | X     | X     |                             |
+| ljust            | -     | -      | X    | -     | X     |                             |
+| join             | -     | -      | X    | -     | X     |                             |
+| isupper          | -     | -      | X    | -     | X     |                             |
+| istitle          | -     | -      | X    | -     | X     |                             |
+| isspace          | -     | -      |      | -     |       |                             |
+| isprintable      | -     | -      |      | -     |       |                             |
+| isnumeric        | -     | -      |      | -     |       |                             |
+| islower          | -     | -      | X    | -     | X     |                             |
+| isidentifier     | -     | -      |      | -     |       |                             |
+| isdigit          | -     | -      |      | -     |       |                             |
+| isdecimal        | -     | -      |      | -     |       |                             |
+| isalpha          | -     | -      | X    | -     | X     |                             |
+| isalnum          | -     | -      | X    | -     | X     |                             |
+| format-map       | -     | -      |      | -     |       |                             |
+| format           | -     | -      |      | -     |       |                             |
+| find             | -     | -      |      | -     |       |                             |
+| expandtabs       | -     | -      |      | -     |       |                             |
+| capitalize       | -     | -      |      | -     |       |                             |
+| center           | -     | -      |      | -     |       |                             |
+| encode           | -     | -      |      | -     |       |                             |
+| endswith         | -     | -      |      | -     |       |                             |
+| maketrans        | -     | -      |      | -     |       |                             |
+| __add__          |       |        |      | -     |       |                             |
 | __contains__     |       |        |      |       |       |                             |
-| __delitem__      |       | na     | na   |       |       |                             |
-| __eq__           |       | na     |      |       |       |                             |
-| __ge__           |       | na     |      |       |       |                             |
+| __delitem__      |       | -      | -    |       |       |                             |
+| __eq__           |       | -      |      |       |       |                             |
+| __ge__           |       | -      |      |       |       |                             |
 | __getattribute__ |       |        |      |       |       |                             |
 | __getitem__      |       |        |      |       |       |                             |
-| __getnewargs__   | na    |        |      | na    |       |                             |
+| __getnewargs__   | -     |        |      | -     |       |                             |
 | __hash__         |       |        |      |       |       |                             |
 | __gt__           |       |        |      |       |       |                             |
-| __iadd__         |       | na     | na   | na    |       |                             |
-| __imul__         |       | na     | na   | na    |       |                             |
+| __iadd__         |       | -      | -    | -     |       |                             |
+| __imul__         |       | -      | -    | -     |       |                             |
 | __init__         |       |        |      |       |       |                             |
 | __iter__         |       |        |      |       |       |                             |
 | __le__           |       |        |      |       |       |                             |
 | __len__          |       |        |      |       |       |                             |
 | __lt__           |       |        |      |       |       |                             |
-| __mul__          |       |        |      | na    |       |                             |
+| __mul__          |       |        |      | -     |       |                             |
 | __ne__           |       |        |      |       |       |                             |
 | __repr__         |       |        |      |       |       |                             |
-| __rmul__         |       |        |      | na    |       |                             |
-| __reversed__     |       | na     | na   | na    |       |                             |
-| __rmul__         |       |        |      | na    |       |                             |
-| __setitem__      |       | na     | na   |       |       |                             |
+| __rmul__         |       |        |      | -     |       |                             |
+| __reversed__     |       | -      | -    | -     |       |                             |
+| __rmul__         |       |        |      | -     |       |                             |
+| __setitem__      |       | -      | -    |       |       |                             |
 | __sizeof__       |       |        |      |       |       |                             |
 
 ** built-in functions
