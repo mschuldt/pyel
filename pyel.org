@@ -6454,7 +6454,21 @@ x.insert(1,'hi')"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   splitlines-method
+   ("'''a
+  b
+  c
   
+  '''.splitlines()" '("a" "b" "c" ""))
+   ("x =  '''a
+  
+  b
+  c
+  
+  '''.splitlines()" '("a" "" "" "b" "c" ""))
+   ("''.splitlines()" nil)
+   ("'asdf'.splitlines()" '("asdf")))
 #+END_SRC
 ** rstrip
 *** transform

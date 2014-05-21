@@ -1372,7 +1372,21 @@ c = 'aDsldk'"
  ("'abcde'.startswith(('.', 'b'))" nil)
  ("'abcde'.startswith(('.', 'b','a'))" t))
 
+(pyel-create-tests
+ splitlines-method
+ ("'''a
+b
+c
 
+'''.splitlines()" '("a" "b" "c" ""))
+ ("x =  '''a
+
+b
+c
+
+'''.splitlines()" '("a" "" "" "b" "c" ""))
+ ("''.splitlines()" nil)
+ ("'asdf'.splitlines()" '("asdf")))
 
 (pyel-create-tests
  rstrip-method

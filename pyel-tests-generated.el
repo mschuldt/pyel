@@ -890,6 +890,27 @@ _pyel21312()")) "hell"))
 (ert-deftest pyel-rstrip-method2 nil (equal (eval (pyel "def _pyel21312():
  '      hello     '.rstrip()
 _pyel21312()")) "    hello"))
+(ert-deftest pyel-splitlines-method4 nil (equal (eval (pyel "def _pyel21312():
+ '''a
+ b
+ c
+
+ '''.splitlines()
+_pyel21312()")) (quote ("a" "b" "c" ""))))
+(ert-deftest pyel-splitlines-method3 nil (equal (eval (pyel "def _pyel21312():
+ x =  '''a
+
+ b
+ c
+
+ '''.splitlines()
+_pyel21312()")) (quote ("a" "" "" "b" "c" ""))))
+(ert-deftest pyel-splitlines-method2 nil (equal (eval (pyel "def _pyel21312():
+ ''.splitlines()
+_pyel21312()")) nil))
+(ert-deftest pyel-splitlines-method1 nil (equal (eval (pyel "def _pyel21312():
+ 'asdf'.splitlines()
+_pyel21312()")) (quote ("asdf"))))
 (ert-deftest pyel-startswith-method11 nil (equal (eval (pyel "def _pyel21312():
  'abcde'.startswith('bcd', 1, 2)
 _pyel21312()")) nil))
