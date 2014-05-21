@@ -2502,26 +2502,29 @@ This is for all non template specific code.
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform if pyel ()
     (lambda (test body orelse &optional line col)
-      (let* ((tst (transform test))
-             (true-body (if (> (length body) 1)
-                            (append (remove-context tail-context
-                                                    (mapcar 'transform
-                                                            (or (subseq body 0 -1)
-                                                                (list (car body)))))
-                                    (list (transform (car (last body)))))
-                          (mapcar 'transform body)))
-             (progn-code (if (> (length true-body) 1)
-                             '(@ progn)
-                           '@)))
+      (pyel-if test body orelse line col)))
   
-        `(if  ,(if (equal tst []) nil tst)
+  (defun pyel-if (test body orelse &optional line col)
+    (let* ((tst (transform test))
+           (true-body (if (> (length body) 1)
+                          (append (remove-context tail-context
+                                                  (mapcar 'transform
+                                                          (or (subseq body 0 -1)
+                                                              (list (car body)))))
+                                  (list (transform (car (last body)))))
+                        (mapcar 'transform body)))
+           (progn-code (if (> (length true-body) 1)
+                           '(@ progn)
+                         '@)))
   
-             (,progn-code ,@true-body)
-           ,@(append (remove-context tail-context
-                                     (mapcar 'transform
-                                             (subseq orelse 0 -1)))
-                     (when (> (length orelse) 1)
-                       (list (transform (car (last orelse))))))))))
+      `(if  ,(if (equal tst []) nil tst)
+  
+           (,progn-code ,@true-body)
+         ,@(append (remove-context tail-context
+                                   (mapcar 'transform
+                                           (subseq orelse 0 -1)))
+                   (when (> (length orelse) 1)
+                     (list (transform (car (last orelse))))))))))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
