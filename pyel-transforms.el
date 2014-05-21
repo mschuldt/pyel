@@ -1337,6 +1337,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) -> (py-ljust obj width fillchar)
                        (_)      -> (call-method obj ljust width fillchar))
 
+(pyel-method-transform rfind (obj sub &optional start end)
+                       (string) -> (py-rfind obj sub start end)
+                       (_)      -> (call-method obj rfind sub start end))
+
 ;;
 
 ;;

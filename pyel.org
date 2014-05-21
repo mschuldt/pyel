@@ -6622,6 +6622,48 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
     
 #+END_SRC
+** rfind
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform rfind (obj sub &optional start end)
+                         (string) -> (py-rfind obj sub start end)
+                         (_)      -> (call-method obj rfind sub start end))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun pyel-reverse-string (string)
+    (let ((start 0)
+          (end (1- (length string)))
+          tmp)
+      (while (< start end)
+        (setq tmp (aref string start))
+        (aset string start (aref string end))
+        (aset string end tmp)
+        (setq start (1+ start)
+              end (1- end)))
+      string))
+  
+  (defun py-rfind(str sub &optional start end)
+    "S.rfind(sub[, start[, end]]) -> int
+  
+  Return the highest index in S where substring sub is found,
+  such that sub is contained within S[start:end].  Optional
+  arguments start and end are interpreted as in slice notation.
+  
+  Return -1 on failure."
+    (let* ((start (or start 0))
+           (index (string-match
+                   (pyel-reverse-string (regexp-quote sub))
+                   (pyel-reverse-string (substring str start end)))))
+      (if index
+          ;;(+ index start)
+          (- (length str)  index (length sub))
+        -1)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+    
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -6695,40 +6737,41 @@ macros and macroish primitives
 * ---------------------
 * misc
 #+Begin_SRC emacs-lisp :tangle pyel.el
-(defun char-split-string (string)
-  "split a string into its charaters"
-  (cdr (butlast (split-string string ""))))
-
-
-(defun strip-end (string &optional char)
-  "if CHAR occurs at the end of STRING, remove it"
-  (let ((split (char-split-string string))
-	(char (or char " ")))
-
-    (while (string= char (car (last split)))
-      (setq split (butlast split)))
-    (mapconcat 'identity split "")))
-
-(defun strip-start (string &optional char)
-  "if CHAR occurs at the beginning of STRING, remove all occurrences"
-  (let ((split (char-split-string string))
-	(char (or char " ")))
-
-    (while (string= char (car split))
-      (setq split (cdr split)))
-    (mapconcat 'identity split "")))
-
-;;built-in equivalent?
-(defun file-path-concat (&rest dirs)
-  "concatenate strings representing file paths
-prevents multiple/none '/' seporating file names"
-  (let* ((first (strip-end (car dirs) "/"))
-	 (last (strip-start (car (last dirs)) "/"))
-	 (dirs (append (list first)
-		       (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/"))
-			       (cdr (butlast dirs)))
-		       (list last))))
-    (mapconcat 'identity dirs "/")))
+  (defun char-split-string (string)
+    "split a string into its charaters"
+    (cdr (butlast (split-string string ""))))
+  
+  
+  (defun strip-end (string &optional char)
+    "if CHAR occurs at the end of STRING, remove it"
+    (let ((split (char-split-string string))
+          (char (or char " ")))
+  
+      (while (string= char (car (last split)))
+        (setq split (butlast split)))
+      (mapconcat 'identity split "")))
+  
+  (defun strip-start (string &optional char)
+    "if CHAR occurs at the beginning of STRING, remove all occurrences"
+    (let ((split (char-split-string string))
+          (char (or char " ")))
+  
+      (while (string= char (car split))
+        (setq split (cdr split)))
+      (mapconcat 'identity split "")))
+  
+  ;;built-in equivalent?
+  (defun file-path-concat (&rest dirs)
+    "concatenate strings representing file paths
+  prevents multiple/none '/' seporating file names"
+    (let* ((first (strip-end (car dirs) "/"))
+           (last (strip-start (car (last dirs)) "/"))
+           (dirs (append (list first)
+                         (mapcar '(lambda (x)  (strip-start (strip-end x "/") "/"))
+                                 (cdr (butlast dirs)))
+                         (list last))))
+      (mapconcat 'identity dirs "/")))
+  
 #+END_SRC
 
 * EOF

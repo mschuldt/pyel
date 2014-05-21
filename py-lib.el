@@ -1102,6 +1102,35 @@ done using the specified fill character (default is a space)."
         (concat str (make-string diff (string-to-char fillchar)))
       str)))
 
+(defun pyel-reverse-string (string)
+  (let ((start 0)
+        (end (1- (length string)))
+        tmp)
+    (while (< start end)
+      (setq tmp (aref string start))
+      (aset string start (aref string end))
+      (aset string end tmp)
+      (setq start (1+ start)
+            end (1- end)))
+    string))
+
+(defun py-rfind(str sub &optional start end)
+  "S.rfind(sub[, start[, end]]) -> int
+
+Return the highest index in S where substring sub is found,
+such that sub is contained within S[start:end].  Optional
+arguments start and end are interpreted as in slice notation.
+
+Return -1 on failure."
+  (let* ((start (or start 0))
+         (index (string-match
+                 (pyel-reverse-string (regexp-quote sub))
+                 (pyel-reverse-string (substring str start end)))))
+    (if index
+        ;;(+ index start)
+        (- (length str)  index (length sub))
+      -1)))
+
 
 
 (provide 'py-lib)
