@@ -176,7 +176,7 @@ http://docs.python.org/2/library/functions.html
 | exit         | x      | no    | not of type Quitter, just a function     |
 
 ** bugs
-*** break in a while loop 
+*** X break in a while loop 
 (cl-prettyprint (pyel "while True:
  if x == 3:
   break"))
@@ -190,7 +190,7 @@ a = [1,2,3]; a += ['hello']
  b()
 else:
  c()")
-*** return in while loop
+*** X return in while loop
 return in a while loop should always break
 
 def test():
