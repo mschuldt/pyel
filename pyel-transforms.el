@@ -1347,7 +1347,7 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-method-transform replace (obj old new &optional count)
                        (string) -> (py-replace obj old new count)
-                       (_)      -> (call-method obj old new count))
+                       (_)      -> (call-method obj replace old new count))
 
 (pyel-method-transform clear (obj)
                        (hash) -> (py-hash-table-clear obj)
