@@ -1053,7 +1053,14 @@ x.insert(1,'hi')"
   ("x" '(1 "hi" 2 3))
   ("x is y" t)))
 
-
+(pyel-create-tests
+ find-method
+ ("'aaaxaaa'.find('x',3)"  3)
+ ("'aaaxaaa'.find('x',4)"  -1)
+ ("'aaaxaaa'.find('x',2, 4)"  3)
+ ("'aaaxaaa'.find('x',1, 3)"  -1)
+ ("x = 'asdf'"
+  ("x.find('sd')" 1)))
 
 (pyel-create-tests
  index-method
@@ -1452,7 +1459,17 @@ y = x.rsplit()"
  ("x = 'ab'"
   ("x.ljust(10)" "ab        ")))
 
-
+(pyel-create-tests
+ rfind-method
+ ("'aaaxaaa'.rfind('x',3)"  3)
+ ("'aaaxaaa'.rfind('x',4)"  -1)
+ ("'aaaxaaa'.rfind('x',2, 4)"  3)
+ ("'aaaxaaa'.rfind('x',1, 3)"  -1)
+ ("'abcxebdxebdexed'.rfind('xe')" 12)
+ ("x = 'asdf'
+y = 'abxabxab'"
+  ("x.rfind('sd')" 1)
+  ("y.rfind('ab')" 6)))
 
 
 
