@@ -6686,6 +6686,65 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
     
 #+END_SRC
+** replace
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform replace (obj old new &optional count)
+                         (string) -> (py-replace obj old new count)
+                         (_)      -> (call-method obj old new count))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-string-replace (string old new &optional count)
+    "Return a copy of STRING with all occurrences of substring
+  OLD replaced by NEW.  If the optional argument COUNT is
+  given, only the first COUNT occurrences are replaced."
+    ;;based on `replace-regexp-in-string'
+  
+    ;; To avoid excessive consing from multiple matches in long strings,
+    ;; don't just call `replace-match' continually.  Walk down the
+    ;; string looking for matches of REGEXP and building up a (reversed)
+    ;; list MATCHES.  This comprises segments of STRING which weren't
+    ;; matched interspersed with replacements for segments that were.
+    ;; [For a `large' number of replacements it's more efficient to
+    ;; operate in a temporary buffer; we can't tell from the function's
+    ;; args whether to choose the buffer-based implementation, though it
+    ;; might be reasonable to do so for long enough STRING.]
+    (let ((case-fold-search nil)
+          (replaced 0)
+          (l (length string))
+          (start 0)
+          matches str mb me)
+      (save-match-data
+        (while (and
+                (or (null count) (< replaced count))
+                (< start l)
+                (string-match old string start))
+          (setq replaced (1+ replaced)
+                mb (match-beginning 0)
+                me (match-end 0))
+          ;; If we matched the empty string, make sure we advance by one char
+          (when (= me mb) (setq me (min l (1+ mb))))
+          ;; Generate a replacement for the matched substring.
+          ;; Operate only on the substring to minimize string consing.
+          ;; Set up match data for the substring for replacement;
+          ;; presumably this is likely to be faster than munging the
+          ;; match data directly in Lisp.
+          (string-match old (setq str (substring string mb me)))
+          (setq matches
+                (cons (replace-match new
+                                     nil nil str)
+                      (cons (substring string start mb) ; unmatched prefix
+                            matches)))
+          (setq start me))
+        ;; Reconstruct a string from the pieces.
+        (setq matches (cons (substring string start l) matches)) ; leftover
+        (apply #'concat (nreverse matches)))))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+    
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
