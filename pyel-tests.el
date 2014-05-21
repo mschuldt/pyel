@@ -1430,9 +1430,27 @@ y = x.rsplit()"
  ("x = 'abcdefghi'"
   ("x.rpartition('c')" ["ab" "c" "defghi"])))
 
+(pyel-create-tests
+ rjust-method
+ ("'hi'.rjust(10)"  "        hi")
+ ("'hi'.rjust(7, '_')" "_____hi")
+ ("'hi'.rjust(10)" "        hi")
+ ("'hi'.rjust(3, '_')" "_hi")
+ ("'hi'.rjust(7, '_')" "_____hi")
+ ("'hisldkjf'.rjust(3, '_')" "hisldkjf")
+ ("x = 'ab'"
+  ("x.rjust(10)" "        ab")))
 
-
-
+(pyel-create-tests
+ ljust-method
+ ("'hi'.ljust(10)"  "hi        ")
+ ("'hi'.ljust(7, '_')" "hi_____")
+ ("'hi'.ljust(10)" "hi        ")
+ ("'hi'.ljust(3, '_')" "hi_")
+ ("'hi'.ljust(7, '_')" "hi_____")
+ ("'hisldkjf'.ljust(3, '_')" "hisldkjf")
+ ("x = 'ab'"
+  ("x.ljust(10)" "ab        ")))
 
 
 

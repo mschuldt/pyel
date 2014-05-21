@@ -1,4 +1,8 @@
-(setq pyel-test-py-functions '("def pyel_test_rpartition_method_428():
+(setq pyel-test-py-functions '("def pyel_test_ljust_method_430():
+ x = 'ab'
+ return x.ljust(10)" "def pyel_test_rjust_method_429():
+ x = 'ab'
+ return x.rjust(10)" "def pyel_test_rpartition_method_428():
  x = 'abcdefghi'
  return x.rpartition('c')" "def pyel_test_partition_method_427():
  x = 'abcdefghi'
@@ -879,7 +883,43 @@
   return z
 
  if n == 7:
-  return l[2]"))(ert-deftest pyel-rpartition-method5 nil (equal (eval (pyel "def _pyel21312():
+  return l[2]"))(ert-deftest pyel-ljust-method7 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.ljust(10)
+_pyel21312()")) "hi        "))
+(ert-deftest pyel-ljust-method6 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.ljust(7, '_')
+_pyel21312()")) "hi_____"))
+(ert-deftest pyel-ljust-method5 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.ljust(10)
+_pyel21312()")) "hi        "))
+(ert-deftest pyel-ljust-method4 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.ljust(3, '_')
+_pyel21312()")) "hi_"))
+(ert-deftest pyel-ljust-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.ljust(7, '_')
+_pyel21312()")) "hi_____"))
+(ert-deftest pyel-ljust-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'hisldkjf'.ljust(3, '_')
+_pyel21312()")) "hisldkjf"))
+(ert-deftest pyel-rjust-method7 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.rjust(10)
+_pyel21312()")) "        hi"))
+(ert-deftest pyel-rjust-method6 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.rjust(7, '_')
+_pyel21312()")) "_____hi"))
+(ert-deftest pyel-rjust-method5 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.rjust(10)
+_pyel21312()")) "        hi"))
+(ert-deftest pyel-rjust-method4 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.rjust(3, '_')
+_pyel21312()")) "_hi"))
+(ert-deftest pyel-rjust-method3 nil (equal (eval (pyel "def _pyel21312():
+ 'hi'.rjust(7, '_')
+_pyel21312()")) "_____hi"))
+(ert-deftest pyel-rjust-method2 nil (equal (eval (pyel "def _pyel21312():
+ 'hisldkjf'.rjust(3, '_')
+_pyel21312()")) "hisldkjf"))
+(ert-deftest pyel-rpartition-method5 nil (equal (eval (pyel "def _pyel21312():
  'abcdefghi'.rpartition('c')
 _pyel21312()")) ["ab" "c" "defghi"]))
 (ert-deftest pyel-rpartition-method4 nil (equal (eval (pyel "def _pyel21312():
@@ -1618,6 +1658,8 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-rsplit_method-4 nil (equal (eval (pyel "pyel_test_rsplit_method_426()")) (quote ("a" "b" "c"))))
 (ert-deftest pyel-test-partition_method-1 nil (equal (eval (pyel "pyel_test_partition_method_427()")) ["ab" "c" "defghi"]))
 (ert-deftest pyel-test-rpartition_method-1 nil (equal (eval (pyel "pyel_test_rpartition_method_428()")) ["ab" "c" "defghi"]))
+(ert-deftest pyel-test-rjust_method-1 nil (equal (eval (pyel "pyel_test_rjust_method_429()")) "        ab"))
+(ert-deftest pyel-test-ljust_method-1 nil (equal (eval (pyel "pyel_test_ljust_method_430()")) "ab        "))
 (ert-deftest pyel-el-ast-test-conditional-expressions-368 nil (string= (pyel "1 if True else 0" nil nil t) "(if-exp (name  \"True\" 'load 1 5) (num 1 1 0) (num 0 1 15) 1 0)
 "))
 (ert-deftest pyel-py-ast-test-conditional-expressions-367 nil (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])
