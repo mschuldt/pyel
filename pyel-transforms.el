@@ -485,10 +485,14 @@
       ;;expand as a normal while loop
       (using-context
        while
-       (setq t-body (remove-context tail-context
-                                    (mapcar 'transform (subseq body 0 -1)))
-             t-last (transform (car (last body)))
-             code (append t-body (list t-last))
+
+       (setq code (remove-context tail-context (mapcar 'transform body))
+             ;;^ no tail calls from while loop
+              ;; t-body (remove-context tail-context
+              ;;                        (mapcar 'transform (subseq body 0 -1)))
+              ;; t-last (transform (car (last body)))
+              ;; code (append t-body (list t-last))
+
 
              break-code (if break-while '(catch '__break__)
                           pyel-nothing)
