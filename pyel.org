@@ -185,6 +185,24 @@ http://docs.python.org/2/library/functions.html
 
 *** list augmented assignment
 a = [1,2,3]; a += ['hello']
+*** if-else does not work - no else
+(pyel "if a:
+ b()
+else:
+ c()")
+*** return in while loop
+return in a while loop should always break
+
+def test():
+ while True:
+  return y
+==> (def test nil nil (while t y))
+*** return in an 'if' statement
+should remove context of all but last expression
+except for the case in which there is only one.
+currently:
+ does not account for the single expression case
+
 * documentation
 TODO: how to export a heading as pdf or into a seporate file?
 
