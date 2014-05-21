@@ -13,7 +13,7 @@
 | sort             |       | -      | -    | -     |       |                             |
 | clear            | -     | -      | -    | X     |       |                             |
 | copy             | -     | -      | -    | X     | X     |                             |
-| fromkeys         | -     | -      | -    |       |       |                             |
+| fromkeys         | -     | -      | -    | X     |       |                             |
 | get              | -     | -      | -    | X     | X     |                             |
 | items            | -     | -      | -    | X     | X     |                             |
 | keys             | -     | -      | -    | X     | X     |                             |
@@ -6821,6 +6821,40 @@ x.insert(1,'hi')"
     (maphash (lambda (key value)
                (remhash key ht))
              ht))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+    
+#+END_SRC
+** fromkeys
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform fromkeys(obj keys &optional value)
+                           (hash _ _) -> (py-fromkeys keys value)
+                           (_)      -> (call-method obj fromkeys keys value))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-fromkeys (keys &optional value)
+    (let* ((len (length keys))
+           (ht (make-hash-table :size len :test 'equal))
+           (type (type-of keys))
+           (i 0))
+      (cond ((eq type 'cons)
+             (while keys
+               (puthash (car keys) value ht)
+               (setq keys (cdr keys))))
+            ((eq type 'string)
+             (while (< i len)
+               (puthash (substring keys i (1+ i)) value ht)
+               (setq i (1+ i))))
+            ((eq type 'vector)
+             (while (< i len)
+               (puthash (aref keys i) value ht)
+               (setq i (1+ i)))
+             )
+            (t (error "py-fromkeys: invalid type for parameter 'keys'")))
+      ht))  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

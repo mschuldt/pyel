@@ -1353,6 +1353,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (hash) -> (py-hash-table-clear obj)
                        (_)      -> (call-method obj clear))
 
+(pyel-method-transform fromkeys(obj keys &optional value)
+                         (hash _ _) -> (py-fromkeys keys value)
+                         (_)      -> (call-method obj fromkeys keys value))
+
 ;;
 
 ;;

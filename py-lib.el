@@ -1192,6 +1192,27 @@ given, only the first COUNT occurrences are replaced."
              (remhash key ht))
            ht))
 
+(defun py-fromkeys (keys &optional value)
+  (let* ((len (length keys))
+         (ht (make-hash-table :size len :test 'equal))
+         (type (type-of keys))
+         (i 0))
+    (cond ((eq type 'cons)
+           (while keys
+             (puthash (car keys) value ht)
+             (setq keys (cdr keys))))
+          ((eq type 'string)
+           (while (< i len)
+             (puthash (substring keys i (1+ i)) value ht)
+             (setq i (1+ i))))
+          ((eq type 'vector)
+           (while (< i len)
+             (puthash (aref keys i) value ht)
+             (setq i (1+ i)))
+           )
+          (t (error "py-fromkeys: invalid type for parameter 'keys'")))
+    ht))
+
 
 
 (provide 'py-lib)
