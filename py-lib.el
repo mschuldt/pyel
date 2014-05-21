@@ -1131,6 +1131,15 @@ Return -1 on failure."
         (- (length str)  index (length sub))
       -1)))
 
+(defun py-rindex (str sub &optional start end)
+  "S.rindex(sub[, start[, end]]) -> int
+ 
+ Like S.rfind() but raise ValueError when the substring is not found.  "
+  (let ((ret (py-rfind str sub start end)))
+    (if (= ret -1)
+        (py-raise (ValueError "substring not found"))
+      ret)))
+
 
 
 (provide 'py-lib)

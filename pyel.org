@@ -6664,6 +6664,28 @@ x.insert(1,'hi')"
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
     
 #+END_SRC
+** rindex
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-method-transform rindex (obj sub &optional start end)
+                         (string) -> (py-rindex obj sub start end)
+                         (_)      -> (call-method obj rindex sub start end))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-rindex (str sub &optional start end)
+    "S.rindex(sub[, start[, end]]) -> int
+   
+   Like S.rfind() but raise ValueError when the substring is not found.  "
+    (let ((ret (py-rfind str sub start end)))
+      (if (= ret -1)
+          (py-raise (ValueError "substring not found"))
+        ret)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+    
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

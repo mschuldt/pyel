@@ -1341,6 +1341,10 @@ Recognizes keyword args in the form 'arg = value'."
                        (string) -> (py-rfind obj sub start end)
                        (_)      -> (call-method obj rfind sub start end))
 
+(pyel-method-transform rindex (obj sub &optional start end)
+                       (string) -> (py-rindex obj sub start end)
+                       (_)      -> (call-method obj rindex sub start end))
+
 ;;
 
 ;;
