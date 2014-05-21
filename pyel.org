@@ -22,38 +22,38 @@
 | setdefault       | na    | na     | na   |       |       |                             |
 | update           | na    | na     | na   |       |       |                             |
 | values           | na    | na     | na   | YES   | YES   |                             |
-| zfill            | na    | na     | YES  | na    |       |                             |
+| zfill            | na    | na     | YES  | na    | YES   |                             |
 | upper            | na    | na     | YES  | YES   | YES   |                             |
 | translate        | na    | na     |      | na    |       |                             |
-| title            | na    | na     | YES  | na    |       |                             |
-| swapcase         | na    | na     | YES  | na    |       |                             |
+| title            | na    | na     | YES  | na    | YES   |                             |
+| swapcase         | na    | na     | YES  | na    | YES   |                             |
 | strip            | na    | na     | YES  | YES   | YES   |                             |
-| startswith       | na    | na     | YES  | na    |       |                             |
-| splitlines       | na    | na     | YES  | na    |       |                             |
+| startswith       | na    | na     | YES  | na    | YES   |                             |
+| splitlines       | na    | na     | YES  | na    | YES   |                             |
 | split            | na    | na     | YES  | YES   | YES   |                             |
-| rstrip           | na    | na     | YES  | na    |       |                             |
-| rsplit           | na    | na     | YES  | na    |       | equivalent to str.split     |
-| rpartition       | na    | na     | YES  | na    |       | equivalent to str.partition |
-| rjust            | na    | na     | YES  | na    |       |                             |
-| rindex           | na    | na     |      | na    |       |                             |
-| rfind            | na    | na     |      | na    |       |                             |
-| replace          | na    | na     |      | na    |       |                             |
-| partition        | na    | na     | YES  | na    |       |                             |
-| lstrip           | na    | na     | YES  | na    |       |                             |
+| rstrip           | na    | na     | YES  | na    | YES   |                             |
+| rsplit           | na    | na     | YES  | na    | YES   | equivalent to str.split     |
+| rpartition       | na    | na     | YES  | na    | YES   | equivalent to str.partition |
+| rjust            | na    | na     | YES  | na    | YES   |                             |
+| rindex           | na    | na     | YES  | na    |       |                             |
+| rfind            | na    | na     | YES  | na    |       |                             |
+| replace          | na    | na     | YES  | na    |       |                             |
+| partition        | na    | na     | YES  | na    | YES   |                             |
+| lstrip           | na    | na     | YES  | na    | YES   |                             |
 | lower            | na    | na     | YES  | YES   | YES   |                             |
-| ljust            | na    | na     | YES  | na    |       |                             |
+| ljust            | na    | na     | YES  | na    | YES   |                             |
 | join             | na    | na     | YES  | na    | YES   |                             |
-| isupper          | na    | na     | YES  | na    |       |                             |
-| istitle          | na    | na     | YES  | na    |       |                             |
+| isupper          | na    | na     | YES  | na    | YES   |                             |
+| istitle          | na    | na     | YES  | na    | YES   |                             |
 | isspace          | na    | na     |      | na    |       |                             |
 | isprintable      | na    | na     |      | na    |       |                             |
 | isnumeric        | na    | na     |      | na    |       |                             |
-| islower          | na    | na     | YES  | na    |       |                             |
+| islower          | na    | na     | YES  | na    | YES   |                             |
 | isidentifier     | na    | na     |      | na    |       |                             |
 | isdigit          | na    | na     |      | na    |       |                             |
 | isdecimal        | na    | na     |      | na    |       |                             |
-| isalpha          | na    | na     | YES  | na    |       |                             |
-| isalnum          | na    | na     | YES  | na    |       |                             |
+| isalpha          | na    | na     | YES  | na    | YES   |                             |
+| isalnum          | na    | na     | YES  | na    | YES   |                             |
 | format_map       | na    | na     |      | na    |       |                             |
 | format           | na    | na     |      | na    |       |                             |
 | find             | na    | na     |      | na    |       |                             |
