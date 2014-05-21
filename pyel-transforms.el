@@ -323,13 +323,13 @@
 (def-transform if pyel ()
   (lambda (test body orelse &optional line col)
     (let* ((tst (transform test))
-           (true-body (append (remove-context tail-context
-                                              (mapcar 'transform
-                                                      (or (subseq body 0 -1)
-                                                          (list (car body)))
-                                                          ))
-                                (when (> (length body) 1)
-                                  (list (transform (car (last body)))))))
+           (true-body (if (> (length body) 1)
+                          (append (remove-context tail-context
+                                                  (mapcar 'transform
+                                                          (or (subseq body 0 -1)
+                                                              (list (car body)))))
+                                  (list (transform (car (last body)))))
+                        (mapcar 'transform body)))
            (progn-code (if (> (length true-body) 1)
                            '(@ progn)
                          '@)))
@@ -341,7 +341,7 @@
                                    (mapcar 'transform
                                            (subseq orelse 0 -1)))
                    (when (> (length orelse) 1)
-                          (list (transform (car (last orelse))))))))))
+                     (list (transform (car (last orelse))))))))))
 
 (defvar pyel-obj-counter 0)
 
