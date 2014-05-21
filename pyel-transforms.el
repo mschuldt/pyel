@@ -333,6 +333,13 @@
                                                             (list (car body)))))
                                 (list (transform (car (last body)))))
                       (mapcar 'transform body)))
+         (false-body (if (> (length orelse) 1)
+                        (append (remove-context tail-context
+                                                (mapcar 'transform
+                                                        (or (subseq body 0 -1)
+                                                            (list (car orelse)))))
+                                (list (transform (car (last orelse)))))
+                      (mapcar 'transform orelse))) 
          (progn-code (if (> (length true-body) 1)
                          '(@ progn)
                        '@)))
@@ -340,11 +347,7 @@
     `(if  ,(if (equal tst []) nil tst)
 
          (,progn-code ,@true-body)
-       ,@(append (remove-context tail-context
-                                 (mapcar 'transform
-                                         (subseq orelse 0 -1)))
-                 (when (> (length orelse) 1)
-                   (list (transform (car (last orelse))))))))))
+       ,@false-body)))
 
 (defvar pyel-obj-counter 0)
 
