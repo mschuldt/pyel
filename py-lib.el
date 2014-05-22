@@ -226,6 +226,10 @@ Each element in ALIST must have for form (a . b)"
 
 
 
+(setq pyel-for-loop-code-fns '((cons . pyel-for-loop-list-code)
+                               (vector . pyel-for-loop-list-code)
+                               (string . pyel-for-loop-list-code)))
+
 (defmacro py-for (&rest args)
   "(for <targets> in <iter> <body> else <body>)
 else is optional"
@@ -253,37 +257,56 @@ else is optional"
                                          (nth ,i __target__))
                                   ret)))))
          (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
-
+         
          (current-transform-table (get-transform-table 'for-macro))
          __for-continue ;;these are set by the for-macro transforms
          __for-break
          )
     ;;TODO: when multiple targets, check that all lists are the same size
     (setq body (mapcar 'transform body))
+    
+    ;;TODO: expand to simpler cases when types are known
+    
+    `(let* ((__iter ,iter)
+            (func (cdr (assoc (type-of __iter) pyel-for-loop-code-fns))))
+       (if (null func)
+           (error "invalid type")
+         (eval (funcall func ',targets __iter ',body ',else-body
+                        ,__for-break ,__for-continue) :lexical)))))
 
-    (setq body (cons '(setq __idx (1+ __idx))  body)
-          body (if target
-                   (cons `(setq ,target (nth __idx __tmp-list)) body)
-                 (append unpack-code body)))
 
-    (when __for-continue
-      (setq body `((catch '__continue__ ,@body))))
-
-    ;; ! This assumes that all iters are the same size
-    (setq body `((while (< __idx __len)
-                   ,@body)
-                 ,@else-body))
-
-    (when __for-break
-      (setq body `((catch '__break__ ,@body))))
-
-    `(let* ((__tmp-list ,iter)
+(defun pyel-for-loop-list-code (targets iter body else-body
+                                        &optional break continue)
+  (let* ((loop-body `(,@(if (= (length targets) 1)
+                            `((setq ,(car targets) (nth __idx __tmp-lst)))
+                          ;;unpack-code
+                          (cons '(setq __target__ (nth __idx __tmp-lst))
+                                (let (ret)
+                                  (dotimes (i (length targets) (reverse ret))
+                                    (push `(setq ,(nth i targets)
+                                                 (pyel-nth ,i __target__))
+                                          ret)))))
+                      (setq __idx (1+ __idx))
+                      
+                      ,@body))
+         (loop-body (if continue
+                        `((catch '__continue__ ,@loop-body))
+                      loop-body))
+         
+         (while-loop `(while (< __idx __len)
+                        ,@loop-body))
+         
+         (while-loop (if break
+                         `(catch '__break__ ,while-loop)
+                       while-loop)))
+    
+    `(let* ((__tmp-lst ',iter)
             ;;      ,@iter-lets
             ;;      ,@next-function-lets
-            (__len (length __tmp-list))
-            (__idx 0)
-            )
-       ,@body)))
+            (__len (length __tmp-lst))
+            (__idx 0))
+       ,while-loop
+       ,@else-body)))
 
 (make-transform-table 'for-macro)
 
