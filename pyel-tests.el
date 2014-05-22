@@ -247,32 +247,49 @@ def e():
 
                    )
 
-(pyel-create-tests while
-                   "while (a==b):
-  print('hi')"
+(pyel-create-tests 
+ while
+ ("x = 1
+a = 0
+while x < 10:
+ a += x
+ x += 1"
+  ("a" 45))
 
-                   "while (a==b):
-  print('hi')
-  a=b"
+ ;;return from tail context
+ ("def f():
+ x = 1;
+ while x < 10:
+  return x
+  x+=1
+ return x
 
-                   "while (a==b):
-  while (a>2):
-    b(3,[a,2])
-    b=c.e
-  a=b"
+def g():
+ x = 1;
+ while x < 10:
+  x+=1
+  return x
+ return x"
+  ("f()" 1)
+  ("g()" 2))
 
-                   "while a:
- if b:
+ ;;break
+ ("x = 1
+while x < 10:
+ if x == 3:
   break
- else:
-  c()"
+ x+=1"
+  ("x" 3))
 
-                   "while a:
- if b:
+ ;;continue
+ ("x = 0
+a=0
+while x < 10:
+ x+=1
+ if x%2 == 0:
   continue
- c()"
-
-                   )
+ a+=1"
+  ("a" 5)))
 
 (ert-deftest pyel-test-arguments ()
   (with-transform-table 'pyel

@@ -2805,32 +2805,49 @@ This is for all non template specific code.
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests while
-                     "while (a==b):
-    print('hi')"
-
-                     "while (a==b):
-    print('hi')
-    a=b"
-
-                     "while (a==b):
-    while (a>2):
-      b(3,[a,2])
-      b=c.e
-    a=b"
-
-                     "while a:
-   if b:
+  (pyel-create-tests 
+   while
+   ("x = 1
+  a = 0
+  while x < 10:
+   a += x
+   x += 1"
+    ("a" 45))
+  
+   ;;return from tail context
+   ("def f():
+   x = 1;
+   while x < 10:
+    return x
+    x+=1
+   return x
+  
+  def g():
+   x = 1;
+   while x < 10:
+    x+=1
+    return x
+   return x"
+    ("f()" 1)
+    ("g()" 2))
+  
+   ;;break
+   ("x = 1
+  while x < 10:
+   if x == 3:
     break
-   else:
-    c()"
-
-                     "while a:
-   if b:
+   x+=1"
+    ("x" 3))
+  
+   ;;continue
+   ("x = 0
+  a=0
+  while x < 10:
+   x+=1
+   if x%2 == 0:
     continue
-   c()"
-
-                     )
+   a+=1"
+    ("a" 5)))
 #+END_SRC
 ** arguments
 *** transform
