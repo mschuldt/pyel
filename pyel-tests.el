@@ -163,24 +163,71 @@ b = [1,[1,'3',a,[],3]]"
                    "a<=b<c<=d"
                    "a.b<=b.c()<c<=3")
 
-(pyel-create-tests if
-                   "if (a==b):
-  b=c
+(pyel-create-tests
+ if
+ ("if True:
+ x = 1
 else:
-  a = d"
+ x = 2"
+  ("x" 1))
+ ("if False:
+ x = 3
+else:
+ x = 4"
+  ("x" 4))
+ ("if len([1,2,3]) == 3:
+ y = 1
+ x = 5
+else:
+ y = 1
+ x = 6"
+  ("x" 5))
 
-                   "if (a==b):
-   b=c
-   z=1
-else:
-  a = 4
-  b = a.b"
+ ("def a():
+ if True:
+  return 1
+ else:
+  return 2
 
-                   "if (a.b <= a.e):
- a.b=(2.1,2)
-else:
- b.a.c=[a,{'a':23.3,'b':(3.2,3.1)}]"
-                   )
+def b():
+ if True:
+  return 1
+  x()
+ else:
+  y()
+  return 2
+
+def c():
+ if 1 == 2:
+  return 1
+  x()
+ else:
+  y()
+  return 2
+
+def d():
+ if 1 == 2:
+  return 4
+ else:
+  if True:
+   return 1.1
+   x()
+  return 2
+
+def e():
+ if 1 == 1:
+  if True:
+   if [0][0] == 0:
+    return 12
+   x()
+ else:
+  y()
+  return 2"
+  ("a()" 1)
+  ("b()" 1)
+  ("c()" 2)
+  ("c()" 1.1)
+  ("e()" 12)))
 
 (pyel-create-tests call
                    "aa()"
