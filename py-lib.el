@@ -332,7 +332,41 @@ else is optional"
             (__len (length __tmp-str))
             (__idx 0))
        ,while-loop
-       ,@else-body)))  
+       ,@else-body)))
+
+(defun pyel-for-loop-vector-code (targets iter body else-body
+                                          &optional break continue)
+  (let* ((loop-body `(,@(if (= (length targets) 1)
+                            `((setq ,(car targets) (aref __tmp-lst __idx )))
+                          ;;unpack-code
+                          (cons '(setq __target__ (aref __tmp-lst __idx))
+                                (let (ret)
+                                  (dotimes (i (length targets) (reverse ret))
+                                    (push `(setq ,(nth i targets)
+                                                 (pyel-nth ,i __target__))
+                                          ret)))))
+                      (setq __idx (1+ __idx))
+
+                      ,@body))
+         (loop-body (if continue
+                        `((catch '__continue__ ,@loop-body))
+                      loop-body))
+
+         (while-loop `(while (< __idx __len)
+                        ,@loop-body))
+
+         (while-loop (if break
+                         `(catch '__break__ ,while-loop)
+                       while-loop)))
+
+    `(let* ((__tmp-lst ',iter)
+            ;;      ,@iter-lets
+            ;;      ,@next-function-lets
+            (__len (length __tmp-lst))
+            (__idx 0))
+       ,while-loop
+       ,@else-body)))
+
 
 
 (make-transform-table 'for-macro)
