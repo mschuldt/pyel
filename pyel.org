@@ -3967,6 +3967,33 @@ TODO: tests!
          ,while-loop
          ,@else-body)))
   
+  
+  (defun pyel-for-loop-string-code (target iter body else-body
+                                           &optional break continue)
+    (let* ((loop-body `(,@(if (= (length target) 1)
+                              `((setq ,(car target)
+                                      (pyel-string-nth __tmp-str __idx)))
+                            (error "ValueError: need more than 1 value to unpack"))
+                        (setq __idx (1+ __idx))
+                        ,@body))
+           (loop-body (if continue
+                          `((catch '__continue__ ,@loop-body))
+                        loop-body))
+           
+           (while-loop `(while (< __idx __len)
+                          ,@loop-body))
+           
+           (while-loop (if break
+                           `(catch '__break__ ,while-loop)
+                         while-loop)))
+      
+      `(let* ((__tmp-str ',iter)
+              (__len (length __tmp-str))
+              (__idx 0))
+         ,while-loop
+         ,@else-body)))  
+  
+  
   (make-transform-table 'for-macro)
   
   (def-transform break for-macro ()
