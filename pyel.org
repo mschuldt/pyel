@@ -3886,29 +3886,29 @@ TODO: tests!
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (setq pyel-for-loop-code-fns '((cons . pyel-for-loop-list-code)
-                                 (vector . pyel-for-loop-list-code)
-                                 (string . pyel-for-loop-list-code)))
+                                 (vector . pyel-for-loop-vector-code)
+                                 (string . pyel-for-loop-string-code)))
   
   (defmacro py-for (&rest args)
     "(for <targets> in <iter> <body> else <body>)
   else is optional"
-  
+    
     ;;TODO: error checking for correct form
     (let* ((targets (pyel-split-list args 'in))
            (args (cdr targets))
            (targets (car targets))
            (iter (pop args)) ;;TODO: must iter be only one form?
-  
+           
            (body (pyel-split-list args 'else))
            (else-body (cdr body))
            (body (car body))
-  
+           
            (target (cond ((symbolp targets) ;;nil when there are multiple targets
                           targets)
                          ((= (length targets) 1)
                           (car targets))
                          (t nil)))
-  
+           
            (unpack-code (unless target
                           (let (ret)
                             (dotimes (i (length targets) (reverse ret))
@@ -3916,16 +3916,16 @@ TODO: tests!
                                            (nth ,i __target__))
                                     ret)))))
            (unpack-code (cons '(setq __target__ (nth __idx __tmp-list)) unpack-code))
-  
+           
            (current-transform-table (get-transform-table 'for-macro))
            __for-continue ;;these are set by the for-macro transforms
            __for-break
            )
       ;;TODO: when multiple targets, check that all lists are the same size
       (setq body (mapcar 'transform body))
-  
+      
       ;;TODO: expand to simpler cases when types are known
-  
+      
       `(let* ((__iter ,iter)
               (func (cdr (assoc (type-of __iter) pyel-for-loop-code-fns))))
          (if (null func)
@@ -3939,26 +3939,26 @@ TODO: tests!
     (let* ((loop-body `(,@(if (= (length targets) 1)
                               `((setq ,(car targets) (nth __idx __tmp-lst)))
                             ;;unpack-code
-                            (cons '(setq __target__ (aref __tmp-lst __idx))
+                            (cons '(setq __target__ (nth __idx __tmp-lst))
                                   (let (ret)
                                     (dotimes (i (length targets) (reverse ret))
                                       (push `(setq ,(nth i targets)
                                                    (pyel-nth ,i __target__))
                                             ret)))))
                         (setq __idx (1+ __idx))
-  
+                        
                         ,@body))
            (loop-body (if continue
                           `((catch '__continue__ ,@loop-body))
                         loop-body))
-  
+           
            (while-loop `(while (< __idx __len)
                           ,@loop-body))
-  
+           
            (while-loop (if break
                            `(catch '__break__ ,while-loop)
                          while-loop)))
-  
+      
       `(let* ((__tmp-lst ',iter)
               ;;      ,@iter-lets
               ;;      ,@next-function-lets

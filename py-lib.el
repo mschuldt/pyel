@@ -227,29 +227,29 @@ Each element in ALIST must have for form (a . b)"
 
 
 (setq pyel-for-loop-code-fns '((cons . pyel-for-loop-list-code)
-                               (vector . pyel-for-loop-list-code)
-                               (string . pyel-for-loop-list-code)))
+                               (vector . pyel-for-loop-vector-code)
+                               (string . pyel-for-loop-string-code)))
 
 (defmacro py-for (&rest args)
   "(for <targets> in <iter> <body> else <body>)
 else is optional"
-
+  
   ;;TODO: error checking for correct form
   (let* ((targets (pyel-split-list args 'in))
          (args (cdr targets))
          (targets (car targets))
          (iter (pop args)) ;;TODO: must iter be only one form?
-
+         
          (body (pyel-split-list args 'else))
          (else-body (cdr body))
          (body (car body))
-
+         
          (target (cond ((symbolp targets) ;;nil when there are multiple targets
                         targets)
                        ((= (length targets) 1)
                         (car targets))
                        (t nil)))
-
+         
          (unpack-code (unless target
                         (let (ret)
                           (dotimes (i (length targets) (reverse ret))
