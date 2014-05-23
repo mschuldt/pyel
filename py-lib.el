@@ -228,7 +228,13 @@ Each element in ALIST must have for form (a . b)"
 
 (setq pyel-for-loop-code-fns '((cons . pyel-for-loop-list-code)
                                (vector . pyel-for-loop-vector-code)
-                               (string . pyel-for-loop-string-code)))
+                               (string . pyel-for-loop-string-code)
+                               (object . pyel-for-loop-object-code)))
+
+(defsubst pyel-type-of (obj)
+  (if (py-object-p obj)
+      'object
+    (type-of obj)))
 
 (defmacro py-for (&rest args)
   "(for <targets> in <iter> <body> else <body>)
@@ -268,7 +274,7 @@ else is optional"
     ;;TODO: expand to simpler cases when types are known
     
     `(let* ((__iter ,iter)
-            (func (cdr (assoc (type-of __iter) pyel-for-loop-code-fns))))
+            (func (cdr (assoc (setq _t (pyel-type-of __iter)) pyel-for-loop-code-fns))))
        (if (null func)
            (error "invalid type")
          (eval (funcall func ',targets __iter ',body ',else-body
@@ -333,6 +339,8 @@ else is optional"
             (__idx 0))
        ,while-loop
        ,@else-body)))
+
+;;yes, I'm aware how repetitive it's getting
 
 (defun pyel-for-loop-vector-code (targets iter body else-body
                                           &optional break continue)
