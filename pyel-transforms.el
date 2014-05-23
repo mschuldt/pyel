@@ -1376,6 +1376,10 @@ Recognizes keyword args in the form 'arg = value'."
                          (hash _ _) -> (py-fromkeys keys value)
                          (_)      -> (call-method obj fromkeys keys value))
 
+(pyel-method-transform isprintable (obj str )
+                       (string) -> (py-isprintable obj str)
+                       (_)      -> (call-method obj isprintable str))
+
 ;;
 
 ;;

@@ -1342,6 +1342,28 @@ given, only the first COUNT occurrences are replaced."
           (t (error "py-fromkeys: invalid type for parameter 'keys'")))
     ht))
 
+(defconst py-printable "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c")
+
+(setq py-printable-ht (make-hash-table :test 'equal
+                                       :size (* (length py-printable) 2)))
+(py-for c in py-printable
+        (puthash c t py-printable-ht))
+
+;;TODO: perhaps examining ascii values will be faster
+(defun py-isprintable(s)
+  "S.isprintable() -> bool
+
+Return True if all characters in S are considered
+printable in repr() or S is empty, False otherwise."
+  (let ((good t)
+        (len (length s))
+        (i 0))
+    (while (and good (< i len))
+      (if (not (gethash (pyel-string-nth s i) py-printable-ht))
+          (setq good nil))
+      (setq i (1+ i)))
+    good))
+
 
 
 (provide 'py-lib)
