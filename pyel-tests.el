@@ -631,28 +631,96 @@ d.__call__ = lambda : 'hi'"
 
 (pyel-create-tests
  for-loop
- ("x = [0]
-for a in range(1,10):
- x.append(a)"
-  ("x" '(0 1 2 3 4 5 6 7 8 9)))
 
- ("x = [0]
-for a in range(10):
- if a % 2 == 0: continue
- x.append(a)"
-  ("x" '(0 1 3 5 7 9)))
-
- ("x = [0]
-for a in range(1,10):
- if a == 5: break
+ ("x = []
+for a in range(5):
  x.append(a)"
   ("x" '(0 1 2 3 4)))
 
- ("b = [1,2,3,4]
+ ;;lists
+ ("x = []
+for a,b in [[1,2],'34',(5,6)]:
+ x.append([a,b])"
+  ("x" '((1 2) ("3" "4") (5 6))))
+
+ ("x = []
+for a,b,c,d in [[1,2,1,1],'34xa',(5,6,'a',1)]:
+ x.append([a,b,c,d,a])"
+  ("x" '((1 2 1 1 1) ("3" "4" "x" "a" "3") (5 6 "a" 1 5)))) 
+
+ ("n = 0
+for a in range(5):
+ for b in range(5):
+  n = n + a + b"
+  ("n" 100))
+ 
+ ("x = []
+for a in range(100):
+ if (a % 2 == 0):
+  continue
+ if a > 10:
+  break
+ x.append(a)"
+  ("x" '(1 3 5 7 9)))
+
+;;vectors
+ ("x = []
+for a in (1,2,3,4):
+ x.append(2*a)"
+  ("x" '(2 4 6 8)))
+
+ ("x = []
+for a,b in ([1,2],'34',(5,6)):
+ x.append([a,b])"
+  ("x" '((1 2) ("3" "4") (5 6))))
+ ("tup = make_vector(20,0)
+for i in range(10):
+ tup[i] = i
+x = []
+tup = make_vector(20,0)
+for i in range(20):
+ tup[i] = i;
+for a in tup:
+ if (a % 2 == 0):
+  continue
+ if a > 10:
+  break
+ x.append(a)"
+  ("x" '(1 3 5 7 9)))
+
+ ("x = []
+for a in 'string':
+ x.append(a)"
+  ("x" '("s" "t" "r" "i" "n" "g")))
+
+;;strings
+ ("x = []
 c = 0
-for a in b:
- c = c + a"
-  ("c" 10)))
+def getstr():
+ global c
+ c+=1
+ return 'qwerty'
+for a in getstr():
+ x.append(a)"
+  ("x" '("q" "w" "e" "r" "t" "y"))
+  ("c" 1))
+
+ ;;objects
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = a()
+x = []
+for n in get_obj():
+ x.append(n)"
+  ("x" '("5" "4" "3" "2" "1"))))
 
 (pyel-create-tests global
 
