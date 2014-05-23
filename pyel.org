@@ -5258,9 +5258,14 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests eval
-                     ("x = 23
-  eval('x')" 23))
+  (pyel-create-tests 
+   eval
+   ("x = 23
+  a = 1
+  b = 4
+  s = 'a+b'"
+    ("eval('x')" 23)
+    ("eval(s)" 5)))
 #+END_SRC
 ** type
 *** transform

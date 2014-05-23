@@ -1040,9 +1040,14 @@ repr(__ff_)"
  ("pow(3,7)" 2187)
  ("pow(2,2)" 4))
 
-(pyel-create-tests eval
-                   ("x = 23
-eval('x')" 23))
+(pyel-create-tests 
+ eval
+ ("x = 23
+a = 1
+b = 4
+s = 'a+b'"
+  ("eval('x')" 23)
+  ("eval(s)" 5)))
 
 (pyel-create-tests
  type
