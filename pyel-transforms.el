@@ -584,6 +584,7 @@
            let-arglist
            global-vars
            docstring
+           interactive
 
               ;;;
            (ret pyel-nothing)
@@ -660,8 +661,12 @@
                  (setq setq-code (list '@ 'setq orig-name)))
              (setq setq-code '@))
 
+           (setq interactive
+                 (if interactive '(interactive) pyel-nothing))
+
            `(,setq-code (,func ,name ,args ,decorators
                                ,docstring
+                               ,interactive
                                ,@assign-defaults
                                (,let-arglist
                                 (,@ret
@@ -1190,6 +1195,10 @@ Recognizes keyword args in the form 'arg = value'."
                      (object) -> (pyel-enumerate-object obj start)
                      (vector) -> (pyel-enumerate-vector obj start)
                      (hash)   -> (copy-enumerate-hash obj start))
+
+(pyel-define-function-translation
+ interactive
+ (setq interactive t))
 
 ;;
 

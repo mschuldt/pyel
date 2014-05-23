@@ -2974,6 +2974,7 @@ FunctionDef(name='a',
              let-arglist
              global-vars
              docstring
+             interactive
   
                 ;;;
              (ret pyel-nothing)
@@ -3050,8 +3051,12 @@ FunctionDef(name='a',
                    (setq setq-code (list '@ 'setq orig-name)))
                (setq setq-code '@))
   
+             (setq interactive
+                   (if interactive '(interactive) pyel-nothing))
+  
              `(,setq-code (,func ,name ,args ,decorators
                                  ,docstring
+                                 ,interactive
                                  ,@assign-defaults
                                  (,let-arglist
                                   (,@ret
@@ -5617,6 +5622,13 @@ This will help notify the user when some syntax has not been implemented
     ("enumerate(obj)" '((0 "5") (1 "4") (2 "3") (3 "2") (4 "1")))))
 #+END_SRC
 
+** interactive
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-define-function-translation
+   interactive
+   (setq interactive t))
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
