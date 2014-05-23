@@ -376,6 +376,43 @@ else is optional"
        ,@else-body)))
 
 
+(defun pyel-for-loop-object-code (targets object body else-body
+                                          &optional break continue)
+  (let* ((loop-body `(,@(if (= (length targets) 1)
+                            `((setq ,(car targets) (call-method __iter__ --next--)))
+                          ;;unpack-code
+                          (cons '(setq __target__ (call-method __iter__ --next--))
+                                (let (ret)
+                                  (dotimes (i (length targets) (reverse ret))
+                                    (push `(setq ,(nth i targets)
+                                                 (pyel-nth ,i __target__))
+                                          ret)))))
+                      ,@body))
+         (loop-body (if continue
+                        `((catch '__continue__ ,@loop-body))
+                      loop-body))
+
+         (while-loop `(condition-case nil
+                          (while t
+                            ,@loop-body)
+                        (StopIteration nil)))
+
+         (while-loop (if break
+                         `(catch '__break__ ,while-loop)
+                       while-loop)))
+
+    ;;variable __iter is set by calling function
+    `(let* (;;(__iter ,object)
+            (__iter__ (condition-case nil
+                          (call-method __iter --iter--)
+                        (AttributeError
+                         (py-raise (TypeError (format
+                                               "'%s' object is not iterable"
+                                               (getattr __iter --name--))))))))
+       ,while-loop
+       ,@else-body)))
+
+
 
 (make-transform-table 'for-macro)
 
