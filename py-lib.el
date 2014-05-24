@@ -229,19 +229,18 @@ Each element in ALIST must have for form (a . b)"
                              ;;                   `(list rest))))
 
                              )
-                             
+                         
                          ;;else: called without keyword args
-                         (let ((kwargs (make-hash-table :size 0)))
-                           ,@(mapcar (lambda (arg-value)
-                                       (list 'setq (car arg-value)
-                                             (cdr arg-value)))
-                                     kwonly)
-                           (apply (lambda ,args-without-kwarg
-                                    ,@(if kwarg
-                                         `((let (,kwarg)
-                                           ,@body))
-                                       body))
-                                  args)))))
+                         ,@(mapcar (lambda (arg-value)
+                                     (list 'setq (car arg-value)
+                                           (cdr arg-value)))
+                                   kwonly)
+                         (apply (lambda ,args-without-kwarg
+                                  ,@(if kwarg
+                                        `((let ((,kwarg (make-hash-table :size 0)))
+                                            ,@body))
+                                      body))
+                                args))))
 
      ;;else: no keyword args
      `(defun ,name ,args
