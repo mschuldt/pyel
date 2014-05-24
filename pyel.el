@@ -189,11 +189,15 @@ useing python3 unless PYTHON2 is non-nil"
           (let ((ncode nil))
             (while code
               (setq c (pop code))
-              (if (listp c)
-                  (if (equal (car c) '@)
-                      (setq ncode (append (reverse (pyel-do-splices (cdr c))) ncode))
-                    (push (pyel-do-splices c) ncode))
-                (push c ncode)))
+              (cond ((and (listp c) (not (listp (cdr c)))) ;;cons cell
+                     (push (cons (pyel-do-splices (car c))
+                                 (pyel-do-splices (cdr c))) ncode))
+                    ((listp c)
+                     (if (equal (car c) '@)
+                         (setq ncode (append (reverse (pyel-do-splices (cdr c)))
+                                             ncode))
+                       (push (pyel-do-splices c) ncode)))
+                    (t (push c ncode))))
             (if (listp ncode) (reverse ncode) ncode))))
     code))
 
