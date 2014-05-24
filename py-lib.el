@@ -132,7 +132,7 @@ Each element in ALIST must have for form (a . b)"
                  kw-only-defaults (mapcar 'cdr kwonly)
                  args-without-kwarg args))
          (when (member '&rest args)
-           (setq rest (last args)
+           (setq rest (car (last args))
                  args (subseq args 0 -2)))
          (if (member '&optional args)
              (setq optional (pyel-split-list args '&optional)
@@ -161,7 +161,8 @@ Each element in ALIST must have for form (a . b)"
                                   ,@kw-only-args val
                                   )
                              (cond ((= len ,nargs)
-                                    nil)
+                                    (setq pos+optional args))
+
                                    ((> len ,nargs)
                                     (setq pos+optional (subseq args 0 ,nargs)
                                           rest (subseq args ,nargs)))
@@ -203,15 +204,31 @@ Each element in ALIST must have for form (a . b)"
                                (setq index (1+ index)))
                              (if (< (+ kwargs-used len) ,npositional)
                                  (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
-                             (apply (lambda ,(if kwarg
-                                                 (append positional optional rest (list kwarg))
-                                               (append positional optional rest (list)))
+                             
+                             ,@(mapcar (lambda (x)
+                                         `(setq ,x (car pos+optional)
+                                                pos+optional (cdr pos+optional)))
+                                         (append positional optional))
+
+                             (setq ,rest rest)
+                             
+                             ,(if kwarg
+                                   `(setq ,kwarg (pyel-alist-to-hash kwargs)))
+                                         
+                             ((lambda ()
+                                      ,@body))
+                             
+                             ;; (apply (lambda ,(if kwarg
+                             ;;                     (append positional optional rest (list kwarg))
+                             ;;                   (append positional optional rest (list)))
                                                
-                                      ,@body)
-                                    (append pos+optional
-                                            ,(if kwarg
-                                                 `(list rest (pyel-alist-to-hash kwargs))
-                                               `(list rest)))))
+                             ;;          ,@body)
+                             ;;        (append pos+optional
+                             ;;                ,(if kwarg
+                             ;;                     `(list rest (pyel-alist-to-hash kwargs))
+                             ;;                   `(list rest))))
+
+                             )
                              
                          ;;else: called without keyword args
                          (let ((kwargs (make-hash-table :size 0)))
