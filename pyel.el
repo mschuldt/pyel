@@ -1364,6 +1364,19 @@ format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
       (scan-error (goto-char (1+ start))))
     (reverse elems)))
 
+(defmacro pyel-string-nth (string index)
+  (list 'substring string index
+        (if (numberp index) (1+ index) (list '1+ index))))
+
+(defsubst pyel-nth (n seq)
+  (let ((tp (type-of seq)))
+    (cond ((eq tp 'cons)
+           (nth n seq))
+          ((eq tp 'vector)
+           (aref seq n))
+          ((eq tp 'string)
+           (substring seq n (1+ n))))))
+
 (defun char-split-string (string)
   "split a string into its charaters"
   (cdr (butlast (split-string string ""))))
