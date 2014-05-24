@@ -165,7 +165,7 @@ Each element in ALIST must have for form (a . b)"
 
                                    ((> len ,nargs)
                                     (setq pos+optional (subseq args 0 ,nargs)
-                                          rest (subseq args ,nargs)))
+                                          ,rest (subseq args ,nargs)))
                                    (t ;;(< len ,nargs)
                                     (setq pos+optional
                                           (append args (make-list (- ,nargs len) nil)))))
@@ -210,8 +210,6 @@ Each element in ALIST must have for form (a . b)"
                                                 pos+optional (cdr pos+optional)))
                                        (append positional optional))
 
-                             (setq ,rest rest)
-                             
                              ,(if kwarg
                                   `(setq ,kwarg (pyel-alist-to-hash kwargs)))
                              
