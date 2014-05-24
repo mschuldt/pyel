@@ -364,7 +364,25 @@ def b():
   ("repr(func(x = 's',__b = 324,__a = 'n',))"
    "[\"n\", 324, 1, \"two\", [], {x: \"s\"}]")
   ("repr(func(x = 's',__b = 324,__a = 'n',d = 2))"
-   "[\"n\", 324, 1, 2, [], {x: \"s\"}]")))
+   "[\"n\", 324, 1, 2, [], {x: \"s\"}]"))
+ ;;tests with kwonlyargs
+ ("def test(a, *b, c=1, d, **e):
+ return [a, b, c, d, e]"
+  ("repr(test('x',1,2,3,_d=1.1,_xx=2.2,_yy=3.3))"
+   "[\"x\", [1, 2, 3], 1, nil, {-yy: 3.3, -xx: 2.2, -d: 1.1}]")
+
+  ("repr(test('x',d=1.1))"
+   "[\"x\", nil, 1, 1.1, {}]")
+
+  ("repr(test('x'))"
+   "[\"x\", nil, 1, nil, {}]")
+
+  ("repr(test(d=1,c=2,a='x',e=4))"
+   "[\"x\", (), 2, 1, {e: 4}]")
+
+  ("repr(test(1,2,3,4,5,6))"
+   "[1, (2, 3, 4, 5, 6), 1, nil, {}]"))
+ )
 
 (ert-deftest pyel-test-sort-kwargs ()
   (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
