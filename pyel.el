@@ -288,12 +288,24 @@ value."
   "replace character FROM to TO in THING
 THING may be a symbol, string or list"
   (cond
+   ;;tmp fix:
+   ;;special case for numbers to handle being called
+   ;;on the arg list in the def transform
+   ;;(numbers are from the default values for kwonlyargs)
+   ;;TODO: call _to- only on names, not such large lists
+   ((numberp thing) thing)
+
    ((stringp thing)
     (replace-regexp-in-string from to  thing))
    ((symbolp thing)
     (intern (replace-regexp-in-string from to  (symbol-name thing))))
-   ((listp thing) (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
+   ((and (listp thing) (listp (cdr thing)))
+    (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
+   ((listp thing) ;;cons cell
+    (cons (pyel-replace-in-thing from to (car thing))
+          (pyel-replace-in-thing from to (cdr thing))))
    (t (error "invalid thing"))))
+
 
 (defun _to- (thing)
   (pyel-replace-in-thing "_" "-" thing))

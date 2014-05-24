@@ -612,12 +612,24 @@ main
     "replace character FROM to TO in THING
   THING may be a symbol, string or list"
     (cond
+     ;;tmp fix:
+     ;;special case for numbers to handle being called
+     ;;on the arg list in the def transform
+     ;;(numbers are from the default values for kwonlyargs)
+     ;;TODO: call _to- only on names, not such large lists
+     ((numberp thing) thing)
+  
      ((stringp thing)
       (replace-regexp-in-string from to  thing))
      ((symbolp thing)
       (intern (replace-regexp-in-string from to  (symbol-name thing))))
-     ((listp thing) (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
+     ((and (listp thing) (listp (cdr thing)))
+      (mapcar (lambda (x) (pyel-replace-in-thing from to x)) thing))
+     ((listp thing) ;;cons cell
+      (cons (pyel-replace-in-thing from to (car thing))
+            (pyel-replace-in-thing from to (cdr thing))))
      (t (error "invalid thing"))))
+  
   
   (defun _to- (thing)
     (pyel-replace-in-thing "_" "-" thing))
@@ -2857,37 +2869,46 @@ This is for all non template specific code.
                   defaults kw_defaults)
       (pyel-arguments args vararg varargannotation kwonlyargs kwarg kwargannotation
                       defaults kw_defaults)))
-
+  
   (defun pyel-arguments (args vararg varargannotation
                               kwonlyargs kwarg kwargannotation
                               defaults kw_defaults)
     ;;TODO: other args
-
+  
     (let* ((args (mapcar 'transform args))
            (defaults (mapcar 'transform defaults)))
-
+  
       ;;create default assignment code
       (when (and defaults
                  (context-p 'function-def))
-
+  
         ;;`assign-defaults' only exists under function-def context
         (setq assign-defaults (mapcar* (lambda (arg default)
                                          `(setq ,arg (or ,arg ,default)))
                                        (reverse args) (reverse defaults))))
-
+  
       ;;&optional
       (when defaults
         (insert-at args (- (length args) (length defaults)) '&optional))
+      
       ;;&rest
       (when vararg
         (setq args (append args (list '&rest vararg)))
         (when (and (not pyel-use-list-for-varargs)
                    (context-p 'function-def))
           (push `(setq, vararg (list-to-vector ,vararg)) assign-defaults)))
+  
+      ;;&kwonly
+      (when kwonlyargs
+        (setq args (append args (cons '&kwonly
+                                      (mapcar* 'cons
+                                               (mapcar 'transform kwonlyargs)
+                                               (mapcar 'transform kw_defaults))))))
+                                      
       ;;&kwarg
       (when kwarg
         (setq args (append args (list '&kwarg kwarg))))
-
+  
       args))
 #+END_SRC
 *** python ast
@@ -2898,11 +2919,11 @@ This is for all non template specific code.
                      ll_str(args) or "nil",
                      vararg or "nil",
                      varargannotation or "nil",
-                     kwonlyargs or "nil",
+                     ll_str(kwonlyargs) if kwonlyargs else "nil",
                      kwarg or "nil",
                      kwargannotation or "nil",
                      ll_str(defaults) or "nil",
-                     kw_defaults or "nil", ")"])
+                     ll_str(kw_defaults) if kw_defaults else "nil", ")"])
       #return l_str(["_arguments ",ll_str(args) or "nil",vararg or "nil",varargannotation or "nil", kwonlyargs or "nil", kwarg or "nil", kwargannotation or "nil", defaults or "nil", kw_defaults or "nil"])
 #+END_SRC
 *** tests
@@ -3126,6 +3147,11 @@ FunctionDef(name='a',
              (setq kwarg (car (last args))
                    args (subseq args 0 -2)
                    args-without-kwarg args))
+           (when (member '&kwonly args)
+             (setq kwarg (car (last args))
+                   kwonly (pyel-split-list args '&kwonly)
+                   args (cdr kwonly)
+                   kwonly (car kwonly)))
            (when (member '&rest args)
              (setq rest (last args)
                    args (subseq args 0 -2)))
@@ -7179,9 +7205,9 @@ x.insert(1,'hi')"
 ** isprintable
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-method-transform isprintable (obj str )
-                         (string) -> (py-isprintable obj str)
-                         (_)      -> (call-method obj isprintable str))
+  (pyel-method-transform isprintable (obj)
+                         (string) -> (py-isprintable obj)
+                         (_)      -> (call-method obj isprintable))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
