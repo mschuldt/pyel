@@ -203,10 +203,16 @@ Each element in ALIST must have for form (a . b)"
                                (setq index (1+ index)))
                              (if (< (+ kwargs-used len) ,npositional)
                                  (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
-                             (apply (lambda (,@(append positional optional rest) ,kwarg)
+                             (apply (lambda ,(if kwarg
+                                                 (append positional optional rest (list kwarg))
+                                               (append positional optional rest (list)))
+                                               
                                       ,@body)
                                     (append pos+optional
-                                            (list rest (pyel-alist-to-hash kwargs)))))
+                                            ,(if kwarg
+                                                 `(list rest (pyel-alist-to-hash kwargs))
+                                               `(list rest)))))
+                             
                          ;;else: called without keyword args
                          (let ((kwargs (make-hash-table :size 0)))
                            ,@(mapcar (lambda (arg-value)
@@ -214,8 +220,10 @@ Each element in ALIST must have for form (a . b)"
                                              (cdr arg-value)))
                                      kwonly)
                            (apply (lambda ,args-without-kwarg
-                                    (let (,kwarg)
-                                      ,@body))
+                                    ,@(if kwarg
+                                         `((let (,kwarg)
+                                           ,@body))
+                                       body))
                                   args)))))
 
      ;;else: no keyword args
