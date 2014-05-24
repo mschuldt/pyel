@@ -105,7 +105,8 @@ Each element in ALIST must have for form (a . b)"
 
   (using-context
    function-def
-   (if (member '&kwarg args)
+   (if (or (member '&kwarg args)
+           (member '&kwonly args))
        (let ((n -1)
              (func-name (if (member 'pyel-inner-function-def decorator-list)
                             (progn
@@ -116,11 +117,19 @@ Each element in ALIST must have for form (a . b)"
                           (list 'defun name)))
              optional
              pos+optional rest kwarg
-             npositional nargs arg-index)
+             npositional nargs arg-index
+             kw-only-args kw-only-defaults)
 
          (when (member '&kwarg args)
            (setq kwarg (car (last args))
                  args (subseq args 0 -2)
+                 args-without-kwarg args))
+         (when (member '&kwonly args)
+           (setq kwonly (pyel-split-list args '&kwonly)
+                 args (car kwonly)
+                 kwonly (cdr kwonly)
+                 kw-only-args (mapcar 'car kwonly)
+                 kw-only-defaults (mapcar 'cdr kwonly)
                  args-without-kwarg args))
          (when (member '&rest args)
            (setq rest (last args)
@@ -148,7 +157,9 @@ Each element in ALIST must have for form (a . b)"
                                   (len (length args))
                                   (index 0)
                                   (kwargs-used 0)
-                                  pos+optional rest arg-index index-value tmp)
+                                  pos+optional rest arg-index index-value tmp
+                                  ,@kw-only-args val
+                                  )
                              (cond ((= len ,nargs)
                                     nil)
                                    ((> len ,nargs)
@@ -158,6 +169,16 @@ Each element in ALIST must have for form (a . b)"
                                     (setq pos+optional
                                           (append args (make-list (- ,nargs len) nil)))))
 
+                             ;;set kwonly arg values
+                             ,@(mapcar* (lambda (arg default)
+                                          `(if (setq val (assoc (quote ,arg) kwargs))
+                                               (progn
+                                                 (setq ,arg (cdr val))
+                                                 (setq kwargs (remove val kwargs))
+                                                 )
+                                             (setq ,arg ,default)))
+                                         kw-only-args kw-only-defaults)
+                             
                              ;;make alist of index value pairs
                              (setq index-value
                                    (mapcar (lambda (kw)
@@ -188,12 +209,16 @@ Each element in ALIST must have for form (a . b)"
                                             (list rest (pyel-alist-to-hash kwargs)))))
                          ;;else: called without keyword args
                          (let ((kwargs (make-hash-table :size 0)))
+                           ,@(mapcar (lambda (arg-value)
+                                       (list 'setq (car arg-value)
+                                             (cdr arg-value)))
+                                     kwonly)
                            (apply (lambda ,args-without-kwarg
                                     (let (,kwarg)
                                       ,@body))
                                   args)))))
 
-     ;;else: no &kwarg
+     ;;else: no keyword args
      `(defun ,name ,args
         ,@body)
      )))

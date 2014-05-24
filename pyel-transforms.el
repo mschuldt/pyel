@@ -539,12 +539,21 @@
     ;;&optional
     (when defaults
       (insert-at args (- (length args) (length defaults)) '&optional))
+    
     ;;&rest
     (when vararg
       (setq args (append args (list '&rest vararg)))
       (when (and (not pyel-use-list-for-varargs)
                  (context-p 'function-def))
         (push `(setq, vararg (list-to-vector ,vararg)) assign-defaults)))
+
+    ;;&kwonly
+    (when kwonlyargs
+      (setq args (append args (cons '&kwonly
+                                    (mapcar* 'cons
+                                             (mapcar 'transform kwonlyargs)
+                                             (mapcar 'transform kw_defaults))))))
+                                    
     ;;&kwarg
     (when kwarg
       (setq args (append args (list '&kwarg kwarg))))
