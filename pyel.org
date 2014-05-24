@@ -3208,29 +3208,24 @@ FunctionDef(name='a',
                                                    )
                                                (setq ,arg ,default)))
                                           kw-only-args kw-only-defaults)
-                               
+  
+                               (setq pos+optional (list-to-vector pos+optional))
                                ;;make alist of index value pairs
                                (setq index-value
                                      (mapcar (lambda (kw)
                                                (if (setq arg-index
                                                          (assoc (car kw) ',arg-index-alist))
-                                                   (list (cdr arg-index)
-                                                         (cdr kw)
-                                                         ;;need reference to remove arg later
-                                                         (car arg-index))))
+                                                   (progn (if (< (cdr arg-index) len)
+                                                              (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv))))
+                                                          (aset pos+optional (cdr arg-index) (cdr kw)) 
+                                                          (setq kwargs-used (1+ kwargs-used))
+                                                          (setq kwargs
+                                                                (remove (assoc (car arg-index)) kwargs)) 
+                                                          )))
                                              kwargs))
-                               ;;set the keyword args values in arg list
-                               (setq tmp pos+optional)
-                               (while tmp
-                                 (when (setq iv (assoc index index-value))
-                                   (if (< (car iv) len)
-                                       (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv)))
-                                     )
-                                   (setq kwargs (remove (assoc (caddr iv) kwargs) kwargs))
-                                   (setcar tmp (cadr iv))
-                                   (setq kwargs-used (1+ kwargs-used)))
-                                 (setq tmp (cdr tmp))
-                                 (setq index (1+ index)))
+  
+                               (setq pos+optional (mapcar 'identity pos+optional))
+                               
                                (if (< (+ kwargs-used len) ,npositional)
                                    (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ kwargs-used len))))
                                
