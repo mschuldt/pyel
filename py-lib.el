@@ -178,7 +178,7 @@ Each element in ALIST must have for form (a . b)"
                                                  (setq kwargs (remove val kwargs))
                                                  )
                                              (setq ,arg ,default)))
-                                         kw-only-args kw-only-defaults)
+                                        kw-only-args kw-only-defaults)
                              
                              ;;make alist of index value pairs
                              (setq index-value
@@ -208,20 +208,20 @@ Each element in ALIST must have for form (a . b)"
                              ,@(mapcar (lambda (x)
                                          `(setq ,x (car pos+optional)
                                                 pos+optional (cdr pos+optional)))
-                                         (append positional optional))
+                                       (append positional optional))
 
                              (setq ,rest rest)
                              
                              ,(if kwarg
-                                   `(setq ,kwarg (pyel-alist-to-hash kwargs)))
-                                         
+                                  `(setq ,kwarg (pyel-alist-to-hash kwargs)))
+                             
                              ((lambda ()
-                                      ,@body))
+                                ,@body))
                              
                              ;; (apply (lambda ,(if kwarg
                              ;;                     (append positional optional rest (list kwarg))
                              ;;                   (append positional optional rest (list)))
-                                               
+                             
                              ;;          ,@body)
                              ;;        (append pos+optional
                              ;;                ,(if kwarg
