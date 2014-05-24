@@ -115,11 +115,11 @@ def arguments(args=None, vararg=None, varargannotation=None, kwonlyargs=None,
                    ll_str(args) or "nil",
                    vararg or "nil",
                    varargannotation or "nil",
-                   kwonlyargs or "nil",
+                   ll_str(kwonlyargs) if kwonlyargs else "nil",
                    kwarg or "nil",
                    kwargannotation or "nil",
                    ll_str(defaults) or "nil",
-                   kw_defaults or "nil", ")"])
+                   ll_str(kw_defaults) if kw_defaults else "nil", ")"])
     #return l_str(["_arguments ",ll_str(args) or "nil",vararg or "nil",varargannotation or "nil", kwonlyargs or "nil", kwarg or "nil", kwargannotation or "nil", defaults or "nil", kw_defaults or "nil"])
 
 def FunctionDef(name, args, body, decorator_list, returns, lineno='nil', col_offset='nil'):
