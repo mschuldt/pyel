@@ -225,7 +225,7 @@ Each element in ALIST must have for form (a . b)"
                          
                          ,(if kwarg
                               `(setq ,kwarg (pyel-alist-to-hash __pyel_kwargs)))
-                         
+                         ;;NOTE: dont have to worry about repeated keywords because that is a syntax error
                          ,@body)
                      
                      ;;else: called without keyword args
