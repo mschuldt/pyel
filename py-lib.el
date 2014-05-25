@@ -158,9 +158,12 @@ Each element in ALIST must have for form (a . b)"
                                   (__pyel_kwargs-used 0)
                                   __pyel_pos+optional __rest__
                                   __pyel_arg-index __pyel_val
-                                  ,@kw-only-args ,rest
-                                  ,@positional ,@optional ,kwarg 
-                                  )
+                                  
+                                  ,@(if rest (list rest) nil)
+                                  ,@(if kwarg (list kwarg) nil)
+                                  ,@positional
+                                  ,@optional
+                                  ,@kw-only-args)
                              (cond ((= __pyel_len ,nargs)
                                     (setq __pyel_pos+optional __pyel_args))
 
