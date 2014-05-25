@@ -105,163 +105,163 @@ Each element in ALIST must have for form (a . b)"
 
   (using-context
    function-def
-   (if (or (member '&kwarg args)
-           (member '&kwonly args))
-       (let ((n -1)
-             (func-name (if (member 'pyel-inner-function-def decorator-list)
-                            (progn
-                              (setq decorator-list
-                                    (remove 'pyel-inner-function-def
-                                            decorator-list))
-                              '(lambda))
-                          (list 'defun name)))
-             optional
-             pos+optional rest kwarg
-             npositional nargs arg-index
-             kw-only-args kw-only-defaults)
+   ;; (if (or (member '&kwarg args)
+   ;;         (member '&kwonly args))
+   (let ((n -1)
+         (func-name (if (member 'pyel-inner-function-def decorator-list)
+                        (progn
+                          (setq decorator-list
+                                (remove 'pyel-inner-function-def
+                                        decorator-list))
+                          '(lambda))
+                      (list 'defun name)))
+         optional
+         pos+optional rest kwarg
+         npositional nargs arg-index
+         kw-only-args kw-only-defaults)
 
-         (when (member '&kwarg args)
-           (setq kwarg (car (last args))
-                 args (subseq args 0 -2)
-                 args-without-kwarg args))
-         (when (member '&kwonly args)
-           (setq kwonly (pyel-split-list args '&kwonly)
-                 args (car kwonly)
-                 kwonly (cdr kwonly)
-                 kw-only-args (mapcar 'car kwonly)
-                 kw-only-defaults (mapcar 'cdr kwonly)
-                 args-without-kwarg args))
-         (when (member '&rest args)
-           (setq rest (car (last args))
-                 args (subseq args 0 -2)))
-         (if (member '&optional args)
-             (setq optional (pyel-split-list args '&optional)
-                   positional (car optional)
-                   optional (cdr optional))
-           (setq positional args))
+     (when (member '&kwarg args)
+       (setq kwarg (car (last args))
+             args (subseq args 0 -2)
+             args-without-kwarg args))
+     (when (member '&kwonly args)
+       (setq kwonly (pyel-split-list args '&kwonly)
+             args (car kwonly)
+             kwonly (cdr kwonly)
+             kw-only-args (mapcar 'car kwonly)
+             kw-only-defaults (mapcar 'cdr kwonly)
+             args-without-kwarg args))
+     (when (member '&rest args)
+       (setq rest (car (last args))
+             args (subseq args 0 -2)))
+     (if (member '&optional args)
+         (setq optional (pyel-split-list args '&optional)
+               positional (car optional)
+               optional (cdr optional))
+       (setq positional args))
 
-         (setq npositional (length positional)
-               nargs (+ (length positional) (length optional))
-               arg-index-alist (mapcar (lambda (x)
-                                         (setq n (1+ n))
-                                         (cons x n))
-                                       (append positional optional)))
+     (setq npositional (length positional)
+           nargs (+ (length positional) (length optional))
+           arg-index-alist (mapcar (lambda (x)
+                                     (setq n (1+ n))
+                                     (cons x n))
+                                   (append positional optional)))
 
-         `(,@func-name (&rest __pyel_args)
-                       ;;if this is called with keyword args they will be
-                       ;;the in an alist in the car position.
-                       (if (and (listp (car __pyel_args))
-                                (eq (caar __pyel_args) :kwargs))
-                           (let* ((__pyel_kwargs (cdar __pyel_args))
-                                  (__pyel_args (cadr __pyel_args))
-                                  (__pyel_len (length __pyel_args))
-                                  (__pyel_kwargs-used 0)
-                                  (__pyel_values_provided (make-vector ,nargs nil))
-                                  __pyel_pos+optional __rest__ __pyel_error
-                                  __pyel_arg-index __pyel_val
-                                  
-                                  
-                                  ,@(if rest (list rest) nil)
-                                  ,@(if kwarg (list kwarg) nil)
-                                  ,@positional
-                                  ,@optional
-                                  ,@kw-only-args)
-                             
-                             ;;set *rest arg
-                             ,(if rest
-                                  `(if (> __pyel_len ,nargs)
-                                       (setq ,rest (subseq __pyel_args ,nargs))))
-                             
-                             ;;set positional arg values
-                             (setq __pyel_tmp __pyel_args)
-                             ,@(mapcar (lambda (arg)
-                                         `(setq ,arg (car __pyel_tmp)
-                                                __pyel_tmp (cdr __pyel_tmp)))
-                                       positional)
-
-                             ;;set positional and optional arg values that are provided as keywords
-                             ;;(optional arg default values are set elsewhere)
-                             ,@(let ((i 0))
-                                 (mapcar (lambda (arg)
-                                          `(if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
-                                               (if (or (<= ,(setq i (1+ i)) __pyel_len)
-                                                       (aref __pyel_values_provided ,(1- i)))
-                                                   ;;the value for this arg has already been provided
-                                                   (setq __pyel_error (quote ,arg))
-                                                 ;;else:
-                                                 (aset __pyel_values_provided ,(1- i) t)
-                                                 (setq ,arg (cdr __pyel_val)
-                                                       __pyel_kwargs (remove __pyel_val __pyel_kwargs)
-                                                       __pyel_kwargs-used (1+ __pyel_kwargs-used))
-                                                 )))
-                                 (append positional optional)))
-
-                             (if __pyel_error
-                                 (signal 'TypeError
-                                         (format ,(format "%s() got multiple values for keyword argument '%%s'"
-                                                          name)
-                                                 __pyel_error)))
-
-                             ;;set kwonly arg values
-                             ,@(mapcar* (lambda (arg default)
-                                          `(if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
-                                               (progn
-                                                 (setq ,arg (cdr __pyel_val))
-                                                 (setq __pyel_kwargs (remove __pyel_val __pyel_kwargs))
-                                                 )
-                                             (setq ,arg ,default)))
-                                        kw-only-args kw-only-defaults)
-
-                             ;;verify that minimum required arguments have been passed
-                             ,(if (or rest optional)
-                                  `(if (< (+ __pyel_kwargs-used __pyel_len) ,npositional)
-                                       (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
-                                                                           name npositional)
-                                                                  (+ __pyel_kwargs-used __pyel_len))))
-                                `(if (not (= (+ __pyel_kwargs-used __pyel_len) ,npositional))
-                                     (signal 'TypeError (format ,(format "%s() takes exactly %s arguments (%%s given)"
-                                                                         name npositional)
-                                                                (+ __pyel_kwargs-used __pyel_len)))))
-                                    
-                             ,(if kwarg
-                                  `(setq ,kwarg (pyel-alist-to-hash __pyel_kwargs)))
-                             
-                             ,@body)
+     `(,@func-name (&rest __pyel_args)
+                   ;;if this is called with keyword args they will be
+                   ;;the in an alist in the car position.
+                   (if (and (listp (car __pyel_args))
+                            (eq (caar __pyel_args) :kwargs))
+                       (let* ((__pyel_kwargs (cdar __pyel_args))
+                              (__pyel_args (cadr __pyel_args))
+                              (__pyel_len (length __pyel_args))
+                              (__pyel_kwargs-used 0)
+                              (__pyel_values_provided (make-vector ,nargs nil))
+                              __pyel_pos+optional __rest__ __pyel_error
+                              __pyel_arg-index __pyel_val
+                              
+                              
+                              ,@(if rest (list rest) nil)
+                              ,@(if kwarg (list kwarg) nil)
+                              ,@positional
+                              ,@optional
+                              ,@kw-only-args)
                          
-                         ;;else: called without keyword args
+                         ;;set *rest arg
+                         ,(if rest
+                              `(if (> __pyel_len ,nargs)
+                                   (setq ,rest (subseq __pyel_args ,nargs))))
+                         
+                         ;;set positional arg values
+                         (setq __pyel_tmp __pyel_args)
+                         ,@(mapcar (lambda (arg)
+                                     `(setq ,arg (car __pyel_tmp)
+                                            __pyel_tmp (cdr __pyel_tmp)))
+                                   positional)
+
+                         ;;set positional and optional arg values that are provided as keywords
+                         ;;(optional arg default values are set elsewhere)
+                         ,@(let ((i 0))
+                             (mapcar (lambda (arg)
+                                       `(if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
+                                            (if (or (<= ,(setq i (1+ i)) __pyel_len)
+                                                    (aref __pyel_values_provided ,(1- i)))
+                                                ;;the value for this arg has already been provided
+                                                (setq __pyel_error (quote ,arg))
+                                              ;;else:
+                                              (aset __pyel_values_provided ,(1- i) t)
+                                              (setq ,arg (cdr __pyel_val)
+                                                    __pyel_kwargs (remove __pyel_val __pyel_kwargs)
+                                                    __pyel_kwargs-used (1+ __pyel_kwargs-used))
+                                              )))
+                                     (append positional optional)))
+
+                         (if __pyel_error
+                             (signal 'TypeError
+                                     (format ,(format "%s() got multiple values for keyword argument '%%s'"
+                                                      name)
+                                             __pyel_error)))
+
+                         ;;set kwonly arg values
+                         ,@(mapcar* (lambda (arg default)
+                                      `(if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
+                                           (progn
+                                             (setq ,arg (cdr __pyel_val))
+                                             (setq __pyel_kwargs (remove __pyel_val __pyel_kwargs))
+                                             )
+                                         (setq ,arg ,default)))
+                                    kw-only-args kw-only-defaults)
+
+                         ;;verify that minimum required arguments have been passed
                          ,(if (or rest optional)
-                              `(if (< (length __pyel_args) ,npositional)
+                              `(if (< (+ __pyel_kwargs-used __pyel_len) ,npositional)
                                    (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
                                                                        name npositional)
                                                               (+ __pyel_kwargs-used __pyel_len))))
-                            `(if (not (= (length __pyel_args) ,npositional))
+                            `(if (not (= (+ __pyel_kwargs-used __pyel_len) ,npositional))
                                  (signal 'TypeError (format ,(format "%s() takes exactly %s arguments (%%s given)"
                                                                      name npositional)
                                                             (+ __pyel_kwargs-used __pyel_len)))))
-                              
-                         ,@(mapcar (lambda (arg-value) ;;set kwarg defaults
-                                     (list 'setq (car arg-value)
-                                           (cdr arg-value)))
-                                   kwonly)
-                         ,@(mapcar (lambda (arg) ;;set arg values
-                                     `(setq ,arg (car __pyel_args)
-                                            __pyel_args (cdr __pyel_args))
-                                     )
-                                   (append positional optional))
                          
-                         ,(if rest ;;set *rest arg
-                              `(setq ,rest __pyel_args)
-                            ;;TODO: verify that __pyel_args is null here (else case)
-                            )
-
-                         ,(if kwarg `(setq ,kwarg (make-hash-table :size 0)))
+                         ,(if kwarg
+                              `(setq ,kwarg (pyel-alist-to-hash __pyel_kwargs)))
                          
-                         ,@body)))
+                         ,@body)
+                     
+                     ;;else: called without keyword args
+                     ,(if (or rest optional)
+                          `(if (< (length __pyel_args) ,npositional)
+                               (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
+                                                                   name npositional)
+                                                          (+ __pyel_kwargs-used __pyel_len))))
+                        `(if (not (= (length __pyel_args) ,npositional))
+                             (signal 'TypeError (format ,(format "%s() takes exactly %s arguments (%%s given)"
+                                                                 name npositional)
+                                                        (+ __pyel_kwargs-used __pyel_len)))))
+                     
+                     ,@(mapcar (lambda (arg-value) ;;set kwarg defaults
+                                 (list 'setq (car arg-value)
+                                       (cdr arg-value)))
+                               kwonly)
+                     ,@(mapcar (lambda (arg) ;;set arg values
+                                 `(setq ,arg (car __pyel_args)
+                                        __pyel_args (cdr __pyel_args))
+                                 )
+                               (append positional optional))
+                     
+                     ,(if rest ;;set *rest arg
+                          `(setq ,rest __pyel_args)
+                        ;;TODO: verify that __pyel_args is null here (else case)
+                        )
 
-     ;;else: no keyword args
-     `(defun ,name ,args
-        ,@body)
-     )))
+                     ,(if kwarg `(setq ,kwarg (make-hash-table :size 0)))
+                     
+                     ,@body)))
+
+   ;;else: no keyword args
+   ;; `(defun ,name ,args
+   ;;    ,@body)
+   ))
 
 
 ;;tmp fix (default values for kwonly args are not getting translated)
