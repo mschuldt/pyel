@@ -383,10 +383,19 @@ def b():
   ("repr(test(1,2,3,4,5,6))"
    "[1, (2, 3, 4, 5, 6), 1, nil, {}]"))
 
-  ("def test(a,b):
+ ("def test(a,b):
      return [a,b]"
-   ("test(1,2)" '(1 2))
-   ("test(b=4,a='s')" '("s" 4))))
+  ("test(1,2)" '(1 2))
+  ("test(b=4,a='s')" '("s" 4)))
+
+ ;;check that default values for optional args get set with or without kwargs
+ ("def test(a,b,c,d=1,dd=2,ddd=4,*restst, x=1,xx=32,xxx=43,**kwargs_):
+ return [a,b,c,d,dd,ddd,restst,x,xx,xxx,kwargs_]"
+  ("repr(test(1,2,3,999,888,777,1,2,3,43,4,5,x=3))"
+   "[1, 2, 3, 999, 888, 777, [1, 2, 3, 43, 4, 5], 3, 32, 43, {}]")
+  ("repr(test(1,2,3,999,888,777,1,2,3,43,4,5))"
+   "[1, 2, 3, 999, 888, 777, [1, 2, 3, 43, 4, 5], 1, 32, 43, {}]"))
+ )
 
 (ert-deftest pyel-test-sort-kwargs ()
   (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
