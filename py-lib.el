@@ -173,10 +173,14 @@ Each element in ALIST must have for form (a . b)"
                            
                            ;;set positional arg values
                            (setq __pyel_tmp __pyel_args)
-                           ,@(mapcar (lambda (arg)
-                                       `(setq ,arg (car __pyel_tmp)
-                                              __pyel_tmp (cdr __pyel_tmp)))
-                                     positional)
+                           (reduce 'append '((a b) (c d)))
+
+                           ,(if positional
+                                 `(setq 
+                                   ,@(reduce 'append (mapcar (lambda (arg)
+                                                              `(,arg (car __pyel_tmp)
+                                                                     __pyel_tmp (cdr __pyel_tmp)))
+                                                            positional))))
 
                            ;;set positional and optional arg values that are provided as keywords
                            ;;(optional arg default values are set elsewhere)
@@ -250,11 +254,13 @@ Each element in ALIST must have for form (a . b)"
                                    (list 'setq (car arg-value)
                                          (cdr arg-value)))
                                  kwonly)
-                       ,@(mapcar (lambda (arg) ;;set arg values
-                                   `(setq ,arg (car __pyel_args)
-                                          __pyel_args (cdr __pyel_args))
-                                   )
-                                 (append positional optional))
+
+                       ,(if (or positional optional) ;;set arg values
+                            `(setq 
+                              ,@(reduce 'append (mapcar (lambda (arg)
+                                                          `(,arg (car __pyel_args)
+                                                                 __pyel_args (cdr __pyel_args)))
+                                                        (append positional optional)))))
                        
                        ,(if rest ;;set *rest arg
                             `(setq ,rest __pyel_args)
