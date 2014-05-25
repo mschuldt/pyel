@@ -533,6 +533,7 @@
 
       ;;`assign-defaults' only exists under function-def context
       (setq assign-defaults (mapcar* (lambda (arg default)
+                                       (setq arg (_to- arg))
                                        `(setq ,arg (or ,arg ,default)))
                                      (reverse args) (reverse defaults))))
 
