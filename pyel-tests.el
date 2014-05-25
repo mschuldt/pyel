@@ -691,7 +691,7 @@ for a in range(100):
  x.append(a)"
   ("x" '(1 3 5 7 9)))
 
-;;vectors
+ ;;vectors
  ("x = []
 for a in (1,2,3,4):
  x.append(2*a)"
@@ -721,7 +721,7 @@ for a in 'string':
  x.append(a)"
   ("x" '("s" "t" "r" "i" "n" "g")))
 
-;;strings
+ ;;strings
  ("x = []
 c = 0
 def getstr():
@@ -746,7 +746,7 @@ for a in getstr():
   raise StopIteration
 obj = a()
 x = []
-for n in get_obj():
+for n in obj:
  x.append(n)"
   ("x" '("5" "4" "3" "2" "1"))))
 
