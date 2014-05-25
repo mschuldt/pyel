@@ -3387,7 +3387,11 @@ FunctionDef(name='a',
   
     ("repr(test(1,2,3,4,5,6))"
      "[1, (2, 3, 4, 5, 6), 1, nil, {}]"))
-   )
+  
+    ("def test(a,b):
+       return [a,b]"
+     ("test(1,2)" '(1 2))
+     ("test(b=4,a='s')" '("s" 4))))
   
   (ert-deftest pyel-test-sort-kwargs ()
     (equal (pyel-sort-kwargs '(a b = 1 5 12 x = 1 3))
