@@ -161,6 +161,7 @@ Each element in ALIST must have for form (a . b)"
                          (let*  ((__pyel_kwargs (cdar __pyel_args))
                                  (__pyel_args (cadr __pyel_args))
                                  (__pyel_len (length __pyel_args))
+                                 (__pyel_kwarglen (length __pyel_kwargs))
                                  (__pyel_kwargs-used 0)
                                  (__pyel_values_provided (make-vector ,nargs nil))
                                  __pyel_error)
@@ -179,20 +180,28 @@ Each element in ALIST must have for form (a . b)"
 
                            ;;set positional and optional arg values that are provided as keywords
                            ;;(optional arg default values are set elsewhere)
-                           ,@(let ((i 0))
-                               (mapcar (lambda (arg)
-                                         `(if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
-                                              (if (or (<= ,(setq i (1+ i)) __pyel_len)
-                                                      (aref __pyel_values_provided ,(1- i)))
-                                                  ;;the value for this arg has already been provided
-                                                  (setq __pyel_error (quote ,arg))
-                                                ;;else:
-                                                (aset __pyel_values_provided ,(1- i) t)
-                                                (setq ,arg (cdr __pyel_val)
-                                                      __pyel_kwargs (remove __pyel_val __pyel_kwargs)
-                                                      __pyel_kwargs-used (1+ __pyel_kwargs-used))
-                                                )))
-                                       (append positional optional)))
+                           ,@(let* ((i 0)
+                                    (args (append positional optional))
+                                    code arg)
+                               (while args
+                                 (setq arg (car args)
+                                       args (cdr args)
+                                       code `((if (= __pyel_kwarglen 0)
+                                                  nil
+                                                (if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
+                                                    (if (or (<= ,(setq i (1+ i)) __pyel_len)
+                                                            (aref __pyel_values_provided ,(1- i)))
+                                                        ;;the value for this arg has already been provided
+                                                        (setq __pyel_error (quote ,arg))
+                                                      ;;else:
+                                                      (aset __pyel_values_provided ,(1- i) t)
+                                                      (setq ,arg (cdr __pyel_val)
+                                                            __pyel_kwargs (remove __pyel_val __pyel_kwargs)
+                                                            __pyel_kwargs-used (1+ __pyel_kwargs-used)
+                                                            __pyel_kwarglen (1- __pyel_kwarglen))))
+                                                ,@code))))
+                               code)
+
 
                            (if __pyel_error
                                (signal 'TypeError
