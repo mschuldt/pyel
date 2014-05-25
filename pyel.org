@@ -3185,23 +3185,51 @@ FunctionDef(name='a',
                                     (__pyel_args (cadr __pyel_args))
                                     (__pyel_len (length __pyel_args))
                                     (__pyel_kwargs-used 0)
-                                    __pyel_pos+optional __rest__
+                                    (__pyel_values_provided (make-vector ,nargs nil))
+                                    __pyel_pos+optional __rest__ __pyel_error
                                     __pyel_arg-index __pyel_val
+                                    
                                     
                                     ,@(if rest (list rest) nil)
                                     ,@(if kwarg (list kwarg) nil)
                                     ,@positional
                                     ,@optional
                                     ,@kw-only-args)
-                               (cond ((= __pyel_len ,nargs)
-                                      (setq __pyel_pos+optional __pyel_args))
+                               
+                               ;;set *rest arg
+                               ,(if rest
+                                    `(if (> __pyel_len ,nargs)
+                                         (setq ,rest (subseq __pyel_args ,nargs))))
+                               
+                               ;;set positional arg values
+                               (setq __pyel_tmp __pyel_args)
+                               ,@(mapcar (lambda (arg)
+                                           `(setq ,arg (car __pyel_tmp)
+                                                  __pyel_tmp (cdr __pyel_tmp)))
+                                         positional)
   
-                                     ((> __pyel_len ,nargs)
-                                      (setq __pyel_pos+optional (subseq __pyel_args 0 ,nargs)
-                                            ,rest (subseq __pyel_args ,nargs)))
-                                     (t ;;(< __pyel_len ,nargs)
-                                      (setq __pyel_pos+optional
-                                            (append __pyel_args (make-list (- ,nargs __pyel_len) nil)))))
+                               ;;set positional and optional arg values that are provided as keywords
+                               ;;(optional arg default values are set elsewhere)
+                               ,@(let ((i 0))
+                                   (mapcar (lambda (arg)
+                                            `(if (setq __pyel_val (assoc (quote ,arg) __pyel_kwargs))
+                                                 (if (or (<= ,(setq i (1+ i)) __pyel_len)
+                                                         (aref __pyel_values_provided ,(1- i)))
+                                                     ;;the value for this arg has already been provided
+                                                     (setq __pyel_error (quote ,arg))
+                                                   ;;else:
+                                                   (aset __pyel_values_provided ,(1- i) t)
+                                                   (setq ,arg (cdr __pyel_val)
+                                                         __pyel_kwargs (remove __pyel_val __pyel_kwargs)
+                                                         __pyel_kwargs-used (1+ __pyel_kwargs-used))
+                                                   )))
+                                   (append positional optional)))
+  
+                               (if __pyel_error
+                                   (signal 'TypeError
+                                           (format ,(format "%s() got multiple values for keyword argument '%%s'"
+                                                            name)
+                                                   __pyel_error)))
   
                                ;;set kwonly arg values
                                ,@(mapcar* (lambda (arg default)
@@ -3213,47 +3241,17 @@ FunctionDef(name='a',
                                                (setq ,arg ,default)))
                                           kw-only-args kw-only-defaults)
   
-                               (setq __pyel_pos+optional (list-to-vector __pyel_pos+optional))
-                               ;;make alist of index value pairs
-                               
-                               (mapc (lambda (kw)
-                                       (if (setq __pyel_arg-index
-                                                 (assoc (car kw) ',arg-index-alist))
-                                           (progn (if (< (cdr __pyel_arg-index) __pyel_len)
-                                                      (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv))))
-                                                  (aset __pyel_pos+optional (cdr __pyel_arg-index) (cdr kw)) 
-                                                  (setq __pyel_kwargs-used (1+ __pyel_kwargs-used))
-                                                  (setq __pyel_kwargs
-                                                        (remove (assoc (car __pyel_arg-index) __pyel_kwargs) __pyel_kwargs)) 
-                                                  )))
-                                     __pyel_kwargs)
-  
-                               (setq __pyel_pos+optional (mapcar 'identity __pyel_pos+optional))
                                
                                (if (< (+ __pyel_kwargs-used __pyel_len) ,npositional)
-                                   (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)" name npositional) (+ __pyel_kwargs-used __pyel_len))))
+                                   (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
+                                                                       name npositional)
+                                                              (+ __pyel_kwargs-used __pyel_len))))
                                
-                               ,@(mapcar (lambda (x)
-                                           `(setq ,x (car __pyel_pos+optional)
-                                                  __pyel_pos+optional (cdr __pyel_pos+optional)))
-                                         (append positional optional))
   
                                ,(if kwarg
                                     `(setq ,kwarg (pyel-alist-to-hash __pyel_kwargs)))
                                
-                               ,@body
-                               
-                               ;; (apply (lambda ,(if kwarg
-                               ;;                     (append positional optional rest (list kwarg))
-                               ;;                   (append positional optional rest (list)))
-                               
-                               ;;          ,@body)
-                               ;;        (append __pyel_pos+optional
-                               ;;                ,(if kwarg
-                               ;;                     `(list rest (pyel-alist-to-hash __pyel_kwargs))
-                               ;;                   `(list rest))))
-  
-                               )
+                               ,@body)
                            
                            ;;else: called without keyword args
                            
@@ -3266,6 +3264,11 @@ FunctionDef(name='a',
                                               __pyel_args (cdr __pyel_args))
                                        )
                                      (append positional optional))
+                           
+                           ,(if rest ;;set *rest arg
+                                `(setq ,rest __pyel_args)
+                              ;;TODO: verify that __pyel_args is null here (else case)
+                              )
   
                            ,(if kwarg `(setq ,kwarg (make-hash-table :size 0)))
                            
@@ -3275,6 +3278,7 @@ FunctionDef(name='a',
        `(defun ,name ,args
           ,@body)
        )))
+  
   
   ;;tmp fix (default values for kwonly args are not getting translated)
   (setq None nil)
