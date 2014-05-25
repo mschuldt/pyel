@@ -1386,7 +1386,7 @@ format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
   "if CHAR occurs at the end of STRING, remove it"
   (let ((split (char-split-string string))
         (char (or char " ")))
-
+    
     (while (string= char (car (last split)))
       (setq split (butlast split)))
     (mapconcat 'identity split "")))
@@ -1395,7 +1395,7 @@ format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
   "if CHAR occurs at the beginning of STRING, remove all occurrences"
   (let ((split (char-split-string string))
         (char (or char " ")))
-
+    
     (while (string= char (car split))
       (setq split (cdr split)))
     (mapconcat 'identity split "")))
