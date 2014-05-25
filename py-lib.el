@@ -155,10 +155,9 @@ Each element in ALIST must have for form (a . b)"
                            (let* ((__pyel_kwargs (cdar __pyel_args))
                                   (__pyel_args (cadr __pyel_args))
                                   (__pyel_len (length __pyel_args))
-                                  (index 0)
                                   (__pyel_kwargs-used 0)
                                   __pyel_pos+optional __rest__
-                                  __pyel_arg-index __pyel_index-value tmp
+                                  __pyel_arg-index __pyel_index-value
                                   __pyel_val
                                   ,@kw-only-args ,rest
                                   ,@positional ,@optional ,kwarg 
