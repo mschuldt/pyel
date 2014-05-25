@@ -157,8 +157,7 @@ Each element in ALIST must have for form (a . b)"
                                   (__pyel_len (length __pyel_args))
                                   (__pyel_kwargs-used 0)
                                   __pyel_pos+optional __rest__
-                                  __pyel_arg-index __pyel_index-value
-                                  __pyel_val
+                                  __pyel_arg-index __pyel_val
                                   ,@kw-only-args ,rest
                                   ,@positional ,@optional ,kwarg 
                                   )
@@ -184,18 +183,18 @@ Each element in ALIST must have for form (a . b)"
 
                              (setq __pyel_pos+optional (list-to-vector __pyel_pos+optional))
                              ;;make alist of index value pairs
-                             (setq __pyel_index-value
-                                   (mapcar (lambda (kw)
-                                             (if (setq __pyel_arg-index
-                                                       (assoc (car kw) ',arg-index-alist))
-                                                 (progn (if (< (cdr __pyel_arg-index) __pyel_len)
-                                                            (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv))))
-                                                        (aset __pyel_pos+optional (cdr __pyel_arg-index) (cdr kw)) 
-                                                        (setq __pyel_kwargs-used (1+ __pyel_kwargs-used))
-                                                        (setq __pyel_kwargs
-                                                              (remove (assoc (car __pyel_arg-index) __pyel_kwargs) __pyel_kwargs)) 
-                                                        )))
-                                           __pyel_kwargs))
+                             
+                             (mapc (lambda (kw)
+                                     (if (setq __pyel_arg-index
+                                               (assoc (car kw) ',arg-index-alist))
+                                         (progn (if (< (cdr __pyel_arg-index) __pyel_len)
+                                                    (signal 'TypeError (format ,(format "%s() got multiple values for keyword argument '%%s'" name) (caddr iv))))
+                                                (aset __pyel_pos+optional (cdr __pyel_arg-index) (cdr kw)) 
+                                                (setq __pyel_kwargs-used (1+ __pyel_kwargs-used))
+                                                (setq __pyel_kwargs
+                                                      (remove (assoc (car __pyel_arg-index) __pyel_kwargs) __pyel_kwargs)) 
+                                                )))
+                                   __pyel_kwargs)
 
                              (setq __pyel_pos+optional (mapcar 'identity __pyel_pos+optional))
                              
