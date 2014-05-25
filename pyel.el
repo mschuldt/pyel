@@ -280,11 +280,10 @@ value."
 
 (defun list-to-vector (list)
   (let ((v (make-vector (length list) nil))
-        (rest list)
         (i 0))
-    (while rest
-      (aset v i (car rest))
-      (setq rest (cdr rest)
+    (while list
+      (aset v i (car list))
+      (setq list (cdr list)
             i (1+ i)))
     v))
 
