@@ -3203,13 +3203,19 @@ FunctionDef(name='a',
                              ;;set positional arg values
                              (setq __pyel_tmp __pyel_args)
                              (reduce 'append '((a b) (c d)))
-  
+                             
                              ,(if positional
                                    `(setq 
                                      ,@(reduce 'append (mapcar (lambda (arg)
                                                                 `(,arg (car __pyel_tmp)
                                                                        __pyel_tmp (cdr __pyel_tmp)))
                                                               positional))))
+                             ,(if optional
+                                   `(setq 
+                                     ,@(reduce 'append (mapcar (lambda (arg)
+                                                                 `(,arg (car __pyel_tmp)
+                                                                        __pyel_tmp (cdr __pyel_tmp)))
+                                                               optional))))
   
                              ;;set positional and optional arg values that are provided as keywords
                              ;;(optional arg default values are set elsewhere)
