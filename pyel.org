@@ -3273,6 +3273,8 @@ FunctionDef(name='a',
           ,@body)
        )))
   
+  ;;tmp fix (default values for kwonly args are not getting translated)
+  (setq None nil)
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
