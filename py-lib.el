@@ -210,8 +210,7 @@ Each element in ALIST must have for form (a . b)"
                              ,(if kwarg
                                   `(setq ,kwarg (pyel-alist-to-hash __pyel_kwargs)))
                              
-                             ((lambda ()
-                                ,@body))
+                             ,@body
                              
                              ;; (apply (lambda ,(if kwarg
                              ;;                     (append positional optional rest (list kwarg))
@@ -226,16 +225,20 @@ Each element in ALIST must have for form (a . b)"
                              )
                          
                          ;;else: called without keyword args
-                         ,@(mapcar (lambda (arg-value)
+                         
+                         ,@(mapcar (lambda (arg-value) ;;set kwarg defaults
                                      (list 'setq (car arg-value)
                                            (cdr arg-value)))
                                    kwonly)
-                         (apply (lambda ,args-without-kwarg
-                                  ,@(if kwarg
-                                        `((let ((,kwarg (make-hash-table :size 0)))
-                                            ,@body))
-                                      body))
-                                __pyel_args))))
+                         ,@(mapcar (lambda (arg) ;;set arg values
+                                     `(setq ,arg (car __pyel_args)
+                                            __pyel_args (cdr __pyel_args))
+                                     )
+                                   (append positional optional))
+
+                         ,(if kwarg `(setq ,kwarg (make-hash-table :size 0)))
+                         
+                         ,@body)))
 
      ;;else: no keyword args
      `(defun ,name ,args
