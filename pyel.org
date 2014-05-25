@@ -3241,20 +3241,33 @@ FunctionDef(name='a',
                                                (setq ,arg ,default)))
                                           kw-only-args kw-only-defaults)
   
-                               
-                               (if (< (+ __pyel_kwargs-used __pyel_len) ,npositional)
-                                   (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
-                                                                       name npositional)
-                                                              (+ __pyel_kwargs-used __pyel_len))))
-                               
-  
+                               ;;verify that minimum required arguments have been passed
+                               ,(if (or rest optional)
+                                    `(if (< (+ __pyel_kwargs-used __pyel_len) ,npositional)
+                                         (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
+                                                                             name npositional)
+                                                                    (+ __pyel_kwargs-used __pyel_len))))
+                                  `(if (not (= (+ __pyel_kwargs-used __pyel_len) ,npositional))
+                                       (signal 'TypeError (format ,(format "%s() takes exactly %s arguments (%%s given)"
+                                                                           name npositional)
+                                                                  (+ __pyel_kwargs-used __pyel_len)))))
+                                      
                                ,(if kwarg
                                     `(setq ,kwarg (pyel-alist-to-hash __pyel_kwargs)))
                                
                                ,@body)
                            
                            ;;else: called without keyword args
-                           
+                           ,(if (or rest optional)
+                                `(if (< (length __pyel_args) ,npositional)
+                                     (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
+                                                                         name npositional)
+                                                                (+ __pyel_kwargs-used __pyel_len))))
+                              `(if (not (= (length __pyel_args) ,npositional))
+                                   (signal 'TypeError (format ,(format "%s() takes exactly %s arguments (%%s given)"
+                                                                       name npositional)
+                                                              (+ __pyel_kwargs-used __pyel_len)))))
+                                
                            ,@(mapcar (lambda (arg-value) ;;set kwarg defaults
                                        (list 'setq (car arg-value)
                                              (cdr arg-value)))
