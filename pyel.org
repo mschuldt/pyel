@@ -3010,8 +3010,8 @@ FunctionDef(name='a',
                   (and inner-defun
                        (not (member '&kwarg args))))
   
-          (setq func 'lambda
-                name pyel-nothing))
+          (setq decorators (cons 'pyel-lambda decorators)
+                name nil))
   
         (using-context
          function-def
@@ -3066,7 +3066,8 @@ FunctionDef(name='a',
   
              (if inner-defun
                  (progn
-                   (if (member '&kwarg args)
+                   (if (and (member '&kwarg args)
+                            (not (member 'pyel-lambda decorators)))
                        (setq decorators
                              (cons 'pyel-lambda decorators)))
                    (setq setq-code (list '@ 'setq orig-name)))
@@ -3132,15 +3133,15 @@ FunctionDef(name='a',
      function-def
      ;; (if (or (member '&kwarg args)
      ;;         (member '&kwonly args))
-     (let ((n -1)
-           (func-name (if (member 'pyel-inner-function-def decorator-list)
-                          (progn
-                            (setq decorator-list
-                                  (remove 'pyel-inner-function-def
-                                          decorator-list))
-                            '(lambda))
-                        (list 'defun name)))
-           optional
+     (let* ((n -1)
+            (func-name (member 'pyel-lambda decorator-list)
+                       (progn
+                         (setq decorator-list
+                               (remove 'pyel-lambda
+                                       decorator-list))
+                         '(lambda))
+                       (list 'defun name))
+           optional optional-defaults
            pos+optional rest kwarg
            npositional nargs arg-index
            kw-only-args kw-only-defaults)

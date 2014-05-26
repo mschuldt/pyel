@@ -605,8 +605,8 @@
                 (and inner-defun
                      (not (member '&kwarg args))))
 
-        (setq func 'lambda
-              name pyel-nothing))
+        (setq decorators (cons 'pyel-lambda decorators)
+              name nil))
 
       (using-context
        function-def
@@ -661,7 +661,8 @@
 
            (if inner-defun
                (progn
-                 (if (member '&kwarg args)
+                 (if (and (member '&kwarg args)
+                          (not (member 'pyel-lambda decorators)))
                      (setq decorators
                            (cons 'pyel-lambda decorators)))
                  (setq setq-code (list '@ 'setq orig-name)))
