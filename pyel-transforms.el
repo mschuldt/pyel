@@ -663,7 +663,7 @@
                (progn
                  (if (member '&kwarg args)
                      (setq decorators
-                           (cons 'pyel-inner-function-def decorators)))
+                           (cons 'pyel-lambda decorators)))
                  (setq setq-code (list '@ 'setq orig-name)))
              (setq setq-code '@))
 
