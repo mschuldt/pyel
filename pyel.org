@@ -2881,20 +2881,16 @@ This is for all non template specific code.
     (let* ((args (mapcar 'transform args))
            (defaults (mapcar 'transform defaults)))
   
-      ;;create default assignment code
-      (when (and defaults
-                 (context-p 'function-def))
-  
-        ;;`assign-defaults' only exists under function-def context
-        (setq assign-defaults (mapcar* (lambda (arg default)
-                                         (setq arg (_to- arg))
-                                         `(setq ,arg (or ,arg ,default)))
-                                       (reverse args) (reverse defaults))))
-  
       ;;&optional
       (when defaults
-        (insert-at args (- (length args) (length defaults)) '&optional))
-      
+        (setq defaults (mapcar* (lambda (arg default)
+                                  (setq arg (_to- arg))
+                                  (cons arg default))
+                                (reverse args) (reverse defaults)))
+          (setq args (append (subseq args 0 (- (length args) (length defaults)))
+                             '(&optional)
+                             defaults)))
+  
       ;;&rest
       (when vararg
         (setq args (append args (list '&rest vararg)))
