@@ -4666,7 +4666,7 @@ TODO: tests!
   ;; function:    is_not(a, b)  (in the operator module)
   (pyel-dispatch-func not-in (l r)
                       (_ list) -> (not (member l r))
-                      (_ vector) -> (not (vector-member l r))
+                      (_ vector) -> (not (py-vector-member l r))
                       (_ object) -> (--not-in-- r l) ;;?
                       )
   
@@ -4674,13 +4674,13 @@ TODO: tests!
   ;; function:    is_(a, b)
   (pyel-dispatch-func in (l r)
                       (_ list) -> (member l r)
-                      (_ vector) -> (vector-member l r)
+                      (_ vector) -> (py-vector-member l r)
                       (_ object) -> (--in-- r l);;?
                       )
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun vector-member (elt vector)
+  (defun py-vector-member (elt vector)
     "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
     (let ((i 0)
           (len (length vector))
@@ -4691,6 +4691,8 @@ TODO: tests!
             (setq found t)
           (setq i (1+ i))))
       found))
+  
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

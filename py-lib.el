@@ -521,7 +521,7 @@ else is optional"
 
 
 
-(defun vector-member (elt vector)
+(defun py-vector-member (elt vector)
   "Return non-nil if ELT is an element of VECTOR. Comparison done with `equal'."
   (let ((i 0)
         (len (length vector))
