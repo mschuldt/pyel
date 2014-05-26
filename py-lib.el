@@ -535,7 +535,7 @@ else is optional"
 
 (defun py-string-member (s string)
   "Return non-nil if S is a substring of STRING"
-  (and (stringp s) (string-match (regexp-quote s) string)))
+  (and (stringp s) (if (string-match (regexp-quote s) string) t nil))
 
 
 

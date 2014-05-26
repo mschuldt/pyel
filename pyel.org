@@ -4696,11 +4696,11 @@ TODO: tests!
   
   (defun py-string-member (s string)
     "Return non-nil if S is a substring of STRING"
-    (and (stringp s) (string-match (regexp-quote s) string)))
+    (and (stringp s) (if (string-match (regexp-quote s) string) t nil))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+
 #+END_SRC
 ** comprehensions
 DOC: generator expressions are translated to list comprehensions
