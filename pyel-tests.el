@@ -784,12 +784,16 @@ assert y == 1
 
 ;;
 
-(pyel-create-tests lambda
-                   "lambda x,y,z=4,*g: print(z);x()"
-                   "x = range(2, 9)
-x2 = reduce(lambda a,b:a+b, x)
-assert x2 == 35"
-                   )
+(pyel-create-tests
+ lambda
+ ("f = lambda x,y: x+y
+f2 = lambda x,*rest: [x,rest]
+f3 = lambda x, *rest, **k : [x, rest, k]"
+  ("f(1,2.3)" 3.3)
+  ("f2(1,2,3,4,'asd')" '(1 (2 3 4 "asd")))
+  ("repr(f3(1,2,3,4,5,a__=1,b__=2))"
+   "[1, [2, 3, 4, 5], {b--: 2, a--: 1}]"))
+ ("reduce(lambda a,b:a+b, range(2, 9))" 35))
 
 ;;
 
