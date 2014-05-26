@@ -998,6 +998,7 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-dispatch-func not-in (l r)
                     (_ list) -> (not (member l r))
                     (_ vector) -> (not (py-vector-member l r))
+                    (_ string) -> (not (py-string-member l r))
                     (_ object) -> (--not-in-- r l) ;;?
                     )
 
@@ -1006,6 +1007,7 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-dispatch-func in (l r)
                     (_ list) -> (member l r)
                     (_ vector) -> (py-vector-member l r)
+                    (_ string) -> (py-string-member l r)
                     (_ object) -> (--in-- r l);;?
                     )
 

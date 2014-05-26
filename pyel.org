@@ -4667,6 +4667,7 @@ TODO: tests!
   (pyel-dispatch-func not-in (l r)
                       (_ list) -> (not (member l r))
                       (_ vector) -> (not (py-vector-member l r))
+                      (_ string) -> (not (py-string-member l r))
                       (_ object) -> (--not-in-- r l) ;;?
                       )
   
@@ -4675,6 +4676,7 @@ TODO: tests!
   (pyel-dispatch-func in (l r)
                       (_ list) -> (member l r)
                       (_ vector) -> (py-vector-member l r)
+                      (_ string) -> (py-string-member l r)
                       (_ object) -> (--in-- r l);;?
                       )
 #+END_SRC
