@@ -887,7 +887,24 @@ except:
   _b()"
                    )
 
-
+(pyel-create-tests
+ in
+ ;;lists
+ ("3 in range(3)" t)
+ ("'s' in range(3)" nil)
+ ("'s' in [1,2,'s',3]" t)
+ ;;vectors
+ ("1 in [3,1,2]" t)
+ ("'s' in (4,2,'s','x')" t)
+ ("'s' in (4,2,'ss','x')" nil)
+ ("[1,2,3][1] in [1,3,[3,2,1]][2]" t)
+ ;;strings
+ ("'s' in 'string'" t)
+ ("'q' in 'string'" nil)
+ ("'tri' in 'string'" t)
+ 
+ ;;TODO: objects
+ )
 
 (pyel-create-tests
  list-comprehensions
