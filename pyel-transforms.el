@@ -996,7 +996,7 @@ Recognizes keyword args in the form 'arg = value'."
 ;;a not in b
 ;; function:    is_not(a, b)  (in the operator module)
 (pyel-dispatch-func not-in (l r)
-                    (_ list) -> (not (member l r))
+                    (_ list) -> (not (py-list-member l r))
                     (_ vector) -> (not (py-vector-member l r))
                     (_ string) -> (not (py-string-member l r))
                     (_ object) -> (--not-in-- r l) ;;?
@@ -1005,7 +1005,7 @@ Recognizes keyword args in the form 'arg = value'."
 ;;a in b
 ;; function:    is_(a, b)
 (pyel-dispatch-func in (l r)
-                    (_ list) -> (member l r)
+                    (_ list) -> (py-list-member l r)
                     (_ vector) -> (py-vector-member l r)
                     (_ string) -> (py-string-member l r)
                     (_ object) -> (--in-- r l);;?

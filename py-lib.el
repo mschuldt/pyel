@@ -533,6 +533,9 @@ else is optional"
         (setq i (1+ i))))
     found))
 
+(defsubst py-list-member (elt list)
+  (if (member elt list) t nil))
+
 (defun py-string-member (s string)
   "Return non-nil if S is a substring of STRING"
   (and (stringp s) (if (string-match (regexp-quote s) string) t nil))
