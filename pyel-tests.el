@@ -907,6 +907,25 @@ except:
  )
 
 (pyel-create-tests
+ not-in
+ ;;lists
+ ("3 not in range(3)" nil)
+ ("'s' not in range(3)" t)
+ ("'s' not in [1,2,'s',3]" nil)
+ ;;vectors
+ ("1 not in [3,1,2]" nil)
+ ("'s' not in (4,2,'s','x')" nil)
+ ("'s' not in (4,2,'ss','x')" t)
+ ("[1,2,3][1] in [1,3,[3,2,1]][2]" nil)
+ ;;strings
+ ("'s' not in 'string'" nil)
+ ("'q' not in 'string'" t)
+ ("'tri' not in 'string'" nil)
+ 
+ ;;TODO: objects
+ )
+
+(pyel-create-tests
  list-comprehensions
  ("[x*x for x in range(10)]" '(0 1 4 9 16 25 36 49 64 81))
  ("[x*x for x in range(10) if x > 5]" '(36 49 64 81))
