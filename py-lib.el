@@ -533,6 +533,10 @@ else is optional"
         (setq i (1+ i))))
     found))
 
+(defun py-string-member (s string)
+  "Return non-nil if S is a substring of STRING"
+  (and (stringp s) (string-match (regexp-quote s) string)))
+
 
 
 
