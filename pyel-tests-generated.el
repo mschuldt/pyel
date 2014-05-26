@@ -1,44 +1,44 @@
-(setq pyel-test-py-functions '("def pyel_test_rfind_method_403(n):
+(setq pyel-test-py-functions '("def pyel_test_rfind_method_400(n):
  x = 'asdf'
  y = 'abxabxab'
  if n == 1:
   return x.rfind('sd')
 
  if n == 2:
-  return y.rfind('ab')" "def pyel_test_ljust_method_402():
+  return y.rfind('ab')" "def pyel_test_ljust_method_399():
  x = 'ab'
- return x.ljust(10)" "def pyel_test_rjust_method_401():
+ return x.ljust(10)" "def pyel_test_rjust_method_398():
  x = 'ab'
- return x.rjust(10)" "def pyel_test_rpartition_method_400():
+ return x.rjust(10)" "def pyel_test_rpartition_method_397():
  x = 'abcdefghi'
- return x.rpartition('c')" "def pyel_test_partition_method_399():
+ return x.rpartition('c')" "def pyel_test_partition_method_396():
  x = 'abcdefghi'
- return x.partition('c')" "def pyel_test_rsplit_method_398():
+ return x.partition('c')" "def pyel_test_rsplit_method_395():
  x = 'a b c'
  y = x.rsplit()
- return y" "def pyel_test_rsplit_method_397(n):
+ return y" "def pyel_test_rsplit_method_394(n):
  y = 'a x b x d x'.rsplit()
  if n == 1:
   return y
 
  if n == 2:
-  return len(y)" "def pyel_test_lstrip_method_396():
+  return len(y)" "def pyel_test_lstrip_method_393():
  x = 'hello'
- return x.lstrip('hlo')" "def pyel_test_rstrip_method_395():
+ return x.lstrip('hlo')" "def pyel_test_rstrip_method_392():
  x = 'hello'
- return x.rstrip('hlo')" "def pyel_test_startswith_method_394():
+ return x.rstrip('hlo')" "def pyel_test_startswith_method_391():
  x = 'abcde'
- return x.startswith('.')" "def pyel_test_swapcase_method_393():
+ return x.startswith('.')" "def pyel_test_swapcase_method_390():
  x = 'aaBB1'
- return x.swapcase()" "def pyel_test_title_method_392():
+ return x.swapcase()" "def pyel_test_title_method_389():
  x = '2dd'
- return x.title()" "def pyel_test_zfill_method_391():
+ return x.title()" "def pyel_test_zfill_method_388():
  a = 'asdf'
- return a.zfill(10)" "def pyel_test_isalnum_method_390():
+ return a.zfill(10)" "def pyel_test_isalnum_method_387():
  x = '23'
- return x.isalnum()" "def pyel_test_isalpha_method_389():
+ return x.isalnum()" "def pyel_test_isalpha_method_386():
  x = 'asd'
- return x.isalpha()" "def pyel_test_istitle_method_388(n):
+ return x.isalpha()" "def pyel_test_istitle_method_385(n):
  a = 'sldk'
  b = 'Dsldk'
  c = 'aDsldk'
@@ -49,7 +49,7 @@
   return b.istitle()
 
  if n == 3:
-  return c.istitle()" "def pyel_test_isupper_method_387(n):
+  return c.istitle()" "def pyel_test_isupper_method_384(n):
  a = 'A'
    b = 'a'
    c = 'Aa'
@@ -60,7 +60,7 @@
   return b.isupper()
 
  if n == 3:
-  return c.isupper()" "def pyel_test_islower_method_386(n):
+  return c.isupper()" "def pyel_test_islower_method_383(n):
  a = 'A'
  b = 'a'
  c = 'Aa'
@@ -71,7 +71,7 @@
   return b.islower()
 
  if n == 3:
-  return c.islower()" "def pyel_test_copy_method_385(n):
+  return c.islower()" "def pyel_test_copy_method_382(n):
  x = {1:['one'],2:'two',3:'three'}
  y = x
  z = x.copy()
@@ -79,14 +79,14 @@
   return x is z
 
  if n == 2:
-  return x[1] is z[1]" "def pyel_test_popitem_method_384(n):
+  return x[1] is z[1]" "def pyel_test_popitem_method_381(n):
  x = {1:'one',2:'two',3:'three'}
  y = x.popitem()
  if n == 1:
   return y
 
  if n == 2:
-  return repr(x)" "def pyel_test_values_method_383(n):
+  return repr(x)" "def pyel_test_values_method_380(n):
  x = {1:'one',2:'two',3:'three'}
  y = {8 : 88}
  z = {}
@@ -97,7 +97,7 @@
   return y.values()
 
  if n == 3:
-  return z.values()" "def pyel_test_keys_method_382(n):
+  return z.values()" "def pyel_test_keys_method_379(n):
  x = {1:'one',2:'two',3:'three'}
  y = {8 : 88}
  z = {}
@@ -108,7 +108,7 @@
   return y.keys()
 
  if n == 3:
-  return z.keys()" "def pyel_test_items_method_381(n):
+  return z.keys()" "def pyel_test_items_method_378(n):
  x = {1:'one',2:'two',3:'three'}
  y = {8 : 88}
  z = {}
@@ -119,7 +119,7 @@
   return y.items()
 
  if n == 3:
-  return z.items()" "def pyel_test_get_method_380(n):
+  return z.items()" "def pyel_test_get_method_377(n):
  x = {1:'one',2:'two',3:'three'}
  if n == 1:
   return x[1]
@@ -131,18 +131,18 @@
   return x.get(3, 'd')
 
  if n == 4:
-  return x.get(4, 'd')" "def pyel_test_strip_method_379():
+  return x.get(4, 'd')" "def pyel_test_strip_method_376():
  x = 'hello'
- return x.strip('hlo')" "def pyel_test_split_method_378():
+ return x.strip('hlo')" "def pyel_test_split_method_375():
  x = 'a b c'
  y = x.split()
- return y" "def pyel_test_split_method_377(n):
+ return y" "def pyel_test_split_method_374(n):
  y = 'a x b x d x'.split()
  if n == 1:
   return y
 
  if n == 2:
-  return len(y)" "def pyel_test_upper_method_376(n):
+  return len(y)" "def pyel_test_upper_method_373(n):
  x = 'aB'
  y = x
  y = x.upper()
@@ -150,7 +150,7 @@
   return y
 
  if n == 2:
-  return x" "def pyel_test_lower_method_375(n):
+  return x" "def pyel_test_lower_method_372(n):
  x = 'aB'
  y = x
  y = x.lower()
@@ -158,7 +158,7 @@
   return y
 
  if n == 2:
-  return x" "def pyel_test_reverse_method_374(n):
+  return x" "def pyel_test_reverse_method_371(n):
  x = [1,2,3]
  y = x
  x.reverse()
@@ -166,7 +166,7 @@
   return x
 
  if n == 2:
-  return x is y" "def pyel_test_pop_method_373(n):
+  return x is y" "def pyel_test_pop_method_370(n):
  x = [[1],'s',(2,), 1, 4]
  y = x
  a = x.pop()
@@ -183,14 +183,14 @@
   return c
 
  if n == 4:
-  return x is y" "def pyel_test_pop_method_372(n):
+  return x is y" "def pyel_test_pop_method_369(n):
  x = {1:'one',2:'two',3:'three'}
  y = x.pop(2)
  if n == 1:
   return y
 
  if n == 2:
-  return repr(x)" "def pyel_test_extend_method_371(n):
+  return repr(x)" "def pyel_test_extend_method_368(n):
  x = [1]
  y = x
  x.extend([1,'2',(3,)])
@@ -198,7 +198,7 @@
   return x is y
 
  if n == 2:
-  return x" "def pyel_test_extend_method_370(n):
+  return x" "def pyel_test_extend_method_367(n):
  x = [1]
  y = x
  x.extend((1,'2',(3,)))
@@ -206,7 +206,7 @@
   return x is y
 
  if n == 2:
-  return x" "def pyel_test_extend_method_369(n):
+  return x" "def pyel_test_extend_method_366(n):
  x = [1]
  y = x
  x.extend('extended')
@@ -214,7 +214,7 @@
   return x is y
 
  if n == 2:
-  return x" "def pyel_test_extend_method_368(n):
+  return x" "def pyel_test_extend_method_365(n):
  class a:
   x = 5
   def __iter__(self):
@@ -233,7 +233,7 @@
   return y is x
 
  if n == 2:
-  return x" "def pyel_test_count_method_367(n):
+  return x" "def pyel_test_count_method_364(n):
  x = [1,2,3,3,[2],'s']
  if n == 1:
   return x.count(3)
@@ -245,7 +245,7 @@
   return x.count([3,4])
 
  if n == 4:
-  return x.count('s')" "def pyel_test_count_method_366(n):
+  return x.count('s')" "def pyel_test_count_method_363(n):
  x = (1,2,3,3,[2],'s')
  if n == 1:
   return x.count(3)
@@ -257,20 +257,20 @@
   return x.count([3,4])
 
  if n == 4:
-  return x.count('s')" "def pyel_test_remove_method_365():
+  return x.count('s')" "def pyel_test_remove_method_362():
  x = [1,'2','2',(1,)]
  y = x
  x.remove('2')
- return x is y" "def pyel_test_remove_method_364():
+ return x is y" "def pyel_test_remove_method_361():
  x = [1,'2','2',(1,)]
  x.remove('2')
- return x" "def pyel_test_remove_method_363():
+ return x" "def pyel_test_remove_method_360():
  x = [1,'2','2',(1,)]
  x.remove(1)
- return x" "def pyel_test_remove_method_362():
+ return x" "def pyel_test_remove_method_359():
  x = [1,'2','2',(1,)]
  x.remove((1,))
- return x" "def pyel_test_index_method_361(n):
+ return x" "def pyel_test_index_method_358(n):
  x = [1,(1,2),'5']
  if n == 1:
   return x.index(1)
@@ -279,7 +279,7 @@
   return x.index((1,2))
 
  if n == 3:
-  return x.index('5')" "def pyel_test_index_method_360(n):
+  return x.index('5')" "def pyel_test_index_method_357(n):
  x = 'importantstring'
  if n == 1:
   return x.index('t')
@@ -291,9 +291,9 @@
   return x.index('g')
 
  if n == 4:
-  return x.index(x)" "def pyel_test_index_method_359():
+  return x.index(x)" "def pyel_test_index_method_356():
  x = 'str.ing'
- return x.index('.')" "def pyel_test_index_method_358(n):
+ return x.index('.')" "def pyel_test_index_method_355(n):
  x = (1,2,'tree',(3,))
  if n == 1:
   return x.index(1)
@@ -302,9 +302,9 @@
   return x.index('tree')
 
  if n == 3:
-  return x.index((3,))" "def pyel_test_find_method_357():
+  return x.index((3,))" "def pyel_test_find_method_354():
  x = 'asdf'
- return x.find('sd')" "def pyel_test_insert_356(n):
+ return x.find('sd')" "def pyel_test_insert_353(n):
  x = [1,2,3]
  y = x
  x.insert(1,'hi')
@@ -312,7 +312,7 @@
   return x
 
  if n == 2:
-  return x is y" "def pyel_test_append_355(n):
+  return x is y" "def pyel_test_append_352(n):
  a = [1,2,3]
  c = ['a','a']
  b = a
@@ -334,7 +334,7 @@
   return a[3] is c
 
  if n == 5:
-  return e" "def pyel_test_enumerate_function_354():
+  return e" "def pyel_test_enumerate_function_351():
  class a:
   x = 5
   def __iter__(self):
@@ -346,10 +346,10 @@
     return ret
    raise StopIteration
  obj = a()
- return enumerate(obj)" "def pyel_test_dict_function_353():
+ return enumerate(obj)" "def pyel_test_dict_function_350():
  a = [('ab'),['b', 5],('c',8)]
  x = dict(a)
- return repr(x)" "def pyel_test_dict_function_352():
+ return repr(x)" "def pyel_test_dict_function_349():
  class a:
   x = 5
   def __iter__(self):
@@ -362,7 +362,7 @@
    raise StopIteration
  o = a()
  x = dict(o)
- return repr((x))" "def pyel_test_float_function_351(n):
+ return repr((x))" "def pyel_test_float_function_348(n):
  x = '3.1'
  y = ['4']
  z = 2
@@ -377,12 +377,12 @@
   return float(z)
 
  if n == 4:
-  return float(a)" "def pyel_test_float_function_350():
+  return float(a)" "def pyel_test_float_function_347():
  class test:
   def __float__(self):
    return 342.1
  o = test()
- return float(o)" "def pyel_test_int_function_349(n):
+ return float(o)" "def pyel_test_int_function_346(n):
  x = '3'
  y = ['4']
  z = 2
@@ -397,18 +397,18 @@
   return int(z)
 
  if n == 4:
-  return int(a)" "def pyel_test_int_function_348():
+  return int(a)" "def pyel_test_int_function_345():
  class test:
   def __int__(self):
    return 342
  o = test()
- return int(o)" "def pyel_test_abs_function_347():
+ return int(o)" "def pyel_test_abs_function_344():
  class C:
   def __abs__(self):
    'doc'
    return 'hi'
  obj = C()
- return abs(obj)" "def pyel_test_type_346(n):
+ return abs(obj)" "def pyel_test_type_343(n):
  class testc: pass
  x = testc()
  y = type(x)
@@ -416,7 +416,7 @@
   return repr(type(x))
 
  if n == 2:
-  return y is testc" "def pyel_test_eval_345(n):
+  return y is testc" "def pyel_test_eval_342(n):
  x = 23
  a = 1
  b = 4
@@ -425,14 +425,14 @@
   return eval('x')
 
  if n == 2:
-  return eval(s)" "def pyel_test_str_344():
+  return eval(s)" "def pyel_test_str_341():
  class strtest:
   def __init__ (self, n):
    self.x = n
   def __str__(self):
    return 'str' + str(self.x)
  obj = strtest(4)
- return str(obj)" "def pyel_test_list_function_343(n):
+ return str(obj)" "def pyel_test_list_function_340(n):
  a = [1]
  b = [a,1]
  c = list(b)
@@ -443,7 +443,7 @@
   return c == b
 
  if n == 3:
-  return c[0] is a" "def pyel_test_list_function_342(n):
+  return c[0] is a" "def pyel_test_list_function_339(n):
  a = [1]
  b = (a, 1)
  c = list(b)
@@ -451,7 +451,7 @@
   return c
 
  if n == 2:
-  return c[0] is a" "def pyel_test_list_function_341(n):
+  return c[0] is a" "def pyel_test_list_function_338(n):
  s = '123'
  l = [1,2,3]
  tu = (1,2,3,)
@@ -466,7 +466,7 @@
   return list(tu)
 
  if n == 4:
-  return list(d)" "def pyel_test_list_function_340():
+  return list(d)" "def pyel_test_list_function_337():
  class a:
   x = 5
   def __iter__(self):
@@ -478,7 +478,7 @@
     return ret
    raise StopIteration
  obj = a()
- return list(obj)" "def pyel_test_len_function_339(n):
+ return list(obj)" "def pyel_test_len_function_336(n):
  a = [1,2,3,'5']
  b = []
  c = 'str'
@@ -493,13 +493,13 @@
   return len(c)
 
  if n == 4:
-  return len(d)" "def pyel_test_dict_comprehensions_308(n):
+  return len(d)" "def pyel_test_dict_comprehensions_305(n):
  x = {x: [y*y for y in range(x)] for x in range(20)}
  if n == 1:
   return hash_table_count(x)
 
  if n == 2:
-  return x[3],x[5],x[10]" "def pyel_test_list_comprehensions_307(n):
+  return x[3],x[5],x[10]" "def pyel_test_list_comprehensions_304(n):
  matrix = [[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12],]
  transposed = []
  for i in range(4):
@@ -508,7 +508,7 @@
   return [[row[i] for row in matrix] for i in range(4)]
 
  if n == 2:
-  return transposed" "def pyel_test_continue_300():
+  return transposed" "def pyel_test_continue_297():
  l = [0]
  y = 8;
  while y > 0:
@@ -516,7 +516,7 @@
   if y % 2 == 0:
    continue
   l.append(y)
- return l" "def pyel_test_continue_299():
+ return l" "def pyel_test_continue_296():
  x = [0]
  c = 0
  while c < 3:
@@ -528,13 +528,13 @@
     x.append('c')
     continue
    x.append(y)
- return x" "def pyel_test_break_298():
+ return x" "def pyel_test_break_295():
  x = 0
  while x < 10:
   x = x + 1
   if x == 3:
    break
- return x" "def pyel_test_break_297():
+ return x" "def pyel_test_break_294():
  x = [0]
  c = 0
  while c < 3:
@@ -546,7 +546,7 @@
    if y == 3:
     x.append('b')
     break
- return x" "def pyel_test_aug_assign_296(n):
+ return x" "def pyel_test_aug_assign_293(n):
  x = 2
  if n == 1:
   x += 3
@@ -562,7 +562,7 @@
 
  if n == 4:
   x /= 4
-  return x" "def pyel_test_aug_assign_295(n):
+  return x" "def pyel_test_aug_assign_292(n):
  x = [2]
  if n == 1:
   x[0] += 3
@@ -578,7 +578,7 @@
 
  if n == 4:
   x[0] /= 4
-  return x[0]" "def pyel_test_aug_assign_294(n):
+  return x[0]" "def pyel_test_aug_assign_291(n):
  class a:
   x = 2
  if n == 1:
@@ -595,24 +595,35 @@
 
  if n == 4:
   a.x /= 4
-  return a.x" "def pyel_test_for_loop_281():
+  return a.x" "def pyel_test_lambda_290(n):
+ f = lambda x,y: x+y
+ f2 = lambda x,*rest: [x,rest]
+ f3 = lambda x, *rest, **k : [x, rest, k]
+ if n == 1:
+  return f(1,2.3)
+
+ if n == 2:
+  return f2(1,2,3,4,'asd')
+
+ if n == 3:
+  return repr(f3(1,2,3,4,5,a__=1,b__=2))" "def pyel_test_for_loop_283():
  x = []
  for a in range(5):
   x.append(a)
- return x" "def pyel_test_for_loop_280():
+ return x" "def pyel_test_for_loop_282():
  x = []
  for a,b in [[1,2],'34',(5,6)]:
   x.append([a,b])
- return x" "def pyel_test_for_loop_279():
+ return x" "def pyel_test_for_loop_281():
  x = []
  for a,b,c,d in [[1,2,1,1],'34xa',(5,6,'a',1)]:
   x.append([a,b,c,d,a])
- return x" "def pyel_test_for_loop_278():
+ return x" "def pyel_test_for_loop_280():
  n = 0
  for a in range(5):
   for b in range(5):
    n = n + a + b
- return n" "def pyel_test_for_loop_277():
+ return n" "def pyel_test_for_loop_279():
  x = []
  for a in range(100):
   if (a % 2 == 0):
@@ -620,15 +631,15 @@
   if a > 10:
    break
   x.append(a)
- return x" "def pyel_test_for_loop_276():
+ return x" "def pyel_test_for_loop_278():
  x = []
  for a in (1,2,3,4):
   x.append(2*a)
- return x" "def pyel_test_for_loop_275():
+ return x" "def pyel_test_for_loop_277():
  x = []
  for a,b in ([1,2],'34',(5,6)):
   x.append([a,b])
- return x" "def pyel_test_for_loop_274():
+ return x" "def pyel_test_for_loop_276():
  tup = make_vector(20,0)
  for i in range(10):
   tup[i] = i
@@ -642,11 +653,11 @@
   if a > 10:
    break
   x.append(a)
- return x" "def pyel_test_for_loop_273():
+ return x" "def pyel_test_for_loop_275():
  x = []
  for a in 'string':
   x.append(a)
- return x" "def pyel_test_for_loop_272(n):
+ return x" "def pyel_test_for_loop_274(n):
  x = []
  c = 0
  def getstr():
@@ -659,7 +670,7 @@
   return x
 
  if n == 2:
-  return c" "def pyel_test_for_loop_271():
+  return c" "def pyel_test_for_loop_273():
  class a:
   x = 5
   def __iter__(self):
@@ -674,7 +685,7 @@
  x = []
  for n in obj:
   x.append(n)
- return x" "def pyel_test_special_method_lookup_264(n):
+ return x" "def pyel_test_special_method_lookup_266(n):
  class adder:
   def __init__(self, n):
    self.x = n
@@ -690,7 +701,7 @@
   return repr(c.__call__)
 
  if n == 3:
-  return d.__call__" "def pyel_test_objects_263(n):
+  return d.__call__" "def pyel_test_objects_265(n):
  class tclass():
   '''a test class'''
   cvar = 12
@@ -757,7 +768,7 @@
   tclass.sixmore = lambda self: self.a + 6
   y = x.sixmore
   x.a = 2
-  return y()" "def pyel_test_objects_262(n):
+  return y()" "def pyel_test_objects_264(n):
  class one:
   def __init__(self,x):
    self.n = x
@@ -771,10 +782,10 @@
   return x.other.n
 
  if n == 2:
-  return x.other.m()" "def pyel_test_mod_op_204():
+  return x.other.m()" "def pyel_test_mod_op_206():
  a = 3
  b = 5
- return b % a" "def pyel_test_bin_ops_203(n):
+ return b % a" "def pyel_test_bin_ops_205(n):
  a = 3
  b = 5
  if n == 1:
@@ -784,17 +795,17 @@
   return a | b
 
  if n == 3:
-  return a ^ b" "def pyel_test_div_op_202(n):
+  return a ^ b" "def pyel_test_div_op_204(n):
  a = 9
  b = 4
  if n == 1:
   return a / b
 
  if n == 2:
-  return a // b" "def pyel_test_pow_op_201():
+  return a // b" "def pyel_test_pow_op_203():
  n1 = 2
  n2 = 4
- return n1 ** n2" "def pyel_test_mult_op_200(n):
+ return n1 ** n2" "def pyel_test_mult_op_202(n):
  n1 = 2
  n2 = 4
  s = 's'
@@ -805,10 +816,10 @@
   return s * n1
 
  if n == 3:
-  return n1 * s" "def pyel_test_sub_op_199():
+  return n1 * s" "def pyel_test_sub_op_201():
  n1 = 5
  n2 = 3
- return n1 - n2" "def pyel_test_add_op_198(n):
+ return n1 - n2" "def pyel_test_add_op_200(n):
  n1 = 2
  n2 = 5
  s1 = 'asd'
@@ -827,7 +838,7 @@
   return l1 + l2
 
  if n == 4:
-  return v1 + v2" "def pyel_test_add_op_197():
+  return v1 + v2" "def pyel_test_add_op_199():
  class test:
   def __init__(self, n):
    message('init')
@@ -837,7 +848,7 @@
    return self.n + o.n
  x = test(5)
  y = test(2)
- return x + y" "def pyel_test_function_arguments_196(n):
+ return x + y" "def pyel_test_function_arguments_198(n):
  def func(__a,__b,c=1,d='two',*rest,**kwargs):
   return [__a,__b,c,d,rest,kwargs]
  if n == 1:
@@ -865,7 +876,7 @@
   return repr(func(x = 's',__b = 324,__a = 'n',))
 
  if n == 9:
-  return repr(func(x = 's',__b = 324,__a = 'n',d = 2))" "def pyel_test_function_arguments_195(n):
+  return repr(func(x = 's',__b = 324,__a = 'n',d = 2))" "def pyel_test_function_arguments_197(n):
  def test(a, *b, c=1, d, **e):
   return [a, b, c, d, e]
  if n == 1:
@@ -881,7 +892,21 @@
   return repr(test(d=1,c=2,a='x',e=4))
 
  if n == 5:
-  return repr(test(1,2,3,4,5,6))" "def pyel_test_def_194(n):
+  return repr(test(1,2,3,4,5,6))" "def pyel_test_function_arguments_196(n):
+ def test(a,b):
+      return [a,b]
+ if n == 1:
+  return test(1,2)
+
+ if n == 2:
+  return test(b=4,a='s')" "def pyel_test_function_arguments_195(n):
+ def test(a,b,c,d=1,dd=2,ddd=4,*restst, x=1,xx=32,xxx=43,**kwargs_):
+  return [a,b,c,d,dd,ddd,restst,x,xx,xxx,kwargs_]
+ if n == 1:
+  return repr(test(1,2,3,999,888,777,1,2,3,43,4,5,x=3))
+
+ if n == 2:
+  return repr(test(1,2,3,999,888,777,1,2,3,43,4,5))" "def pyel_test_def_194(n):
  def a():
    return 0
 
@@ -1660,6 +1685,69 @@ _pyel21312()")) (quote (36 49))))
 (ert-deftest pyel-list-comprehensions3 nil (equal (eval (pyel "def _pyel21312():
  [(x, y) for x in [1,2,3] for y in [3,1,4] if x != y]
 _pyel21312()")) (quote ([1 3] [1 4] [2 3] [2 1] [2 4] [3 1] [3 4]))))
+(ert-deftest pyel-not-in10 nil (equal (eval (pyel "def _pyel21312():
+ 3 not in range(3)
+_pyel21312()")) nil))
+(ert-deftest pyel-not-in9 nil (equal (eval (pyel "def _pyel21312():
+ 's' not in range(3)
+_pyel21312()")) t))
+(ert-deftest pyel-not-in8 nil (equal (eval (pyel "def _pyel21312():
+ 's' not in [1,2,'s',3]
+_pyel21312()")) nil))
+(ert-deftest pyel-not-in7 nil (equal (eval (pyel "def _pyel21312():
+ 1 not in [3,1,2]
+_pyel21312()")) nil))
+(ert-deftest pyel-not-in6 nil (equal (eval (pyel "def _pyel21312():
+ 's' not in (4,2,'s','x')
+_pyel21312()")) nil))
+(ert-deftest pyel-not-in5 nil (equal (eval (pyel "def _pyel21312():
+ 's' not in (4,2,'ss','x')
+_pyel21312()")) t))
+(ert-deftest pyel-not-in4 nil (equal (eval (pyel "def _pyel21312():
+ [1,2,3][1] in [1,3,[3,2,1]][2]
+_pyel21312()")) nil))
+(ert-deftest pyel-not-in3 nil (equal (eval (pyel "def _pyel21312():
+ 's' not in 'string'
+_pyel21312()")) nil))
+(ert-deftest pyel-not-in2 nil (equal (eval (pyel "def _pyel21312():
+ 'q' not in 'string'
+_pyel21312()")) t))
+(ert-deftest pyel-not-in1 nil (equal (eval (pyel "def _pyel21312():
+ 'tri' not in 'string'
+_pyel21312()")) nil))
+(ert-deftest pyel-in10 nil (equal (eval (pyel "def _pyel21312():
+ 3 in range(3)
+_pyel21312()")) t))
+(ert-deftest pyel-in9 nil (equal (eval (pyel "def _pyel21312():
+ 's' in range(3)
+_pyel21312()")) nil))
+(ert-deftest pyel-in8 nil (equal (eval (pyel "def _pyel21312():
+ 's' in [1,2,'s',3]
+_pyel21312()")) t))
+(ert-deftest pyel-in7 nil (equal (eval (pyel "def _pyel21312():
+ 1 in [3,1,2]
+_pyel21312()")) t))
+(ert-deftest pyel-in6 nil (equal (eval (pyel "def _pyel21312():
+ 's' in (4,2,'s','x')
+_pyel21312()")) t))
+(ert-deftest pyel-in5 nil (equal (eval (pyel "def _pyel21312():
+ 's' in (4,2,'ss','x')
+_pyel21312()")) nil))
+(ert-deftest pyel-in4 nil (equal (eval (pyel "def _pyel21312():
+ [1,2,3][1] in [1,3,[3,2,1]][2]
+_pyel21312()")) t))
+(ert-deftest pyel-in3 nil (equal (eval (pyel "def _pyel21312():
+ 's' in 'string'
+_pyel21312()")) t))
+(ert-deftest pyel-in2 nil (equal (eval (pyel "def _pyel21312():
+ 'q' in 'string'
+_pyel21312()")) nil))
+(ert-deftest pyel-in1 nil (equal (eval (pyel "def _pyel21312():
+ 'tri' in 'string'
+_pyel21312()")) t))
+(ert-deftest pyel-lambda1 nil (equal (eval (pyel "def _pyel21312():
+ reduce(lambda a,b:a+b, range(2, 9))
+_pyel21312()")) 35))
 (ert-deftest pyel-mod-op2 nil (equal (eval (pyel "def _pyel21312():
  5 % 3
 _pyel21312()")) 2))
@@ -1765,271 +1853,278 @@ _pyel21312()")) 300.0))
 (ert-deftest pyel-test-def-7 nil (equal (eval (pyel "pyel_test_def_194(5)")) 1.1))
 (ert-deftest pyel-test-def-8 nil (equal (eval (pyel "pyel_test_def_194(6)")) 22))
 (ert-deftest pyel-test-def-9 nil (equal (eval (pyel "pyel_test_def_194(7)")) [1 (\, 3) (\, 5) (\, 6) (\, 8)]))
-(ert-deftest pyel-test-function_arguments-1 nil (equal (eval (pyel "pyel_test_function_arguments_195(1)")) "[\"x\", [1, 2, 3], 1, nil, {-yy: 3.3, -xx: 2.2, -d: 1.1}]"))
-(ert-deftest pyel-test-function_arguments-2 nil (equal (eval (pyel "pyel_test_function_arguments_195(2)")) "[\"x\", nil, 1, 1.1, {}]"))
-(ert-deftest pyel-test-function_arguments-3 nil (equal (eval (pyel "pyel_test_function_arguments_195(3)")) "[\"x\", nil, 1, nil, {}]"))
-(ert-deftest pyel-test-function_arguments-4 nil (equal (eval (pyel "pyel_test_function_arguments_195(4)")) "[\"x\", (), 2, 1, {e: 4}]"))
-(ert-deftest pyel-test-function_arguments-5 nil (equal (eval (pyel "pyel_test_function_arguments_195(5)")) "[1, (2, 3, 4, 5, 6), 1, nil, {}]"))
-(ert-deftest pyel-test-function_arguments-6 nil (equal (eval (pyel "pyel_test_function_arguments_196(1)")) "[1, 2, 1, \"two\", [], {}]"))
-(ert-deftest pyel-test-function_arguments-7 nil (equal (eval (pyel "pyel_test_function_arguments_196(2)")) "[1, 2, 3, \"two\", [], {}]"))
-(ert-deftest pyel-test-function_arguments-8 nil (equal (eval (pyel "pyel_test_function_arguments_196(3)")) "[1, 2, 3, 4, [], {}]"))
-(ert-deftest pyel-test-function_arguments-9 nil (equal (eval (pyel "pyel_test_function_arguments_196(4)")) "[1, 2, 3, 4, [5], {}]"))
-(ert-deftest pyel-test-function_arguments-10 nil (equal (eval (pyel "pyel_test_function_arguments_196(5)")) "[1, 2, 3, 4, [5, 6], {}]"))
-(ert-deftest pyel-test-function_arguments-11 nil (equal (eval (pyel "pyel_test_function_arguments_196(6)")) "[1, 2, 3, 4, [5, 6], {x: \"s\"}]"))
-(ert-deftest pyel-test-function_arguments-12 nil (equal (eval (pyel "pyel_test_function_arguments_196(7)")) "[1, 2, 3, 4, [5, 6], {y: 23, x: \"s\"}]"))
-(ert-deftest pyel-test-function_arguments-13 nil (equal (eval (pyel "pyel_test_function_arguments_196(8)")) "[\"n\", 324, 1, \"two\", [], {x: \"s\"}]"))
-(ert-deftest pyel-test-function_arguments-14 nil (equal (eval (pyel "pyel_test_function_arguments_196(9)")) "[\"n\", 324, 1, 2, [], {x: \"s\"}]"))
-(ert-deftest pyel-test-add_op-1 nil (equal (eval (pyel "pyel_test_add_op_197()")) 14))
-(ert-deftest pyel-test-add_op-2 nil (equal (eval (pyel "pyel_test_add_op_198(1)")) 10))
-(ert-deftest pyel-test-add_op-3 nil (equal (eval (pyel "pyel_test_add_op_198(2)")) "asddf"))
-(ert-deftest pyel-test-add_op-4 nil (equal (eval (pyel "pyel_test_add_op_198(3)")) (quote (1 3 "a"))))
-(ert-deftest pyel-test-add_op-5 nil (equal (eval (pyel "pyel_test_add_op_198(4)")) [1 2 3]))
-(ert-deftest pyel-test-sub_op-1 nil (equal (eval (pyel "pyel_test_sub_op_199()")) 2))
-(ert-deftest pyel-test-mult_op-1 nil (equal (eval (pyel "pyel_test_mult_op_200(1)")) 8))
-(ert-deftest pyel-test-mult_op-2 nil (equal (eval (pyel "pyel_test_mult_op_200(2)")) "ss"))
-(ert-deftest pyel-test-mult_op-3 nil (equal (eval (pyel "pyel_test_mult_op_200(3)")) "ss"))
-(ert-deftest pyel-test-pow_op-1 nil (equal (eval (pyel "pyel_test_pow_op_201()")) 16))
-(ert-deftest pyel-test-div_op-1 nil (equal (eval (pyel "pyel_test_div_op_202(1)")) 2.25))
-(ert-deftest pyel-test-div_op-2 nil (equal (eval (pyel "pyel_test_div_op_202(2)")) 2))
-(ert-deftest pyel-test-bin_ops-1 nil (equal (eval (pyel "pyel_test_bin_ops_203(1)")) 0))
-(ert-deftest pyel-test-bin_ops-2 nil (equal (eval (pyel "pyel_test_bin_ops_203(2)")) 7))
-(ert-deftest pyel-test-bin_ops-3 nil (equal (eval (pyel "pyel_test_bin_ops_203(3)")) 6))
-(ert-deftest pyel-test-mod_op-1 nil (equal (eval (pyel "pyel_test_mod_op_204()")) 2))
-(ert-deftest pyel-test-objects-1 nil (equal (eval (pyel "pyel_test_objects_262(1)")) 5))
-(ert-deftest pyel-test-objects-2 nil (equal (eval (pyel "pyel_test_objects_262(2)")) 6))
-(ert-deftest pyel-test-objects-3 nil (equal (eval (pyel "pyel_test_objects_263(1)")) "tclass"))
-(ert-deftest pyel-test-objects-4 nil (equal (eval (pyel "pyel_test_objects_263(2)")) (lambda (self) (getattr self a))))
-(ert-deftest pyel-test-objects-5 nil (equal (eval (pyel "pyel_test_objects_263(3)")) (lambda (self n) (setattr self a n))))
-(ert-deftest pyel-test-objects-6 nil (equal (eval (pyel "pyel_test_objects_263(4)")) 12))
-(ert-deftest pyel-test-objects-7 nil (equal (eval (pyel "pyel_test_objects_263(5)")) "hi"))
-(ert-deftest pyel-test-objects-8 nil (equal (eval (pyel "pyel_test_objects_263(6)")) 23))
-(ert-deftest pyel-test-objects-9 nil (equal (eval (pyel "pyel_test_objects_263(7)")) 19))
-(ert-deftest pyel-test-objects-10 nil (equal (eval (pyel "pyel_test_objects_263(8)")) (lambda (self) nil (pyel-+ (getattr self cvar) 5))))
-(ert-deftest pyel-test-objects-11 nil (equal (eval (pyel "pyel_test_objects_263(9)")) "<class 'object'>"))
-(ert-deftest pyel-test-objects-12 nil (equal (eval (pyel "pyel_test_objects_263(10)")) t))
-(ert-deftest pyel-test-objects-13 nil (equal (eval (pyel "pyel_test_objects_263(11)")) "tclass"))
-(ert-deftest pyel-test-objects-14 nil (equal (eval (pyel "pyel_test_objects_263(12)")) 14))
-(ert-deftest pyel-test-objects-15 nil (equal (eval (pyel "pyel_test_objects_263(13)")) 2))
-(ert-deftest pyel-test-objects-16 nil (equal (eval (pyel "pyel_test_objects_263(14)")) [4 12]))
-(ert-deftest pyel-test-objects-17 nil (equal (eval (pyel "pyel_test_objects_263(15)")) 10))
-(ert-deftest pyel-test-objects-18 nil (equal (eval (pyel "pyel_test_objects_263(16)")) 8))
-(ert-deftest pyel-test-special_method_lookup-1 nil (equal (eval (pyel "pyel_test_special_method_lookup_264(1)")) 16))
-(ert-deftest pyel-test-special_method_lookup-2 nil (equal (eval (pyel "pyel_test_special_method_lookup_264(2)")) "<bound method adder.__call__ of adder object at 0x18b071>"))
-(ert-deftest pyel-test-special_method_lookup-3 nil (equal (eval (pyel "pyel_test_special_method_lookup_264(3)")) (lambda nil nil "hi")))
-(ert-deftest pyel-test-for_loop-1 nil (equal (eval (pyel "pyel_test_for_loop_271()")) (quote ("5" "4" "3" "2" "1"))))
-(ert-deftest pyel-test-for_loop-2 nil (equal (eval (pyel "pyel_test_for_loop_272(1)")) (quote ("q" "w" "e" "r" "t" "y"))))
-(ert-deftest pyel-test-for_loop-3 nil (equal (eval (pyel "pyel_test_for_loop_272(2)")) 1))
-(ert-deftest pyel-test-for_loop-4 nil (equal (eval (pyel "pyel_test_for_loop_273()")) (quote ("s" "t" "r" "i" "n" "g"))))
-(ert-deftest pyel-test-for_loop-5 nil (equal (eval (pyel "pyel_test_for_loop_274()")) (quote (1 3 5 7 9))))
-(ert-deftest pyel-test-for_loop-6 nil (equal (eval (pyel "pyel_test_for_loop_275()")) (quote ((1 2) ("3" "4") (5 6)))))
-(ert-deftest pyel-test-for_loop-7 nil (equal (eval (pyel "pyel_test_for_loop_276()")) (quote (2 4 6 8))))
-(ert-deftest pyel-test-for_loop-8 nil (equal (eval (pyel "pyel_test_for_loop_277()")) (quote (1 3 5 7 9))))
-(ert-deftest pyel-test-for_loop-9 nil (equal (eval (pyel "pyel_test_for_loop_278()")) 100))
-(ert-deftest pyel-test-for_loop-10 nil (equal (eval (pyel "pyel_test_for_loop_279()")) (quote ((1 2 1 1 1) ("3" "4" "x" "a" "3") (5 6 "a" 1 5)))))
-(ert-deftest pyel-test-for_loop-11 nil (equal (eval (pyel "pyel_test_for_loop_280()")) (quote ((1 2) ("3" "4") (5 6)))))
-(ert-deftest pyel-test-for_loop-12 nil (equal (eval (pyel "pyel_test_for_loop_281()")) (quote (0 1 2 3 4))))
-(ert-deftest pyel-test-aug_assign-1 nil (equal (eval (pyel "pyel_test_aug_assign_294(1)")) 5))
-(ert-deftest pyel-test-aug_assign-2 nil (equal (eval (pyel "pyel_test_aug_assign_294(2)")) 6))
-(ert-deftest pyel-test-aug_assign-3 nil (equal (eval (pyel "pyel_test_aug_assign_294(3)")) 1))
-(ert-deftest pyel-test-aug_assign-4 nil (equal (eval (pyel "pyel_test_aug_assign_294(4)")) 0.5))
-(ert-deftest pyel-test-aug_assign-5 nil (equal (eval (pyel "pyel_test_aug_assign_295(1)")) 5))
-(ert-deftest pyel-test-aug_assign-6 nil (equal (eval (pyel "pyel_test_aug_assign_295(2)")) 6))
-(ert-deftest pyel-test-aug_assign-7 nil (equal (eval (pyel "pyel_test_aug_assign_295(3)")) 1))
-(ert-deftest pyel-test-aug_assign-8 nil (equal (eval (pyel "pyel_test_aug_assign_295(4)")) 0.5))
-(ert-deftest pyel-test-aug_assign-9 nil (equal (eval (pyel "pyel_test_aug_assign_296(1)")) 5))
-(ert-deftest pyel-test-aug_assign-10 nil (equal (eval (pyel "pyel_test_aug_assign_296(2)")) 6))
-(ert-deftest pyel-test-aug_assign-11 nil (equal (eval (pyel "pyel_test_aug_assign_296(3)")) 1))
-(ert-deftest pyel-test-aug_assign-12 nil (equal (eval (pyel "pyel_test_aug_assign_296(4)")) 0.5))
-(ert-deftest pyel-test-break-1 nil (equal (eval (pyel "pyel_test_break_297()")) (quote (0 1 2 3 "b" 1 2 3 "b" 1 2 3 "b"))))
-(ert-deftest pyel-test-break-2 nil (equal (eval (pyel "pyel_test_break_298()")) 3))
-(ert-deftest pyel-test-continue-1 nil (equal (eval (pyel "pyel_test_continue_299()")) (quote (0 1 "c" 3 "c" 5 1 "c" 3 "c" 5 1 "c" 3 "c" 5))))
-(ert-deftest pyel-test-continue-2 nil (equal (eval (pyel "pyel_test_continue_300()")) (quote (0 7 5 3 1))))
-(ert-deftest pyel-test-list_comprehensions-1 nil (equal (eval (pyel "pyel_test_list_comprehensions_307(1)")) (quote ((1 5 9) (2 6 10) (3 7 11) (4 8 12)))))
-(ert-deftest pyel-test-list_comprehensions-2 nil (equal (eval (pyel "pyel_test_list_comprehensions_307(2)")) (quote ((1 5 9) (2 6 10) (3 7 11) (4 8 12)))))
-(ert-deftest pyel-test-dict_comprehensions-1 nil (equal (eval (pyel "pyel_test_dict_comprehensions_308(1)")) 20))
-(ert-deftest pyel-test-dict_comprehensions-2 nil (equal (eval (pyel "pyel_test_dict_comprehensions_308(2)")) [(0 1 4) (0 1 4 9 16) (0 1 4 9 16 25 36 49 64 81)]))
-(ert-deftest pyel-test-len_function-4 nil (equal (eval (pyel "pyel_test_len_function_339(1)")) 4))
-(ert-deftest pyel-test-len_function-5 nil (equal (eval (pyel "pyel_test_len_function_339(2)")) 0))
-(ert-deftest pyel-test-len_function-6 nil (equal (eval (pyel "pyel_test_len_function_339(3)")) 3))
-(ert-deftest pyel-test-len_function-7 nil (equal (eval (pyel "pyel_test_len_function_339(4)")) 4))
-(ert-deftest pyel-test-list_function-1 nil (equal (eval (pyel "pyel_test_list_function_340()")) (quote ("5" "4" "3" "2" "1"))))
-(ert-deftest pyel-test-list_function-2 nil (equal (eval (pyel "pyel_test_list_function_341(1)")) ["1" (\, "2") (\, "3")]))
-(ert-deftest pyel-test-list_function-3 nil (equal (eval (pyel "pyel_test_list_function_341(2)")) [1 (\, 2) (\, 3)]))
-(ert-deftest pyel-test-list_function-4 nil (equal (eval (pyel "pyel_test_list_function_341(3)")) [1 (\, 2) (\, 3)]))
-(ert-deftest pyel-test-list_function-5 nil (equal (eval (pyel "pyel_test_list_function_341(4)")) [3 (\, 2) (\, 1)]))
-(ert-deftest pyel-test-list_function-8 nil (equal (eval (pyel "pyel_test_list_function_342(1)")) (quote ((1) 1))))
-(ert-deftest pyel-test-list_function-9 nil (equal (eval (pyel "pyel_test_list_function_342(2)")) t))
-(ert-deftest pyel-test-list_function-10 nil (equal (eval (pyel "pyel_test_list_function_343(1)")) nil))
-(ert-deftest pyel-test-list_function-11 nil (equal (eval (pyel "pyel_test_list_function_343(2)")) t))
-(ert-deftest pyel-test-list_function-12 nil (equal (eval (pyel "pyel_test_list_function_343(3)")) t))
-(ert-deftest pyel-test-str-1 nil (equal (eval (pyel "pyel_test_str_344()")) "str4"))
-(ert-deftest pyel-test-eval-1 nil (equal (eval (pyel "pyel_test_eval_345(1)")) 23))
-(ert-deftest pyel-test-eval-2 nil (equal (eval (pyel "pyel_test_eval_345(2)")) 5))
-(ert-deftest pyel-test-type-1 nil (equal (eval (pyel "pyel_test_type_346(1)")) "<class 'testc'>"))
-(ert-deftest pyel-test-type-2 nil (equal (eval (pyel "pyel_test_type_346(2)")) t))
-(ert-deftest pyel-test-abs_function-1 nil (equal (eval (pyel "pyel_test_abs_function_347()")) "hi"))
-(ert-deftest pyel-test-int_function-1 nil (equal (eval (pyel "pyel_test_int_function_348()")) 342))
-(ert-deftest pyel-test-int_function-2 nil (equal (eval (pyel "pyel_test_int_function_349(1)")) 3))
-(ert-deftest pyel-test-int_function-3 nil (equal (eval (pyel "pyel_test_int_function_349(2)")) 4))
-(ert-deftest pyel-test-int_function-4 nil (equal (eval (pyel "pyel_test_int_function_349(3)")) 2))
-(ert-deftest pyel-test-int_function-5 nil (equal (eval (pyel "pyel_test_int_function_349(4)")) 3))
-(ert-deftest pyel-test-float_function-1 nil (equal (eval (pyel "pyel_test_float_function_350()")) 342.1))
-(ert-deftest pyel-test-float_function-2 nil (equal (eval (pyel "pyel_test_float_function_351(1)")) 3.1))
-(ert-deftest pyel-test-float_function-3 nil (equal (eval (pyel "pyel_test_float_function_351(2)")) 4.0))
-(ert-deftest pyel-test-float_function-4 nil (equal (eval (pyel "pyel_test_float_function_351(3)")) 2.0))
-(ert-deftest pyel-test-float_function-5 nil (equal (eval (pyel "pyel_test_float_function_351(4)")) 3.3))
-(ert-deftest pyel-test-dict_function-1 nil (equal (eval (pyel "pyel_test_dict_function_352()")) "{5: 25, 4: 16, 3: 9, 2: 4, 1: 1}"))
-(ert-deftest pyel-test-dict_function-2 nil (equal (eval (pyel "pyel_test_dict_function_353()")) "{\"a\": \"b\", \"b\": 5, \"c\": 8}"))
-(ert-deftest pyel-test-enumerate_function-1 nil (equal (eval (pyel "pyel_test_enumerate_function_354()")) (quote ((0 "5") (1 "4") (2 "3") (3 "2") (4 "1")))))
-(ert-deftest pyel-test-append-1 nil (equal (eval (pyel "pyel_test_append_355(1)")) (quote (1 2 3 "hi"))))
-(ert-deftest pyel-test-append-2 nil (equal (eval (pyel "pyel_test_append_355(2)")) t))
-(ert-deftest pyel-test-append-3 nil (equal (eval (pyel "pyel_test_append_355(3)")) t))
-(ert-deftest pyel-test-append-4 nil (equal (eval (pyel "pyel_test_append_355(4)")) t))
-(ert-deftest pyel-test-append-5 nil (equal (eval (pyel "pyel_test_append_355(5)")) (quote (3))))
-(ert-deftest pyel-test-insert-1 nil (equal (eval (pyel "pyel_test_insert_356(1)")) (quote (1 "hi" 2 3))))
-(ert-deftest pyel-test-insert-2 nil (equal (eval (pyel "pyel_test_insert_356(2)")) t))
-(ert-deftest pyel-test-find_method-1 nil (equal (eval (pyel "pyel_test_find_method_357()")) 1))
-(ert-deftest pyel-test-index_method-1 nil (equal (eval (pyel "pyel_test_index_method_358(1)")) 0))
-(ert-deftest pyel-test-index_method-2 nil (equal (eval (pyel "pyel_test_index_method_358(2)")) 2))
-(ert-deftest pyel-test-index_method-3 nil (equal (eval (pyel "pyel_test_index_method_358(3)")) 3))
-(ert-deftest pyel-test-index_method-4 nil (equal (eval (pyel "pyel_test_index_method_359()")) 3))
-(ert-deftest pyel-test-index_method-5 nil (equal (eval (pyel "pyel_test_index_method_360(1)")) 5))
-(ert-deftest pyel-test-index_method-6 nil (equal (eval (pyel "pyel_test_index_method_360(2)")) 3))
-(ert-deftest pyel-test-index_method-7 nil (equal (eval (pyel "pyel_test_index_method_360(3)")) 14))
-(ert-deftest pyel-test-index_method-8 nil (equal (eval (pyel "pyel_test_index_method_360(4)")) 0))
-(ert-deftest pyel-test-index_method-9 nil (equal (eval (pyel "pyel_test_index_method_361(1)")) 0))
-(ert-deftest pyel-test-index_method-10 nil (equal (eval (pyel "pyel_test_index_method_361(2)")) 1))
-(ert-deftest pyel-test-index_method-11 nil (equal (eval (pyel "pyel_test_index_method_361(3)")) 2))
-(ert-deftest pyel-test-remove_method-1 nil (equal (eval (pyel "pyel_test_remove_method_362()")) (quote (1 "2" "2"))))
-(ert-deftest pyel-test-remove_method-2 nil (equal (eval (pyel "pyel_test_remove_method_363()")) (quote ("2" "2" [1]))))
-(ert-deftest pyel-test-remove_method-3 nil (equal (eval (pyel "pyel_test_remove_method_364()")) (quote (1 "2" [1]))))
-(ert-deftest pyel-test-remove_method-4 nil (equal (eval (pyel "pyel_test_remove_method_365()")) t))
-(ert-deftest pyel-test-count_method-2 nil (equal (eval (pyel "pyel_test_count_method_366(1)")) 2))
-(ert-deftest pyel-test-count_method-3 nil (equal (eval (pyel "pyel_test_count_method_366(2)")) 1))
-(ert-deftest pyel-test-count_method-4 nil (equal (eval (pyel "pyel_test_count_method_366(3)")) 1))
-(ert-deftest pyel-test-count_method-5 nil (equal (eval (pyel "pyel_test_count_method_366(4)")) 1))
-(ert-deftest pyel-test-count_method-6 nil (equal (eval (pyel "pyel_test_count_method_367(1)")) 2))
-(ert-deftest pyel-test-count_method-7 nil (equal (eval (pyel "pyel_test_count_method_367(2)")) 1))
-(ert-deftest pyel-test-count_method-8 nil (equal (eval (pyel "pyel_test_count_method_367(3)")) 1))
-(ert-deftest pyel-test-count_method-9 nil (equal (eval (pyel "pyel_test_count_method_367(4)")) 1))
-(ert-deftest pyel-test-extend_method-1 nil (equal (eval (pyel "pyel_test_extend_method_368(1)")) t))
-(ert-deftest pyel-test-extend_method-2 nil (equal (eval (pyel "pyel_test_extend_method_368(2)")) (quote (1 "5" "4" "3" "2" "1"))))
-(ert-deftest pyel-test-extend_method-3 nil (equal (eval (pyel "pyel_test_extend_method_369(1)")) t))
-(ert-deftest pyel-test-extend_method-4 nil (equal (eval (pyel "pyel_test_extend_method_369(2)")) (quote (1 "e" "x" "t" "e" "n" "d" "e" "d"))))
-(ert-deftest pyel-test-extend_method-5 nil (equal (eval (pyel "pyel_test_extend_method_370(1)")) t))
-(ert-deftest pyel-test-extend_method-6 nil (equal (eval (pyel "pyel_test_extend_method_370(2)")) (quote (1 1 "2" [3]))))
-(ert-deftest pyel-test-extend_method-7 nil (equal (eval (pyel "pyel_test_extend_method_371(1)")) t))
-(ert-deftest pyel-test-extend_method-8 nil (equal (eval (pyel "pyel_test_extend_method_371(2)")) (quote (1 1 "2" [3]))))
-(ert-deftest pyel-test-pop_method-1 nil (equal (eval (pyel "pyel_test_pop_method_372(1)")) "two"))
-(ert-deftest pyel-test-pop_method-2 nil (equal (eval (pyel "pyel_test_pop_method_372(2)")) "{1: \"one\", 3: \"three\"}"))
-(ert-deftest pyel-test-pop_method-3 nil (equal (eval (pyel "pyel_test_pop_method_373(1)")) 4))
-(ert-deftest pyel-test-pop_method-4 nil (equal (eval (pyel "pyel_test_pop_method_373(2)")) (quote (1))))
-(ert-deftest pyel-test-pop_method-5 nil (equal (eval (pyel "pyel_test_pop_method_373(3)")) 1))
-(ert-deftest pyel-test-pop_method-6 nil (equal (eval (pyel "pyel_test_pop_method_373(4)")) t))
-(ert-deftest pyel-test-reverse_method-1 nil (equal (eval (pyel "pyel_test_reverse_method_374(1)")) (quote (3 2 1))))
-(ert-deftest pyel-test-reverse_method-2 nil (equal (eval (pyel "pyel_test_reverse_method_374(2)")) t))
-(ert-deftest pyel-test-lower_method-1 nil (equal (eval (pyel "pyel_test_lower_method_375(1)")) "ab"))
-(ert-deftest pyel-test-lower_method-2 nil (equal (eval (pyel "pyel_test_lower_method_375(2)")) "aB"))
-(ert-deftest pyel-test-upper_method-1 nil (equal (eval (pyel "pyel_test_upper_method_376(1)")) "AB"))
-(ert-deftest pyel-test-upper_method-2 nil (equal (eval (pyel "pyel_test_upper_method_376(2)")) "aB"))
-(ert-deftest pyel-test-split_method-1 nil (equal (eval (pyel "pyel_test_split_method_377(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
-(ert-deftest pyel-test-split_method-2 nil (equal (eval (pyel "pyel_test_split_method_377(2)")) 6))
-(ert-deftest pyel-test-split_method-4 nil (equal (eval (pyel "pyel_test_split_method_378()")) (quote ("a" "b" "c"))))
-(ert-deftest pyel-test-strip_method-1 nil (equal (eval (pyel "pyel_test_strip_method_379()")) "e"))
-(ert-deftest pyel-test-get_method-1 nil (equal (eval (pyel "pyel_test_get_method_380(1)")) "one"))
-(ert-deftest pyel-test-get_method-2 nil (equal (eval (pyel "pyel_test_get_method_380(2)")) t))
-(ert-deftest pyel-test-get_method-3 nil (equal (eval (pyel "pyel_test_get_method_380(3)")) "three"))
-(ert-deftest pyel-test-get_method-4 nil (equal (eval (pyel "pyel_test_get_method_380(4)")) "d"))
-(ert-deftest pyel-test-items_method-1 nil (equal (eval (pyel "pyel_test_items_method_381(1)")) (quote ((3 "three") (2 "two") (1 "one")))))
-(ert-deftest pyel-test-items_method-2 nil (equal (eval (pyel "pyel_test_items_method_381(2)")) (quote ((8 88)))))
-(ert-deftest pyel-test-items_method-3 nil (equal (eval (pyel "pyel_test_items_method_381(3)")) nil))
-(ert-deftest pyel-test-keys_method-1 nil (equal (eval (pyel "pyel_test_keys_method_382(1)")) (quote (3 2 1))))
-(ert-deftest pyel-test-keys_method-2 nil (equal (eval (pyel "pyel_test_keys_method_382(2)")) (quote ((8)))))
-(ert-deftest pyel-test-keys_method-3 nil (equal (eval (pyel "pyel_test_keys_method_382(3)")) nil))
-(ert-deftest pyel-test-values_method-1 nil (equal (eval (pyel "pyel_test_values_method_383(1)")) (quote ("three" "two" "one"))))
-(ert-deftest pyel-test-values_method-2 nil (equal (eval (pyel "pyel_test_values_method_383(2)")) (quote (88))))
-(ert-deftest pyel-test-values_method-3 nil (equal (eval (pyel "pyel_test_values_method_383(3)")) nil))
-(ert-deftest pyel-test-popitem_method-1 nil (equal (eval (pyel "pyel_test_popitem_method_384(1)")) (quote (1 "one"))))
-(ert-deftest pyel-test-popitem_method-2 nil (equal (eval (pyel "pyel_test_popitem_method_384(2)")) "{2: \"two\", 3: \"three\"}"))
-(ert-deftest pyel-test-copy_method-1 nil (equal (eval (pyel "pyel_test_copy_method_385(1)")) nil))
-(ert-deftest pyel-test-copy_method-2 nil (equal (eval (pyel "pyel_test_copy_method_385(2)")) t))
-(ert-deftest pyel-test-islower_method-4 nil (equal (eval (pyel "pyel_test_islower_method_386(1)")) nil))
-(ert-deftest pyel-test-islower_method-5 nil (equal (eval (pyel "pyel_test_islower_method_386(2)")) t))
-(ert-deftest pyel-test-islower_method-6 nil (equal (eval (pyel "pyel_test_islower_method_386(3)")) nil))
-(ert-deftest pyel-test-isupper_method-4 nil (equal (eval (pyel "pyel_test_isupper_method_387(1)")) t))
-(ert-deftest pyel-test-isupper_method-5 nil (equal (eval (pyel "pyel_test_isupper_method_387(2)")) nil))
-(ert-deftest pyel-test-isupper_method-6 nil (equal (eval (pyel "pyel_test_isupper_method_387(3)")) nil))
-(ert-deftest pyel-test-istitle_method-5 nil (equal (eval (pyel "pyel_test_istitle_method_388(1)")) nil))
-(ert-deftest pyel-test-istitle_method-6 nil (equal (eval (pyel "pyel_test_istitle_method_388(2)")) t))
-(ert-deftest pyel-test-istitle_method-7 nil (equal (eval (pyel "pyel_test_istitle_method_388(3)")) nil))
-(ert-deftest pyel-test-isalpha_method-1 nil (equal (eval (pyel "pyel_test_isalpha_method_389()")) t))
-(ert-deftest pyel-test-isalnum_method-1 nil (equal (eval (pyel "pyel_test_isalnum_method_390()")) t))
-(ert-deftest pyel-test-zfill_method-4 nil (equal (eval (pyel "pyel_test_zfill_method_391()")) "000000asdf"))
-(ert-deftest pyel-test-title_method-1 nil (equal (eval (pyel "pyel_test_title_method_392()")) "2dd"))
-(ert-deftest pyel-test-swapcase_method-1 nil (equal (eval (pyel "pyel_test_swapcase_method_393()")) "AAbb1"))
-(ert-deftest pyel-test-startswith_method-3 nil (equal (eval (pyel "pyel_test_startswith_method_394()")) nil))
-(ert-deftest pyel-test-rstrip_method-1 nil (equal (eval (pyel "pyel_test_rstrip_method_395()")) "he"))
-(ert-deftest pyel-test-lstrip_method-1 nil (equal (eval (pyel "pyel_test_lstrip_method_396()")) "ello"))
-(ert-deftest pyel-test-rsplit_method-1 nil (equal (eval (pyel "pyel_test_rsplit_method_397(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
-(ert-deftest pyel-test-rsplit_method-2 nil (equal (eval (pyel "pyel_test_rsplit_method_397(2)")) 6))
-(ert-deftest pyel-test-rsplit_method-4 nil (equal (eval (pyel "pyel_test_rsplit_method_398()")) (quote ("a" "b" "c"))))
-(ert-deftest pyel-test-partition_method-1 nil (equal (eval (pyel "pyel_test_partition_method_399()")) ["ab" "c" "defghi"]))
-(ert-deftest pyel-test-rpartition_method-1 nil (equal (eval (pyel "pyel_test_rpartition_method_400()")) ["ab" "c" "defghi"]))
-(ert-deftest pyel-test-rjust_method-1 nil (equal (eval (pyel "pyel_test_rjust_method_401()")) "        ab"))
-(ert-deftest pyel-test-ljust_method-1 nil (equal (eval (pyel "pyel_test_ljust_method_402()")) "ab        "))
-(ert-deftest pyel-test-rfind_method-1 nil (equal (eval (pyel "pyel_test_rfind_method_403(1)")) 1))
-(ert-deftest pyel-test-rfind_method-2 nil (equal (eval (pyel "pyel_test_rfind_method_403(2)")) 6))
-(ert-deftest pyel-el-ast-test-conditional-expressions-338 nil (string= (pyel "1 if True else 0" nil nil t) "(if-exp (name  \"True\" 'load 1 5) (num 1 1 0) (num 0 1 15) 1 0)
+(ert-deftest pyel-test-function_arguments-1 nil (equal (eval (pyel "pyel_test_function_arguments_195(1)")) "[1, 2, 3, 999, 888, 777, [1, 2, 3, 43, 4, 5], 3, 32, 43, {}]"))
+(ert-deftest pyel-test-function_arguments-2 nil (equal (eval (pyel "pyel_test_function_arguments_195(2)")) "[1, 2, 3, 999, 888, 777, [1, 2, 3, 43, 4, 5], 1, 32, 43, {}]"))
+(ert-deftest pyel-test-function_arguments-3 nil (equal (eval (pyel "pyel_test_function_arguments_196(1)")) (quote (1 2))))
+(ert-deftest pyel-test-function_arguments-4 nil (equal (eval (pyel "pyel_test_function_arguments_196(2)")) (quote ("s" 4))))
+(ert-deftest pyel-test-function_arguments-5 nil (equal (eval (pyel "pyel_test_function_arguments_197(1)")) "[\"x\", [1, 2, 3], 1, nil, {-yy: 3.3, -xx: 2.2, -d: 1.1}]"))
+(ert-deftest pyel-test-function_arguments-6 nil (equal (eval (pyel "pyel_test_function_arguments_197(2)")) "[\"x\", nil, 1, 1.1, {}]"))
+(ert-deftest pyel-test-function_arguments-7 nil (equal (eval (pyel "pyel_test_function_arguments_197(3)")) "[\"x\", nil, 1, nil, {}]"))
+(ert-deftest pyel-test-function_arguments-8 nil (equal (eval (pyel "pyel_test_function_arguments_197(4)")) "[\"x\", (), 2, 1, {e: 4}]"))
+(ert-deftest pyel-test-function_arguments-9 nil (equal (eval (pyel "pyel_test_function_arguments_197(5)")) "[1, (2, 3, 4, 5, 6), 1, nil, {}]"))
+(ert-deftest pyel-test-function_arguments-10 nil (equal (eval (pyel "pyel_test_function_arguments_198(1)")) "[1, 2, 1, \"two\", [], {}]"))
+(ert-deftest pyel-test-function_arguments-11 nil (equal (eval (pyel "pyel_test_function_arguments_198(2)")) "[1, 2, 3, \"two\", [], {}]"))
+(ert-deftest pyel-test-function_arguments-12 nil (equal (eval (pyel "pyel_test_function_arguments_198(3)")) "[1, 2, 3, 4, [], {}]"))
+(ert-deftest pyel-test-function_arguments-13 nil (equal (eval (pyel "pyel_test_function_arguments_198(4)")) "[1, 2, 3, 4, [5], {}]"))
+(ert-deftest pyel-test-function_arguments-14 nil (equal (eval (pyel "pyel_test_function_arguments_198(5)")) "[1, 2, 3, 4, [5, 6], {}]"))
+(ert-deftest pyel-test-function_arguments-15 nil (equal (eval (pyel "pyel_test_function_arguments_198(6)")) "[1, 2, 3, 4, [5, 6], {x: \"s\"}]"))
+(ert-deftest pyel-test-function_arguments-16 nil (equal (eval (pyel "pyel_test_function_arguments_198(7)")) "[1, 2, 3, 4, [5, 6], {y: 23, x: \"s\"}]"))
+(ert-deftest pyel-test-function_arguments-17 nil (equal (eval (pyel "pyel_test_function_arguments_198(8)")) "[\"n\", 324, 1, \"two\", [], {x: \"s\"}]"))
+(ert-deftest pyel-test-function_arguments-18 nil (equal (eval (pyel "pyel_test_function_arguments_198(9)")) "[\"n\", 324, 1, 2, [], {x: \"s\"}]"))
+(ert-deftest pyel-test-add_op-1 nil (equal (eval (pyel "pyel_test_add_op_199()")) 14))
+(ert-deftest pyel-test-add_op-2 nil (equal (eval (pyel "pyel_test_add_op_200(1)")) 10))
+(ert-deftest pyel-test-add_op-3 nil (equal (eval (pyel "pyel_test_add_op_200(2)")) "asddf"))
+(ert-deftest pyel-test-add_op-4 nil (equal (eval (pyel "pyel_test_add_op_200(3)")) (quote (1 3 "a"))))
+(ert-deftest pyel-test-add_op-5 nil (equal (eval (pyel "pyel_test_add_op_200(4)")) [1 2 3]))
+(ert-deftest pyel-test-sub_op-1 nil (equal (eval (pyel "pyel_test_sub_op_201()")) 2))
+(ert-deftest pyel-test-mult_op-1 nil (equal (eval (pyel "pyel_test_mult_op_202(1)")) 8))
+(ert-deftest pyel-test-mult_op-2 nil (equal (eval (pyel "pyel_test_mult_op_202(2)")) "ss"))
+(ert-deftest pyel-test-mult_op-3 nil (equal (eval (pyel "pyel_test_mult_op_202(3)")) "ss"))
+(ert-deftest pyel-test-pow_op-1 nil (equal (eval (pyel "pyel_test_pow_op_203()")) 16))
+(ert-deftest pyel-test-div_op-1 nil (equal (eval (pyel "pyel_test_div_op_204(1)")) 2.25))
+(ert-deftest pyel-test-div_op-2 nil (equal (eval (pyel "pyel_test_div_op_204(2)")) 2))
+(ert-deftest pyel-test-bin_ops-1 nil (equal (eval (pyel "pyel_test_bin_ops_205(1)")) 0))
+(ert-deftest pyel-test-bin_ops-2 nil (equal (eval (pyel "pyel_test_bin_ops_205(2)")) 7))
+(ert-deftest pyel-test-bin_ops-3 nil (equal (eval (pyel "pyel_test_bin_ops_205(3)")) 6))
+(ert-deftest pyel-test-mod_op-1 nil (equal (eval (pyel "pyel_test_mod_op_206()")) 2))
+(ert-deftest pyel-test-objects-1 nil (equal (eval (pyel "pyel_test_objects_264(1)")) 5))
+(ert-deftest pyel-test-objects-2 nil (equal (eval (pyel "pyel_test_objects_264(2)")) 6))
+(ert-deftest pyel-test-objects-3 nil (equal (eval (pyel "pyel_test_objects_265(1)")) "tclass"))
+(ert-deftest pyel-test-objects-4 nil (equal (eval (pyel "pyel_test_objects_265(2)")) (lambda (self) (getattr self a))))
+(ert-deftest pyel-test-objects-5 nil (equal (eval (pyel "pyel_test_objects_265(3)")) (lambda (self n) (setattr self a n))))
+(ert-deftest pyel-test-objects-6 nil (equal (eval (pyel "pyel_test_objects_265(4)")) 12))
+(ert-deftest pyel-test-objects-7 nil (equal (eval (pyel "pyel_test_objects_265(5)")) "hi"))
+(ert-deftest pyel-test-objects-8 nil (equal (eval (pyel "pyel_test_objects_265(6)")) 23))
+(ert-deftest pyel-test-objects-9 nil (equal (eval (pyel "pyel_test_objects_265(7)")) 19))
+(ert-deftest pyel-test-objects-10 nil (equal (eval (pyel "pyel_test_objects_265(8)")) (lambda (self) nil (pyel-+ (getattr self cvar) 5))))
+(ert-deftest pyel-test-objects-11 nil (equal (eval (pyel "pyel_test_objects_265(9)")) "<class 'object'>"))
+(ert-deftest pyel-test-objects-12 nil (equal (eval (pyel "pyel_test_objects_265(10)")) t))
+(ert-deftest pyel-test-objects-13 nil (equal (eval (pyel "pyel_test_objects_265(11)")) "tclass"))
+(ert-deftest pyel-test-objects-14 nil (equal (eval (pyel "pyel_test_objects_265(12)")) 14))
+(ert-deftest pyel-test-objects-15 nil (equal (eval (pyel "pyel_test_objects_265(13)")) 2))
+(ert-deftest pyel-test-objects-16 nil (equal (eval (pyel "pyel_test_objects_265(14)")) [4 12]))
+(ert-deftest pyel-test-objects-17 nil (equal (eval (pyel "pyel_test_objects_265(15)")) 10))
+(ert-deftest pyel-test-objects-18 nil (equal (eval (pyel "pyel_test_objects_265(16)")) 8))
+(ert-deftest pyel-test-special_method_lookup-1 nil (equal (eval (pyel "pyel_test_special_method_lookup_266(1)")) 16))
+(ert-deftest pyel-test-special_method_lookup-2 nil (equal (eval (pyel "pyel_test_special_method_lookup_266(2)")) "<bound method adder.__call__ of adder object at 0x18b071>"))
+(ert-deftest pyel-test-special_method_lookup-3 nil (equal (eval (pyel "pyel_test_special_method_lookup_266(3)")) (lambda nil nil "hi")))
+(ert-deftest pyel-test-for_loop-1 nil (equal (eval (pyel "pyel_test_for_loop_273()")) (quote ("5" "4" "3" "2" "1"))))
+(ert-deftest pyel-test-for_loop-2 nil (equal (eval (pyel "pyel_test_for_loop_274(1)")) (quote ("q" "w" "e" "r" "t" "y"))))
+(ert-deftest pyel-test-for_loop-3 nil (equal (eval (pyel "pyel_test_for_loop_274(2)")) 1))
+(ert-deftest pyel-test-for_loop-4 nil (equal (eval (pyel "pyel_test_for_loop_275()")) (quote ("s" "t" "r" "i" "n" "g"))))
+(ert-deftest pyel-test-for_loop-5 nil (equal (eval (pyel "pyel_test_for_loop_276()")) (quote (1 3 5 7 9))))
+(ert-deftest pyel-test-for_loop-6 nil (equal (eval (pyel "pyel_test_for_loop_277()")) (quote ((1 2) ("3" "4") (5 6)))))
+(ert-deftest pyel-test-for_loop-7 nil (equal (eval (pyel "pyel_test_for_loop_278()")) (quote (2 4 6 8))))
+(ert-deftest pyel-test-for_loop-8 nil (equal (eval (pyel "pyel_test_for_loop_279()")) (quote (1 3 5 7 9))))
+(ert-deftest pyel-test-for_loop-9 nil (equal (eval (pyel "pyel_test_for_loop_280()")) 100))
+(ert-deftest pyel-test-for_loop-10 nil (equal (eval (pyel "pyel_test_for_loop_281()")) (quote ((1 2 1 1 1) ("3" "4" "x" "a" "3") (5 6 "a" 1 5)))))
+(ert-deftest pyel-test-for_loop-11 nil (equal (eval (pyel "pyel_test_for_loop_282()")) (quote ((1 2) ("3" "4") (5 6)))))
+(ert-deftest pyel-test-for_loop-12 nil (equal (eval (pyel "pyel_test_for_loop_283()")) (quote (0 1 2 3 4))))
+(ert-deftest pyel-test-lambda-2 nil (equal (eval (pyel "pyel_test_lambda_290(1)")) 3.3))
+(ert-deftest pyel-test-lambda-3 nil (equal (eval (pyel "pyel_test_lambda_290(2)")) (quote (1 (2 3 4 "asd")))))
+(ert-deftest pyel-test-lambda-4 nil (equal (eval (pyel "pyel_test_lambda_290(3)")) "[1, [2, 3, 4, 5], {b--: 2, a--: 1}]"))
+(ert-deftest pyel-test-aug_assign-1 nil (equal (eval (pyel "pyel_test_aug_assign_291(1)")) 5))
+(ert-deftest pyel-test-aug_assign-2 nil (equal (eval (pyel "pyel_test_aug_assign_291(2)")) 6))
+(ert-deftest pyel-test-aug_assign-3 nil (equal (eval (pyel "pyel_test_aug_assign_291(3)")) 1))
+(ert-deftest pyel-test-aug_assign-4 nil (equal (eval (pyel "pyel_test_aug_assign_291(4)")) 0.5))
+(ert-deftest pyel-test-aug_assign-5 nil (equal (eval (pyel "pyel_test_aug_assign_292(1)")) 5))
+(ert-deftest pyel-test-aug_assign-6 nil (equal (eval (pyel "pyel_test_aug_assign_292(2)")) 6))
+(ert-deftest pyel-test-aug_assign-7 nil (equal (eval (pyel "pyel_test_aug_assign_292(3)")) 1))
+(ert-deftest pyel-test-aug_assign-8 nil (equal (eval (pyel "pyel_test_aug_assign_292(4)")) 0.5))
+(ert-deftest pyel-test-aug_assign-9 nil (equal (eval (pyel "pyel_test_aug_assign_293(1)")) 5))
+(ert-deftest pyel-test-aug_assign-10 nil (equal (eval (pyel "pyel_test_aug_assign_293(2)")) 6))
+(ert-deftest pyel-test-aug_assign-11 nil (equal (eval (pyel "pyel_test_aug_assign_293(3)")) 1))
+(ert-deftest pyel-test-aug_assign-12 nil (equal (eval (pyel "pyel_test_aug_assign_293(4)")) 0.5))
+(ert-deftest pyel-test-break-1 nil (equal (eval (pyel "pyel_test_break_294()")) (quote (0 1 2 3 "b" 1 2 3 "b" 1 2 3 "b"))))
+(ert-deftest pyel-test-break-2 nil (equal (eval (pyel "pyel_test_break_295()")) 3))
+(ert-deftest pyel-test-continue-1 nil (equal (eval (pyel "pyel_test_continue_296()")) (quote (0 1 "c" 3 "c" 5 1 "c" 3 "c" 5 1 "c" 3 "c" 5))))
+(ert-deftest pyel-test-continue-2 nil (equal (eval (pyel "pyel_test_continue_297()")) (quote (0 7 5 3 1))))
+(ert-deftest pyel-test-list_comprehensions-1 nil (equal (eval (pyel "pyel_test_list_comprehensions_304(1)")) (quote ((1 5 9) (2 6 10) (3 7 11) (4 8 12)))))
+(ert-deftest pyel-test-list_comprehensions-2 nil (equal (eval (pyel "pyel_test_list_comprehensions_304(2)")) (quote ((1 5 9) (2 6 10) (3 7 11) (4 8 12)))))
+(ert-deftest pyel-test-dict_comprehensions-1 nil (equal (eval (pyel "pyel_test_dict_comprehensions_305(1)")) 20))
+(ert-deftest pyel-test-dict_comprehensions-2 nil (equal (eval (pyel "pyel_test_dict_comprehensions_305(2)")) [(0 1 4) (0 1 4 9 16) (0 1 4 9 16 25 36 49 64 81)]))
+(ert-deftest pyel-test-len_function-4 nil (equal (eval (pyel "pyel_test_len_function_336(1)")) 4))
+(ert-deftest pyel-test-len_function-5 nil (equal (eval (pyel "pyel_test_len_function_336(2)")) 0))
+(ert-deftest pyel-test-len_function-6 nil (equal (eval (pyel "pyel_test_len_function_336(3)")) 3))
+(ert-deftest pyel-test-len_function-7 nil (equal (eval (pyel "pyel_test_len_function_336(4)")) 4))
+(ert-deftest pyel-test-list_function-1 nil (equal (eval (pyel "pyel_test_list_function_337()")) (quote ("5" "4" "3" "2" "1"))))
+(ert-deftest pyel-test-list_function-2 nil (equal (eval (pyel "pyel_test_list_function_338(1)")) ["1" (\, "2") (\, "3")]))
+(ert-deftest pyel-test-list_function-3 nil (equal (eval (pyel "pyel_test_list_function_338(2)")) [1 (\, 2) (\, 3)]))
+(ert-deftest pyel-test-list_function-4 nil (equal (eval (pyel "pyel_test_list_function_338(3)")) [1 (\, 2) (\, 3)]))
+(ert-deftest pyel-test-list_function-5 nil (equal (eval (pyel "pyel_test_list_function_338(4)")) [3 (\, 2) (\, 1)]))
+(ert-deftest pyel-test-list_function-8 nil (equal (eval (pyel "pyel_test_list_function_339(1)")) (quote ((1) 1))))
+(ert-deftest pyel-test-list_function-9 nil (equal (eval (pyel "pyel_test_list_function_339(2)")) t))
+(ert-deftest pyel-test-list_function-10 nil (equal (eval (pyel "pyel_test_list_function_340(1)")) nil))
+(ert-deftest pyel-test-list_function-11 nil (equal (eval (pyel "pyel_test_list_function_340(2)")) t))
+(ert-deftest pyel-test-list_function-12 nil (equal (eval (pyel "pyel_test_list_function_340(3)")) t))
+(ert-deftest pyel-test-str-1 nil (equal (eval (pyel "pyel_test_str_341()")) "str4"))
+(ert-deftest pyel-test-eval-1 nil (equal (eval (pyel "pyel_test_eval_342(1)")) 23))
+(ert-deftest pyel-test-eval-2 nil (equal (eval (pyel "pyel_test_eval_342(2)")) 5))
+(ert-deftest pyel-test-type-1 nil (equal (eval (pyel "pyel_test_type_343(1)")) "<class 'testc'>"))
+(ert-deftest pyel-test-type-2 nil (equal (eval (pyel "pyel_test_type_343(2)")) t))
+(ert-deftest pyel-test-abs_function-1 nil (equal (eval (pyel "pyel_test_abs_function_344()")) "hi"))
+(ert-deftest pyel-test-int_function-1 nil (equal (eval (pyel "pyel_test_int_function_345()")) 342))
+(ert-deftest pyel-test-int_function-2 nil (equal (eval (pyel "pyel_test_int_function_346(1)")) 3))
+(ert-deftest pyel-test-int_function-3 nil (equal (eval (pyel "pyel_test_int_function_346(2)")) 4))
+(ert-deftest pyel-test-int_function-4 nil (equal (eval (pyel "pyel_test_int_function_346(3)")) 2))
+(ert-deftest pyel-test-int_function-5 nil (equal (eval (pyel "pyel_test_int_function_346(4)")) 3))
+(ert-deftest pyel-test-float_function-1 nil (equal (eval (pyel "pyel_test_float_function_347()")) 342.1))
+(ert-deftest pyel-test-float_function-2 nil (equal (eval (pyel "pyel_test_float_function_348(1)")) 3.1))
+(ert-deftest pyel-test-float_function-3 nil (equal (eval (pyel "pyel_test_float_function_348(2)")) 4.0))
+(ert-deftest pyel-test-float_function-4 nil (equal (eval (pyel "pyel_test_float_function_348(3)")) 2.0))
+(ert-deftest pyel-test-float_function-5 nil (equal (eval (pyel "pyel_test_float_function_348(4)")) 3.3))
+(ert-deftest pyel-test-dict_function-1 nil (equal (eval (pyel "pyel_test_dict_function_349()")) "{5: 25, 4: 16, 3: 9, 2: 4, 1: 1}"))
+(ert-deftest pyel-test-dict_function-2 nil (equal (eval (pyel "pyel_test_dict_function_350()")) "{\"a\": \"b\", \"b\": 5, \"c\": 8}"))
+(ert-deftest pyel-test-enumerate_function-1 nil (equal (eval (pyel "pyel_test_enumerate_function_351()")) (quote ((0 "5") (1 "4") (2 "3") (3 "2") (4 "1")))))
+(ert-deftest pyel-test-append-1 nil (equal (eval (pyel "pyel_test_append_352(1)")) (quote (1 2 3 "hi"))))
+(ert-deftest pyel-test-append-2 nil (equal (eval (pyel "pyel_test_append_352(2)")) t))
+(ert-deftest pyel-test-append-3 nil (equal (eval (pyel "pyel_test_append_352(3)")) t))
+(ert-deftest pyel-test-append-4 nil (equal (eval (pyel "pyel_test_append_352(4)")) t))
+(ert-deftest pyel-test-append-5 nil (equal (eval (pyel "pyel_test_append_352(5)")) (quote (3))))
+(ert-deftest pyel-test-insert-1 nil (equal (eval (pyel "pyel_test_insert_353(1)")) (quote (1 "hi" 2 3))))
+(ert-deftest pyel-test-insert-2 nil (equal (eval (pyel "pyel_test_insert_353(2)")) t))
+(ert-deftest pyel-test-find_method-1 nil (equal (eval (pyel "pyel_test_find_method_354()")) 1))
+(ert-deftest pyel-test-index_method-1 nil (equal (eval (pyel "pyel_test_index_method_355(1)")) 0))
+(ert-deftest pyel-test-index_method-2 nil (equal (eval (pyel "pyel_test_index_method_355(2)")) 2))
+(ert-deftest pyel-test-index_method-3 nil (equal (eval (pyel "pyel_test_index_method_355(3)")) 3))
+(ert-deftest pyel-test-index_method-4 nil (equal (eval (pyel "pyel_test_index_method_356()")) 3))
+(ert-deftest pyel-test-index_method-5 nil (equal (eval (pyel "pyel_test_index_method_357(1)")) 5))
+(ert-deftest pyel-test-index_method-6 nil (equal (eval (pyel "pyel_test_index_method_357(2)")) 3))
+(ert-deftest pyel-test-index_method-7 nil (equal (eval (pyel "pyel_test_index_method_357(3)")) 14))
+(ert-deftest pyel-test-index_method-8 nil (equal (eval (pyel "pyel_test_index_method_357(4)")) 0))
+(ert-deftest pyel-test-index_method-9 nil (equal (eval (pyel "pyel_test_index_method_358(1)")) 0))
+(ert-deftest pyel-test-index_method-10 nil (equal (eval (pyel "pyel_test_index_method_358(2)")) 1))
+(ert-deftest pyel-test-index_method-11 nil (equal (eval (pyel "pyel_test_index_method_358(3)")) 2))
+(ert-deftest pyel-test-remove_method-1 nil (equal (eval (pyel "pyel_test_remove_method_359()")) (quote (1 "2" "2"))))
+(ert-deftest pyel-test-remove_method-2 nil (equal (eval (pyel "pyel_test_remove_method_360()")) (quote ("2" "2" [1]))))
+(ert-deftest pyel-test-remove_method-3 nil (equal (eval (pyel "pyel_test_remove_method_361()")) (quote (1 "2" [1]))))
+(ert-deftest pyel-test-remove_method-4 nil (equal (eval (pyel "pyel_test_remove_method_362()")) t))
+(ert-deftest pyel-test-count_method-2 nil (equal (eval (pyel "pyel_test_count_method_363(1)")) 2))
+(ert-deftest pyel-test-count_method-3 nil (equal (eval (pyel "pyel_test_count_method_363(2)")) 1))
+(ert-deftest pyel-test-count_method-4 nil (equal (eval (pyel "pyel_test_count_method_363(3)")) 1))
+(ert-deftest pyel-test-count_method-5 nil (equal (eval (pyel "pyel_test_count_method_363(4)")) 1))
+(ert-deftest pyel-test-count_method-6 nil (equal (eval (pyel "pyel_test_count_method_364(1)")) 2))
+(ert-deftest pyel-test-count_method-7 nil (equal (eval (pyel "pyel_test_count_method_364(2)")) 1))
+(ert-deftest pyel-test-count_method-8 nil (equal (eval (pyel "pyel_test_count_method_364(3)")) 1))
+(ert-deftest pyel-test-count_method-9 nil (equal (eval (pyel "pyel_test_count_method_364(4)")) 1))
+(ert-deftest pyel-test-extend_method-1 nil (equal (eval (pyel "pyel_test_extend_method_365(1)")) t))
+(ert-deftest pyel-test-extend_method-2 nil (equal (eval (pyel "pyel_test_extend_method_365(2)")) (quote (1 "5" "4" "3" "2" "1"))))
+(ert-deftest pyel-test-extend_method-3 nil (equal (eval (pyel "pyel_test_extend_method_366(1)")) t))
+(ert-deftest pyel-test-extend_method-4 nil (equal (eval (pyel "pyel_test_extend_method_366(2)")) (quote (1 "e" "x" "t" "e" "n" "d" "e" "d"))))
+(ert-deftest pyel-test-extend_method-5 nil (equal (eval (pyel "pyel_test_extend_method_367(1)")) t))
+(ert-deftest pyel-test-extend_method-6 nil (equal (eval (pyel "pyel_test_extend_method_367(2)")) (quote (1 1 "2" [3]))))
+(ert-deftest pyel-test-extend_method-7 nil (equal (eval (pyel "pyel_test_extend_method_368(1)")) t))
+(ert-deftest pyel-test-extend_method-8 nil (equal (eval (pyel "pyel_test_extend_method_368(2)")) (quote (1 1 "2" [3]))))
+(ert-deftest pyel-test-pop_method-1 nil (equal (eval (pyel "pyel_test_pop_method_369(1)")) "two"))
+(ert-deftest pyel-test-pop_method-2 nil (equal (eval (pyel "pyel_test_pop_method_369(2)")) "{1: \"one\", 3: \"three\"}"))
+(ert-deftest pyel-test-pop_method-3 nil (equal (eval (pyel "pyel_test_pop_method_370(1)")) 4))
+(ert-deftest pyel-test-pop_method-4 nil (equal (eval (pyel "pyel_test_pop_method_370(2)")) (quote (1))))
+(ert-deftest pyel-test-pop_method-5 nil (equal (eval (pyel "pyel_test_pop_method_370(3)")) 1))
+(ert-deftest pyel-test-pop_method-6 nil (equal (eval (pyel "pyel_test_pop_method_370(4)")) t))
+(ert-deftest pyel-test-reverse_method-1 nil (equal (eval (pyel "pyel_test_reverse_method_371(1)")) (quote (3 2 1))))
+(ert-deftest pyel-test-reverse_method-2 nil (equal (eval (pyel "pyel_test_reverse_method_371(2)")) t))
+(ert-deftest pyel-test-lower_method-1 nil (equal (eval (pyel "pyel_test_lower_method_372(1)")) "ab"))
+(ert-deftest pyel-test-lower_method-2 nil (equal (eval (pyel "pyel_test_lower_method_372(2)")) "aB"))
+(ert-deftest pyel-test-upper_method-1 nil (equal (eval (pyel "pyel_test_upper_method_373(1)")) "AB"))
+(ert-deftest pyel-test-upper_method-2 nil (equal (eval (pyel "pyel_test_upper_method_373(2)")) "aB"))
+(ert-deftest pyel-test-split_method-1 nil (equal (eval (pyel "pyel_test_split_method_374(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
+(ert-deftest pyel-test-split_method-2 nil (equal (eval (pyel "pyel_test_split_method_374(2)")) 6))
+(ert-deftest pyel-test-split_method-4 nil (equal (eval (pyel "pyel_test_split_method_375()")) (quote ("a" "b" "c"))))
+(ert-deftest pyel-test-strip_method-1 nil (equal (eval (pyel "pyel_test_strip_method_376()")) "e"))
+(ert-deftest pyel-test-get_method-1 nil (equal (eval (pyel "pyel_test_get_method_377(1)")) "one"))
+(ert-deftest pyel-test-get_method-2 nil (equal (eval (pyel "pyel_test_get_method_377(2)")) t))
+(ert-deftest pyel-test-get_method-3 nil (equal (eval (pyel "pyel_test_get_method_377(3)")) "three"))
+(ert-deftest pyel-test-get_method-4 nil (equal (eval (pyel "pyel_test_get_method_377(4)")) "d"))
+(ert-deftest pyel-test-items_method-1 nil (equal (eval (pyel "pyel_test_items_method_378(1)")) (quote ((3 "three") (2 "two") (1 "one")))))
+(ert-deftest pyel-test-items_method-2 nil (equal (eval (pyel "pyel_test_items_method_378(2)")) (quote ((8 88)))))
+(ert-deftest pyel-test-items_method-3 nil (equal (eval (pyel "pyel_test_items_method_378(3)")) nil))
+(ert-deftest pyel-test-keys_method-1 nil (equal (eval (pyel "pyel_test_keys_method_379(1)")) (quote (3 2 1))))
+(ert-deftest pyel-test-keys_method-2 nil (equal (eval (pyel "pyel_test_keys_method_379(2)")) (quote ((8)))))
+(ert-deftest pyel-test-keys_method-3 nil (equal (eval (pyel "pyel_test_keys_method_379(3)")) nil))
+(ert-deftest pyel-test-values_method-1 nil (equal (eval (pyel "pyel_test_values_method_380(1)")) (quote ("three" "two" "one"))))
+(ert-deftest pyel-test-values_method-2 nil (equal (eval (pyel "pyel_test_values_method_380(2)")) (quote (88))))
+(ert-deftest pyel-test-values_method-3 nil (equal (eval (pyel "pyel_test_values_method_380(3)")) nil))
+(ert-deftest pyel-test-popitem_method-1 nil (equal (eval (pyel "pyel_test_popitem_method_381(1)")) (quote (1 "one"))))
+(ert-deftest pyel-test-popitem_method-2 nil (equal (eval (pyel "pyel_test_popitem_method_381(2)")) "{2: \"two\", 3: \"three\"}"))
+(ert-deftest pyel-test-copy_method-1 nil (equal (eval (pyel "pyel_test_copy_method_382(1)")) nil))
+(ert-deftest pyel-test-copy_method-2 nil (equal (eval (pyel "pyel_test_copy_method_382(2)")) t))
+(ert-deftest pyel-test-islower_method-4 nil (equal (eval (pyel "pyel_test_islower_method_383(1)")) nil))
+(ert-deftest pyel-test-islower_method-5 nil (equal (eval (pyel "pyel_test_islower_method_383(2)")) t))
+(ert-deftest pyel-test-islower_method-6 nil (equal (eval (pyel "pyel_test_islower_method_383(3)")) nil))
+(ert-deftest pyel-test-isupper_method-4 nil (equal (eval (pyel "pyel_test_isupper_method_384(1)")) t))
+(ert-deftest pyel-test-isupper_method-5 nil (equal (eval (pyel "pyel_test_isupper_method_384(2)")) nil))
+(ert-deftest pyel-test-isupper_method-6 nil (equal (eval (pyel "pyel_test_isupper_method_384(3)")) nil))
+(ert-deftest pyel-test-istitle_method-5 nil (equal (eval (pyel "pyel_test_istitle_method_385(1)")) nil))
+(ert-deftest pyel-test-istitle_method-6 nil (equal (eval (pyel "pyel_test_istitle_method_385(2)")) t))
+(ert-deftest pyel-test-istitle_method-7 nil (equal (eval (pyel "pyel_test_istitle_method_385(3)")) nil))
+(ert-deftest pyel-test-isalpha_method-1 nil (equal (eval (pyel "pyel_test_isalpha_method_386()")) t))
+(ert-deftest pyel-test-isalnum_method-1 nil (equal (eval (pyel "pyel_test_isalnum_method_387()")) t))
+(ert-deftest pyel-test-zfill_method-4 nil (equal (eval (pyel "pyel_test_zfill_method_388()")) "000000asdf"))
+(ert-deftest pyel-test-title_method-1 nil (equal (eval (pyel "pyel_test_title_method_389()")) "2dd"))
+(ert-deftest pyel-test-swapcase_method-1 nil (equal (eval (pyel "pyel_test_swapcase_method_390()")) "AAbb1"))
+(ert-deftest pyel-test-startswith_method-3 nil (equal (eval (pyel "pyel_test_startswith_method_391()")) nil))
+(ert-deftest pyel-test-rstrip_method-1 nil (equal (eval (pyel "pyel_test_rstrip_method_392()")) "he"))
+(ert-deftest pyel-test-lstrip_method-1 nil (equal (eval (pyel "pyel_test_lstrip_method_393()")) "ello"))
+(ert-deftest pyel-test-rsplit_method-1 nil (equal (eval (pyel "pyel_test_rsplit_method_394(1)")) (quote ("a" "x" "b" "x" "d" "x"))))
+(ert-deftest pyel-test-rsplit_method-2 nil (equal (eval (pyel "pyel_test_rsplit_method_394(2)")) 6))
+(ert-deftest pyel-test-rsplit_method-4 nil (equal (eval (pyel "pyel_test_rsplit_method_395()")) (quote ("a" "b" "c"))))
+(ert-deftest pyel-test-partition_method-1 nil (equal (eval (pyel "pyel_test_partition_method_396()")) ["ab" "c" "defghi"]))
+(ert-deftest pyel-test-rpartition_method-1 nil (equal (eval (pyel "pyel_test_rpartition_method_397()")) ["ab" "c" "defghi"]))
+(ert-deftest pyel-test-rjust_method-1 nil (equal (eval (pyel "pyel_test_rjust_method_398()")) "        ab"))
+(ert-deftest pyel-test-ljust_method-1 nil (equal (eval (pyel "pyel_test_ljust_method_399()")) "ab        "))
+(ert-deftest pyel-test-rfind_method-1 nil (equal (eval (pyel "pyel_test_rfind_method_400(1)")) 1))
+(ert-deftest pyel-test-rfind_method-2 nil (equal (eval (pyel "pyel_test_rfind_method_400(2)")) 6))
+(ert-deftest pyel-el-ast-test-conditional-expressions-335 nil (string= (pyel "1 if True else 0" nil nil t) "(if-exp (name  \"True\" 'load 1 5) (num 1 1 0) (num 0 1 15) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-conditional-expressions-337 nil (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])
+(ert-deftest pyel-py-ast-test-conditional-expressions-334 nil (equal (py-ast "1 if True else 0") "Module(body=[Expr(value=IfExp(test=Name(id='True', ctx=Load()), body=Num(n=1), orelse=Num(n=0)))])
 "))
-(ert-deftest pyel-transform-test-conditional-expressions-336 nil (equal (pyel "1 if True else 0") (quote (if t 1 0))))
-(ert-deftest pyel-el-ast-test-conditional-expressions-335 nil (string= (pyel "true() if tst() else false()" nil nil t) "(if-exp (call  (name  \"tst\" 'load 1 10) nil nil nil nil 1 10) (call  (name  \"true\" 'load 1 0) nil nil nil nil 1 0) (call  (name  \"false\" 'load 1 21) nil nil nil nil 1 21) 1 0)
+(ert-deftest pyel-transform-test-conditional-expressions-333 nil (equal (pyel "1 if True else 0") (quote (if t 1 0))))
+(ert-deftest pyel-el-ast-test-conditional-expressions-332 nil (string= (pyel "true() if tst() else false()" nil nil t) "(if-exp (call  (name  \"tst\" 'load 1 10) nil nil nil nil 1 10) (call  (name  \"true\" 'load 1 0) nil nil nil nil 1 0) (call  (name  \"false\" 'load 1 21) nil nil nil nil 1 21) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-conditional-expressions-334 nil (equal (py-ast "true() if tst() else false()") "Module(body=[Expr(value=IfExp(test=Call(func=Name(id='tst', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), body=Call(func=Name(id='true', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), orelse=Call(func=Name(id='false', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)))])
+(ert-deftest pyel-py-ast-test-conditional-expressions-331 nil (equal (py-ast "true() if tst() else false()") "Module(body=[Expr(value=IfExp(test=Call(func=Name(id='tst', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), body=Call(func=Name(id='true', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), orelse=Call(func=Name(id='false', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)))])
 "))
-(ert-deftest pyel-transform-test-conditional-expressions-333 nil (equal (pyel "true() if tst() else false()") (quote (if (pyel-fcall tst) (pyel-fcall true) (pyel-fcall false)))))
-(ert-deftest pyel-el-ast-test-conditional-expressions-332 nil (string= (pyel "a[1] if a[2:2] else a[2]" nil nil t) "(if-exp (subscript (name  \"a\" 'load 1 8) (slice (num 2 1 10) (num 2 1 12) nil) 'load 1 8) (subscript (name  \"a\" 'load 1 0) (index (num 1 1 2) nil nil) 'load 1 0) (subscript (name  \"a\" 'load 1 20) (index (num 2 1 22) nil nil) 'load 1 20) 1 0)
+(ert-deftest pyel-transform-test-conditional-expressions-330 nil (equal (pyel "true() if tst() else false()") (quote (if (pyel-fcall tst) (pyel-fcall true) (pyel-fcall false)))))
+(ert-deftest pyel-el-ast-test-conditional-expressions-329 nil (string= (pyel "a[1] if a[2:2] else a[2]" nil nil t) "(if-exp (subscript (name  \"a\" 'load 1 8) (slice (num 2 1 10) (num 2 1 12) nil) 'load 1 8) (subscript (name  \"a\" 'load 1 0) (index (num 1 1 2) nil nil) 'load 1 0) (subscript (name  \"a\" 'load 1 20) (index (num 2 1 22) nil nil) 'load 1 20) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-conditional-expressions-331 nil (equal (py-ast "a[1] if a[2:2] else a[2]") "Module(body=[Expr(value=IfExp(test=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=2), step=None), ctx=Load()), body=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), orelse=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())))])
+(ert-deftest pyel-py-ast-test-conditional-expressions-328 nil (equal (py-ast "a[1] if a[2:2] else a[2]") "Module(body=[Expr(value=IfExp(test=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=2), step=None), ctx=Load()), body=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), orelse=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())))])
 "))
-(ert-deftest pyel-transform-test-conditional-expressions-330 nil (equal (pyel "a[1] if a[2:2] else a[2]") (quote (if (pyel-subscript-load-slice a 2 2 nil) (pyel-subscript-load-index a 1) (pyel-subscript-load-index a 2)))))
-(ert-deftest pyel-el-ast-test-boolop-329 nil (string= (pyel "a or b" nil nil t) "(boolop or ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 5)) 1 0)
+(ert-deftest pyel-transform-test-conditional-expressions-327 nil (equal (pyel "a[1] if a[2:2] else a[2]") (quote (if (pyel-subscript-load-slice a 2 2 nil) (pyel-subscript-load-index a 1) (pyel-subscript-load-index a 2)))))
+(ert-deftest pyel-el-ast-test-boolop-326 nil (string= (pyel "a or b" nil nil t) "(boolop or ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 5)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-328 nil (equal (py-ast "a or b") "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])
+(ert-deftest pyel-py-ast-test-boolop-325 nil (equal (py-ast "a or b") "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])
 "))
-(ert-deftest pyel-transform-test-boolop-327 nil (equal (pyel "a or b") (quote (or a b))))
-(ert-deftest pyel-el-ast-test-boolop-326 nil (string= (pyel "a or b or c" nil nil t) "(boolop or ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 5) (name  \"c\" 'load 1 10)) 1 0)
+(ert-deftest pyel-transform-test-boolop-324 nil (equal (pyel "a or b") (quote (or a b))))
+(ert-deftest pyel-el-ast-test-boolop-323 nil (string= (pyel "a or b or c" nil nil t) "(boolop or ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 5) (name  \"c\" 'load 1 10)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-325 nil (equal (py-ast "a or b or c") "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])
+(ert-deftest pyel-py-ast-test-boolop-322 nil (equal (py-ast "a or b or c") "Module(body=[Expr(value=BoolOp(op=Or(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load()), Name(id='c', ctx=Load())]))])
 "))
-(ert-deftest pyel-transform-test-boolop-324 nil (equal (pyel "a or b or c") (quote (or a b c))))
-(ert-deftest pyel-el-ast-test-boolop-323 nil (string= (pyel "a.c or b.c() or a[2]" nil nil t) "(boolop or ((attribute  (name  \"a\" 'load 1 0) \"c\" 'load 1 0) (call  (attribute  (name  \"b\" 'load 1 7) \"c\" 'load 1 7) nil nil nil nil 1 7) (subscript (name  \"a\" 'load 1 16) (index (num 2 1 18) nil nil) 'load 1 16)) 1 0)
+(ert-deftest pyel-transform-test-boolop-321 nil (equal (pyel "a or b or c") (quote (or a b c))))
+(ert-deftest pyel-el-ast-test-boolop-320 nil (string= (pyel "a.c or b.c() or a[2]" nil nil t) "(boolop or ((attribute  (name  \"a\" 'load 1 0) \"c\" 'load 1 0) (call  (attribute  (name  \"b\" 'load 1 7) \"c\" 'load 1 7) nil nil nil nil 1 7) (subscript (name  \"a\" 'load 1 16) (index (num 2 1 18) nil nil) 'load 1 16)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-322 nil (equal (py-ast "a.c or b.c() or a[2]") "Module(body=[Expr(value=BoolOp(op=Or(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='c', ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]))])
+(ert-deftest pyel-py-ast-test-boolop-319 nil (equal (py-ast "a.c or b.c() or a[2]") "Module(body=[Expr(value=BoolOp(op=Or(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='c', ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='c', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]))])
 "))
-(ert-deftest pyel-transform-test-boolop-321 nil (equal (pyel "a.c or b.c() or a[2]") (quote (or (getattr a c) (call-method b c) (pyel-subscript-load-index a 2)))))
-(ert-deftest pyel-el-ast-test-boolop-320 nil (string= (pyel "a and b" nil nil t) "(boolop and ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 6)) 1 0)
+(ert-deftest pyel-transform-test-boolop-318 nil (equal (pyel "a.c or b.c() or a[2]") (quote (or (getattr a c) (call-method b c) (pyel-subscript-load-index a 2)))))
+(ert-deftest pyel-el-ast-test-boolop-317 nil (string= (pyel "a and b" nil nil t) "(boolop and ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 6)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-319 nil (equal (py-ast "a and b") "Module(body=[Expr(value=BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])
+(ert-deftest pyel-py-ast-test-boolop-316 nil (equal (py-ast "a and b") "Module(body=[Expr(value=BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]))])
 "))
-(ert-deftest pyel-transform-test-boolop-318 nil (equal (pyel "a and b") (quote (and a b))))
-(ert-deftest pyel-el-ast-test-boolop-317 nil (string= (pyel "a and b or c" nil nil t) "(boolop or ((boolop and ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 6)) 1 0) (name  \"c\" 'load 1 11)) 1 0)
+(ert-deftest pyel-transform-test-boolop-315 nil (equal (pyel "a and b") (quote (and a b))))
+(ert-deftest pyel-el-ast-test-boolop-314 nil (string= (pyel "a and b or c" nil nil t) "(boolop or ((boolop and ((name  \"a\" 'load 1 0) (name  \"b\" 'load 1 6)) 1 0) (name  \"c\" 'load 1 11)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-316 nil (equal (py-ast "a and b or c") "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]), Name(id='c', ctx=Load())]))])
+(ert-deftest pyel-py-ast-test-boolop-313 nil (equal (py-ast "a and b or c") "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Name(id='a', ctx=Load()), Name(id='b', ctx=Load())]), Name(id='c', ctx=Load())]))])
 "))
-(ert-deftest pyel-transform-test-boolop-315 nil (equal (pyel "a and b or c") (quote (or (and a b) c))))
-(ert-deftest pyel-el-ast-test-boolop-314 nil (string= (pyel "a[2] and b.f() or c.e" nil nil t) "(boolop or ((boolop and ((subscript (name  \"a\" 'load 1 0) (index (num 2 1 2) nil nil) 'load 1 0) (call  (attribute  (name  \"b\" 'load 1 9) \"f\" 'load 1 9) nil nil nil nil 1 9)) 1 0) (attribute  (name  \"c\" 'load 1 18) \"e\" 'load 1 18)) 1 0)
+(ert-deftest pyel-transform-test-boolop-312 nil (equal (pyel "a and b or c") (quote (or (and a b) c))))
+(ert-deftest pyel-el-ast-test-boolop-311 nil (string= (pyel "a[2] and b.f() or c.e" nil nil t) "(boolop or ((boolop and ((subscript (name  \"a\" 'load 1 0) (index (num 2 1 2) nil nil) 'load 1 0) (call  (attribute  (name  \"b\" 'load 1 9) \"f\" 'load 1 9) nil nil nil nil 1 9)) 1 0) (attribute  (name  \"c\" 'load 1 18) \"e\" 'load 1 18)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-313 nil (equal (py-ast "a[2] and b.f() or c.e") "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='f', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)]), Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load())]))])
+(ert-deftest pyel-py-ast-test-boolop-310 nil (equal (py-ast "a[2] and b.f() or c.e") "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), Call(func=Attribute(value=Name(id='b', ctx=Load()), attr='f', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)]), Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load())]))])
 "))
-(ert-deftest pyel-transform-test-boolop-312 nil (equal (pyel "a[2] and b.f() or c.e") (quote (or (and (pyel-subscript-load-index a 2) (call-method b f)) (getattr c e)))))
-(ert-deftest pyel-el-ast-test-boolop-311 nil (string= (pyel "a.e and b[2] or c.e() and 2 " nil nil t) "(boolop or ((boolop and ((attribute  (name  \"a\" 'load 1 0) \"e\" 'load 1 0) (subscript (name  \"b\" 'load 1 8) (index (num 2 1 10) nil nil) 'load 1 8)) 1 0) (boolop and ((call  (attribute  (name  \"c\" 'load 1 16) \"e\" 'load 1 16) nil nil nil nil 1 16) (num 2 1 26)) 1 16)) 1 0)
+(ert-deftest pyel-transform-test-boolop-309 nil (equal (pyel "a[2] and b.f() or c.e") (quote (or (and (pyel-subscript-load-index a 2) (call-method b f)) (getattr c e)))))
+(ert-deftest pyel-el-ast-test-boolop-308 nil (string= (pyel "a.e and b[2] or c.e() and 2 " nil nil t) "(boolop or ((boolop and ((attribute  (name  \"a\" 'load 1 0) \"e\" 'load 1 0) (subscript (name  \"b\" 'load 1 8) (index (num 2 1 10) nil nil) 'load 1 8)) 1 0) (boolop and ((call  (attribute  (name  \"c\" 'load 1 16) \"e\" 'load 1 16) nil nil nil nil 1 16) (num 2 1 26)) 1 16)) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-boolop-310 nil (equal (py-ast "a.e and b[2] or c.e() and 2 ") "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load()), Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]), BoolOp(op=And(), values=[Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Num(n=2)])]))])
+(ert-deftest pyel-py-ast-test-boolop-307 nil (equal (py-ast "a.e and b[2] or c.e() and 2 ") "Module(body=[Expr(value=BoolOp(op=Or(), values=[BoolOp(op=And(), values=[Attribute(value=Name(id='a', ctx=Load()), attr='e', ctx=Load()), Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())]), BoolOp(op=And(), values=[Call(func=Attribute(value=Name(id='c', ctx=Load()), attr='e', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), Num(n=2)])]))])
 "))
-(ert-deftest pyel-transform-test-boolop-309 nil (equal (pyel "a.e and b[2] or c.e() and 2 ") (quote (or (and (getattr a e) (pyel-subscript-load-index b 2)) (and (call-method c e) 2)))))
-(ert-deftest pyel-el-ast-test-try-306 nil (string= (pyel "x = ''
+(ert-deftest pyel-transform-test-boolop-306 nil (equal (pyel "a.e and b[2] or c.e() and 2 ") (quote (or (and (getattr a e) (pyel-subscript-load-index b 2)) (and (call-method c e) 2)))))
+(ert-deftest pyel-el-ast-test-try-303 nil (string= (pyel "x = ''
 try:
  1 / 0
  x = 'yes'
@@ -2039,7 +2134,7 @@ assert x == 'no'" nil nil t) "(assign  ((name  \"x\" 'store 1 0)) (str \"\" 1 4)
 (try ((bin-op  (num 1 3 1) / (num 0 3 5) 3 1) (assign  ((name  \"x\" 'store 4 1)) (str \"yes\" 4 5) 4 1)) ((except-handler nil nil ((assign  ((name  \"x\" 'store 6 1)) (str \"no\" 6 5) 6 1)) 5 0)) () 2 0)
 (assert  (compare  (name  \"x\" 'load 7 7) (\"==\") ((str \"no\" 7 12)) 7 7) nil 7 0)
 "))
-(ert-deftest pyel-py-ast-test-try-305 nil (equal (py-ast "x = ''
+(ert-deftest pyel-py-ast-test-try-302 nil (equal (py-ast "x = ''
 try:
  1 / 0
  x = 'yes'
@@ -2047,14 +2142,14 @@ except:
  x = 'no'
 assert x == 'no'") "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='')), TryExcept(body=[Expr(value=BinOp(left=Num(n=1), op=Div(), right=Num(n=0))), Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='yes'))], handlers=[ExceptHandler(type=None, name=None, body=[Assign(targets=[Name(id='x', ctx=Store())], value=Str(s='no'))])], orelse=[]), Assert(test=Compare(left=Name(id='x', ctx=Load()), ops=[Eq()], comparators=[Str(s='no')]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-try-304 nil (equal (pyel "x = ''
+(ert-deftest pyel-transform-test-try-301 nil (equal (pyel "x = ''
 try:
  1 / 0
  x = 'yes'
 except:
  x = 'no'
 assert x == 'no'") (quote (progn (pyel-set x "") (condition-case nil (pyel-/ 1 0) (pyel-set x "yes") (error (pyel-set x "no"))) (assert (pyel-== x "no") t nil)))))
-(ert-deftest pyel-el-ast-test-try-303 nil (string= (pyel "try:
+(ert-deftest pyel-el-ast-test-try-300 nil (string= (pyel "try:
  _a()
 except:
  try:
@@ -2062,7 +2157,7 @@ except:
  except:
   _b()" nil nil t) "(try ((call  (name  \"_a\" 'load 2 1) nil nil nil nil 2 1)) ((except-handler nil nil ((try ((call  (name  \"_x\" 'load 5 2) nil nil nil nil 5 2)) ((except-handler nil nil ((call  (name  \"_b\" 'load 7 2) nil nil nil nil 7 2)) 6 1)) () 4 1)) 3 0)) () 1 0)
 "))
-(ert-deftest pyel-py-ast-test-try-302 nil (equal (py-ast "try:
+(ert-deftest pyel-py-ast-test-try-299 nil (equal (py-ast "try:
  _a()
 except:
  try:
@@ -2070,47 +2165,28 @@ except:
  except:
   _b()") "Module(body=[TryExcept(body=[Expr(value=Call(func=Name(id='_a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], handlers=[ExceptHandler(type=None, name=None, body=[TryExcept(body=[Expr(value=Call(func=Name(id='_x', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))], handlers=[ExceptHandler(type=None, name=None, body=[Expr(value=Call(func=Name(id='_b', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])], orelse=[])])], orelse=[])])
 "))
-(ert-deftest pyel-transform-test-try-301 nil (equal (pyel "try:
+(ert-deftest pyel-transform-test-try-298 nil (equal (pyel "try:
  _a()
 except:
  try:
   _x()
  except:
   _b()") (quote (condition-case nil (pyel-fcall -a) (error (condition-case nil (pyel-fcall -x) (error (pyel-fcall -b))))))))
-(ert-deftest pyel-el-ast-test-lambda-293 nil (string= (pyel "lambda x,y,z=4,*g: print(z);x()" nil nil t) "(lambda ((arguments  ((arg \"x\"  nil) (arg \"y\"  nil) (arg \"z\"  nil)) g nil nil nil nil ((num 4 1 13)) nil )) ((call  (name  \"print\" 'load 1 19) ((name  \"z\" 'load 1 25)) nil nil nil 1 19)) 1 0)
-(call  (name  \"x\" 'load 1 28) nil nil nil nil 1 28)
-"))
-(ert-deftest pyel-py-ast-test-lambda-292 nil (equal (py-ast "lambda x,y,z=4,*g: print(z);x()") "Module(body=[Expr(value=Lambda(args=arguments(args=[arg(arg='x', annotation=None), arg(arg='y', annotation=None), arg(arg='z', annotation=None)], vararg='g', varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[Num(n=4)], kw_defaults=[]), body=Call(func=Name(id='print', ctx=Load()), args=[Name(id='z', ctx=Load())], keywords=[], starargs=None, kwargs=None))), Expr(value=Call(func=Name(id='x', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])
-"))
-(ert-deftest pyel-transform-test-lambda-291 nil (equal (pyel "lambda x,y,z=4,*g: print(z);x()") (quote (progn (lambda (x y &optional z &rest g) nil (setq z (or z 4)) (py-print nil nil nil z)) (pyel-fcall x)))))
-(ert-deftest pyel-el-ast-test-lambda-290 nil (string= (pyel "x = range(2, 9)
-x2 = reduce(lambda a,b:a+b, x)
-assert x2 == 35" nil nil t) "(assign  ((name  \"x\" 'store 1 0)) (call  (name  \"range\" 'load 1 4) ((num 2 1 10) (num 9 1 13)) nil nil nil 1 4) 1 0)
-(assign  ((name  \"x2\" 'store 2 0)) (call  (name  \"reduce\" 'load 2 5) ((lambda ((arguments  ((arg \"a\"  nil) (arg \"b\"  nil)) nil nil nil nil nil nil nil )) ((bin-op  (name  \"a\" 'load 2 23) + (name  \"b\" 'load 2 25) 2 23)) 2 12) (name  \"x\" 'load 2 28)) nil nil nil 2 5) 2 0)
-(assert  (compare  (name  \"x2\" 'load 3 7) (\"==\") ((num 35 3 13)) 3 7) nil 3 0)
-"))
-(ert-deftest pyel-py-ast-test-lambda-289 nil (equal (py-ast "x = range(2, 9)
-x2 = reduce(lambda a,b:a+b, x)
-assert x2 == 35") "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='range', ctx=Load()), args=[Num(n=2), Num(n=9)], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Name(id='x2', ctx=Store())], value=Call(func=Name(id='reduce', ctx=Load()), args=[Lambda(args=arguments(args=[arg(arg='a', annotation=None), arg(arg='b', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=BinOp(left=Name(id='a', ctx=Load()), op=Add(), right=Name(id='b', ctx=Load()))), Name(id='x', ctx=Load())], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Name(id='x2', ctx=Load()), ops=[Eq()], comparators=[Num(n=35)]), msg=None)])
-"))
-(ert-deftest pyel-transform-test-lambda-288 nil (equal (pyel "x = range(2, 9)
-x2 = reduce(lambda a,b:a+b, x)
-assert x2 == 35") (quote (progn (pyel-set x (pyel-fcall py-range 2 9)) (pyel-set x2 (pyel-fcall reduce (lambda (a b) nil (pyel-+ a b)) x)) (assert (pyel-== x2 35) t nil)))))
-(ert-deftest pyel-el-ast-test-global-287 nil (string= (pyel "def a():
+(ert-deftest pyel-el-ast-test-global-289 nil (string= (pyel "def a():
  global x
  x = 3
  y = 1" nil nil t) "(def \" a \" ((arguments  nil nil nil nil nil nil nil nil )) ((global (x) 2 1) (assign  ((name  \"x\" 'store 3 1)) (num 3 3 5) 3 1) (assign  ((name  \"y\" 'store 4 1)) (num 1 4 5) 4 1)) nil nil 1 0 )
 "))
-(ert-deftest pyel-py-ast-test-global-286 nil (equal (py-ast "def a():
+(ert-deftest pyel-py-ast-test-global-288 nil (equal (py-ast "def a():
  global x
  x = 3
  y = 1") "Module(body=[FunctionDef(name='a', args=arguments(args=[], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Global(names=['x']), Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=3)), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1))], decorator_list=[], returns=None)])
 "))
-(ert-deftest pyel-transform-test-global-285 nil (equal (pyel "def a():
+(ert-deftest pyel-transform-test-global-287 nil (equal (pyel "def a():
  global x
  x = 3
  y = 1") (quote (def a nil nil (let (y) (pyel-set x 3) (pyel-set y 1))))))
-(ert-deftest pyel-el-ast-test-global-284 nil (string= (pyel "x = 1
+(ert-deftest pyel-el-ast-test-global-286 nil (string= (pyel "x = 1
 y = 1
 def func():
  global x
@@ -2126,7 +2202,7 @@ assert y == 1
 (assert  (compare  (name  \"x\" 'load 8 7) (\"==\") ((num 7 8 12)) 8 7) nil 8 0)
 (assert  (compare  (name  \"y\" 'load 9 7) (\"==\") ((num 1 9 12)) 9 7) nil 9 0)
 "))
-(ert-deftest pyel-py-ast-test-global-283 nil (equal (py-ast "x = 1
+(ert-deftest pyel-py-ast-test-global-285 nil (equal (py-ast "x = 1
 y = 1
 def func():
  global x
@@ -2137,7 +2213,7 @@ assert x == 7
 assert y == 1
 ") "Module(body=[Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=1)), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=1)), FunctionDef(name='func', args=arguments(args=[], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Global(names=['x']), Assign(targets=[Name(id='x', ctx=Store())], value=Num(n=7)), Assign(targets=[Name(id='y', ctx=Store())], value=Num(n=7))], decorator_list=[], returns=None), Expr(value=Call(func=Name(id='func', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Name(id='x', ctx=Load()), ops=[Eq()], comparators=[Num(n=7)]), msg=None), Assert(test=Compare(left=Name(id='y', ctx=Load()), ops=[Eq()], comparators=[Num(n=1)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-global-282 nil (equal (pyel "x = 1
+(ert-deftest pyel-transform-test-global-284 nil (equal (pyel "x = 1
 y = 1
 def func():
  global x
@@ -2147,44 +2223,44 @@ func()
 assert x == 7
 assert y == 1
 ") (quote (progn (pyel-set x 1) (pyel-set y 1) (def func nil nil (let (y) (pyel-set x 7) (pyel-set y 7))) (pyel-fcall func) (assert (pyel-== x 7) t nil) (assert (pyel-== y 1) t nil)))))
-(ert-deftest pyel-el-ast-test-assert-270 nil (string= (pyel "assert sldk()" nil nil t) "(assert  (call  (name  \"sldk\" 'load 1 7) nil nil nil nil 1 7) nil 1 0)
+(ert-deftest pyel-el-ast-test-assert-272 nil (string= (pyel "assert sldk()" nil nil t) "(assert  (call  (name  \"sldk\" 'load 1 7) nil nil nil nil 1 7) nil 1 0)
 "))
-(ert-deftest pyel-py-ast-test-assert-269 nil (equal (py-ast "assert sldk()") "Module(body=[Assert(test=Call(func=Name(id='sldk', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), msg=None)])
+(ert-deftest pyel-py-ast-test-assert-271 nil (equal (py-ast "assert sldk()") "Module(body=[Assert(test=Call(func=Name(id='sldk', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None), msg=None)])
 "))
-(ert-deftest pyel-transform-test-assert-268 nil (equal (pyel "assert sldk()") (quote (assert (pyel-fcall sldk) t nil))))
-(ert-deftest pyel-el-ast-test-assert-267 nil (string= (pyel "assert adk,'messsage'" nil nil t) "(assert  (name  \"adk\" 'load 1 7) (str \"messsage\" 1 11) 1 0)
+(ert-deftest pyel-transform-test-assert-270 nil (equal (pyel "assert sldk()") (quote (assert (pyel-fcall sldk) t nil))))
+(ert-deftest pyel-el-ast-test-assert-269 nil (string= (pyel "assert adk,'messsage'" nil nil t) "(assert  (name  \"adk\" 'load 1 7) (str \"messsage\" 1 11) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-assert-266 nil (equal (py-ast "assert adk,'messsage'") "Module(body=[Assert(test=Name(id='adk', ctx=Load()), msg=Str(s='messsage'))])
+(ert-deftest pyel-py-ast-test-assert-268 nil (equal (py-ast "assert adk,'messsage'") "Module(body=[Assert(test=Name(id='adk', ctx=Load()), msg=Str(s='messsage'))])
 "))
-(ert-deftest pyel-transform-test-assert-265 nil (equal (pyel "assert adk,'messsage'") (quote (assert adk t "messsage"))))
-(ert-deftest pyel-el-ast-test-subscript-261 nil (string= (pyel "a = '1X23'
+(ert-deftest pyel-transform-test-assert-267 nil (equal (pyel "assert adk,'messsage'") (quote (assert adk t "messsage"))))
+(ert-deftest pyel-el-ast-test-subscript-263 nil (string= (pyel "a = '1X23'
 assert a[1] == 'X'" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (str \"1X23\" 1 4) 1 0)
 (assert  (compare  (subscript (name  \"a\" 'load 2 7) (index (num 1 2 9) nil nil) 'load 2 7) (\"==\") ((str \"X\" 2 15)) 2 7) nil 2 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-260 nil (equal (py-ast "a = '1X23'
+(ert-deftest pyel-py-ast-test-subscript-262 nil (equal (py-ast "a = '1X23'
 assert a[1] == 'X'") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='1X23')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Str(s='X')]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-259 nil (equal (pyel "a = '1X23'
+(ert-deftest pyel-transform-test-subscript-261 nil (equal (pyel "a = '1X23'
 assert a[1] == 'X'") (quote (progn (pyel-set a "1X23") (assert (pyel-== (pyel-subscript-load-index a 1) "X") t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-258 nil (string= (pyel "a = [1,2,3,4]
+(ert-deftest pyel-el-ast-test-subscript-260 nil (string= (pyel "a = [1,2,3,4]
 assert a[1] == 2" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (list ((num 1 1 5) (num 2 1 7) (num 3 1 9) (num 4 1 11)) 'load 1 4) 1 0)
 (assert  (compare  (subscript (name  \"a\" 'load 2 7) (index (num 1 2 9) nil nil) 'load 2 7) (\"==\") ((num 2 2 15)) 2 7) nil 2 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-257 nil (equal (py-ast "a = [1,2,3,4]
+(ert-deftest pyel-py-ast-test-subscript-259 nil (equal (py-ast "a = [1,2,3,4]
 assert a[1] == 2") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-256 nil (equal (pyel "a = [1,2,3,4]
+(ert-deftest pyel-transform-test-subscript-258 nil (equal (pyel "a = [1,2,3,4]
 assert a[1] == 2") (quote (progn (pyel-set a (list 1 2 3 4)) (assert (pyel-== (pyel-subscript-load-index a 1) 2) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-255 nil (string= (pyel "a = (1,2,3,4)
+(ert-deftest pyel-el-ast-test-subscript-257 nil (string= (pyel "a = (1,2,3,4)
 assert a[1] == 2" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (tuple  ((num 1 1 5) (num 2 1 7) (num 3 1 9) (num 4 1 11)) 'load 1 5) 1 0)
 (assert  (compare  (subscript (name  \"a\" 'load 2 7) (index (num 1 2 9) nil nil) 'load 2 7) (\"==\") ((num 2 2 15)) 2 7) nil 2 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-254 nil (equal (py-ast "a = (1,2,3,4)
+(ert-deftest pyel-py-ast-test-subscript-256 nil (equal (py-ast "a = (1,2,3,4)
 assert a[1] == 2") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-253 nil (equal (pyel "a = (1,2,3,4)
+(ert-deftest pyel-transform-test-subscript-255 nil (equal (pyel "a = (1,2,3,4)
 assert a[1] == 2") (quote (progn (pyel-set a (vector 1 2 3 4)) (assert (pyel-== (pyel-subscript-load-index a 1) 2) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-252 nil (string= (pyel "class a:
+(ert-deftest pyel-el-ast-test-subscript-254 nil (string= (pyel "class a:
  def __getitem__ (self, value):
   return value + 4
 x = a()
@@ -2192,18 +2268,18 @@ assert x[1] == 5" nil nil t) "(classdef a nil nil nil nil ((def \" __getitem__ \
 (assign  ((name  \"x\" 'store 4 0)) (call  (name  \"a\" 'load 4 4) nil nil nil nil 4 4) 4 0)
 (assert  (compare  (subscript (name  \"x\" 'load 5 7) (index (num 1 5 9) nil nil) 'load 5 7) (\"==\") ((num 5 5 15)) 5 7) nil 5 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-251 nil (equal (py-ast "class a:
+(ert-deftest pyel-py-ast-test-subscript-253 nil (equal (py-ast "class a:
  def __getitem__ (self, value):
   return value + 4
 x = a()
 assert x[1] == 5") "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__getitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=BinOp(left=Name(id='value', ctx=Load()), op=Add(), right=Num(n=4)))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-250 nil (equal (pyel "class a:
+(ert-deftest pyel-transform-test-subscript-252 nil (equal (pyel "class a:
  def __getitem__ (self, value):
   return value + 4
 x = a()
 assert x[1] == 5") (quote (progn (define-class a nil (def --getitem-- (self value) nil (pyel-+ value 4))) (pyel-set x (pyel-fcall a)) (assert (pyel-== (pyel-subscript-load-index x 1) 5) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-249 nil (string= (pyel "a = (1,2,3,4,5)
+(ert-deftest pyel-el-ast-test-subscript-251 nil (string= (pyel "a = (1,2,3,4,5)
 assert a[1:4] == (2,3,4)
 assert a[:4] == (1,2,3,4)
 assert a[2:] == (3,4,5)
@@ -2213,18 +2289,18 @@ assert a[:] == (1,2,3,4,5)" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (tup
 (assert  (compare  (subscript (name  \"a\" 'load 4 7) (slice (num 2 4 9) nil nil) 'load 4 7) (\"==\") ((tuple  ((num 3 4 17) (num 4 4 19) (num 5 4 21)) 'load 4 17)) 4 7) nil 4 0)
 (assert  (compare  (subscript (name  \"a\" 'load 5 7) (slice 0 nil nil) 'load 5 7) (\"==\") ((tuple  ((num 1 5 16) (num 2 5 18) (num 3 5 20) (num 4 5 22) (num 5 5 24)) 'load 5 16)) 5 7) nil 5 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-248 nil (equal (py-ast "a = (1,2,3,4,5)
+(ert-deftest pyel-py-ast-test-subscript-250 nil (equal (py-ast "a = (1,2,3,4,5)
 assert a[1:4] == (2,3,4)
 assert a[:4] == (1,2,3,4)
 assert a[2:] == (3,4,5)
 assert a[:] == (1,2,3,4,5)") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-247 nil (equal (pyel "a = (1,2,3,4,5)
+(ert-deftest pyel-transform-test-subscript-249 nil (equal (pyel "a = (1,2,3,4,5)
 assert a[1:4] == (2,3,4)
 assert a[:4] == (1,2,3,4)
 assert a[2:] == (3,4,5)
 assert a[:] == (1,2,3,4,5)") (quote (progn (pyel-set a (vector 1 2 3 4 5)) (assert (pyel-== (pyel-subscript-load-slice a 1 4 nil) (vector 2 3 4)) t nil) (assert (pyel-== (pyel-subscript-load-slice a 0 4 nil) (vector 1 2 3 4)) t nil) (assert (pyel-== (pyel-subscript-load-slice a 2 nil nil) (vector 3 4 5)) t nil) (assert (pyel-== (pyel-subscript-load-slice a 0 nil nil) (vector 1 2 3 4 5)) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-246 nil (string= (pyel "a = [1,2,3,4,5]
+(ert-deftest pyel-el-ast-test-subscript-248 nil (string= (pyel "a = [1,2,3,4,5]
 assert a[1:4] == [2,3,4]
 assert a[:4] == [1,2,3,4]
 assert a[2:] == [3,4,5]
@@ -2234,18 +2310,18 @@ assert a[:] == [1,2,3,4,5]" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (lis
 (assert  (compare  (subscript (name  \"a\" 'load 4 7) (slice (num 2 4 9) nil nil) 'load 4 7) (\"==\") ((list ((num 3 4 17) (num 4 4 19) (num 5 4 21)) 'load 4 16)) 4 7) nil 4 0)
 (assert  (compare  (subscript (name  \"a\" 'load 5 7) (slice 0 nil nil) 'load 5 7) (\"==\") ((list ((num 1 5 16) (num 2 5 18) (num 3 5 20) (num 4 5 22) (num 5 5 24)) 'load 5 15)) 5 7) nil 5 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-245 nil (equal (py-ast "a = [1,2,3,4,5]
+(ert-deftest pyel-py-ast-test-subscript-247 nil (equal (py-ast "a = [1,2,3,4,5]
 assert a[1:4] == [2,3,4]
 assert a[:4] == [1,2,3,4]
 assert a[2:] == [3,4,5]
 assert a[:] == [1,2,3,4,5]") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5)], ctx=Load())]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-244 nil (equal (pyel "a = [1,2,3,4,5]
+(ert-deftest pyel-transform-test-subscript-246 nil (equal (pyel "a = [1,2,3,4,5]
 assert a[1:4] == [2,3,4]
 assert a[:4] == [1,2,3,4]
 assert a[2:] == [3,4,5]
 assert a[:] == [1,2,3,4,5]") (quote (progn (pyel-set a (list 1 2 3 4 5)) (assert (pyel-== (pyel-subscript-load-slice a 1 4 nil) (list 2 3 4)) t nil) (assert (pyel-== (pyel-subscript-load-slice a 0 4 nil) (list 1 2 3 4)) t nil) (assert (pyel-== (pyel-subscript-load-slice a 2 nil nil) (list 3 4 5)) t nil) (assert (pyel-== (pyel-subscript-load-slice a 0 nil nil) (list 1 2 3 4 5)) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-243 nil (string= (pyel "a = '012345678'
+(ert-deftest pyel-el-ast-test-subscript-245 nil (string= (pyel "a = '012345678'
 assert a[1:4] == '123'
 assert a[:4] == '0123'
 assert a[2:] == '2345678'
@@ -2255,18 +2331,18 @@ assert a[:] == '012345678'" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (str
 (assert  (compare  (subscript (name  \"a\" 'load 4 7) (slice (num 2 4 9) nil nil) 'load 4 7) (\"==\") ((str \"2345678\" 4 16)) 4 7) nil 4 0)
 (assert  (compare  (subscript (name  \"a\" 'load 5 7) (slice 0 nil nil) 'load 5 7) (\"==\") ((str \"012345678\" 5 15)) 5 7) nil 5 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-242 nil (equal (py-ast "a = '012345678'
+(ert-deftest pyel-py-ast-test-subscript-244 nil (equal (py-ast "a = '012345678'
 assert a[1:4] == '123'
 assert a[:4] == '0123'
 assert a[2:] == '2345678'
 assert a[:] == '012345678'") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='012345678')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='123')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=4), step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='0123')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=2), upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='2345678')]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=None, step=None), ctx=Load()), ops=[Eq()], comparators=[Str(s='012345678')]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-241 nil (equal (pyel "a = '012345678'
+(ert-deftest pyel-transform-test-subscript-243 nil (equal (pyel "a = '012345678'
 assert a[1:4] == '123'
 assert a[:4] == '0123'
 assert a[2:] == '2345678'
 assert a[:] == '012345678'") (quote (progn (pyel-set a "012345678") (assert (pyel-== (pyel-subscript-load-slice a 1 4 nil) "123") t nil) (assert (pyel-== (pyel-subscript-load-slice a 0 4 nil) "0123") t nil) (assert (pyel-== (pyel-subscript-load-slice a 2 nil nil) "2345678") t nil) (assert (pyel-== (pyel-subscript-load-slice a 0 nil nil) "012345678") t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-240 nil (string= (pyel "class a:
+(ert-deftest pyel-el-ast-test-subscript-242 nil (string= (pyel "class a:
  def __getitem__ (self, value):
   return value.start + value.end
 x = a()
@@ -2276,20 +2352,20 @@ assert x[5:7] == 12" nil nil t) "(classdef a nil nil nil nil ((def \" __getitem_
 (assert  (compare  (subscript (name  \"x\" 'load 5 7) (slice (num 1 5 9) (num 2 5 11) nil) 'load 5 7) (\"==\") ((num 3 5 17)) 5 7) nil 5 0)
 (assert  (compare  (subscript (name  \"x\" 'load 6 7) (slice (num 5 6 9) (num 7 6 11) nil) 'load 6 7) (\"==\") ((num 12 6 17)) 6 7) nil 6 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-239 nil (equal (py-ast "class a:
+(ert-deftest pyel-py-ast-test-subscript-241 nil (equal (py-ast "class a:
  def __getitem__ (self, value):
   return value.start + value.end
 x = a()
 assert x[1:2] == 3
 assert x[5:7] == 12") "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__getitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=BinOp(left=Attribute(value=Name(id='value', ctx=Load()), attr='start', ctx=Load()), op=Add(), right=Attribute(value=Name(id='value', ctx=Load()), attr='end', ctx=Load())))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=2), step=None), ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=5), upper=Num(n=7), step=None), ctx=Load()), ops=[Eq()], comparators=[Num(n=12)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-238 nil (equal (pyel "class a:
+(ert-deftest pyel-transform-test-subscript-240 nil (equal (pyel "class a:
  def __getitem__ (self, value):
   return value.start + value.end
 x = a()
 assert x[1:2] == 3
 assert x[5:7] == 12") (quote (progn (define-class a nil (def --getitem-- (self value) nil (pyel-+ (getattr value start) (getattr value end)))) (pyel-set x (pyel-fcall a)) (assert (pyel-== (pyel-subscript-load-slice x 1 2 nil) 3) t nil) (assert (pyel-== (pyel-subscript-load-slice x 5 7 nil) 12) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-237 nil (string= (pyel "def __add(a,b):
+(ert-deftest pyel-el-ast-test-subscript-239 nil (string= (pyel "def __add(a,b):
  return a+b
 a = [1,2,3,4]
 a[0] = __add(a[1],a[2])
@@ -2302,7 +2378,7 @@ assert a[2] == 'str'" nil nil t) "(def \" __add \" ((arguments  ((arg \"a\"  nil
 (assign  ((subscript (name  \"a\" 'load 6 0) (index (num 2 6 2) nil nil) 'store 6 0)) (str \"str\" 6 7) 6 0)
 (assert  (compare  (subscript (name  \"a\" 'load 7 7) (index (num 2 7 9) nil nil) 'load 7 7) (\"==\") ((str \"str\" 7 15)) 7 7) nil 7 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-236 nil (equal (py-ast "def __add(a,b):
+(ert-deftest pyel-py-ast-test-subscript-238 nil (equal (py-ast "def __add(a,b):
  return a+b
 a = [1,2,3,4]
 a[0] = __add(a[1],a[2])
@@ -2310,14 +2386,14 @@ assert a[0] == 5
 a[2] = 'str'
 assert a[2] == 'str'") "Module(body=[FunctionDef(name='__add', args=arguments(args=[arg(arg='a', annotation=None), arg(arg='b', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Return(value=BinOp(left=Name(id='a', ctx=Load()), op=Add(), right=Name(id='b', ctx=Load())))], decorator_list=[], returns=None), Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Store())], value=Call(func=Name(id='__add', ctx=Load()), args=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load())], keywords=[], starargs=None, kwargs=None)), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store())], value=Str(s='str')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Str(s='str')]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-235 nil (equal (pyel "def __add(a,b):
+(ert-deftest pyel-transform-test-subscript-237 nil (equal (pyel "def __add(a,b):
  return a+b
 a = [1,2,3,4]
 a[0] = __add(a[1],a[2])
 assert a[0] == 5
 a[2] = 'str'
 assert a[2] == 'str'") (quote (progn (def --add (a b) nil (pyel-+ a b)) (pyel-set a (list 1 2 3 4)) (pyel-subscript-store-index a 0 (pyel-fcall --add (pyel-subscript-load-index a 1) (pyel-subscript-load-index a 2))) (assert (pyel-== (pyel-subscript-load-index a 0) 5) t nil) (pyel-subscript-store-index a 2 "str") (assert (pyel-== (pyel-subscript-load-index a 2) "str") t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-234 nil (string= (pyel "a = (1,2,3,4)
+(ert-deftest pyel-el-ast-test-subscript-236 nil (string= (pyel "a = (1,2,3,4)
 a[0] = a[1] + a[2]
 assert aa[0] == 5
 a[2] = 'str'
@@ -2327,18 +2403,18 @@ assert a[2] == 'str'" nil nil t) "(assign  ((name  \"a\" 'store 1 0)) (tuple  ((
 (assign  ((subscript (name  \"a\" 'load 4 0) (index (num 2 4 2) nil nil) 'store 4 0)) (str \"str\" 4 7) 4 0)
 (assert  (compare  (subscript (name  \"a\" 'load 5 7) (index (num 2 5 9) nil nil) 'load 5 7) (\"==\") ((str \"str\" 5 15)) 5 7) nil 5 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-233 nil (equal (py-ast "a = (1,2,3,4)
+(ert-deftest pyel-py-ast-test-subscript-235 nil (equal (py-ast "a = (1,2,3,4)
 a[0] = a[1] + a[2]
 assert aa[0] == 5
 a[2] = 'str'
 assert a[2] == 'str'") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Store())], value=BinOp(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=1)), ctx=Load()), op=Add(), right=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))), Assert(test=Compare(left=Subscript(value=Name(id='aa', ctx=Load()), slice=Index(value=Num(n=0)), ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store())], value=Str(s='str')), Assert(test=Compare(left=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Str(s='str')]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-232 nil (equal (pyel "a = (1,2,3,4)
+(ert-deftest pyel-transform-test-subscript-234 nil (equal (pyel "a = (1,2,3,4)
 a[0] = a[1] + a[2]
 assert aa[0] == 5
 a[2] = 'str'
 assert a[2] == 'str'") (quote (progn (pyel-set a (vector 1 2 3 4)) (pyel-subscript-store-index a 0 (pyel-+ (pyel-subscript-load-index a 1) (pyel-subscript-load-index a 2))) (assert (pyel-== (pyel-subscript-load-index aa 0) 5) t nil) (pyel-subscript-store-index a 2 "str") (assert (pyel-== (pyel-subscript-load-index a 2) "str") t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-231 nil (string= (pyel "class a:
+(ert-deftest pyel-el-ast-test-subscript-233 nil (string= (pyel "class a:
  def __setitem__ (self, index, value):
   self.index = index
   self.value = value
@@ -2351,7 +2427,7 @@ assert x.value == 5" nil nil t) "(classdef a nil nil nil nil ((def \" __setitem_
 (assert  (compare  (attribute  (name  \"x\" 'load 7 7) \"index\" 'load 7 7) (\"==\") ((num 3 7 18)) 7 7) nil 7 0)
 (assert  (compare  (attribute  (name  \"x\" 'load 8 7) \"value\" 'load 8 7) (\"==\") ((num 5 8 18)) 8 7) nil 8 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-230 nil (equal (py-ast "class a:
+(ert-deftest pyel-py-ast-test-subscript-232 nil (equal (py-ast "class a:
  def __setitem__ (self, index, value):
   self.index = index
   self.value = value
@@ -2360,7 +2436,7 @@ x[3] = 5
 assert x.index == 3
 assert x.value == 5") "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__setitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='index', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='index', ctx=Store())], value=Name(id='index', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='value', ctx=Store())], value=Name(id='value', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Subscript(value=Name(id='x', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Store())], value=Num(n=5)), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='index', ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='value', ctx=Load()), ops=[Eq()], comparators=[Num(n=5)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-229 nil (equal (pyel "class a:
+(ert-deftest pyel-transform-test-subscript-231 nil (equal (pyel "class a:
  def __setitem__ (self, index, value):
   self.index = index
   self.value = value
@@ -2368,7 +2444,7 @@ x = a()
 x[3] = 5
 assert x.index == 3
 assert x.value == 5") (quote (progn (define-class a nil (def --setitem-- (self index value) nil (setattr self index index) (setattr self value value))) (pyel-set x (pyel-fcall a)) (pyel-subscript-store-index x 3 5) (assert (pyel-== (getattr x index) 3) t nil) (assert (pyel-== (getattr x value) 5) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-228 nil (string= (pyel "a = [1,2,3,4,5,6]
+(ert-deftest pyel-el-ast-test-subscript-230 nil (string= (pyel "a = [1,2,3,4,5,6]
 a[1:4] = [5,4,'f']
 assert a == [1,5,4,'f',5,6]
 a[:3] = ['a',4,2.2]
@@ -2382,7 +2458,7 @@ assert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]" nil nil 
 (assign  ((subscript (name  \"a\" 'load 6 0) (slice (num 3 6 2) nil nil) 'store 6 0)) (list ((num 3 6 9) (num 3 6 11)) 'load 6 8) 6 0)
 (assert  (compare  (name  \"a\" 'load 7 7) (\"==\") ((list ((str \"a\" 7 13) (num 4 7 18) (num 2.2 7 21) (num 3 7 26) (num 3 7 29) (num 6 7 32)) 'load 7 12)) 7 7) nil 7 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-227 nil (equal (py-ast "a = [1,2,3,4,5,6]
+(ert-deftest pyel-py-ast-test-subscript-229 nil (equal (py-ast "a = [1,2,3,4,5,6]
 a[1:4] = [5,4,'f']
 assert a == [1,5,4,'f',5,6]
 a[:3] = ['a',4,2.2]
@@ -2390,14 +2466,14 @@ assert a == ['a',4,2.2,'f',5,6]
 a[3:] = [3,3]
 assert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5), Num(n=6)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store())], value=List(elts=[Num(n=5), Num(n=4), Str(s='f')], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=5), Num(n=4), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=3), step=None), ctx=Store())], value=List(elts=[Str(s='a'), Num(n=4), Num(n=2.2)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=3), upper=None, step=None), ctx=Store())], value=List(elts=[Num(n=3), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Num(n=3), Num(n=3), Num(n=6)], ctx=Load())]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-226 nil (equal (pyel "a = [1,2,3,4,5,6]
+(ert-deftest pyel-transform-test-subscript-228 nil (equal (pyel "a = [1,2,3,4,5,6]
 a[1:4] = [5,4,'f']
 assert a == [1,5,4,'f',5,6]
 a[:3] = ['a',4,2.2]
 assert a == ['a',4,2.2,'f',5,6]
 a[3:] = [3,3]
 assert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]") (quote (progn (pyel-set a (list 1 2 3 4 5 6)) (pyel-subscript-store-slice a 1 4 nil (list 5 4 "f")) (assert (pyel-== a (list 1 5 4 "f" 5 6)) t nil) (pyel-subscript-store-slice a 0 3 nil (list "a" 4 2.2)) (assert (pyel-== a (list "a" 4 2.2 "f" 5 6)) t nil) (pyel-subscript-store-slice a 3 nil nil (list 3 3)) (assert (pyel-== a (list "a" 4 2.2 3 3 6)) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-225 nil (string= (pyel "a = (1,2,3,4,5,6)
+(ert-deftest pyel-el-ast-test-subscript-227 nil (string= (pyel "a = (1,2,3,4,5,6)
 a[1:4] = (5,4,'f')
 assert a == (1,5,4,'f',5,6)
 a[:3] = ('a',4,2.2)
@@ -2411,7 +2487,7 @@ assert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)" nil nil 
 (assign  ((subscript (name  \"a\" 'load 6 0) (slice (num 3 6 2) nil nil) 'store 6 0)) (tuple  ((num 3 6 9) (num 3 6 11)) 'load 6 9) 6 0)
 (assert  (compare  (name  \"a\" 'load 7 7) (\"==\") ((tuple  ((str \"a\" 7 13) (num 4 7 18) (num 2.2 7 21) (num 3 7 26) (num 3 7 29) (num 6 7 32)) 'load 7 13)) 7 7) nil 7 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-224 nil (equal (py-ast "a = (1,2,3,4,5,6)
+(ert-deftest pyel-py-ast-test-subscript-226 nil (equal (py-ast "a = (1,2,3,4,5,6)
 a[1:4] = (5,4,'f')
 assert a == (1,5,4,'f',5,6)
 a[:3] = ('a',4,2.2)
@@ -2419,14 +2495,14 @@ assert a == ('a',4,2.2,'f',5,6)
 a[3:] = (3,3)
 assert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Tuple(elts=[Num(n=1), Num(n=2), Num(n=3), Num(n=4), Num(n=5), Num(n=6)], ctx=Load())), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store())], value=Tuple(elts=[Num(n=5), Num(n=4), Str(s='f')], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Num(n=1), Num(n=5), Num(n=4), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=3), step=None), ctx=Store())], value=Tuple(elts=[Str(s='a'), Num(n=4), Num(n=2.2)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Str(s='f'), Num(n=5), Num(n=6)], ctx=Load())]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=3), upper=None, step=None), ctx=Store())], value=Tuple(elts=[Num(n=3), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Str(s='a'), Num(n=4), Num(n=2.2), Num(n=3), Num(n=3), Num(n=6)], ctx=Load())]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-223 nil (equal (pyel "a = (1,2,3,4,5,6)
+(ert-deftest pyel-transform-test-subscript-225 nil (equal (pyel "a = (1,2,3,4,5,6)
 a[1:4] = (5,4,'f')
 assert a == (1,5,4,'f',5,6)
 a[:3] = ('a',4,2.2)
 assert a == ('a',4,2.2,'f',5,6)
 a[3:] = (3,3)
 assert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)") (quote (progn (pyel-set a (vector 1 2 3 4 5 6)) (pyel-subscript-store-slice a 1 4 nil (vector 5 4 "f")) (assert (pyel-== a (vector 1 5 4 "f" 5 6)) t nil) (pyel-subscript-store-slice a 0 3 nil (vector "a" 4 2.2)) (assert (pyel-== a (vector "a" 4 2.2 "f" 5 6)) t nil) (pyel-subscript-store-slice a 3 nil nil (vector 3 3)) (assert (pyel-== a (vector "a" 4 2.2 3 3 6)) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-222 nil (string= (pyel "a = '123456'
+(ert-deftest pyel-el-ast-test-subscript-224 nil (string= (pyel "a = '123456'
 a[1:4] = '54f'
 assert a == '154f56'
 a[:3] = 'a42'
@@ -2440,7 +2516,7 @@ assert a == 'a42336'#TODO: should == 'a4233'" nil nil t) "(assign  ((name  \"a\"
 (assign  ((subscript (name  \"a\" 'load 6 0) (slice (num 3 6 2) nil nil) 'store 6 0)) (str \"33\" 6 8) 6 0)
 (assert  (compare  (name  \"a\" 'load 7 7) (\"==\") ((str \"a42336\" 7 12)) 7 7) nil 7 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-221 nil (equal (py-ast "a = '123456'
+(ert-deftest pyel-py-ast-test-subscript-223 nil (equal (py-ast "a = '123456'
 a[1:4] = '54f'
 assert a == '154f56'
 a[:3] = 'a42'
@@ -2448,14 +2524,14 @@ assert a == 'a42f56'
 a[3:] = '33'
 assert a == 'a42336'#TODO: should == 'a4233'") "Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Str(s='123456')), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=1), upper=Num(n=4), step=None), ctx=Store())], value=Str(s='54f')), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='154f56')]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=None, upper=Num(n=3), step=None), ctx=Store())], value=Str(s='a42')), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='a42f56')]), msg=None), Assign(targets=[Subscript(value=Name(id='a', ctx=Load()), slice=Slice(lower=Num(n=3), upper=None, step=None), ctx=Store())], value=Str(s='33')), Assert(test=Compare(left=Name(id='a', ctx=Load()), ops=[Eq()], comparators=[Str(s='a42336')]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-220 nil (equal (pyel "a = '123456'
+(ert-deftest pyel-transform-test-subscript-222 nil (equal (pyel "a = '123456'
 a[1:4] = '54f'
 assert a == '154f56'
 a[:3] = 'a42'
 assert a == 'a42f56'
 a[3:] = '33'
 assert a == 'a42336'#TODO: should == 'a4233'") (quote (progn (pyel-set a "123456") (pyel-subscript-store-slice a 1 4 nil "54f") (assert (pyel-== a "154f56") t nil) (pyel-subscript-store-slice a 0 3 nil "a42") (assert (pyel-== a "a42f56") t nil) (pyel-subscript-store-slice a 3 nil nil "33") (assert (pyel-== a "a42336") t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-219 nil (string= (pyel "class a:
+(ert-deftest pyel-el-ast-test-subscript-221 nil (string= (pyel "class a:
  def __setitem__ (self, index, value):
   self.start = index.start
   self.end = index.end
@@ -2472,7 +2548,7 @@ assert x.value == [1,2,3]" nil nil t) "(classdef a nil nil nil nil ((def \" __se
 (assert  (compare  (attribute  (name  \"x\" 'load 10 7) \"end\" 'load 10 7) (\"==\") ((num 3 10 16)) 10 7) nil 10 0)
 (assert  (compare  (attribute  (name  \"x\" 'load 11 7) \"value\" 'load 11 7) (\"==\") ((list ((num 1 11 19) (num 2 11 21) (num 3 11 23)) 'load 11 18)) 11 7) nil 11 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-218 nil (equal (py-ast "class a:
+(ert-deftest pyel-py-ast-test-subscript-220 nil (equal (py-ast "class a:
  def __setitem__ (self, index, value):
   self.start = index.start
   self.end = index.end
@@ -2484,7 +2560,7 @@ assert x.start == 2
 assert x.end == 3
 assert x.value == [1,2,3]") "Module(body=[ClassDef(name='a', bases=[], keywords=[], starargs=None, kwargs=None, body=[FunctionDef(name='__setitem__', args=arguments(args=[arg(arg='self', annotation=None), arg(arg='index', annotation=None), arg(arg='value', annotation=None)], vararg=None, varargannotation=None, kwonlyargs=[], kwarg=None, kwargannotation=None, defaults=[], kw_defaults=[]), body=[Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='start', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='start', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='end', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='end', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='step', ctx=Store())], value=Attribute(value=Name(id='index', ctx=Load()), attr='step', ctx=Load())), Assign(targets=[Attribute(value=Name(id='self', ctx=Load()), attr='value', ctx=Store())], value=Name(id='value', ctx=Load()))], decorator_list=[], returns=None)], decorator_list=[]), Assign(targets=[Name(id='x', ctx=Store())], value=Call(func=Name(id='a', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None)), Assign(targets=[Subscript(value=Name(id='x', ctx=Load()), slice=Slice(lower=Num(n=2), upper=Num(n=3), step=None), ctx=Store())], value=List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='start', ctx=Load()), ops=[Eq()], comparators=[Num(n=2)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='end', ctx=Load()), ops=[Eq()], comparators=[Num(n=3)]), msg=None), Assert(test=Compare(left=Attribute(value=Name(id='x', ctx=Load()), attr='value', ctx=Load()), ops=[Eq()], comparators=[List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-217 nil (equal (pyel "class a:
+(ert-deftest pyel-transform-test-subscript-219 nil (equal (pyel "class a:
  def __setitem__ (self, index, value):
   self.start = index.start
   self.end = index.end
@@ -2495,26 +2571,26 @@ x[2:3] = [1,2,3]
 assert x.start == 2
 assert x.end == 3
 assert x.value == [1,2,3]") (quote (progn (define-class a nil (def --setitem-- (self index value) nil (setattr self start (getattr index start)) (setattr self end (getattr index end)) (setattr self step (getattr index step)) (setattr self value value))) (pyel-set x (pyel-fcall a)) (pyel-subscript-store-slice x 2 3 nil (list 1 2 3)) (assert (pyel-== (getattr x start) 2) t nil) (assert (pyel-== (getattr x end) 3) t nil) (assert (pyel-== (getattr x value) (list 1 2 3)) t nil)))))
-(ert-deftest pyel-el-ast-test-subscript-216 nil (string= (pyel "a[2] += 3" nil nil t) "(aug-assign (subscript (name  \"a\" 'load 1 0) (index (num 2 1 2) nil nil) 'store 1 0) + (num 3 1 8) 1 0)
+(ert-deftest pyel-el-ast-test-subscript-218 nil (string= (pyel "a[2] += 3" nil nil t) "(aug-assign (subscript (name  \"a\" 'load 1 0) (index (num 2 1 2) nil nil) 'store 1 0) + (num 3 1 8) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-215 nil (equal (py-ast "a[2] += 3") "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Num(n=3))])
+(ert-deftest pyel-py-ast-test-subscript-217 nil (equal (py-ast "a[2] += 3") "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Num(n=3))])
 "))
-(ert-deftest pyel-transform-test-subscript-214 nil (equal (pyel "a[2] += 3") (quote (pyel-subscript-store-index a 2 (pyel-+ (pyel-subscript-load-index a 2) 3)))))
-(ert-deftest pyel-el-ast-test-subscript-213 nil (string= (pyel "a[2] += b[3]" nil nil t) "(aug-assign (subscript (name  \"a\" 'load 1 0) (index (num 2 1 2) nil nil) 'store 1 0) + (subscript (name  \"b\" 'load 1 8) (index (num 3 1 10) nil nil) 'load 1 8) 1 0)
+(ert-deftest pyel-transform-test-subscript-216 nil (equal (pyel "a[2] += 3") (quote (pyel-subscript-store-index a 2 (pyel-+ (pyel-subscript-load-index a 2) 3)))))
+(ert-deftest pyel-el-ast-test-subscript-215 nil (string= (pyel "a[2] += b[3]" nil nil t) "(aug-assign (subscript (name  \"a\" 'load 1 0) (index (num 2 1 2) nil nil) 'store 1 0) + (subscript (name  \"b\" 'load 1 8) (index (num 3 1 10) nil nil) 'load 1 8) 1 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-212 nil (equal (py-ast "a[2] += b[3]") "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()))])
+(ert-deftest pyel-py-ast-test-subscript-214 nil (equal (py-ast "a[2] += b[3]") "Module(body=[AugAssign(target=Subscript(value=Name(id='a', ctx=Load()), slice=Index(value=Num(n=2)), ctx=Store()), op=Add(), value=Subscript(value=Name(id='b', ctx=Load()), slice=Index(value=Num(n=3)), ctx=Load()))])
 "))
-(ert-deftest pyel-transform-test-subscript-211 nil (equal (pyel "a[2] += b[3]") (quote (pyel-subscript-store-index a 2 (pyel-+ (pyel-subscript-load-index a 2) (pyel-subscript-load-index b 3))))))
-(ert-deftest pyel-el-ast-test-subscript-210 nil (string= (pyel "[2,3,3][2]" nil nil t) "(subscript (list ((num 2 1 1) (num 3 1 3) (num 3 1 5)) 'load 1 0) (index (num 2 1 8) nil nil) 'load 1 0)
+(ert-deftest pyel-transform-test-subscript-213 nil (equal (pyel "a[2] += b[3]") (quote (pyel-subscript-store-index a 2 (pyel-+ (pyel-subscript-load-index a 2) (pyel-subscript-load-index b 3))))))
+(ert-deftest pyel-el-ast-test-subscript-212 nil (string= (pyel "[2,3,3][2]" nil nil t) "(subscript (list ((num 2 1 1) (num 3 1 3) (num 3 1 5)) 'load 1 0) (index (num 2 1 8) nil nil) 'load 1 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-209 nil (equal (py-ast "[2,3,3][2]") "Module(body=[Expr(value=Subscript(value=List(elts=[Num(n=2), Num(n=3), Num(n=3)], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])
+(ert-deftest pyel-py-ast-test-subscript-211 nil (equal (py-ast "[2,3,3][2]") "Module(body=[Expr(value=Subscript(value=List(elts=[Num(n=2), Num(n=3), Num(n=3)], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()))])
 "))
-(ert-deftest pyel-transform-test-subscript-208 nil (equal (pyel "[2,3,3][2]") (quote (pyel-subscript-load-index (list 2 3 3) 2))))
-(ert-deftest pyel-el-ast-test-subscript-207 nil (string= (pyel "assert [1,2,(3,2,8)][2][2] == 8" nil nil t) "(assert  (compare  (subscript (subscript (list ((num 1 1 8) (num 2 1 10) (tuple  ((num 3 1 13) (num 2 1 15) (num 8 1 17)) 'load 1 13)) 'load 1 7) (index (num 2 1 21) nil nil) 'load 1 7) (index (num 2 1 24) nil nil) 'load 1 7) (\"==\") ((num 8 1 30)) 1 7) nil 1 0)
+(ert-deftest pyel-transform-test-subscript-210 nil (equal (pyel "[2,3,3][2]") (quote (pyel-subscript-load-index (list 2 3 3) 2))))
+(ert-deftest pyel-el-ast-test-subscript-209 nil (string= (pyel "assert [1,2,(3,2,8)][2][2] == 8" nil nil t) "(assert  (compare  (subscript (subscript (list ((num 1 1 8) (num 2 1 10) (tuple  ((num 3 1 13) (num 2 1 15) (num 8 1 17)) 'load 1 13)) 'load 1 7) (index (num 2 1 21) nil nil) 'load 1 7) (index (num 2 1 24) nil nil) 'load 1 7) (\"==\") ((num 8 1 30)) 1 7) nil 1 0)
 "))
-(ert-deftest pyel-py-ast-test-subscript-206 nil (equal (py-ast "assert [1,2,(3,2,8)][2][2] == 8") "Module(body=[Assert(test=Compare(left=Subscript(value=Subscript(value=List(elts=[Num(n=1), Num(n=2), Tuple(elts=[Num(n=3), Num(n=2), Num(n=8)], ctx=Load())], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])
+(ert-deftest pyel-py-ast-test-subscript-208 nil (equal (py-ast "assert [1,2,(3,2,8)][2][2] == 8") "Module(body=[Assert(test=Compare(left=Subscript(value=Subscript(value=List(elts=[Num(n=1), Num(n=2), Tuple(elts=[Num(n=3), Num(n=2), Num(n=8)], ctx=Load())], ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), slice=Index(value=Num(n=2)), ctx=Load()), ops=[Eq()], comparators=[Num(n=8)]), msg=None)])
 "))
-(ert-deftest pyel-transform-test-subscript-205 nil (equal (pyel "assert [1,2,(3,2,8)][2][2] == 8") (quote (assert (pyel-== (pyel-subscript-load-index (pyel-subscript-load-index (list 1 2 (vector 3 2 8)) 2) 2) 8) t nil))))
+(ert-deftest pyel-transform-test-subscript-207 nil (equal (pyel "assert [1,2,(3,2,8)][2][2] == 8") (quote (assert (pyel-== (pyel-subscript-load-index (pyel-subscript-load-index (list 1 2 (vector 3 2 8)) 2) 2) 8) t nil))))
 (ert-deftest pyel-el-ast-test-call-188 nil (string= (pyel "aa()" nil nil t) "(call  (name  \"aa\" 'load 1 0) nil nil nil nil 1 0)
 "))
 (ert-deftest pyel-py-ast-test-call-187 nil (equal (py-ast "aa()") "Module(body=[Expr(value=Call(func=Name(id='aa', ctx=Load()), args=[], keywords=[], starargs=None, kwargs=None))])
