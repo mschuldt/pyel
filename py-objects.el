@@ -499,7 +499,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (let* ((attr (if (stringp attr) (intern attr) attr))
          (special (cdr (assoc attr special-method-names))))
     (if special
-        `(obj-hasattr-special ,object ',special)
+        `(obj-hasattr-special ,object ,special)
       `(obj-hasattr-1 ,object ',attr))))
 
 (defun obj-hasattr-special (object index)
