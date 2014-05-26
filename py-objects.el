@@ -364,10 +364,16 @@ if it is a descriptor, return its value"
   ;;TODO: this is not fully compatible with python
   ;;      maybe this should return an object
   ;;presumes that method is a lambda function
-  (let ((args (cdadr method)))
-    `(lambda ,args ;;note: if this changes, `bound-method-p' must be updated
-       ',name
-       (funcall ,method ,object ,@args))))
+
+  ;;note: if this changes, `bound-method-p' must be updated
+  `(lambda (&rest args)
+     ',name
+     (apply ,method ,object args))
+  ;; (let ((args (cdadr (setq _x method))))
+  ;;   `(lambda ,args
+  ;;      ',name
+  ;;      (funcall ,method ,object ,@args)))
+  )
 
 (defmacro bound-method-p (object)
   "return non-nil if object is a bound method
