@@ -137,7 +137,10 @@ Each element in ALIST must have for form (a . b)"
      (if (member '&optional args)
          (setq optional (pyel-split-list args '&optional)
                positional (car optional)
-               optional (cdr optional))
+               optional (cdr optional)
+               optional-defaults (mapcar 'cdr optional)
+               optional (mapcar 'car optional)
+               )
        (setq positional args))
 
      (setq npositional (length positional)
@@ -183,10 +186,10 @@ Each element in ALIST must have for form (a . b)"
                                                             positional))))
                            ,(if optional
                                  `(setq 
-                                   ,@(reduce 'append (mapcar (lambda (arg)
-                                                               `(,arg (car __pyel_tmp)
+                                   ,@(reduce 'append (mapcar* (lambda (arg default)
+                                                               `(,arg (or (car __pyel_tmp) ,default)
                                                                       __pyel_tmp (cdr __pyel_tmp)))
-                                                             optional))))
+                                                             optional optional-defaults))))
 
                            ;;set positional and optional arg values that are provided as keywords
                            ;;(optional arg default values are set elsewhere)
@@ -263,10 +266,15 @@ Each element in ALIST must have for form (a . b)"
 
                        ,(if (or positional optional) ;;set arg values
                             `(setq 
-                              ,@(reduce 'append (mapcar (lambda (arg)
+                              ,@(append (reduce 'append (mapcar (lambda (arg)
                                                           `(,arg (car __pyel_args)
                                                                  __pyel_args (cdr __pyel_args)))
-                                                        (append positional optional)))))
+                                                         positional))
+                                        (reduce 'append (mapcar* (lambda (arg default)
+                                                                  `(,arg (or (car __pyel_args) ,default)
+                                                                         __pyel_args (cdr __pyel_args)))
+                                                                 optional optional-defaults)))
+                                        ))
                        
                        ,(if rest ;;set *rest arg
                             `(setq ,rest __pyel_args)
