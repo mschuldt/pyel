@@ -729,14 +729,27 @@ EXC must be derived from BaseException"
 ;;TODO: when the built in type classes are finished and `py-type'
 ;;      returns them, the special cases for the types in
 ;;      `pyel-symbol-str' should be removed
+
 (defun py-type (object)
-  (cond ((or (eq object nil)
-             (eq object t))
-         "<class 'bool'>") ;;TODO
-        ((py-class-p object)
-         "<class 'type'>") ;;TODO
+  (cond ((integerp object)
+         py-int)
+        ((floatp object)
+         py-float)
+        ((listp object)
+         py-list)
+        ((stringp object)
+         py-string)
         ((py-instance-p object)
-         (aref object obj-class-index)) ;;FIX: should special implicit lookup
+         (aref object obj-class-index)) ;;?
+        ((py-class-p object)
+         py-type)
+        ((vectorp object)
+         py-tuple)
+        ((hash-table-p object)
+         py-dict)
+        ((or (eq object t)
+             (eq object nil))
+         py-bool)
         (t (type-of object))))
 
 
