@@ -668,12 +668,11 @@
                  (setq setq-code (list '@ 'setq orig-name)))
              (setq setq-code '@))
 
-           (setq interactive
-                 (if interactive '(interactive) pyel-nothing))
+           (if interactive
+               (push 'interactive decorators))
 
            `(,setq-code (,func ,name ,args ,decorators
                                ,docstring
-                               ,interactive
                                ,@assign-defaults
                                (,let-arglist
                                 (,@ret

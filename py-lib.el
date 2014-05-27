@@ -112,6 +112,11 @@ Each element in ALIST must have for form (a . b)"
                                          decorator-list))
                            '(lambda))
                        (list 'defun name)))
+          (interactive (when (member 'interactive decorator-list)
+                         (setq decorator-list
+                               (remove 'interactive
+                                       decorator-list))
+                         t))
          optional optional-defaults
          pos+optional rest kwarg kwonly
          npositional nargs arg-index
@@ -148,6 +153,7 @@ Each element in ALIST must have for form (a . b)"
                                    (append positional optional)))
 
      `(,@func-name (&rest __pyel_args)
+                   ,@(if interactive '((interactive)) nil)
                    (let* (,@(if rest (list rest) nil)
                           ,@(if kwarg (list kwarg) nil)
                           ,@positional

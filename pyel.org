@@ -3070,12 +3070,11 @@ FunctionDef(name='a',
                    (setq setq-code (list '@ 'setq orig-name)))
                (setq setq-code '@))
   
-             (setq interactive
-                   (if interactive '(interactive) pyel-nothing))
+             (if interactive
+                 (push 'interactive decorators))
   
              `(,setq-code (,func ,name ,args ,decorators
                                  ,docstring
-                                 ,interactive
                                  ,@assign-defaults
                                  (,let-arglist
                                   (,@ret
@@ -3138,6 +3137,11 @@ FunctionDef(name='a',
                                            decorator-list))
                              '(lambda))
                          (list 'defun name)))
+            (interactive (when (member 'interactive decorator-list)
+                           (setq decorator-list
+                                 (remove 'interactive
+                                         decorator-list))
+                           t))
            optional optional-defaults
            pos+optional rest kwarg kwonly
            npositional nargs arg-index
@@ -3174,6 +3178,7 @@ FunctionDef(name='a',
                                      (append positional optional)))
   
        `(,@func-name (&rest __pyel_args)
+                     ,@(if interactive '((interactive)) nil)
                      (let* (,@(if rest (list rest) nil)
                             ,@(if kwarg (list kwarg) nil)
                             ,@positional
