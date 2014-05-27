@@ -1416,8 +1416,8 @@ prevents multiple/none '/' seporating file names"
 (require 'pyel-tests-generated)
 (require 'pyel-preprocessor)
 
-(require 'pyel-mode)
 (require 'py-objects)
+(require 'pyel-mode)
 (require 'py-lib)
 (require 'pyel-testing)
 
