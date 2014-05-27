@@ -247,7 +247,7 @@ TODO:
 Example:
 #+Begin_SRC emacs-lisp
 (pyel-translate-function-name 'range 'py-range)
-(pyel-translate-function-name 'map 'mapcar)o
+(pyel-translate-function-name 'map 'mapcar)
 #+END_SRC
 *** change a variable name
 Example:
