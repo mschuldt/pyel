@@ -203,7 +203,8 @@
         (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
           ctx = %s" ctx)))
 
-      (when (setq new-id (assoc id pyel-variable-name-translations))
+      (when (and (not (context-p 'function-call))
+                 (setq new-id (assoc id pyel-variable-name-translations)))
         (setq id (cadr new-id)))
 
       (when (and (eq ctx 'store)
@@ -386,7 +387,8 @@
     (pyel-call-transform func args keywords starargs kwargs line col)))
 
 (defun pyel-call-transform (func args keywords starargs kwargs &optional line col)
-  (let ((t-func (transform func))
+  (let ((t-func (using-context function-call
+                               (transform func)))
         (keyword-args (using-context keywords-alist
                                      (mapcar (lambda (x) (transform (car x)))
                                              keywords)))
