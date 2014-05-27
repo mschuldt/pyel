@@ -173,7 +173,6 @@ Each element in ALIST must have for form (a . b)"
                            
                            ;;set positional arg values
                            (setq __pyel_tmp __pyel_args)
-                           (reduce 'append '((a b) (c d)))
                            
                            ,(if positional
                                  `(setq 
