@@ -105,13 +105,13 @@ Each element in ALIST must have for form (a . b)"
    ;; (if (or (member '&kwarg args)
    ;;         (member '&kwonly args))
    (let* ((n -1)
-          (func-name (member 'pyel-lambda decorator-list)
-                     (progn
-                       (setq decorator-list
-                             (remove 'pyel-lambda
-                                     decorator-list))
-                       '(lambda))
-                     (list 'defun name))
+          (func-name (if (member 'pyel-lambda decorator-list)
+                         (progn
+                           (setq decorator-list
+                                 (remove 'pyel-lambda
+                                         decorator-list))
+                           '(lambda))
+                       (list 'defun name)))
          optional optional-defaults
          pos+optional rest kwarg
          npositional nargs arg-index
