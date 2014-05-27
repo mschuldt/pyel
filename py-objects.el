@@ -529,6 +529,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 (pyel-def-error TypeError)
 (pyel-def-error StopIteration)
 (pyel-def-error ValueError)
+(pyel-def-error IndexError)
 
 (define-class object ()
   "The most base type"
@@ -576,5 +577,6 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
 (define-class TypeError (BaseException))
 (define-class StopIteration (BaseException))
 (define-class ValueError (BaseException))
+(define-class IndexError (BaseException))
 
 (provide 'py-objects)
