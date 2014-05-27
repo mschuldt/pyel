@@ -1123,12 +1123,14 @@ s = 'a+b'"
 (pyel-create-tests
  type
  ("type(t)" "<class 'bool'>")
- ("type(3)" 'integer)
- ("type(3.3)" 'float)
- ("type('3')" 'string)
- ("type([3])" 'cons)
- ("type((3,))" 'vector)
- ("type({3:'3'})" 'hash-table)
+ ("type(3)" py-int)
+ ("type(3.3)" py-float)
+ ("type('3')" py-string)
+ ("type([3])" py-list)
+ ("type((3,))" py-tuple)
+ ("type({3:'3'})" py-list)
+ ("type('s') == str" t)
+ ("type((3,)) == list" nil)
  ("class testc: pass
 x = testc()
 y = type(x)"
