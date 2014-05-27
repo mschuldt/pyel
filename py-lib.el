@@ -113,7 +113,7 @@ Each element in ALIST must have for form (a . b)"
                            '(lambda))
                        (list 'defun name)))
          optional optional-defaults
-         pos+optional rest kwarg
+         pos+optional rest kwarg kwonly
          npositional nargs arg-index
          kw-only-args kw-only-defaults)
 
