@@ -13,9 +13,6 @@
 (defsubst pyel-number!= (a b)
   (not (= a b)))
 
-(defsubst pyel-string<= (a b)
-  (not (string< a b)))
-
 (defun pyel-list-< (a b)
   "a < b"
   (let ((greator nil)
