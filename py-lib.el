@@ -752,6 +752,17 @@ EXC must be derived from BaseException"
          py-bool)
         (t (type-of object))))
 
+;;symbols that represent built in python types
+(defconst py-int 'int)
+(defconst py-float 'int)
+(defconst py-tuple 'tuple)
+(defconst py-dict 'dict)
+(defconst py-list 'list)
+(defconst py-str  'string)
+(defconst py-string 'string)
+(defconst py-bool 'bool)
+(defconst py-type 'type)
+
 
 
 (defun pyel-exit ()

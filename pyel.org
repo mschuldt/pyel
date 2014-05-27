@@ -5466,7 +5466,16 @@ This will help notify the user when some syntax has not been implemented
 ** type
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'type 'py-type)
+  (pyel-translate-function-name 'type 'py-type)
+  
+  (pyel-translate-variable-name 'int 'py-int)
+  (pyel-translate-variable-name 'int 'py-float)
+  (pyel-translate-variable-name 'int 'py-tuple)
+  (pyel-translate-variable-name 'int 'py-dict)
+  (pyel-translate-variable-name 'int 'py-list)
+  (pyel-translate-variable-name 'int 'py-string)
+  (pyel-translate-variable-name 'int 'py-bool)
+  (pyel-translate-variable-name 'int 'py-type)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -5495,6 +5504,17 @@ This will help notify the user when some syntax has not been implemented
                (eq object nil))
            py-bool)
           (t (type-of object))))
+  
+  ;;symbols that represent built in python types
+  (defconst py-int 'int)
+  (defconst py-float 'int)
+  (defconst py-tuple 'tuple)
+  (defconst py-dict 'dict)
+  (defconst py-list 'list)
+  (defconst py-str  'string)
+  (defconst py-string 'string)
+  (defconst py-bool 'bool)
+  (defconst py-type 'type)
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

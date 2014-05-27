@@ -1166,6 +1166,15 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'type 'py-type)
 
+(pyel-translate-variable-name 'int 'py-int)
+(pyel-translate-variable-name 'int 'py-float)
+(pyel-translate-variable-name 'int 'py-tuple)
+(pyel-translate-variable-name 'int 'py-dict)
+(pyel-translate-variable-name 'int 'py-list)
+(pyel-translate-variable-name 'int 'py-string)
+(pyel-translate-variable-name 'int 'py-bool)
+(pyel-translate-variable-name 'int 'py-type)
+
 (pyel-func-transform abs (object)
                      (number) -> (abs object)
                      (object) -> (call-method object --abs--))
