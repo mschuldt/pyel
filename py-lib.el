@@ -542,6 +542,43 @@ else is optional"
   "Return non-nil if S is a substring of STRING"
   (and (stringp s) (if (string-match (regexp-quote s) string) t nil)))
 
+(defun py-object-member (elt obj)
+  ;;https://docs.python.org/3/reference/expressions.html#membership-test-details
+  (if (py-object-p obj)
+      (if (obj-hasattr obj --contains--)
+          (call-method obj --contains-- elt)
+
+        ;;else: try iteration via __iter__
+        (let ((iter (condition-case nil
+                        (call-method obj --iter--)
+                      (AttributeError nil)))
+              (not-found t)
+              (i -1) val)
+          (if iter
+              (condition-case nil
+                  (while not-found
+                    (setq val (call-method iter --next--))
+                    (if (or (eq val elt) (equal val elt))
+                        (setq not-found nil)))
+                (StopIteration nil))
+            ;;else: try old-style iteration protocol if __getitem__ is defined
+            (if (obj-hasattr obj --getitem--)
+                (condition-case nil
+                    (while not-found
+                      (setq val (call-method obj --getitem-- (setq i (1+ i))))
+                      (if (or (eq val elt) (equal val elt))
+                          (setq not-found nil))
+
+                      )
+                  (IndexError nil))
+              ;;else: not iterable
+              (py-raise (TypeError
+                         (format "argument of type '%s' is not iterable" (py-type obj))))))
+          (not not-found)))
+    ;;else: not an object
+    (error (format "py-object-member: invalid type for OBJ parameter (%s)"
+                   (type-of obj)))))
+
 
 
 
