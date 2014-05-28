@@ -626,7 +626,7 @@ EXC must be derived from BaseException"
           (setq list (cons (call-method iter --next--) list)))
       (StopIteration (reverse list)))))
 
-(defun pyel-hash-to-list (hash)
+(defun py-hash-to-list (hash)
   (let (keys)
     (maphash (lambda (key value)
                (setq keys (cons key keys))) hash)
@@ -953,7 +953,7 @@ EXC must be derived from BaseException"
   (pyel-enumerate-list (mapcar 'identity vec) start))
 
 (defun pyel-enumerate-hash (hash &optional start)
-  (pyel-enumerate-list (pyel-hash-to-list hash) start))
+  (pyel-enumerate-list (py-hash-to-list hash) start))
 
 (defun pyel-enumerate-string (str &optional start)
   (pyel-enumerate-list (split-string str "" :omit-nulls) start))
