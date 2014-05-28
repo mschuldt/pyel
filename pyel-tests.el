@@ -1603,8 +1603,8 @@ c = 'Aa'"
 (pyel-create-tests
  isupper-method
  ("a = 'A'
-  b = 'a'
-  c = 'Aa'"
+b = 'a'
+c = 'Aa'"
   ("a.isupper()" t)
   ("b.isupper()" nil)
   ("c.isupper()" nil))
