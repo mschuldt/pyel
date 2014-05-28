@@ -1241,6 +1241,13 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-vector-iter obj)
                      (hash)   -> (py-hash-iter obj))
 
+(pyel-func-transform all (obj)
+                     (list)   -> (py-list-all obj)
+                     (string) -> (py-string-all obj)
+                     (object) -> (py-object-all obj)
+                     (vector) -> (py-vector-all obj)
+                     (hash)   -> (py-hash-all obj))
+
 ;;
 
 (pyel-method-transform append (obj thing)

@@ -1035,6 +1035,47 @@ otherwise raise a TypeError."
 (defun py-hash-iter (obj)
   (error "Not Implemented"))
 
+(defun py-list-all (list)
+  (let ((all t))
+    (while list
+      (if (not (py-bool (car list)))
+          (setq list nil
+                all nil)
+        (setq list (cdr list))))
+    all))
+
+(defun py-vector-all (vector)
+  (let ((all t)
+        (len (length vector))
+        (i 0))
+    (while (< i len)
+      (if (not (py-bool (aref vector i)))
+          (setq i len
+                all nil)
+        (setq i (1+ i))))
+    all))
+
+(defsubst py-string-all (obj)
+  t) ;;TODO: is this ever not the case?
+
+(defun py-hash-all (ht)
+  (catch 'return
+    (maphash (lambda (k v)
+               (if (not (py-bool k))
+                   (throw 'return nil)))
+             ht)
+    t))
+
+(defun py-object-all (object)
+  (let ((iter (py-iter object))
+        (all t))
+    (condition-case nil
+        (while all
+          (if (not (py-bool (call-method iter --next--)))
+              (setq all nil)))
+      (StopIteration nil))
+    all))
+
 
 
 (defun py-list-append (list thing)
