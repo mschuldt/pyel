@@ -1255,6 +1255,12 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-vector-any obj)
                      (hash)   -> (py-hash-any obj))
 
+(pyel-func-transform sum (obj)
+                     (list)   -> (py-list-sum obj)
+                     (object) -> (py-object-sum obj)
+                     (vector) -> (py-vector-sum obj)
+                     (hash)   -> (py-hash-sum obj))
+
 ;;
 
 (pyel-method-transform append (obj thing)

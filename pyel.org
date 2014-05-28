@@ -6422,6 +6422,55 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
  ;;  
 #+END_SRC
+** sum
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform sum (obj)
+                       (list)   -> (py-list-sum obj)
+                       (object) -> (py-object-sum obj)
+                       (vector) -> (py-vector-sum obj)
+                       (hash)   -> (py-hash-sum obj))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-list-sum (list)
+    (let ((not-found t)
+          (sum 0))
+      (while list
+        (setq sum (+ sum (car list))
+              list (cdr list)))
+      sum))
+  
+  (defun py-vector-sum (vector)
+    (let ((found nil)
+          (len (length vector))
+          (i 0)
+          (sum 0))
+      (while (< i len)
+        (setq sum (+ sum (aref vector i))
+              i (1+ i)))
+      sum))
+  
+  (defun py-hash-sum (ht)
+    (let ((sum 0))
+      (maphash (lambda (k v)
+                 (setq sum (+ sum k)))
+               ht)
+      sum))
+  
+  (defun py-object-sum (object)
+    (let ((iter (py-iter object))
+          (sum 0))
+      (condition-case nil
+          (while t
+            (setq sum (+ sum (call-method iter --next--))))
+        (StopIteration nil))
+      sum))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+ ;;  
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

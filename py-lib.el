@@ -1117,6 +1117,40 @@ otherwise raise a TypeError."
       (StopIteration nil))
     (not not-found)))
 
+(defun py-list-sum (list)
+  (let ((not-found t)
+        (sum 0))
+    (while list
+      (setq sum (+ sum (car list))
+            list (cdr list)))
+    sum))
+
+(defun py-vector-sum (vector)
+  (let ((found nil)
+        (len (length vector))
+        (i 0)
+        (sum 0))
+    (while (< i len)
+      (setq sum (+ sum (aref vector i))
+            i (1+ i)))
+    sum))
+
+(defun py-hash-sum (ht)
+  (let ((sum 0))
+    (maphash (lambda (k v)
+               (setq sum (+ sum k)))
+             ht)
+    sum))
+
+(defun py-object-sum (object)
+  (let ((iter (py-iter object))
+        (sum 0))
+    (condition-case nil
+        (while t
+          (setq sum (+ sum (call-method iter --next--))))
+      (StopIteration nil))
+    sum))
+
 
 
 (defun py-list-append (list thing)
