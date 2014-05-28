@@ -994,7 +994,10 @@ Return the vector [(X-X%Y)/Y, X%Y].  Invariant: div*Y + mod == X."
 (defsubst py-divmod-i (x y)
   (vector (floor (/ x y)) (mod x y)))
 
-
+(defsubst py-bool (thing)
+  "convert a non-object THING into a boolean value.
+For objects, use `py-object-bool'"
+  (if obj t))
 
 (defun py-list-append (list thing)
   "add THING to the end of LIST"
