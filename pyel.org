@@ -6159,7 +6159,7 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform bool (object)
                        (object) -> (py-object-bool object)
-                       (_) -> (py-bool))
+                       (_) -> (py-bool object))
   
 #+END_SRC
 *** python el lib
@@ -6167,7 +6167,7 @@ This will help notify the user when some syntax has not been implemented
   (defsubst py-bool (thing)
     "convert a non-object THING into a boolean value.
   For objects, use `py-object-bool'"
-    (if obj t))
+    (if thing t))
   
   (defun py-object-bool (object)
     "return t if an object is considered true, else nil.

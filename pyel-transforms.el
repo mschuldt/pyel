@@ -1232,7 +1232,7 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-func-transform bool (object)
                      (object) -> (py-object-bool object)
-                     (_) -> (py-bool))
+                     (_) -> (py-bool object))
 
 ;;
 
