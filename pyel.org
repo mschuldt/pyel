@@ -6220,6 +6220,42 @@ This will help notify the user when some syntax has not been implemented
     ("'y' if bool(o4) else 'n'" "y")))
 #+END_SRC
 
+** iter
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform iter (obj)
+                       (list)   -> (py-list-iter obj)
+                       (string) -> (py-string-iter obj)
+                       (object) -> (py-object-iter obj)
+                       (vector) -> (py-vector-iter obj)
+                       (hash)   -> (py-hash-iter obj))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-object-iter (object)
+    "if OBJECT defines the --iter-- method, call it
+  otherwise raise a TypeError."
+    (condition-case nil
+        (call-method object --iter--)
+      (AttributeError
+       (py-raise (TypeError (format
+                             "'%s' object is not iterable"
+                             (getattr object --name--)))))))
+  
+  ;;TODO:
+  (defun py-list-iter (obj)
+    (error "Not Implemented"))
+  (defun py-string-iter (obj)
+    (error "Not Implemented"))
+  (defun py-vector-iter (obj)
+    (error "Not Implemented"))
+  (defun py-hash-iter (obj)
+    (error "Not Implemented"))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+ ;;  
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

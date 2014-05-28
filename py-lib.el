@@ -1015,6 +1015,28 @@ all instances are considered true"
        (AttributeError
         t)))))
 
+(defun py-object-iter (object)
+  "if OBJECT defines the --iter-- method, call it
+otherwise raise a TypeError."
+  (condition-case nil
+      (call-method object --iter--)
+    (AttributeError
+     (py-raise (TypeError (format
+                           "'%s' object is not iterable"
+                           (getattr object --name--)))))))
+
+;;TODO:
+(defun py-list-iter (obj)
+  (error "Not Implemented"))
+(defun py-string-iter (obj)
+  (error "Not Implemented"))
+(defun py-vector-iter (obj)
+  (error "Not Implemented"))
+(defun py-hash-iter (obj)
+  (error "Not Implemented"))
+
+
+
 (defun py-list-append (list thing)
   "add THING to the end of LIST"
   (while (not (null (cdr list)))

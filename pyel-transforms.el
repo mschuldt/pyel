@@ -1234,6 +1234,13 @@ Recognizes keyword args in the form 'arg = value'."
                      (object) -> (py-object-bool object)
                      (_) -> (py-bool object))
 
+(pyel-func-transform iter (obj)
+                     (list)   -> (py-list-iter obj)
+                     (string) -> (py-string-iter obj)
+                     (object) -> (py-object-iter obj)
+                     (vector) -> (py-vector-iter obj)
+                     (hash)   -> (py-hash-iter obj))
+
 ;;
 
 (pyel-method-transform append (obj thing)
