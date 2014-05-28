@@ -5268,9 +5268,9 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform tuple (object)
                        (string) -> (py-string-to-vector object)
-                       (list)   -> (py-list-vector object)
+                       (list)   -> (py-list-to-vector object)
                        (vector) -> (py-copy-vector object)
-                       (hash)   -> (pyel-hash-to-vector object)
+                       (hash)   -> (py-hash-to-vector object)
                        (object) -> (py-object-to-vector object))
 #+END_SRC
 *** python el lib
