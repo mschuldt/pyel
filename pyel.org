@@ -242,7 +242,7 @@ TODO: update most of this. tranforms have changed
 ** ways to define new transforms
 TODO:
  how to define a macro transform
-
+TODO: pyel-define-function-translation
 *** change a function name
 Example:
 #+Begin_SRC emacs-lisp
