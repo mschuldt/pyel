@@ -1128,7 +1128,54 @@ d = {1:'1',2:'2',3:'3'}"
 obj = a()"
   ("list(obj)" '("5" "4" "3" "2" "1"))))
 
-;
+(pyel-create-tests
+ tuple-function
+ ("tuple('string')" ["s" "t" "r" "i" "n" "g"])
+ ("tuple([1,2,'3',(2,)])" [1 2 "3" [2]])
+ ("a = [1]
+b = [a,1]
+c = list(b)"
+  ("c is b" nil)
+  ("c == b" nil)
+  ("c[0] is a" t))
+ 
+ ("a = [1]
+b = (a, 1)
+c = tuple(b)"
+  ("c" '((1) 1))
+  ("c[0] is a" t))
+
+ ("a = (1,)
+b = [a, 1]
+c = tuple(b)"
+  ("c" '[[1] 1])
+  ("c[0] is a" t))
+ 
+ ("tuple({1:'one', 2:'two', 3:'three'})" '[3 2 1])
+ 
+ ("tuple((1,2,3))" [1 2 3])
+ 
+ ("s = '123'
+l = [1,2,3]
+tu = (1,2,3,)
+d = {1:'1',2:'2',3:'3'}"
+  ("tuple(s)" ["1" "2" "3"])
+  ("tuple(l)" [1 2 3])
+  ("tuple(tu)" [1 2 3])
+  ("tuple(d)" [3 2 1]))
+ 
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = a()"
+  ("list(obj)" '["5" "4" "3" "2" "1"])))
 
 ;;
 
