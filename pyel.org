@@ -4657,9 +4657,13 @@ TODO: tests!
   (def-transform try pyel (body handlers orelse)
     ;;TODO: orelse
     (lambda (body handlers orelse &optional line col)
-      `(condition-case nil
-           ,@(mapcar 'transform body)
-         ,@(mapcar 'transform handlers))))
+      (let ((body (mapcar 'transform body)))
+        (if (> (length body) 1)
+            (setq body (cons 'progn body))
+          (setq body (car body)))
+        `(condition-case nil
+             ,body
+             ,@(mapcar 'transform handlers)))))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py

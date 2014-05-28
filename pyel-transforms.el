@@ -986,9 +986,13 @@ Recognizes keyword args in the form 'arg = value'."
 (def-transform try pyel (body handlers orelse)
   ;;TODO: orelse
   (lambda (body handlers orelse &optional line col)
-    `(condition-case nil
-         ,@(mapcar 'transform body)
-       ,@(mapcar 'transform handlers))))
+    (let ((body (mapcar 'transform body)))
+      (if (> (length body) 1)
+          (setq body (cons 'progn body))
+        (setq body (car body)))
+      `(condition-case nil
+           ,body
+           ,@(mapcar 'transform handlers)))))
 
 ;;a not in b
 ;; function:    is_not(a, b)  (in the operator module)
