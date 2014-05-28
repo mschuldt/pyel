@@ -1230,6 +1230,10 @@ Recognizes keyword args in the form 'arg = value'."
                      (int int) -> (py-divmod-i x y)
                      (_ _)     -> (py-divmod x y))
 
+(pyel-func-transform bool (object)
+                     (object) -> (py-object-bool object)
+                     (_) -> (py-bool))
+
 ;;
 
 (pyel-method-transform append (obj thing)
