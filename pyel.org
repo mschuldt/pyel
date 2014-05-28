@@ -6330,6 +6330,63 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
  ;;  
 #+END_SRC
+** any
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform any (obj)
+                       (list)   -> (py-list-any obj)
+                       (string) -> (py-string-any obj)
+                       (object) -> (py-object-any obj)
+                       (vector) -> (py-vector-any obj)
+                       (hash)   -> (py-hash-any obj))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-list-any (list)
+    (let ((not-found t))
+      (while list
+        (if (py-bool (car list))
+            (setq list nil
+                  not-found nil)
+          (setq list (cdr list))))
+      (not not-found)))
+  
+  (defun py-vector-any (vector)
+    (let ((found nil)
+          (len (length vector))
+          (i 0))
+      (while (< i len)
+        (if (py-bool (aref vector i))
+            (setq i len
+                  found t)
+          (setq i (1+ i))))
+      found))
+  
+  (defsubst py-string-any (obj)
+    (not (eq obj ""))) ;;TODO: is this ever not the case?
+  
+  (defun py-hash-any (ht)
+    (catch 'return
+      (maphash (lambda (k v)
+                 (if (py-bool k)
+                     (throw 'return t)))
+               ht)
+      nil))
+  
+  (defun py-object-any (object)
+    (let ((iter (py-iter object))
+          (not-found t))
+      (condition-case nil
+          (while not-found
+            (if (py-bool (call-method iter --next--))
+                (setq not-found nil)))
+        (StopIteration nil))
+      (not not-found)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+ ;;  
+#+END_SRC
 ** transform template
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

@@ -1076,6 +1076,47 @@ otherwise raise a TypeError."
       (StopIteration nil))
     all))
 
+(defun py-list-any (list)
+  (let ((not-found t))
+    (while list
+      (if (py-bool (car list))
+          (setq list nil
+                not-found nil)
+        (setq list (cdr list))))
+    (not not-found)))
+
+(defun py-vector-any (vector)
+  (let ((found nil)
+        (len (length vector))
+        (i 0))
+    (while (< i len)
+      (if (py-bool (aref vector i))
+          (setq i len
+                found t)
+        (setq i (1+ i))))
+    found))
+
+(defsubst py-string-any (obj)
+  (not (eq obj ""))) ;;TODO: is this ever not the case?
+
+(defun py-hash-any (ht)
+  (catch 'return
+    (maphash (lambda (k v)
+               (if (py-bool k)
+                   (throw 'return t)))
+             ht)
+    nil))
+
+(defun py-object-any (object)
+  (let ((iter (py-iter object))
+        (not-found t))
+    (condition-case nil
+        (while not-found
+          (if (py-bool (call-method iter --next--))
+              (setq not-found nil)))
+      (StopIteration nil))
+    (not not-found)))
+
 
 
 (defun py-list-append (list thing)
