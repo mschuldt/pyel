@@ -944,8 +944,56 @@ except:
  ("'s' in 'string'" t)
  ("'q' in 'string'" nil)
  ("'tri' in 'string'" t)
- 
- ;;TODO: objects
+ ;;objects
+ ;;with __contains__
+ ("class tst():
+ x = [1,2,3,4]
+ def __contains__(self,e):
+  return e in self.x
+x = tst()"
+  ("3 in x" t)
+  ("3 not in x" nil)
+  ("2 in [x][0]" t))
+ ;;with __iter__
+ ("class tst2:
+ x = [1,2,3,4]
+ def __iter__(self):
+  self.i = 0
+  self.max = len(self.x)
+  return self
+ def __next__(self):
+  i = self.i
+  __i = i
+  __m = self.max
+  if i < self.max:
+    ret = self.x[i]
+    self.i = i+1
+    return ret
+  else:
+   raise StopIteration
+o = tst2()"
+  ("3 in o" t)
+  ("33 not in o" t)
+  ("3 not in o" nil)
+  ("33 in o" nil))
+ ;;with __getitem__
+ ("class tst3:
+ x = [5,6,7,8]
+ def __getitem__(self, index):
+  if type(index) == int and index >= 0 and index < len(self.x):
+   return self.x[index];
+  else:
+   raise IndexError
+o = tst3()
+x = []
+for i in range(10):
+ if i in o:
+  x.append(i)"
+  ("3 in o" nil)
+  ("7 in o" t)
+  ("7 not in o" nil)
+  ("12 not in o" t)
+  ("x" '(5 6 7 8)))
  )
 
 (pyel-create-tests
@@ -963,8 +1011,7 @@ except:
  ("'s' not in 'string'" nil)
  ("'q' not in 'string'" t)
  ("'tri' not in 'string'" nil)
- 
- ;;TODO: objects
+ ;;objects tests are part of the 'in' tests
  )
 
 (pyel-create-tests
@@ -1080,6 +1127,8 @@ d = {1:'1',2:'2',3:'3'}"
   raise StopIteration
 obj = a()"
   ("list(obj)" '("5" "4" "3" "2" "1"))))
+
+;
 
 ;;
 
