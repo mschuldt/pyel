@@ -997,7 +997,8 @@ Return the vector [(X-X%Y)/Y, X%Y].  Invariant: div*Y + mod == X."
 (defsubst py-bool (thing)
   "convert a non-object THING into a boolean value.
 For objects, use `py-object-bool'"
-  (if thing t))
+  ;;TODO: this should handled in the type dispatch
+  (if (and thing (not (or (eq thing 0) (eq thing []) (eq thing "")))) t))
 
 (defun py-object-bool (object)
   "return t if an object is considered true, else nil.
