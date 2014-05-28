@@ -94,7 +94,7 @@ http://docs.python.org/2/library/functions.html
 | function     | status | tests | notes                                    |
 |--------------+--------+-------+------------------------------------------|
 | abs          | x      | x     |                                          |
-| divmod       |        |       |                                          |
+| divmod       | x      | x     |                                          |
 | input        | x      |       |                                          |
 | open         |        |       |                                          |
 | staticmethod |        |       |                                          |
@@ -104,25 +104,24 @@ http://docs.python.org/2/library/functions.html
 | ord          | x      | x     | strings > 1 char does not raise an error |
 | str          | x      | x     |                                          |
 | any          |        |       |                                          |
-| eval         | x      |       |                                          |
+| eval         | x      | x     |                                          |
 | isinstance   | x      |       |                                          |
-| pow          | -      |       | assumes numbers                          |
+| pow          | -      | x     | assumes numbers                          |
 | sum          |        |       |                                          |
 | basestring   |        |       |                                          |
 | execfile     |        |       |                                          |
 | issubclass   |        |       |                                          |
-| print        | -      |       | does not call pyel str functions         |
 | super        |        |       |                                          |
 | bin          | x      | x     |                                          |
 | file         |        |       |                                          |
 | iter         |        |       |                                          |
 | property     |        |       |                                          |
-| tuple        |        |       |                                          |
+| tuple        | x      | x     |                                          |
 | bool         |        |       |                                          |
 | filter       |        |       |                                          |
 | len          | x      | x     |                                          |
 | range        | x      | x     |                                          |
-| type         |        |       |                                          |
+| type         | x      | x     | non-standard but mostly compatible       |
 | bytearray    |        |       |                                          |
 | float        | x      | x     |                                          |
 | list         | x      | x     |                                          |
@@ -133,7 +132,7 @@ http://docs.python.org/2/library/functions.html
 | locals       |        |       |                                          |
 | reduce       |        |       |                                          |
 | unicode      |        |       |                                          |
-| chr          | x      |       |                                          |
+| chr          | x      | x     |                                          |
 | frozenset    |        |       |                                          |
 | long         |        |       |                                          |
 | reload       |        |       |                                          |
