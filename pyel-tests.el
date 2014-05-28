@@ -237,7 +237,18 @@ def e():
   ("b()" 1)
   ("c()" 2)
   ("c()" 1.1)
-  ("e()" 12)))
+  ("e()" 12))
+
+ ("def test():
+ if 1 == 3:
+  return 12
+ elif 3 == 5:
+  return 123
+ elif 2 == 2:
+  return 234
+ else:
+  return 33"
+ ("test()" 234)))
 
 (pyel-create-tests call
                    "aa()"
