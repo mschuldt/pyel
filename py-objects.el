@@ -446,7 +446,8 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
                         (aref object obj-bases-index)))
                (nbases (length bases))
                (i 0))
-          (while (not method) ;;TODO: proper MRO
+          (while (and (not method)  ;;TODO: proper MRO
+                      (< i nbases))
             (setq method (_getattr-special-implicit (aref bases i) method-index))
             (setq i (1+ i))
             (if (and (not method)
