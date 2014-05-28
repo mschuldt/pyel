@@ -828,8 +828,6 @@ EXC must be derived from BaseException"
 (defconst py-bool 'bool)
 (defconst py-type 'type)
 
-
-
 (defsubst py-chr (i)
   (byte-to-string i))
 

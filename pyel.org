@@ -5715,11 +5715,6 @@ This will help notify the user when some syntax has not been implemented
                        (number) -> (abs object)
                        (object) -> (call-method object --abs--))
 #+END_SRC
-*** python el lib
-#+Begin_SRC emacs-lisp :tangle py-lib.el
-
-#+END_SRC
-
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
