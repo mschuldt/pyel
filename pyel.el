@@ -1060,7 +1060,6 @@ This is called at the same time `pyel-func-transform' would be called"
          ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
          ;;                                   args)))
 
-         (ts ) ;;??
          (valid nil) ;;list of valid arg--types
          (found nil)
          (lets nil)
@@ -1089,7 +1088,6 @@ This is called at the same time `pyel-func-transform' would be called"
             (push t-s valid)
           ;;otherwise check if the type is one of the valid types
 
-          (setq _xx t-s)
           (dolist(pos-type possible-types)
             (when (and (equal (eval (caar t-s)) (car pos-type))
                        (equal (strip$ (cadar t-s)) (cdr pos-type)))
@@ -1139,8 +1137,7 @@ This is called at the same time `pyel-func-transform' would be called"
 
            (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                             (if (equal (car t-s--c) 'and)
-                                (progn (setq __x t-s--c)
-                                       `((and ,@(mapcar '(lambda (x)
+                                (progn `((and ,@(mapcar '(lambda (x)
                                                            ;;TODO: test
                                                            `(,(type-tester (cadr x))
                                                              ,(get-replacement-OLD
@@ -1149,8 +1146,7 @@ This is called at the same time `pyel-func-transform' would be called"
                                          ,(replace-vars (caddr t-s--c))))
 
                               ;;TODO
-                              (progn (setq __x t-s--c)
-                                     (if (equal (car t-s--c) t) ;;all types where _
+                              (progn (if (equal (car t-s--c) t) ;;all types where _
                                          `(t ,(replace-vars (cadr t-s--c)))
                                        (let* ((str (symbol-name (cadar t-s--c)))
                                               (quote-arg-p (string-match-p "\\(^\\$\\)\\(.+\\)"
