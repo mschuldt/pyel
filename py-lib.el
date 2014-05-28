@@ -632,6 +632,25 @@ EXC must be derived from BaseException"
                (setq keys (cons key keys))) hash)
     keys))
 
+(defun py-string-to-vector (string)
+  "Return a vector of characters in STRING."
+  (vconcat (mapcar 'byte-to-string string)))
+
+(defsubst py-list-to-vector (list)
+  "return a vector v such that (aref v i) = (nth i LIST)"
+  (vconcat list))
+
+(defsubst py-copy-vector (vec)
+  (vconcat vec))
+
+(defun py-hash-to-vector (ht)
+  (let ((v (make-vector (hash-table-count ht) 0))
+        (i -1))
+    (maphash (lambda (key value)
+               (aset v (setq i (1+ i)) key))
+             ht)
+    v))
+
 (defun _py-str-sequence (seq)
   "convert SEQ to a string of its python representation
     does not include starting/ending parens or brackets"

@@ -5275,7 +5275,24 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
- ;
+  (defun py-string-to-vector (string)
+    "Return a vector of characters in STRING."
+    (vconcat (mapcar 'byte-to-string string)))
+  
+  (defsubst py-list-to-vector (list)
+    "return a vector v such that (aref v i) = (nth i LIST)"
+    (vconcat list))
+  
+  (defsubst py-copy-vector (vec)
+    (vconcat vec))
+  
+  (defun py-hash-to-vector (ht)
+    (let ((v (make-vector (hash-table-count ht) 0))
+          (i -1))
+      (maphash (lambda (key value)
+                 (aset v (setq i (1+ i)) key))
+               ht)
+      v))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
