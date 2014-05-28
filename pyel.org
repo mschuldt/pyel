@@ -5948,7 +5948,7 @@ This will help notify the user when some syntax has not been implemented
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
   (defun pyel-alist-to-hash2 (alist)
-    "like `pyel-alist-to-hash' but elements hav the form (a b)"
+    "like `pyel-alist-to-hash' but elements have the form (a b)"
     (let ((ht (make-hash-table
                :test 'equal
                :size (length alist))))

@@ -882,7 +882,7 @@ EXC must be derived from BaseException"
     (list '* 1.0 (list 'string-to-int str))))
 
 (defun pyel-alist-to-hash2 (alist)
-  "like `pyel-alist-to-hash' but elements hav the form (a b)"
+  "like `pyel-alist-to-hash' but elements have the form (a b)"
   (let ((ht (make-hash-table
              :test 'equal
              :size (length alist))))
