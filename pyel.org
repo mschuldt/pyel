@@ -2270,10 +2270,20 @@ This is for all non template specific code.
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests dict
-                     "{'a':2, 'b':4}"
-                     "a = {a:2, b:4}"
-                     "x = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,f:{g:3}}}")
+  (pyel-create-tests
+   dict
+   ("a = {'a':2, 'b':4}
+  b = {2:a, 'b':4}
+  c = {'a':2, 'b':4, 'c' : {'d' : 1,'e': 2,'f':{'g':3}}}
+  d = {}"
+    ("repr(a)" "{\"a\": 2, \"b\": 4}")
+    ("repr(b)" "{2: {\"a\": 2, \"b\": 4}, \"b\": 4}")
+    ("repr(c)" "{\"a\": 2, \"b\": 4, \"c\": {\"d\": 1, \"e\": 2, \"f\": {\"g\": 3}}}")
+    ("repr(d)" "{}")
+  
+    ("repr(c['c'])" "{\"d\": 1, \"e\": 2, \"f\": {\"g\": 3}}")
+    ("repr(c['c']['f'])" "{\"g\": 3}")
+    ("c['c']['f']['g']" 3)))
 #+END_SRC
 
 ** tuple
