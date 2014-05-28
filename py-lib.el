@@ -612,7 +612,7 @@ EXC must be derived from BaseException"
    start 0))
  (number-sequence start (1- end) step))
 
-(defun pyel-object-to-list (object)
+(defun py-object-to-list (object)
   "assumes that py-object(OBJECT) == t"
   (let ((iter (condition-case nil
                   (call-method object --iter--)
@@ -659,7 +659,7 @@ EXC must be derived from BaseException"
     v))
 
 (defsubst py-object-to-vector (object)
-  (vconcat (pyel-object-to-list (object))))
+  (vconcat (py-object-to-list (object))))
 
 (defun _py-str-sequence (seq)
   "convert SEQ to a string of its python representation
@@ -959,7 +959,7 @@ EXC must be derived from BaseException"
   (pyel-enumerate-list (split-string str "" :omit-nulls) start))
 
 (defun pyel-enumerate-object (obj &optional start)
-  (pyel-enumerate-list (pyel-object-to-list obj) start))
+  (pyel-enumerate-list (py-object-to-list obj) start))
 
 
 

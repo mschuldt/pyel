@@ -5191,14 +5191,14 @@ This will help notify the user when some syntax has not been implemented
   (defalias 'py-list 'pyel-list-function)
   (pyel-func-transform list (object)
                        (string) -> (mapcar 'byte-to-string object)
-                       (object) -> (pyel-object-to-list object)
+                       (object) -> (py-object-to-list object)
                        (vector) -> (mapcar 'identity object)
                        (hash)   -> (pyel-hash-to-list object)
                        (list)   -> (copy-list object))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun pyel-object-to-list (object)
+  (defun py-object-to-list (object)
     "assumes that py-object(OBJECT) == t"
     (let ((iter (condition-case nil
                     (call-method object --iter--)
@@ -5302,7 +5302,7 @@ This will help notify the user when some syntax has not been implemented
       v))
   
   (defsubst py-object-to-vector (object)
-    (vconcat (pyel-object-to-list (object))))
+    (vconcat (py-object-to-list (object))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -6079,7 +6079,7 @@ This will help notify the user when some syntax has not been implemented
     (pyel-enumerate-list (split-string str "" :omit-nulls) start))
   
   (defun pyel-enumerate-object (obj &optional start)
-    (pyel-enumerate-list (pyel-object-to-list obj) start))
+    (pyel-enumerate-list (py-object-to-list obj) start))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
