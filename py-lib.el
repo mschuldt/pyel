@@ -644,7 +644,7 @@ EXC must be derived from BaseException"
 ;; (defun py-string-to-vector (string)
 ;;   "Return a vector of characters in STRING."
 ;;   (vconcat (mapcar 'byte-to-string string)))
-(defun string-to-vector (string)
+(defun py-string-to-vector (string)
   "Return a vector of characters in STRING."
   (let* ((v (make-vector (length string) 0))
          (i -1))
