@@ -958,16 +958,16 @@ EXC must be derived from BaseException"
             c (1+ c)))
     (reverse ret)))
 
-(defun pyel-enumerate-vector (vec &optional start)
+(defsubst pyel-enumerate-vector (vec &optional start)
   (pyel-enumerate-list (mapcar 'identity vec) start))
 
-(defun pyel-enumerate-hash (hash &optional start)
+(defsubst pyel-enumerate-hash (hash &optional start)
   (pyel-enumerate-list (py-hash-to-list hash) start))
 
-(defun pyel-enumerate-string (str &optional start)
+(defsubst pyel-enumerate-string (str &optional start)
   (pyel-enumerate-list (split-string str "" :omit-nulls) start))
 
-(defun pyel-enumerate-object (obj &optional start)
+(defsubst pyel-enumerate-object (obj &optional start)
   (pyel-enumerate-list (py-object-to-list obj) start))
 
 (defmacro py-divmod (x y)
