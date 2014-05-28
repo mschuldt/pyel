@@ -632,9 +632,16 @@ EXC must be derived from BaseException"
                (setq keys (cons key keys))) hash)
     keys))
 
-(defun py-string-to-vector (string)
+;; (defun py-string-to-vector (string)
+;;   "Return a vector of characters in STRING."
+;;   (vconcat (mapcar 'byte-to-string string)))
+(defun string-to-vector (string)
   "Return a vector of characters in STRING."
-  (vconcat (mapcar 'byte-to-string string)))
+  (let* ((v (make-vector (length string) 0))
+         (i -1))
+    (mapc (lambda (x)
+            (aset v (setq i (1+ i)) (byte-to-string x)))
+          string)))
 
 (defsubst py-list-to-vector (list)
   "return a vector v such that (aref v i) = (nth i LIST)"
