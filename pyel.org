@@ -2254,19 +2254,27 @@ This is for all non template specific code.
       (pyel-dict keys values line col)))
   
   (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
-    (if keys
-        `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
-           ,(cons '@ (mapcar* (lambda (key value)
-                                `(puthash ,key ,value __h__))
-                              (mapcar 'transform  keys)
-                              (mapcar 'transform  values)))
-           __h__)
-      `(make-hash-table :test ',pyel-dict-test)))
+    (cons 'py-dict (mapcar* (lambda (key value)
+                              (list key value))
+                            (mapcar 'transform  keys)
+                            (mapcar 'transform  values))))
+  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
   def Dict(keys, values, lineno='nil', col_offset='nil'):
       return "(dict " + ll_str(keys) + " " + ll_str(values) + " " + str(lineno) + " " + str(col_offset) + ")"
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-dict (&rest pairs)
+    (if pairs
+        `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
+           ,@(mapcar (lambda (pair)
+                       `(puthash ,(car pair) ,(cadr pair) __h__))
+                     pairs)
+           __h__)
+      `(make-hash-table :test ',pyel-dict-test)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

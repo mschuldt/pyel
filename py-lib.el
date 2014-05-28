@@ -1,6 +1,15 @@
 
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
+(defmacro py-dict (&rest pairs)
+  (if pairs
+      `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
+         ,@(mapcar (lambda (pair)
+                     `(puthash ,(car pair) ,(cadr pair) __h__))
+                   pairs)
+         __h__)
+    `(make-hash-table :test ',pyel-dict-test)))
+
 (defsubst pyel-string> (a b)
   (and (not (string< a b)) (not (string= a b))))
 

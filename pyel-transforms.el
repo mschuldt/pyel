@@ -236,14 +236,10 @@
     (pyel-dict keys values line col)))
 
 (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
-  (if keys
-      `(let ((__h__ (make-hash-table :test ',pyel-dict-test))) ;;default length??
-         ,(cons '@ (mapcar* (lambda (key value)
-                              `(puthash ,key ,value __h__))
-                            (mapcar 'transform  keys)
-                            (mapcar 'transform  values)))
-         __h__)
-    `(make-hash-table :test ',pyel-dict-test)))
+  (cons 'py-dict (mapcar* (lambda (key value)
+                            (list key value))
+                          (mapcar 'transform  keys)
+                          (mapcar 'transform  values))))
 
 (def-transform tuple pyel ()
   (lambda (elts ctx &optional line col) ;;Ignoring ctx for now
