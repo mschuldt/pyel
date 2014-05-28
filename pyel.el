@@ -397,13 +397,13 @@ This is used when the ast form is needed by a transform that is manually
   The return value is the two sub-lists consed together"
   (let ((current (not sym))
         first)
-
+    
     (while (and (not (eq current sym))
                 lst)
       (setq current (pop lst))
       (push current first)
       )
-
+    
     (cons (reverse (if (eq (car first) sym) (cdr first) first)) lst)))
 
 
@@ -554,7 +554,7 @@ during interactive emacs-lisp sessions where possible")
   "alist of variable name translations, python->e-lisp.")
 
 (setq pyel-function-name-translations `(
-
+                                        
                                         ))
 ;;TODO: list, vector, etc
 ;;      map?
@@ -820,7 +820,7 @@ matches NAME and has the proper arg length then no transform will be called."
   "Define a transform for function calls.
 This is just like `pyel-method-transform' except that the
 ARG signature has no effect on the transform dispatch"
-
+  
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
@@ -1010,15 +1010,13 @@ This is called at the same time `pyel-func-transform' would be called"
   ;; To avoid such conflicts, the let bound variables are all
   ;; defined with a tilde
 
-  (let* ((possible~types (let ((ret nil)
-                               arg)
+  (let* ((possible~types (let (ret arg)
                            ;;get entries in form (arg . type)
                            (dolist (p-t possible~types)
                              (setq arg (car p-t))
                              (dolist (type (cdr p-t))
                                (push (cons arg type) ret)))
                            ret))
-         (c~ 0)
 
          (args~just~vars (pyel-filter-non-args (mapcar 'strip_ args)))
          (new~args (loop for a in args
@@ -1066,13 +1064,9 @@ This is called at the same time `pyel-func-transform' would be called"
          ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
          ;;                                   args~)))
 
-         (valid~ nil) ;;list of valid arg--types
-         (found~ nil)
-         (lets~ nil)
-         var~ value~ type~ all~good ovar~vals len~)
-
-    ;;        (print "possible types = ")
-    ;;        (print possible~types)
+         (c~ 0)
+         valid~ ;;list of valid arg--types
+         found~ all~good len~)
 
     ;;collect all the arg-type--code pairs that are valid possibilities,
     ;;that is, members of possible~types.
@@ -1122,16 +1116,12 @@ This is called at the same time `pyel-func-transform' would be called"
 
            (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
            (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
-           ;;(get-replacement (arg) ;;returns arg replacement
-           ;;                 (cadr (assoc arg arg~replacements)))
            (get-replacement (arg) ;;returns arg replacement
                             (cadr (assoc arg current~replace~list)))
-
            ;;bug fix maybe...
            (get-replacement-OLD (arg) ;;returns arg replacement
                                 (or (cadr (assoc arg arg~replacements))
                                     (cadr (assoc arg arg~replacements4))))
-
            ;;replaces the vars, one type at a time
            (replace-vars (code)
                          (let* ((current-replace-list arg~replacements1)
@@ -1140,7 +1130,6 @@ This is called at the same time `pyel-func-transform' would be called"
                                 (code (replace code arg~replacements2))
                                 (current-replace-list arg~replacements3))
                            (replace code arg~replacements3)))
-
            (gen-cond-clause (t-s--c) ;;Type-Switch--Code
                             (if (equal (car t-s--c) 'and)
                                 (progn `((and ,@(mapcar '(lambda (x)
@@ -1162,25 +1151,18 @@ This is called at the same time `pyel-func-transform' would be called"
                                               (body (replace-vars (cadr t-s--c)))
                                               (arg (get-replacement-OLD (caar t-s--c))))
                                          `((,tester ,(if quote-arg-p (list 'quote (list '\, (caar t-s--c))) arg))
-                                           ,body))
-
-                                       ))))
-
+                                           ,body))))))
            (gen-varlist ()
                         (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
-                                let~vars)
-                        ))
+                                let~vars)))
 
       (cond ((<= len~ 0) "ERROR: no valid type")
             ((= len~ 1)
              (if (eq (caar valid~) 'and)
-                 ;;; (eval (caddar valid~))
                  (caddar valid~)
-               ;;;(eval  (cadar valid~))
                ;;there is only one possibility, so replace the args with their quoted counterpart
                ;;instead of replacing with the let bound vars
-               (list 'backquote (replace (cadar valid~) arg~quote~replacements))
-               ))
+               (list 'backquote (replace (cadar valid~) arg~quote~replacements))))
             ;;?TODO: are there possible problems with evaluating the arguments
             ;;       multiple times? Maybe they should be put in a list
             (t (let* ((clauses (mapcar 'gen-cond-clause valid~))
@@ -1193,8 +1175,7 @@ This is called at the same time `pyel-func-transform' would be called"
                  `(backquote ,(if varlist
                                   `(let ,varlist
                                      (cond ,@(reverse clauses)))
-                                `(cond ,@(reverse clauses)))
-                             )))))))
+                                `(cond ,@(reverse clauses))))))))))
 
 (defun call-transform (template-name &rest args)
   "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
@@ -1387,7 +1368,7 @@ format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
   "if CHAR occurs at the end of STRING, remove it"
   (let ((split (char-split-string string))
         (char (or char " ")))
-
+    
     (while (string= char (car (last split)))
       (setq split (butlast split)))
     (mapconcat 'identity split "")))
@@ -1396,7 +1377,7 @@ format [start end list-of-sub-trees] list-of-sub-trees is nil for leaves"
   "if CHAR occurs at the beginning of STRING, remove all occurrences"
   (let ((split (char-split-string string))
         (char (or char " ")))
-
+    
     (while (string= char (car split))
       (setq split (cdr split)))
     (mapconcat 'identity split "")))
