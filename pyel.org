@@ -5293,6 +5293,9 @@ This will help notify the user when some syntax has not been implemented
                  (aset v (setq i (1+ i)) key))
                ht)
       v))
+  
+  (defsubst py-object-to-vector (object)
+    (vconcat (pyel-object-to-list (object))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

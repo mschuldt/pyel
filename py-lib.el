@@ -651,6 +651,9 @@ EXC must be derived from BaseException"
              ht)
     v))
 
+(defsubst py-object-to-vector (object)
+  (vconcat (pyel-object-to-list (object))))
+
 (defun _py-str-sequence (seq)
   "convert SEQ to a string of its python representation
     does not include starting/ending parens or brackets"
