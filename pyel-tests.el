@@ -1431,6 +1431,29 @@ o4 = c(3)"
   ("'y' if bool(o3) else 'n'" "n")
   ("'y' if bool(o4) else 'n'" "y")))
 
+(pyel-create-tests
+ iter-function
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = a()
+it = iter(a)
+x = it.__next__()
+x2 = it.__next__()"
+  ("x" "5")
+  ("x2" "4")))
+
+;;
+
+;;
+
 ;;
 
 (pyel-create-tests
