@@ -1186,9 +1186,9 @@ Recognizes keyword args in the form 'arg = value'."
                      (number) -> (abs object)
                      (object) -> (call-method object --abs--))
 
-(pyel-translate-function-name 'chr 'byte-to-string)
+(pyel-translate-function-name 'chr 'py-chr)
 
-(pyel-translate-function-name 'ord 'string-to-char)
+(pyel-translate-function-name 'ord 'py-ord)
 
 (pyel-translate-function-name 'exit 'pyel-exit)
 
