@@ -5736,8 +5736,14 @@ This will help notify the user when some syntax has not been implemented
 ** chr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-translate-function-name 'chr 'byte-to-string)
+  (pyel-translate-function-name 'chr 'py-chr)
 #+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defsubst py-chr (i)
+    (byte-to-string i))
+#+END_SRC
+
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests

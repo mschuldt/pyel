@@ -830,6 +830,9 @@ EXC must be derived from BaseException"
 
 
 
+(defsubst py-chr (i)
+  (byte-to-string i))
+
 (defun pyel-exit ()
   (if pyel-interactive
       (progn (kill-buffer)
