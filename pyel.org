@@ -5755,8 +5755,14 @@ This will help notify the user when some syntax has not been implemented
 ** ord
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-translate-function-name 'ord 'string-to-char)
+  (pyel-translate-function-name 'ord 'py-ord)
 #+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defsubst py-ord (i)
+    (string-to-char i))
+#+END_SRC
+
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
