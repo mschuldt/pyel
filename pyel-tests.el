@@ -1451,7 +1451,42 @@ x2 = it.__next__()"
   ("x" "5")
   ("x2" "4")))
 
-;;
+(pyel-create-tests
+ all-function
+ ;;list
+ ("all([1,'s',2,4])" t)
+ ("all([1,'s',"",4])" nil)
+ ("all([])" t)
+ ;;vector
+ ("all((1,'s',2,4))" t)
+ ("all((1,'s',(),4))" nil)
+ ("all(())" t)
+ ;;string
+ ("all('s')" t)
+ ("all('')" t)
+ ;;hash table
+ ("all({2:4, 4:'', 1:'s'})" t)
+ ("all({2:4, 4:'', 1:'s', (): 2})" nil)
+ ("all({})" t)
+ ;;objects
+ ("class a:
+ x = 5
+ def __init__(self, s, e):
+  self.start = s
+  self.end = e
+ def __iter__(self):
+  self.current = self.start
+  return self
+ def __next__(self):
+  if self.current < self.end:
+   ret = self.current
+   self.current += 1
+   return ret
+  raise StopIteration
+o = a(1,9)
+o2 = a(-3,3)"
+  ("all(o)" t)
+  ("all(o2)" nil)))
 
 ;;
 
