@@ -890,23 +890,44 @@ while c < 3:
 
 ;;
 
-(pyel-create-tests try
-                   "x = ''
+(pyel-create-tests
+ try
+ ("a = ''
 try:
  1 / 0
- x = 'yes'
+ a = 'yes'
 except:
- x = 'no'
-assert x == 'no'"
+ a = 'no'
 
-                   "try:
- _a()
+b = ''
+try:
+ b = 'a'
+ [1,3][23]
 except:
  try:
-  _x()
+  1/0
  except:
-  _b()"
-                   )
+  b = 'ok'
+
+c = ''
+try:
+ c = 'y'
+except:
+ c = 'n'
+
+try:
+ raise IndexError
+ d = 2
+except IndexError:
+ d = 2233
+except:
+ d = 'no'
+
+"
+  ("a" "no")
+  ("b" "ok")
+  ("c" "y")
+  ("d" 2233)))
 
 (pyel-create-tests
  in
