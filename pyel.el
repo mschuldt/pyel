@@ -1076,10 +1076,10 @@ This is called at the same time `pyel-func-transform' would be called"
       (if (equal (car t-s) 'and)
           (progn (setq all-good t
                        found nil)
-                 (dolist  (x (cadr t-s)) ;;for each 'and' member type-switch
+                 (dolist  (~x (cadr t-s)) ;;for each 'and' member type-switch
                    (dolist (pos-type possible-types) ;;for each arg type
-                     (if (and (equal (eval (car x)) (car pos-type))
-                              (equal (cadr x) (cdr pos-type)))
+                     (if (and (equal (eval (car ~x)) (car pos-type))
+                              (equal (cadr ~x) (cdr pos-type)))
                          (setq found t)))
                    (setq all-good (if (and all-good found) t nil)))
                  (when all-good
