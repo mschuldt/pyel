@@ -970,6 +970,30 @@ EXC must be derived from BaseException"
 (defun pyel-enumerate-object (obj &optional start)
   (pyel-enumerate-list (py-object-to-list obj) start))
 
+(defmacro py-divmod (x y)
+  "(divmod X Y) -> [div mod]
+
+Return the vector [(X-X%Y)/Y, X%Y].  Invariant: div*Y + mod == X."
+  (cond ((and (numberp x)
+              (numberp y))
+         (vector (if (or (floatp x)
+                         (floatp y))
+                     (ffloor (/ x y)) (floor (/ x y)))
+                 (mod x y)))
+        ((or (floatp x) (floatp y))
+         `(vector (ffloor (/ ,x ,y)) (mod ,x ,y)))
+        (t `(vector (if (or (floatp ,x)
+                            (floatp ,y))
+                        (ffloor (/ ,x ,y))
+                      (floor (/ ,x ,y)))
+                    (mod ,x ,y)))))
+
+(defsubst py-divmod-f (x y)
+  (vector (ffloor (/ x y)) (mod x y)))
+
+(defsubst py-divmod-i (x y)
+  (vector (floor (/ x y)) (mod x y)))
+
 
 
 (defun py-list-append (list thing)

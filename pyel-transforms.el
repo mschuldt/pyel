@@ -1224,6 +1224,12 @@ Recognizes keyword args in the form 'arg = value'."
  interactive
  (setq interactive t))
 
+(pyel-func-transform divmod (x y)
+                     (_ float)
+                     (_ float) -> (py-divmod-f x y)
+                     (int int) -> (py-divmod-i x y)
+                     (_ _)     -> (py-divmod x y))
+
 ;;
 
 (pyel-method-transform append (obj thing)
