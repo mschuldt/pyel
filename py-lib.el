@@ -949,7 +949,7 @@ EXC must be derived from BaseException"
       (round-float number ndigits)
     (round number)))
 
-(defun pyel-enumerate-list (list &optional start)
+(defun py-enumerate-list (list &optional start)
   (let ((ret nil)
         (c (or start 0)))
     (while list
@@ -958,17 +958,17 @@ EXC must be derived from BaseException"
             c (1+ c)))
     (reverse ret)))
 
-(defsubst pyel-enumerate-vector (vec &optional start)
-  (pyel-enumerate-list (mapcar 'identity vec) start))
+(defsubst py-enumerate-vector (vec &optional start)
+  (py-enumerate-list (mapcar 'identity vec) start))
 
-(defsubst pyel-enumerate-hash (hash &optional start)
-  (pyel-enumerate-list (py-hash-to-list hash) start))
+(defsubst py-enumerate-hash (hash &optional start)
+  (py-enumerate-list (py-hash-to-list hash) start))
 
-(defsubst pyel-enumerate-string (str &optional start)
-  (pyel-enumerate-list (split-string str "" :omit-nulls) start))
+(defsubst py-enumerate-string (str &optional start)
+  (py-enumerate-list (split-string str "" :omit-nulls) start))
 
-(defsubst pyel-enumerate-object (obj &optional start)
-  (pyel-enumerate-list (py-object-to-list obj) start))
+(defsubst py-enumerate-object (obj &optional start)
+  (py-enumerate-list (py-object-to-list obj) start))
 
 (defmacro py-divmod (x y)
   "(divmod X Y) -> [div mod]
