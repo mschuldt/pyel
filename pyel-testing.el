@@ -1,3 +1,5 @@
+;;Functions used to generate and run pyel tests.
+
 (defvar pyel-test-py-functions nil
   "list of generated python test functions.
 when `pyel-run-tests' is run, these are translated to e-lisp
