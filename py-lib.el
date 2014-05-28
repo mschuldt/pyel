@@ -999,6 +999,21 @@ Return the vector [(X-X%Y)/Y, X%Y].  Invariant: div*Y + mod == X."
 For objects, use `py-object-bool'"
   (if obj t))
 
+(defun py-object-bool (object)
+  "return t if an object is considered true, else nil.
+If the object defines the --bool-- method, that is called.
+Otherwise the --len-- method is tried, the result is true
+if the length is greator then one.
+If neither the --bool-- or the --len-- methods are defined,
+all instances are considered true"
+  (condition-case nil
+      (call-method object --bool--)
+    (AttributeError
+     (condition-case nil
+         (> (call-method object --len--) 0)
+       (AttributeError
+        t)))))
+
 (defun py-list-append (list thing)
   "add THING to the end of LIST"
   (while (not (null (cdr list)))
