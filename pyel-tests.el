@@ -1387,6 +1387,18 @@ x = dict(o)"
 obj = a()"
   ("enumerate(obj)" '((0 "5") (1 "4") (2 "3") (3 "2") (4 "1")))))
 
+(pyel-create-tests
+ divmod-function
+ ("divmod(6, 2)" [3 0])
+ ("divmod(6, 4)" [1 2])
+ ("divmod(6.7, 4)" [1.0 2.7])
+ ("divmod(6.712, 4.1)" [1.0 2.612])
+ ("divmod(4.2, 2.1)" [2.0 0.0])
+ ("divmod(4, 2.1)" [1.0 1.9])
+ ("a = 412
+b = 13"
+  ("divmod(a, b)" [31 9])))
+
 ;;
 
 (pyel-create-tests
