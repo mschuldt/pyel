@@ -5263,6 +5263,24 @@ This will help notify the user when some syntax has not been implemented
   obj = a()"
     ("list(obj)" '("5" "4" "3" "2" "1"))))
 #+END_SRC
+** tuple
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-func-transform tuple (object)
+                       (string) -> (py-string-to-vector object)
+                       (list)   -> (py-list-vector object)
+                       (vector) -> (py-copy-vector object)
+                       (hash)   -> (pyel-hash-to-vector object)
+                       (object) -> (py-object-to-vector object))
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+ ;
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+ ;
+#+END_SRC
 ** hasattr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el

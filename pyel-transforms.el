@@ -1114,6 +1114,13 @@ Recognizes keyword args in the form 'arg = value'."
                      (hash)   -> (pyel-hash-to-list object)
                      (list)   -> (copy-list object))
 
+(pyel-func-transform tuple (object)
+                     (string) -> (py-string-to-vector object)
+                     (list)   -> (py-list-vector object)
+                     (vector) -> (py-copy-vector object)
+                     (hash)   -> (pyel-hash-to-vector object)
+                     (object) -> (py-object-to-vector object))
+
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 
 (pyel-translate-function-name 'isinstance 'obj-isinstance)
