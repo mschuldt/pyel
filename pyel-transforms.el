@@ -1108,11 +1108,11 @@ Recognizes keyword args in the form 'arg = value'."
 
 (defalias 'py-list 'pyel-list-function)
 (pyel-func-transform list (object)
-                     (string) -> (mapcar 'byte-to-string object)
+                     (string) -> (py-string-to-list object)
                      (object) -> (py-object-to-list object)
-                     (vector) -> (mapcar 'identity object)
-                     (hash)   -> (pyel-hash-to-list object)
-                     (list)   -> (copy-list object))
+                     (vector) -> (py-vector-to-list object)
+                     (hash)   -> (py-hash-to-list object)
+                     (list)   -> (py-copy-list object))
 
 (pyel-func-transform tuple (object)
                      (string) -> (py-string-to-vector object)

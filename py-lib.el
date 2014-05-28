@@ -612,6 +612,15 @@ EXC must be derived from BaseException"
    start 0))
  (number-sequence start (1- end) step))
 
+(defsubst py-string-to-list (string)
+  (mapcar 'byte-to-string string))
+
+(defsubst py-vector-to-list (vector)
+  (mapcar 'identity vector))
+
+(defsubst py-copy-list (list)
+  (copy-list list))
+
 (defun py-object-to-list (object)
   "assumes that py-object(OBJECT) == t"
   (let ((iter (condition-case nil

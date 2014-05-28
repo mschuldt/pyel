@@ -5190,14 +5190,23 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (defalias 'py-list 'pyel-list-function)
   (pyel-func-transform list (object)
-                       (string) -> (mapcar 'byte-to-string object)
+                       (string) -> (py-string-to-list object)
                        (object) -> (py-object-to-list object)
-                       (vector) -> (mapcar 'identity object)
+                       (vector) -> (py-vector-to-list object)
                        (hash)   -> (py-hash-to-list object)
-                       (list)   -> (copy-list object))
+                       (list)   -> (py-copy-list object))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defsubst py-string-to-list (string)
+    (mapcar 'byte-to-string string))
+  
+  (defsubst py-vector-to-list (vector)
+    (mapcar 'identity vector))
+  
+  (defsubst py-copy-list (list)
+    (copy-list list))
+  
   (defun py-object-to-list (object)
     "assumes that py-object(OBJECT) == t"
     (let ((iter (condition-case nil
