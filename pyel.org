@@ -117,7 +117,7 @@ http://docs.python.org/2/library/functions.html
 | iter         |        |       |                                          |
 | property     |        |       |                                          |
 | tuple        | x      | x     |                                          |
-| bool         | x      |       |                                          |
+| bool         | x      | x     |                                          |
 | filter       |        |       |                                          |
 | len          | x      | x     |                                          |
 | range        | x      | x     |                                          |
@@ -6187,7 +6187,37 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-;;
+  (pyel-create-tests
+   bool-function
+   ("bool(2)" t)
+   ("bool(0)" nil)
+   ("bool([2,2])" t)
+   ("bool([])" nil)
+   ("bool((2,))" t)
+   ("bool(())" nil)
+   ("bool('s')" t)
+   ("bool('')" nil)
+   
+   ;;objects
+   ("class a():
+   def bool(self):
+    return False
+  o1 = a()
+  class b():
+   def __bool__(self):
+    return False
+  o2 = b()
+  class c():
+   def __init__(self,n):
+    self.len = n
+   def __len__(self):
+    return self.len
+  o3 = c(0)
+  o4 = c(3)"
+    ("'y' if bool(o1) else 'n'" "y")
+    ("'y' if bool(o2) else 'n'" "n")
+    ("'y' if bool(o3) else 'n'" "n")
+    ("'y' if bool(o4) else 'n'" "y")))
 #+END_SRC
 
 ** transform template
