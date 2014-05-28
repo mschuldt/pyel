@@ -1243,11 +1243,12 @@ repr(__ff_)"
 ;;
 
 (pyel-create-tests
- pow
+ pow-function
  ("pow(2,5,5)" 2)
  ("pow(3,7,20)" 7)
  ("pow(3,7)" 2187)
- ("pow(2,2)" 4))
+ ("pow(2,2)" 4)
+ ("pow(10,-2)" 0.01))
 
 (pyel-create-tests 
  eval
