@@ -6388,7 +6388,7 @@ This will help notify the user when some syntax has not been implemented
    all-function
    ;;list
    ("all([1,'s',2,4])" t)
-   ("all([1,'s',"",4])" nil)
+   ("all([1,'s','',4])" nil)
    ("all([])" t)
    ;;vector
    ("all((1,'s',2,4))" t)

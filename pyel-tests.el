@@ -1483,7 +1483,7 @@ x2 = it.__next__()"
  all-function
  ;;list
  ("all([1,'s',2,4])" t)
- ("all([1,'s',"",4])" nil)
+ ("all([1,'s','',4])" nil)
  ("all([])" t)
  ;;vector
  ("all((1,'s',2,4))" t)
