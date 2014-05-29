@@ -360,6 +360,9 @@ main
   (defvar pyel-error-string "PYEL ERROR"
     "string returned by `pyel' when it failed to transform")
   
+  (defvar pyel-ast-backtrace nil
+    "python backtrace, set by `pyel' when a syntax error occurs")
+  
   (defun pyel-py-ast-file-name ()
     "return the full file name of py-ast.el"
     (file-path-concat pyel-directory "py-ast.py"))
@@ -414,7 +417,8 @@ main
       (setq _x py-ast)
       (if (setq py-error (pyel-is-error py-ast))
           (progn
-            (setq pyel-python-error-line py-error)
+            (setq pyel-ast-backtrace py-ast
+                  pyel-python-error-line py-error)
             pyel-error-string)
         ;;else: no error
         (if py-ast-only
