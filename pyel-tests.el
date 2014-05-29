@@ -1536,7 +1536,26 @@ o2 = a(0,0)"
   ("any(o)" t)
   ("any(o2)" nil)))
 
-;;
+(pyel-create-tests
+ sum-function
+ ("sum([1,2,3])" 6)
+ ("sum([])" 0)
+ ("sum((1,2,3))" 6)
+ ("sum(())" 0)
+ ("sum({1:'3',2:'32'})" 3)
+ ("sum({})" 0)
+ ("class a:
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret =self.x
+   self.x -= 1
+   return ret
+  raise StopIteration
+o = a()"
+  ("sum(o)" 15)))
 
 ;;
 
