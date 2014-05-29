@@ -1460,7 +1460,24 @@ x2 = it.__next__()"
   ("x" "5")
   ("x2" "4")))
 
-;;
+(pyel-create-tests
+ next-function
+ ("class c:
+   x = 5
+   def __iter__(self):
+    return self
+   def __next__(self):
+    if self.x > 0:
+     ret = str(self.x)
+     self.x -= 1
+     return ret
+    raise StopIteration
+  obj = c()
+  it = iter(a)
+  a = next(it)
+  b = next(it)"
+  ("a" "5")
+  ("b" "4")))
 
 (pyel-create-tests
  all-function
