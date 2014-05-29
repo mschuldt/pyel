@@ -390,33 +390,36 @@ if arg is positive, turn on, else turn off"
 (defvar pyel-required '(cl)
   "list of required featured used by pyel generated code")
 
-;;test
-(defun pyel-load (file)
-  "similar to `load' but for python
-convert python FILE to e-lisp, saving all generated code and byte compiling it
-WARNING: will create file named FILE.el, overwriting without warning"
-
-  ;;TODO: hash files and load elisp file if present in directory and python file has
-  ;;      not changed
+(defun pyel-load (file &optional el-file no-error)
+  "Convert python FILE to e-lisp file named EL-FILE, bypte compile it.
+EL-FILE defaults to FILE.py.el, if such a file exists, it will be
+overwritten without warning"
+  ;;TODO: load byte compiled file if it is more recent
   (let ((pyel-function-definitions nil)
         (pyel-defined-functions nil)
         (pyel-context nil)
-        (el-file (format "%s.el" file))
-        python)
+        (el-file (or el-file (format "%s.el" file)))
+        python error)
     (with-temp-buffer
       (insert-file-contents file)
-      (setq python (pyel (buffer-string))) ;;TODO: error checking
-      (with-temp-buffer
-        (mapc (lambda (x) (cl-prettyprint `(require ',x)))
-              pyel-required)
-        (insert "\n")
-        (mapc (lambda (x) (cl-prettyprint x))
-              pyel-function-definitions)
-        (if (equal (car python) 'progn)
-            (mapc (lambda (x) (cl-prettyprint x)) python)
-          (cl-prettyprint python))
-        (write-file el-file)))
-    (byte-compile-file el-file :load)))
+      (setq python (pyel (buffer-string) t t))
+      (if (equal python pyel-error-string)
+          (if no-error
+              (setq error t)
+            (error "pyel-load: Error loading file %s" file)))
+      (if (not error)
+          (with-temp-buffer
+            (mapc (lambda (x) (cl-prettyprint `(require ',x)))
+                  pyel-required)
+            (insert "\n")
+            ;; (mapc (lambda (x) (cl-prettyprint x))
+            ;;       pyel-function-definitions)
+            (if (and (listp python) (equal (car python) 'progn))
+                (mapc (lambda (x) (cl-prettyprint x)) (cdr python))
+              (cl-prettyprint python))
+            (write-file el-file))))
+    (save-window-excursion
+      (byte-compile-file el-file :load))))
 
 (defun test ()
   (interactive)
