@@ -95,26 +95,26 @@ http://docs.python.org/2/library/functions.html
 |--------------+--------+-------+------------------------------------------|
 | abs          | x      | x     |                                          |
 | divmod       | x      | x     |                                          |
-| input        | x      |       |                                          |
+| input        | x      |       | reads a string from the minibuffer       |
 | open         |        |       |                                          |
 | staticmethod |        |       |                                          |
-| all          |        |       |                                          |
+| all          | x      | x     |                                          |
 | enumerate    | x      | x     |                                          |
 | int          | x      | x     |                                          |
 | ord          | x      | x     | strings > 1 char does not raise an error |
 | str          | x      | x     |                                          |
-| any          |        |       |                                          |
-| eval         | x      | x     |                                          |
+| any          | x      | x     |                                          |
+| eval         | x      | x     | does not implement global/local params   |
 | isinstance   | x      |       |                                          |
-| pow          | -      | x     | assumes numbers                          |
-| sum          |        |       |                                          |
+| pow          | x      | x     |                                          |
+| sum          | x      | x     |                                          |
 | basestring   |        |       |                                          |
 | execfile     |        |       |                                          |
 | issubclass   |        |       |                                          |
 | super        |        |       |                                          |
 | bin          | x      | x     |                                          |
 | file         |        |       |                                          |
-| iter         |        |       |                                          |
+| iter         | -      | -     |                                          |
 | property     |        |       |                                          |
 | tuple        | x      | x     |                                          |
 | bool         | x      | x     |                                          |
@@ -139,8 +139,8 @@ http://docs.python.org/2/library/functions.html
 | vars         |        |       |                                          |
 | classmethod  |        |       |                                          |
 | getattr      | x      |       |                                          |
-| map          | x      |       | ??? really equivalent?                   |
-| repr         |        |       |                                          |
+| map          |        |       |                                          |
+| repr         | x      | x     |                                          |
 | xrange       |        |       |                                          |
 | cmp          |        |       |                                          |
 | globals      |        |       |                                          |
@@ -159,7 +159,7 @@ http://docs.python.org/2/library/functions.html
 | apply        |        |       |                                          |
 | delattr      |        |       |                                          |
 | help         |        |       |                                          |
-| next         |        |       |                                          |
+| next         | x      | x     |                                          |
 | setattr      |        |       |                                          |
 | buffer       |        |       |                                          |
 | dict         | x      | x     |                                          |
