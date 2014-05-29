@@ -119,7 +119,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
 (defun pyel-buffer-to-string (&optional ast-only)
   "transform python in current buffer and return a string"
   ;;THIS DOES NOT RETURN A STRING!
-  (pyel (buffer-string) ast-only))
+  (pyel (buffer-string) nil nil ast-only))
 
 (defvar pyel-pp-function 'pp-to-string
   "function that pretty prints pyel e-lisp code")
