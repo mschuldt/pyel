@@ -1035,6 +1035,18 @@ otherwise raise a TypeError."
 (defun py-hash-iter (obj)
   (error "Not Implemented"))
 
+(defun py-next (object)
+  (let (ret err)
+    (if (py-object-p object)
+        (condition-case nil
+            (setq ret (call-method object --next--))
+          (AttributeError (setq err t)))
+      (setq err t))
+    (if err
+        (py-raise (TypeError (format "'%s' object is not an iterator"
+                                     (getattr object --name--))))
+      ret)))
+
 (defun py-list-all (list)
   (let ((all t))
     (while list

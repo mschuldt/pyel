@@ -6273,6 +6273,29 @@ This will help notify the user when some syntax has not been implemented
     ("x" "5")
     ("x2" "4")))
 #+END_SRC
+** next
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-translate-function-name 'next 'py-next)
+#+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defun py-next (object)
+    (let (ret err)
+      (if (py-object-p object)
+          (condition-case nil
+              (setq ret (call-method object --next--))
+            (AttributeError (setq err t)))
+        (setq err t))
+      (if err
+          (py-raise (TypeError (format "'%s' object is not an iterator"
+                                       (getattr object --name--))))
+        ret)))
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+;;
+#+END_SRC
 ** all
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
