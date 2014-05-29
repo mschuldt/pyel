@@ -75,9 +75,8 @@ then update the current tag overlay")
   (and pyel-python-error-overlay
        (delete-overlay pyel-python-error-overlay)))
 
-(defun pyel-buffer (&optional out-buff)
+(defun pyel-transform-buffer (&optional out-buff)
   ;;TODO: replace this function in pyel.org
-  ;;TODO: this function is now specialized for 'pyel-mode.el'. seporate from basic functionally
   "transform python in current buffer and display in OUT-BUFF,
 OUT-BUFF defaults to *pyel-output*"
   (interactive)
@@ -246,7 +245,7 @@ insert the resulting emacs-lisp into `pyel-ouptu-buffer-name'"
     (save-excursion
       (save-window-excursion
         (switch-to-buffer pyel-current-transform-buffer)
-        (pyel-buffer pyel-output-buffer-name)))))
+        (pyel-transform-buffer pyel-output-buffer-name)))))
 
 (defvar pyel-current-python-tag nil
   "saves the current semantic tag for the python buffer")
