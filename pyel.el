@@ -124,11 +124,16 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
   "transform python in current buffer and display in OUT-BUFF,
 OUT-BUFF defaults to *pyel-output*"
   (interactive)
-  (let ((out (pyel-buffer-to-string)))
-    (switch-to-buffer-other-window "*pyel-output*")
-    (erase-buffer)
-    (insert (funcall 'pyel-pp-function out))
-    (emacs-lisp-mode)))
+  (let ((out (pyel-buffer-to-string))
+        (buff (or out-buff "*pyel-output*")))
+
+      (switch-to-buffer-other-window buff)
+      (erase-buffer)
+      ;;    (insert (funcall pyel-pp-function out))
+      (lisp-interaction-mode)
+      (pyel-prettyprint out)
+      ;;(emacs-lisp-mode)
+      ))
 
 (defun pyel-transform-ast (ast &optional no-splice)
   "transform a python AST to Emacs Lisp, AST must be a string
