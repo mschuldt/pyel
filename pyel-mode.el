@@ -493,15 +493,16 @@ START is the buffer position where the sexp starts."
                           (1- line-beg-pos)))))
          'after-backslash)
         ;; After beginning of block
-        ((setq start (save-excursion
-                       (when (progn
-                               (back-to-indentation)
-                               (python-util-forward-comment -1)
-                               (equal (char-before) ?:))
-                         ;; Move to the first block start
-                         (re-search-backward (python-rx block-start) nil t)
-                         (when (looking-at (python-rx block-start))
-                           (point-marker)))))
+        ((setq start (or (save-excursion
+                           (when (progn
+                                   (back-to-indentation)
+                                   (python-util-forward-comment -1)
+                                   (equal (char-before) ?:))
+                             ;; Move to the first block start
+                             (re-search-backward (python-rx block-start) nil t)
+                             (when (looking-at (python-rx block-start))
+                               (point-marker))))
+                         (python-syntax-context 'paren ppss)))
 
          'after-beginning-of-block)
         ;; After normal line
