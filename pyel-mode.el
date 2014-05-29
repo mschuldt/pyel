@@ -408,7 +408,8 @@ overwritten without warning"
               (setq error t)
             (error "pyel-load: Error loading file %s" file)))
       (if (not error)
-          (with-temp-buffer
+          (progn
+            (erase-buffer)
             (mapc (lambda (x) (cl-prettyprint `(require ',x)))
                   pyel-required)
             (insert "\n")
