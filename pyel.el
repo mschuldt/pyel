@@ -228,6 +228,8 @@ useing python3 unless PYTHON2 is non-nil"
         pyel-function-definitions nil
         pyel-defined-functions nil
         pyel-method-transforms nil
+        pyel-func-transforms nil
+        pyel-func-transforms2 nil
         pyel-context nil))
 
 (defvar pyel-method-name-format-string "_%s-method%s"
