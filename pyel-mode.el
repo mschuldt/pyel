@@ -468,7 +468,7 @@ START is the buffer position where the sexp starts."
     (widen)
     (let* ((ppss (save-excursion (beginning-of-line) (syntax-ppss)))
            (start)
-           (macro-name (get-open-function-name))
+           (macro-name (pyel-get-open-function-name))
            (inside-macro (and macro-name
                               (member macro-name pyel-pp--macro-names))))
       (cons
