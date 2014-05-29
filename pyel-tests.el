@@ -1488,6 +1488,43 @@ o2 = a(-3,3)"
   ("all(o)" t)
   ("all(o2)" nil)))
 
+(pyel-create-tests
+ any-function
+ ;;list
+ ("any([[],False, 's',2])" t)
+ ("any([[],False, '',0])" nil)
+ ("any([])" nil)
+ ;;vector
+ ("any(([],False, 's',2))" t)
+ ("any(([],False, '',0))" nil)
+ ("any(())" nil)
+ ;;string
+ ("any('s')" t)
+ ("any('')" nil)
+ ;;hash table
+ ("any({0:4, 4:'', 1:'s'})" t)
+ ("any({0:4, '':3, (): 2})" nil)
+ ("any({})" nil)
+ ;;objects
+ ("class a:
+ x = 5
+ def __init__(self, s, e):
+  self.start = s
+  self.end = e
+ def __iter__(self):
+  self.current = self.start
+  return self
+ def __next__(self):
+  if self.current < self.end:
+   ret = self.current
+   self.current += 1
+   return ret
+  raise StopIteration
+o = a(0,9)
+o2 = a(0,0)"
+  ("any(o)" t)
+  ("any(o2)" nil)))
+
 ;;
 
 ;;
