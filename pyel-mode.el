@@ -422,6 +422,32 @@ overwritten without warning"
       (byte-compile-file el-file :load))))
 
 
+(defun back-to-open-paren ()
+  (let ((pc 0) ;;paren count: +1 for open , -1 for close
+        c)
+
+    (while (and (not (bobp))
+                (not (= pc 1)))
+      (backward-char)
+      (setq c (thing-at-point 'char))
+      (cond ((string= c "\"")
+             (progn (forward-char)
+                    (backward-sexp)))
+            ((string= c ")")
+             (setq pc (1- pc)))
+            ((string= c "(")
+             (setq pc (1+ pc)))))
+    (if (and (bobp)
+             (not (looking-at "(")))
+        nil t)))
+
+(defun pyel-get-open-function-name ()
+  (save-excursion
+    (back-to-open-paren)
+    (backward-sexp)
+    (if (re-search-forward "[A-Za-z0-9_-]+")
+        (match-string 0))))
+
 ;;overrides the function of the same name in python.el
 ;;This is modified so that it can still indent inside
 ;;of open parens of e-lisp macros
