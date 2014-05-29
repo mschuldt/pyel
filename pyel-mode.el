@@ -421,6 +421,74 @@ overwritten without warning"
     (save-window-excursion
       (byte-compile-file el-file :load))))
 
+
+;;overrides the function of the same name in python.el
+;;This is modified so that it can still indent inside
+;;of open parens of e-lisp macros
+(defun python-indent-context ()
+  "Get information on indentation context.
+Context information is returned with a cons with the form:
+    \(STATUS . START)
+
+Where status can be any of the following symbols:
+ * inside-paren: If point in between (), {} or []
+ * inside-string: If point is inside a string
+ * after-backslash: Previous line ends in a backslash
+ * after-beginning-of-block: Point is after beginning of block
+ * after-line: Point is after normal line
+ * no-indent: Point is at beginning of buffer or other special case
+START is the buffer position where the sexp starts."
+  (save-restriction
+    (widen)
+    (let* ((ppss (save-excursion (beginning-of-line) (syntax-ppss)))
+           (start)
+           (macro-name (get-open-function-name))
+           (inside-macro (and macro-name
+                              (member macro-name pyel-pp--macro-names))))
+      (cons
+       (cond
+        ;; Beginning of buffer
+        ((save-excursion
+           (goto-char (line-beginning-position))
+           (bobp))
+         'no-indent)
+        ;; Inside string
+        ((setq start (python-syntax-context 'string ppss))
+         'inside-string)
+        ;; Inside a paren
+        ((and (setq start (python-syntax-context 'paren ppss))
+              (not inside-macro))
+         'inside-paren)
+        ;; After backslash
+        ((setq start (when (not (or (python-syntax-context 'string ppss)
+                                    (python-syntax-context 'comment ppss)))
+                       (let ((line-beg-pos (line-number-at-pos)))
+                         (python-info-line-ends-backslash-p
+                          (1- line-beg-pos)))))
+         'after-backslash)
+        ;; After beginning of block
+        ((setq start (save-excursion
+                       (when (progn
+                               (back-to-indentation)
+                               (python-util-forward-comment -1)
+                               (equal (char-before) ?:))
+                         ;; Move to the first block start
+                         (re-search-backward (python-rx block-start) nil t)
+                         (when (looking-at (python-rx block-start))
+                           (point-marker)))))
+
+         'after-beginning-of-block)
+        ;; After normal line
+        ((setq start (save-excursion
+                       (back-to-indentation)
+                       (skip-chars-backward (rx (or whitespace ?\n)))
+                       (python-nav-beginning-of-statement)
+                       (point-marker)))
+         'after-line)
+        ;; Do not indent
+        (t 'no-indent))
+       start))))
+
 (defun test ()
   (interactive)
   (end-of-buffer)
