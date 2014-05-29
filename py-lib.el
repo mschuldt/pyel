@@ -804,11 +804,13 @@ EXC must be derived from BaseException"
            nil)))
 
 (defun py-eval (source &rest others)
-  (if others
-      (error "Only the first arg in `py-eval' is implemented"))
-  (if (stringp source)
-      (eval (pyel source))
-    (py-raise (TypeError "eval() arg 1 must be a string, bytes or code object)"))))
+  (cond (others
+         (error "Only the first arg in `py-eval' is implemented"))
+        ((stringp source)
+         (eval (pyel source)))
+        ((listp source)
+         (eval source))
+    (t (py-raise (TypeError "eval() arg 1 must be a string, bytes or code object)")))))
 
 ;;TODO: when the built in type classes are finished and `py-type'
 ;;      returns them, the special cases for the types in
