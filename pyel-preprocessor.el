@@ -7,7 +7,8 @@
 (setq pyel-pp--macro-names '("save_excursion"
                              "save_window_excursion"
                              "cond"
-                             "lambda"))
+                             "lambda"
+                             "with_temp_buffer"))
 
 (defun pyel-declare-macro (name)
   "Declare NAME as a macro
