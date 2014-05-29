@@ -248,7 +248,16 @@ def e():
   return 234
  else:
   return 33"
- ("test()" 234)))
+  ("test()" 234))
+ 
+ ("def test():
+ if False:
+  return 2
+  c()
+ else:
+  return 5
+  e()"
+  ("test()" 5)))
 
 (pyel-create-tests call
                    "aa()"
@@ -1450,6 +1459,8 @@ x = it.__next__()
 x2 = it.__next__()"
   ("x" "5")
   ("x2" "4")))
+
+;;
 
 (pyel-create-tests
  all-function

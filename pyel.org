@@ -2624,7 +2624,16 @@ This is for all non template specific code.
     return 234
    else:
     return 33"
-   ("test()" 234)))
+    ("test()" 234))
+   
+   ("def test():
+   if False:
+    return 2
+    c()
+   else:
+    return 5
+    e()"
+    ("test()" 5)))
   
 #+END_SRC
 ** call
