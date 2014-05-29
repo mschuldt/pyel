@@ -1081,7 +1081,7 @@ otherwise raise a TypeError."
     t))
 
 (defun py-object-all (object)
-  (let ((iter (py-iter object))
+  (let ((iter (py-object-iter object))
         (all t))
     (condition-case nil
         (while all
@@ -1122,7 +1122,7 @@ otherwise raise a TypeError."
     nil))
 
 (defun py-object-any (object)
-  (let ((iter (py-iter object))
+  (let ((iter (py-object-iter object))
         (not-found t))
     (condition-case nil
         (while not-found
@@ -1157,7 +1157,7 @@ otherwise raise a TypeError."
     sum))
 
 (defun py-object-sum (object)
-  (let ((iter (py-iter object))
+  (let ((iter (py-object-iter object))
         (sum 0))
     (condition-case nil
         (while t

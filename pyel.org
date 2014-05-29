@@ -6375,7 +6375,7 @@ This will help notify the user when some syntax has not been implemented
       t))
   
   (defun py-object-all (object)
-    (let ((iter (py-iter object))
+    (let ((iter (py-object-iter object))
           (all t))
       (condition-case nil
           (while all
@@ -6467,7 +6467,7 @@ This will help notify the user when some syntax has not been implemented
       nil))
   
   (defun py-object-any (object)
-    (let ((iter (py-iter object))
+    (let ((iter (py-object-iter object))
           (not-found t))
       (condition-case nil
           (while not-found
@@ -6552,7 +6552,7 @@ This will help notify the user when some syntax has not been implemented
       sum))
   
   (defun py-object-sum (object)
-    (let ((iter (py-iter object))
+    (let ((iter (py-object-iter object))
           (sum 0))
       (condition-case nil
           (while t
