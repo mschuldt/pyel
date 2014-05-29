@@ -71,7 +71,7 @@
         (if (or skip let
                 (progn
                   (forward-sexp)
-                  (and (>= (current-column) 60) (progn (backward-sexp) t))))
+                  (and (>= (current-column) 80) (progn (backward-sexp) t))))
             (let ((nl t))
               (forward-char 1)
               (cl--do-prettyprint)
