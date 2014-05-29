@@ -1,3 +1,4 @@
+(require 'python) ;;python-syntax-comment-or-string-p
 
 (defvar pyel-pp--macro-names nil
   "list of all macro names that the preprocessor recognizes
@@ -55,6 +56,7 @@ TODO: not all macro translations will work when  declared this way."
 
 (defun pyel-preprocess-buffer2 () ;;recursive function
   (interactive)
+  (python-mode)
   (cl-flet ((create-regex (name)
                           (format "\\(%s\\)[ \t\n]*("
                                   (replace-regexp-in-string "-" "_" name))))
@@ -63,7 +65,8 @@ TODO: not all macro translations will work when  declared this way."
         ;;TODO group these names together to minimize transverses
         (setq re (create-regex name))
         (goto-char 1)
-        (while (re-search-forward re nil :no-error)
+        (while (and (re-search-forward re nil :no-error)
+                    (not (python-syntax-comment-or-string-p)))
           (setq marker (pyel-create-new-marker)
                 line-start (line-number-at-pos))
           (replace-match marker)
