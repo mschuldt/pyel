@@ -51,6 +51,8 @@ NAME can be a symbol or a string, return type will match"
              --getitem--
              --len--
              --bool--
+             --next--
+             --iter--
              ))))
 
 (defconst py-class-vector-length (length object-slot-indexes))
