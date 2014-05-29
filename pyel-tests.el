@@ -212,7 +212,7 @@ def c():
   return 1
   x()
  else:
-  y()
+  x = b() + 1
   return 2
 
 def d():
@@ -236,7 +236,7 @@ def e():
   ("a()" 1)
   ("b()" 1)
   ("c()" 2)
-  ("c()" 1.1)
+  ("d()" 1.1)
   ("e()" 12))
 
  ("def test():
@@ -1463,19 +1463,19 @@ x2 = it.__next__()"
 (pyel-create-tests
  next-function
  ("class c:
-   x = 5
-   def __iter__(self):
-    return self
-   def __next__(self):
-    if self.x > 0:
-     ret = str(self.x)
-     self.x -= 1
-     return ret
-    raise StopIteration
-  obj = c()
-  it = iter(a)
-  a = next(it)
-  b = next(it)"
+ x = 5
+ def __iter__(self):
+  return self
+ def __next__(self):
+  if self.x > 0:
+   ret = str(self.x)
+   self.x -= 1
+   return ret
+  raise StopIteration
+obj = c()
+it = iter(obj)
+a = next(it)
+b = next(it)"
   ("a" "5")
   ("b" "4")))
 
