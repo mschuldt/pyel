@@ -40,7 +40,7 @@ assigned to `pyel-num-sexp-that-fit'"
 (defsubst pyel-at-list-p ()
   (looking-at "[ \t\n\r]*("))
 
-(defun pyel-pp-list-as-stack (&optional stack-symbols)
+(defun pyel-pp-varlist (&optional stack-symbols)
   "print the list after point in a let varlist style.
 called with point on open paren.
 when finished the point will be after the closing paren
@@ -66,7 +66,7 @@ if STACK-SYMBOLS is non-nil, stack non-lists on different lines
                     (if (> end pyel-pp-max-column)
                         (progn
                           (goto-char beg)
-                          (pyel-print-as-stack stack-symbols)
+                          (pyel-pp-varlist stack-symbols)
                           (pyel-pp-newline-and-indent))
                       ;;else: everything fits
                       (pyel-pp-newline-and-indent))
