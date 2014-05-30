@@ -53,7 +53,10 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
   this is ignored if PY-AST-ONLY is non-nil"
   (assert (eq lexical-binding nil) "pyel requires dynamic scoping")
 
-  (setq pyel-marked-ast-pieces nil)
+  ;;this is called recursively to transform code in macro bodies
+  ;;so this cannot be cleared here - it removes previous work
+  ;;(setq pyel-marked-ast-pieces nil)
+  
   (setq pyel-transform-status nil) ;;so far so good...
 
   (setq pyel-last-python-code python)
