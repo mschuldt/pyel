@@ -37,6 +37,16 @@ assigned to `pyel-num-sexp-that-fit'"
           (<= (pyel-column-num) pyel-pp-max-column))
       (scan-error pyel-num-sexp-that-fit))))
 
+(defun pyel-sexp-n-left-in-list ()
+  "return the number of sexp left in the list after point"
+  (save-excursion
+    (let ((count 0))
+      (condition-case nil
+          (while t
+            (goto-char (scan-sexps (point) 1))
+            (incf count))
+        (scan-error count)))))
+
 (defsubst pyel-at-list-p ()
   (looking-at "[ \t\n\r]*("))
 
