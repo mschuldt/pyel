@@ -1,6 +1,11 @@
 ;;pretty printer for pyel
 (defvar pyel-pp-max-column 80)
 
+(defvar pyel-pp-print-defs (make-hash-table :test 'eq)
+  "hash table of print definitions. the key is the name of the function/macro")
+
+(defvar pyel-pp-print-default-fn 'pyel-pp-function-call)
+
 (defsubst pyel-column-num ()
   (- (point) (save-excursion (beginning-of-line) (point))))
 
@@ -164,10 +169,66 @@ must be called with point at beginning of sexp.
 If it is a list, the point must be on or before the open paren,
 when finished the point will be after the closing paren"
   (if (pyel-at-list-p)
-      ;;TODO: check for printing definition
-      (pyel-pp-function-call)
+      (funcall (setq func (pyel-pp-get-next-print-def)))
     ;;else: just skip over it for now
-    (goto-char (scan-sexps (point) 1))))
+    (pyel-jump-sexp)))
+
+(defun pyel-pp-get-next-print-def ()
+  "return the name of the function call after point"
+  (save-excursion
+    (let ((sym (if (re-search-forward "[ \t\n\r]*(?\\([^ \t\n\r)]*\\)" nil t)
+                   (intern-soft (match-string 1)))))
+      (gethash sym pyel-pp-print-defs pyel-pp-print-default-fn))))
+
+(defun pyel-pp-get-print-fn (x)
+  (let ((s (if (symbolp x) (symbol-name x) ""))
+        n)
+    (cond ((eq x 'newline)
+           '(pyel-pp-newline-and-indent))
+          ((string-match "^:" s)
+           '(pyel-pp-sexp))
+          ((eq x 'arglist)
+           '(pyel-pp-arglist))
+          ((eq x 'varlist)
+           '(pyel-pp-varlist))
+          ((string-match "^group\\([0-9]+\\)" s)
+           (list 'pyel-pp-group-args
+                 (string-to-number (match-string 1 s))))
+          ((or (eq x 'no-stack)
+               (eq x 'max))
+           '(pyel-pp-max-per-line))
+          ((functionp x)
+           (list x))
+          ((symbolp x)
+           (list 'funcall x))
+          ((listp x) x)
+          (t (error "pyel-pp-get-print-fn: unrecognized print type")))))
+
+(defmacro define-pp (name &rest args)
+  (assert (symbolp name))
+  (assert (> (length args) 0))
+  (puthash name
+           `(lambda ()
+              (condition-case err
+                  (progn
+                    (if (pyel-at-list-p)
+                        (pyel-enter-list))
+                    (setq start (point))
+                    (if (not (pyel-at-closing-paren))
+                        (pyel-jump-sexp))
+
+                    ,@(mapcar (lambda (x)
+                                `(if (not (pyel-at-closing-paren))
+                                     ,(pyel-pp-get-print-fn x)))
+                              args)
+
+                    (while (not (pyel-at-closing-paren))
+                      (pyel-pp-newline-and-indent)
+                      (pyel-pp-sexp))
+                    (when (pyel-at-closing-paren)
+                      (pyel-exit-list)))
+                (error ,(format "Error with prettyprinter for '%s'" name))))
+           pyel-pp-print-defs))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
