@@ -40,10 +40,11 @@ assigned to `pyel-num-sexp-that-fit'"
 (defsubst pyel-at-list-p ()
   (looking-at "[ \t\n\r]*("))
 
-(defun pyel-pp-list-as-stack (&optional dont-stack-symbols)
-  "called with point on open paren.
+(defun pyel-pp-list-as-stack (&optional stack-symbols)
+  "print the list after point in a let varlist style.
+called with point on open paren.
 when finished the point will be after the closing paren
-if DONT-STACK-SYMBOLS is non-nil, keep non-lists on the same line
+if STACK-SYMBOLS is non-nil, stack non-lists on different lines
  symbols and lists are never printed on the same line"
   (let (beg end sym-without-newline)
     (condition-case nil
@@ -65,14 +66,14 @@ if DONT-STACK-SYMBOLS is non-nil, keep non-lists on the same line
                     (if (> end pyel-pp-max-column)
                         (progn
                           (goto-char beg)
-                          (pyel-print-as-stack dont-stack-symbols)
+                          (pyel-print-as-stack stack-symbols)
                           (pyel-pp-newline-and-indent))
                       ;;else: everything fits
                       (pyel-pp-newline-and-indent))
                     (setq sym-without-newline nil))
                 ;;else: we are at a non-list
                 (goto-char (scan-sexps (point) 1))
-                (if dont-stack-symbols
+                (if (not stack-symbols)
                     (if (> (pyel-column-num) pyel-pp-max-column)
                         ;;the list of symbols is getting to long
                         (progn (goto-char beg)
