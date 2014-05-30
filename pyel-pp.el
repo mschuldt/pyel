@@ -127,6 +127,23 @@ the point must be one the opening paren or immediately after"
           (forward-char)))
     (scan-error nil)))
 
+(defun pyel-pp-max-per-line ()
+  "print as many elements of the list at point on each line as possible
+if the thing after point is not a list, skip over it"
+  (if (pyel-at-list-p)
+      (let (n)
+        (pyel-enter-list)
+        (setq n (pyel-sexp-n-left-in-list))
+        (while (> n 0)
+          (while (and (pyel-sexp-fits-on-line-p) (> n 0))
+            (pyel-jump-sexp)
+            (decf n))
+          (if (not (pyel-at-closing-paren))
+              (pyel-pp-newline-and-indent)))
+        (if (pyel-at-closing-paren)
+            (forward-char)))
+    (pyel-jump-sexp)))
+
 (defun pyel-pp-sexp ()
   "prettyprint the sexp at point.
 must be called with point at beginning of sexp.
