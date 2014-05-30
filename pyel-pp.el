@@ -14,13 +14,28 @@
   ;(beginning-of-line)
   (indent-for-tab-command))
 
-(defun pyel-sexp-fits-on-line-p ()
-  "return non-nil if the sexp after point fits within the column
+(defvar pyel-num-sexp-that-fit 0
+  "the number of sexpressions <= N that can fit on the line
+   set by (pyel-sexp-fits-on-line-p N)")
+
+(defun pyel-sexp-fits-on-line-p (&optional n)
+  "return non-nil if the N sexps after point fits within the column
 restruction set by `pyel-pp-max-column'
-This raises scan error if a sexp does not follow the point"
+N defaults to 1
+if there is less then N sexps after the point, the number is
+assigned to `pyel-num-sexp-that-fit'"
+  (default n 1)
   (save-excursion
-    (goto-char (scan-sexps (point) 1))
-    (<= (pyel-column-num) pyel-pp-max-column)))
+    (condition-case nil
+        (let ((not-done t))
+          (setq pyel-num-sexp-that-fit 0)
+          (while (and not-done (< pyel-num-sexp-that-fit n))
+            (goto-char (scan-sexps (point) 1))
+            (if (<= (pyel-column-num) pyel-pp-max-column)
+                (incf pyel-num-sexp-that-fit)
+              (setq not-done nil)))
+          (<= (pyel-column-num) pyel-pp-max-column))
+      (scan-error pyel-num-sexp-that-fit))))
 
 (defsubst pyel-at-list-p ()
   (looking-at "[ \t\n\r]*("))
