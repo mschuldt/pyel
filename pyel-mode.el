@@ -503,14 +503,22 @@ START is the buffer position where the sexp starts."
                              (re-search-backward (python-rx block-start) nil t)
                              (when (looking-at (python-rx block-start))
                                (point-marker))))
-                         (python-syntax-context 'paren ppss)))
+                         (and inside-macro
+                              (= (- (line-number-at-pos) (save-excursion
+                                                        (back-to-open-paren)
+                                                        (line-number-at-pos))) 1)
+                              (python-syntax-context 'paren ppss))))
 
          'after-beginning-of-block)
         ;; After normal line
         ((setq start (save-excursion
                        (back-to-indentation)
                        (skip-chars-backward (rx (or whitespace ?\n)))
-                       (python-nav-beginning-of-statement)
+                       (if inside-macro
+                           (progn
+                             (backward-sexp)
+                             (back-to-indentation))
+                         (python-nav-beginning-of-statement))
                        (point-marker)))
          'after-line)
         ;; Do not indent
