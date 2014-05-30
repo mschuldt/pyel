@@ -24,6 +24,11 @@ This raises scan error if a sexp does not follow the point"
     (goto-char (scan-sexps (point) 1))
     (<= (pyel-column-num) pyel-pp-max-column)))
 
+(defun pyel-at-list-p ()
+  (save-excursion
+    (pyel-skip-whitespace)
+    (string= (char-at-point) "(")))
+
 (defun pyel-pp-list-as-stack (&optional dont-stack-symbols)
   "called with point on open paren.
 when finished the point will be after the closing paren
@@ -33,13 +38,13 @@ if DONT-STACK-SYMBOLS is non-nil, keep non-lists on the same line
     (condition-case nil
         (progn
           (pyel-skip-whitespace)
-          (when (string= (char-at-point) "(")
+          (when (pyel-at-list-p)
             ;;most move one forward to get into the list
             (forward-char)
             (while (not (pyel-at-closing-paren))
               (pyel-skip-whitespace)
               (setq beg (point))
-              (if (string= (char-at-point) "(")
+              (if (pyel-at-list-p)
                   (progn
                     (if sym-without-newline
                         ;;last elem is not followed by a newline
@@ -78,7 +83,7 @@ the point must be one the opening paren or immediately after"
           (goto-char (scan-sexps (point) 1))
 
         (pyel-skip-whitespace)
-        (if (string= (char-at-point) "(")
+        (if (pyel-at-list-p)
             ;;most move one forward to get into the function
             ;;otherwise  assume that we are already in it
             (forward-char))
