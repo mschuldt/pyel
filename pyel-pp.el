@@ -105,6 +105,17 @@ the point must be one the opening paren or immediately after"
           (forward-char)))
     (scan-error nil)))
 
+(defun pyel-pp-sexp ()
+  "prettyprint the sexp at point.
+must be called with point at beginning of sexp.
+If it is a list, the point must be on or before the open paren,
+when finished the point will be after the closing paren"
+  (if (pyel-at-list-p)
+      ;;TODO: check for printing definition
+      (pyel-pp-function-call)
+    ;;else: just skip over it for now
+    (goto-char (scan-sexps (point) 1))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
