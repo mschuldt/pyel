@@ -5,9 +5,7 @@
   (- (point) (save-excursion (beginning-of-line) (point))))
 
 (defsubst pyel-at-closing-paren ()
-  (save-excursion
-    (pyel-skip-whitespace)
-    (looking-at ")")))
+  (looking-at "[ \t\n\r]*)"))
 
 (defun pyel-pp-newline-and-indent ()
   "insert a newline at point, move to the beginning of next line and indent"
@@ -24,10 +22,8 @@ This raises scan error if a sexp does not follow the point"
     (goto-char (scan-sexps (point) 1))
     (<= (pyel-column-num) pyel-pp-max-column)))
 
-(defun pyel-at-list-p ()
-  (save-excursion
-    (pyel-skip-whitespace)
-    (string= (char-at-point) "(")))
+(defsubst pyel-at-list-p ()
+  (looking-at "[ \t\n\r]*("))
 
 (defun pyel-pp-list-as-stack (&optional dont-stack-symbols)
   "called with point on open paren.
