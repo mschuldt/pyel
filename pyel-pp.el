@@ -98,16 +98,12 @@ the point must be one the opening paren or immediately after"
           (pyel-pp-newline-and-indent)
           (if (pyel-at-list-p)
               (pyel-pp-sexp)
-            (goto-char (scan-sexps (point) 1)))))
-    (scan-error nil))
-  (when (pyel-at-closing-paren)
-    (pyel-skip-whitespace)
-    (forward-char)))
+            (goto-char (scan-sexps (point) 1))))
 
-
-
-
-
+        (when (pyel-at-closing-paren)
+          (pyel-skip-whitespace)
+          (forward-char)))
+    (scan-error nil)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
