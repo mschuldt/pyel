@@ -96,7 +96,9 @@ the point must be one the opening paren or immediately after"
         ;;now print the rest of the args on separate lines
         (while (not (pyel-at-closing-paren))
           (pyel-pp-newline-and-indent)
-          (goto-char (scan-sexps (point) 1))))
+          (if (pyel-at-list-p)
+              (pyel-pp-sexp)
+            (goto-char (scan-sexps (point) 1)))))
     (scan-error nil))
   (when (pyel-at-closing-paren)
     (pyel-skip-whitespace)
