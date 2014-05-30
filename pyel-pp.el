@@ -1,5 +1,110 @@
 ;;pretty printer for pyel
+(defvar pyel-pp-max-column 80)
 
+(defsubst pyel-column-num ()
+  (- (point) (save-excursion (beginning-of-line) (point))))
+
+(defsubst pyel-at-closing-paren ()
+  (save-excursion
+    (pyel-skip-whitespace)
+    (looking-at ")")))
+
+(defun pyel-pp-newline-and-indent ()
+  "insert a newline at point, move to the beginning of next line and indent"
+  (insert "\n")
+;;  (next-line)
+  ;(beginning-of-line)
+  (indent-for-tab-command))
+
+(defun pyel-sexp-fits-on-line-p ()
+  "return non-nil if the sexp after point fits within the column
+restruction set by `pyel-pp-max-column'
+This raises scan error if a sexp does not follow the point"
+  (save-excursion
+    (goto-char (scan-sexps (point) 1))
+    (<= (pyel-column-num) pyel-pp-max-column)))
+
+(defun pyel-pp-list-as-stack (&optional dont-stack-symbols)
+  "called with point on open paren.
+when finished the point will be after the closing paren
+if DONT-STACK-SYMBOLS is non-nil, keep non-lists on the same line
+ symbols and lists are never printed on the same line"
+  (let (beg end sym-without-newline)
+    (condition-case nil
+        (progn
+          (pyel-skip-whitespace)
+          (when (string= (char-at-point) "(")
+            ;;most move one forward to get into the list
+            (forward-char)
+            (while (not (pyel-at-closing-paren))
+              (pyel-skip-whitespace)
+              (setq beg (point))
+              (if (string= (char-at-point) "(")
+                  (progn
+                    (if sym-without-newline
+                        ;;last elem is not followed by a newline
+                        (pyel-pp-newline-and-indent))
+                    (goto-char (scan-sexps (point) 1))
+                    (setq end (pyel-column-num))
+                    (if (> end pyel-pp-max-column)
+                        (progn
+                          (goto-char beg)
+                          (pyel-print-as-stack dont-stack-symbols)
+                          (pyel-pp-newline-and-indent))
+                      ;;else: everything fits
+                      (pyel-pp-newline-and-indent))
+                    (setq sym-without-newline nil))
+                ;;else: we are at a non-list
+                (goto-char (scan-sexps (point) 1))
+                (if dont-stack-symbols
+                    (if (> (pyel-column-num) pyel-pp-max-column)
+                        ;;the list of symbols is getting to long
+                        (progn (goto-char beg)
+                               (pyel-pp-newline-and-indent))
+                      (setq sym-without-newline t))
+                  (pyel-pp-newline-and-indent)
+                  (setq sym-without-newline nil))))))
+      (scan-error nil)))
+  (when (pyel-at-closing-paren)
+    (pyel-skip-whitespace)
+    (forward-char)))
+
+(defun pyel-pp-function-call ()
+  "prettyprint a function call. must be called on a list of length 1 or greator
+the point must be one the opening paren or immediately after"
+  (condition-case nil
+      (if (pyel-sexp-fits-on-line-p)
+          ;;if it fits on the line, just skip over it
+          (goto-char (scan-sexps (point) 1))
+
+        (pyel-skip-whitespace)
+        (if (string= (char-at-point) "(")
+            ;;most move one forward to get into the function
+            ;;otherwise  assume that we are already in it
+            (forward-char))
+        (goto-char (scan-sexps (point) 1))
+        ;;now after the function name
+        (if (not (pyel-at-closing-paren))
+            ;;if there is room, keep the first arg on the same line
+            (if (pyel-sexp-fits-on-line-p)
+                (goto-char (scan-sexps (point) 1))))
+        ;;now print the rest of the args on separate lines
+        (while (not (pyel-at-closing-paren))
+          (pyel-pp-newline-and-indent)
+          (goto-char (scan-sexps (point) 1))))
+    (scan-error nil))
+  (when (pyel-at-closing-paren)
+    (pyel-skip-whitespace)
+    (forward-char)))
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar pyel-pp-newline-functions nil
   "list of functions that should have a newline inserted before them")
 
@@ -84,5 +189,8 @@
                 (cl--do-prettyprint))
               (forward-char 1))))
     (forward-sexp)))
+
+
+
 
 (provide 'pyel-pp)
