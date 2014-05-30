@@ -98,10 +98,10 @@ TODO: not all macro translations will work when  declared this way."
           (setq done nil)
           (while (not done)
             (goto-char 1)
-            (end-of-line) ;;the first already has whitespace removed
+            ;;(end-of-line) ;;the first already has whitespace removed
             (if (not (re-search-forward "^[^ \n]" nil :noerror))
                 (progn
-                  (goto-char 1) (end-of-line)
+                  (goto-char 1) ;;(end-of-line)
                   (while (re-search-forward "^ " nil :noerror)
                     (replace-match "")
                     (end-of-line)))
