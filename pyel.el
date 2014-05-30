@@ -237,6 +237,8 @@ useing python3 unless PYTHON2 is non-nil"
         pyel-method-transforms nil
         pyel-func-transforms nil
         pyel-func-transforms2 nil
+        pyel-marked-ast-pieces nil
+        pyel-ast-backtrace nil
         pyel-context nil))
 
 (defvar pyel-method-name-format-string "_%s-method%s"
