@@ -66,7 +66,7 @@ TODO: not all macro translations will work when  declared this way."
         (setq re (create-regex name))
         (goto-char 1)
         (while (and (re-search-forward re nil :no-error)
-                    (not (python-syntax-comment-or-string-p)))
+                    (not (save-match-data (python-syntax-comment-or-string-p))))
           (setq marker (pyel-create-new-marker)
                 line-start (line-number-at-pos))
           (replace-match marker)
