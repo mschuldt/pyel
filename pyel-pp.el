@@ -101,6 +101,55 @@ if STACK-SYMBOLS is non-nil, stack non-lists on different lines
     (pyel-skip-whitespace)
     (forward-char)))
 
+(defun pyel-pp-arglist ()
+  "print the list after point in an arglist style.
+called with point on open paren.
+when finished the point will be after the closing paren
+If there is room, the list is printed on the current line
+otherwise the list is stacked, if possible each of
+parameter type (&optional, &rest) gets its own line.
+extended arg type for the 'def' macro are supported"
+  (let ((end (save-excursion (pyel-jump-sexp) (point)))
+        (space (pyel-sexp-fits-on-line-p))
+        (type-re "&\\(optional\\|rest\\|kwonly\\|kwarg\\)")
+        (group-sizes (pyel-pp-get-arglist-group-size))
+        stack)
+    (if space
+        (pyel-jump-sexp)
+      ;;else: group the param types together
+      (pyel-enter-list)
+      (if (= (length group-sizes) 1)
+          ;;single type, just stack them
+          (dotimes (_ (pyel-sexp-n-left-in-list))
+            (pyel-jump-sexp)
+            (if (not (pyel-at-closing-paren))
+                (pyel-pp-newline-and-indent)))
+        ;;else: contains multiple parameter types
+
+        (while group-sizes
+          ;;for each group print it on the current line if it fits,
+          ;;otherwise stack it
+          (setq stack
+                (> (+ (pyel-column-num) (car group-sizes)) pyel-pp-max-column))
+          (if (looking-at type-re)
+              (progn
+                (pyel-jump-sexp)
+                (if stack
+                    (pyel-pp-newline-and-indent))))
+          (while (and (not (looking-at type-re))
+                      (not (pyel-at-closing-paren)))
+            (pyel-jump-sexp)
+            (if stack
+                (pyel-pp-newline-and-indent))
+            (pyel-skip-whitespace))
+          (if (and (not stack)
+                   (not (pyel-at-closing-paren)))
+              (pyel-pp-newline-and-indent))
+
+          (setq group-sizes (cdr group-sizes))))
+      (if (pyel-at-closing-paren)
+          (pyel-exit-list)))))
+
 (defun pyel-pp-function-call ()
   "prettyprint a function call. must be called on a list of length 1 or greator
 the point must be one the opening paren or immediately after"
