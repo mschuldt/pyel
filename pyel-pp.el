@@ -318,20 +318,21 @@ when finished the point will be after the closing paren"
            `(lambda ()
               (condition-case err
                   (progn
-                    (if (pyel-at-list-p)
-                        (pyel-enter-list))
+                    (when (pyel-at-list-p)
+                      (pyel-enter-list)
+                      (if (not (pyel-at-closing-paren))
+                          (pyel-jump-sexp)))
                     (setq start (point))
-                    (if (not (pyel-at-closing-paren))
-                        (pyel-jump-sexp))
-
+                    ;;point now after the function name
                     ,@(mapcar (lambda (x)
                                 `(if (not (pyel-at-closing-paren))
                                      ,(pyel-pp-get-print-fn x)))
                               args)
 
                     (while (not (pyel-at-closing-paren))
-                      (pyel-pp-newline-and-indent)
-                      (pyel-pp-sexp))
+                      (pyel-pp-sexp)
+                      (unless (pyel-at-closing-paren)
+                        (pyel-pp-newline-and-indent)))
                     (when (pyel-at-closing-paren)
                       (pyel-exit-list)))
                 (error ,(format "Error with prettyprinter for '%s'" name))))
