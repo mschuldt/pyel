@@ -55,6 +55,24 @@ assigned to `pyel-num-sexp-that-fit'"
 (defsubst pyel-at-list-p ()
   (looking-at "[ \t\n\r]*("))
 
+(defun pyel-pp-list-within-bounds ()
+  "return t if the current list is too long
+point may be before the list or anywhere inside it"
+  (save-excursion
+    (let ((ok t))
+      (if (pyel-at-list-p)
+          (pyel-enter-list))
+      (while (and (and (not (pyel-at-closing-paren))) ok)
+        (if (> (pyel-column-num) pyel-pp-max-column)
+            (setq ok nil)
+          (pyel-jump-sexp)))
+      ok)))
+
+(defun pyel-pp-newline-maybe ()
+  "newline if the rest of the current list is too long"
+  (if (not (pyel-pp-list-within-bounds))
+      (pyel-pp-newline-and-indent)))
+
 (defun pyel-pp-varlist (&optional stack-symbols)
   "print the list after point in a let varlist style.
 called with point on open paren.
@@ -252,6 +270,8 @@ when finished the point will be after the closing paren"
           ((or (eq x 'no-stack)
                (eq x 'max))
            '(pyel-pp-max-per-line))
+          ((eq x 'newline\?)
+           '(pyel-pp-newline-maybe))
           ((functionp x)
            (list x))
           ((symbolp x)
