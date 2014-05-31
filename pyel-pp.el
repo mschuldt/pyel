@@ -200,10 +200,12 @@ if the thing after point is not a list, skip over it"
 
 (defun pyel-pp-group-args (n)
   "prettyprint the function at point with N args per line
-if the N args don't fit on the line, stack them"
-  (if (pyel-at-list-p)
-      (pyel-enter-list))
-  (pyel-jump-sexp)
+if the N args don't fit on the line, stack them.
+May also be called with the point after the function name."
+  (when (pyel-at-list-p)
+    (pyel-enter-list)
+    (pyel-jump-sexp))
+
   ;;after the function name
   (while (eq (pyel-sexp-fits-on-line-p n) t)
     (pyel-jump-sexp n)
