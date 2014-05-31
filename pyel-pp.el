@@ -253,11 +253,14 @@ when finished, the point will be right before the closing paren"
     (pyel-jump-sexp))
 
   ;;after the function name
-  (while (eq (pyel-sexp-fits-on-line-p n) t)
-    (pyel-jump-sexp n)
+  (while (not (pyel-at-closing-paren))
+    (dotimes (_ n)
+      (unless (pyel-at-closing-paren)
+        (pyel-skip-whitespace)
+        (pyel-pp-sexp)))
     (unless (pyel-at-closing-paren)
       (pyel-pp-newline-and-indent)))
-  (pyel-pp-goto-end)
+  ;;(pyel-pp-goto-end)
   (if (and (pyel-at-closing-paren)
            (not dont-leave))
       (forward-char)))
