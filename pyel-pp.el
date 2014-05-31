@@ -15,17 +15,21 @@
 (defun pyel-pp-newline-and-indent ()
   "insert a newline at point, move to the beginning of next line and indent"
   (insert "\n")
-;;  (next-line)
-  ;(beginning-of-line)
   (indent-for-tab-command))
 
 (defvar pyel-num-sexp-that-fit 0
   "the number of sexpressions <= N that can fit on the line
    set by (pyel-sexp-fits-on-line-p N)")
 
+(defsubst pyel-jump-sexp (&optional n)
+  "jump over the next N s-expressions
+raises scan-error if that is not possible"
+  (default n 1)
+  (goto-char (scan-sexps (point) n)))
+
 (defun pyel-sexp-fits-on-line-p (&optional n)
   "return non-nil if the N sexps after point fits within the column
-restruction set by `pyel-pp-max-column'
+restriction set by `pyel-pp-max-column'
 N defaults to 1
 if there is less then N sexps after the point, the number is
 assigned to `pyel-num-sexp-that-fit'"
@@ -71,6 +75,52 @@ point must be inside the list"
             (setq ok nil)
           (pyel-jump-sexp)))
       (<= (pyel-column-num) pyel-pp-max-column))))
+
+(defun pyel-pp-get-sizes ()
+  "return a list of numbers corresponding to the printed
+length of each element in the list after the point.
+Must be called on or directly before the opening paren
+this only works on lists that are all printed on the same line"
+  (let ((lengths)
+        start)
+    (save-excursion
+      (if (pyel-at-list-p)
+          (pyel-enter-list))
+      (condition-case nil
+          (while t
+            (pyel-skip-whitespace)
+            (setq start (point))
+            (pyel-jump-sexp)
+            (push (- (point) start) lengths))
+        (scan-error (reverse lengths))))))
+
+(defun pyel-pp-get-arglist-group-size ()
+  (let ((lengths)
+        (type-re "&\\(optional\\|rest\\|kwonly\\|kwarg\\)")
+        start current)
+    (save-excursion
+      (if (pyel-at-list-p)
+          (pyel-enter-list))
+      (setq start (point))
+      (condition-case nil
+          (while t
+            (pyel-skip-whitespace)
+            (when (looking-at type-re)
+                  (push (- (point) start) lengths)
+                  (setq start (point)))
+            (pyel-jump-sexp))
+        (scan-error (reverse (cons (- (point) start) lengths)))))))
+
+(defun pyel-pp-max-point-in-list ()
+  (save-excursion
+    (condition-case nil
+        (while t
+          (pyel-jump-sexp))
+      (scan-error (point)))))
+
+(defsubst pyel-exit-list ()
+  (pyel-skip-whitespace)
+  (forward-char))
 
 (defun pyel-pp-newline-maybe ()
   "newline if the rest of the current list is too long"
