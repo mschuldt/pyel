@@ -124,9 +124,11 @@ if STACK-SYMBOLS is non-nil, stack non-lists on different lines
                         (progn
                           (goto-char beg)
                           (pyel-pp-varlist stack-symbols)
-                          (pyel-pp-newline-and-indent))
+                          (unless (pyel-at-closing-paren)
+                          (pyel-pp-newline-and-indent)))
                       ;;else: everything fits
-                      (pyel-pp-newline-and-indent))
+                      (unless (pyel-at-closing-paren)
+                          (pyel-pp-newline-and-indent)))
                     (setq sym-without-newline nil))
                 ;;else: we are at a non-list
                 (goto-char (scan-sexps (point) 1))
