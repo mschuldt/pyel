@@ -198,10 +198,12 @@ if the thing after point is not a list, skip over it"
             (forward-char)))
     (pyel-jump-sexp)))
 
-(defun pyel-pp-group-args (n)
+(defun pyel-pp-group-args (n &optional dont-leave)
   "prettyprint the function at point with N args per line
 if the N args don't fit on the line, stack them.
-May also be called with the point after the function name."
+May also be called with the point after the function name.
+If dont-leave is non-nil, do not exit current list,
+when finished, the point will be right before the closing paren"
   (when (pyel-at-list-p)
     (pyel-enter-list)
     (pyel-jump-sexp))
@@ -211,7 +213,8 @@ May also be called with the point after the function name."
     (pyel-jump-sexp n)
     (unless (pyel-at-closing-paren)
       (pyel-pp-newline-and-indent)))
-  (if (pyel-at-closing-paren)
+  (if (and (pyel-at-closing-paren)
+           (not dont-leave))
       (forward-char)))
 
 (defun pyel-pp-sexp ()
@@ -244,7 +247,8 @@ when finished the point will be after the closing paren"
            '(pyel-pp-varlist))
           ((string-match "^group-?\\([0-9]+\\)" s)
            (list 'pyel-pp-group-args
-                 (string-to-number (match-string 1 s))))
+                 (string-to-number (match-string 1 s))
+                 :dont-leave))
           ((or (eq x 'no-stack)
                (eq x 'max))
            '(pyel-pp-max-per-line))
