@@ -55,23 +55,47 @@ assigned to `pyel-num-sexp-that-fit'"
 (defsubst pyel-at-list-p ()
   (looking-at "[ \t\n\r]*("))
 
+(defsubst pyel-enter-list ()
+  (pyel-skip-whitespace)
+  (forward-char))
+
 (defun pyel-pp-list-within-bounds ()
   "return t if the current list is too long
-point may be before the list or anywhere inside it"
+point must be inside the list"
   (save-excursion
     (let ((ok t))
-      (if (pyel-at-list-p)
-          (pyel-enter-list))
+      ;; (if (pyel-at-list-p)
+      ;;     (pyel-enter-list))
       (while (and (and (not (pyel-at-closing-paren))) ok)
         (if (> (pyel-column-num) pyel-pp-max-column)
             (setq ok nil)
           (pyel-jump-sexp)))
-      ok)))
+      (<= (pyel-column-num) pyel-pp-max-column))))
 
 (defun pyel-pp-newline-maybe ()
   "newline if the rest of the current list is too long"
   (if (not (pyel-pp-list-within-bounds))
       (pyel-pp-newline-and-indent)))
+
+(defun pyel-pp-goto-end ()
+  "move to the end of the list. the point will be before the closing paren"
+  (while (not (pyel-at-closing-paren))
+    (pyel-jump-sexp)))
+
+(defsubst pyel-pp-line-maybe ()
+  "print the list on the current line if it fits. Otherwise do nothing"
+  (if (pyel-pp-list-within-bounds)
+      (pyel-pp-goto-end)))
+
+(defun pyel-pp-stack-rest ()
+  "stack the rest of this list
+the first element is left on the current line
+when done the point will be before the closing paren"
+  (if (not (pyel-at-closing-paren))
+      (pyel-jump-sexp))
+  (while (not (pyel-at-closing-paren))
+    (pyel-pp-newline-and-indent)
+    (pyel-jump-sexp)))
 
 (defun pyel-pp-varlist (&optional stack-symbols)
   "print the list after point in a let varlist style.
@@ -270,6 +294,8 @@ when finished the point will be after the closing paren"
           ((or (eq x 'no-stack)
                (eq x 'max))
            '(pyel-pp-max-per-line))
+          ((eq x 'line\?)
+           '(pyel-pp-line-maybe))
           ((eq x 'newline\?)
            '(pyel-pp-newline-maybe))
           ((functionp x)
