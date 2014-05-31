@@ -240,7 +240,7 @@ when finished the point will be after the closing paren"
            '(pyel-pp-arglist))
           ((eq x 'varlist)
            '(pyel-pp-varlist))
-          ((string-match "^group\\([0-9]+\\)" s)
+          ((string-match "^group-?\\([0-9]+\\)" s)
            (list 'pyel-pp-group-args
                  (string-to-number (match-string 1 s))))
           ((or (eq x 'no-stack)
