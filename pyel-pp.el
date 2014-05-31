@@ -257,6 +257,7 @@ when finished, the point will be right before the closing paren"
     (pyel-jump-sexp n)
     (unless (pyel-at-closing-paren)
       (pyel-pp-newline-and-indent)))
+  (pyel-pp-goto-end)
   (if (and (pyel-at-closing-paren)
            (not dont-leave))
       (forward-char)))
