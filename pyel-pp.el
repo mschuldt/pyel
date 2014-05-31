@@ -83,9 +83,14 @@ point must be inside the list"
     (pyel-jump-sexp)))
 
 (defsubst pyel-pp-line-maybe ()
-  "print the list on the current line if it fits. Otherwise do nothing"
-  (if (pyel-pp-list-within-bounds)
-      (pyel-pp-goto-end)))
+  "print the list on the current line if it fits. Otherwise do nothing
+if called from within a list this will leave the point before the closing paren
+if called with the point beore the opening paren, skip list entirely"
+  (if (and (pyel-at-list-p)
+           (pyel-sexp-fits-on-line-p))
+      (pyel-jump-sexp)
+    (if (pyel-pp-list-within-bounds)
+        (pyel-pp-goto-end))))
 
 (defun pyel-pp-stack-rest ()
   "stack the rest of this list
