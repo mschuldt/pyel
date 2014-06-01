@@ -426,86 +426,58 @@ when finished the point will be after the closing paren"
 (setq pyel-pp-newline-functions '("defun"
                                   "defmacro"
                                   "defclass"
-                                  "defmethod"))
+                                  "defmethod")
+
+      pyel-pp-newline-function-re (mapconcat (lambda (x)
+                                               (concat "(" x))
+                                             pyel-pp-newline-functions
+                                             "\\|"))
+
 
 (defun pyel-prettyprint (form)
-  "pretty print FORM using modified version of cl-prettyprint"
-
-  (let ((start (point))
-        end regex deleted-progn)
-
-    (flet ((cl--do-prettyprint ()
-                               (pyel--do-prettyprint))
-           (gen-regex () (mapconcat (lambda (x)
-                                      (concat "(" x))
-                                    pyel-pp-newline-functions
-                                    "\\|")))
-      (setq regex (gen-regex))
-      ;;do the modified cl-prettyprint
-      (cl-prettyprint form))
-    (setq end (point))
+  "Insert a pretty-printed rendition of a Lisp FORM in current buffer."
+  (let ((start (point)) last)
+    (insert "\n" (prin1-to-string form) "\n")
     (goto-char start)
+    (pyel-pp-sexp)
+    (setq last (point))
+    (goto-char start)
+
+    ;;fix quotes
+    (while (search-forward "(quote " last t)
+      (delete-char -8)
+      (insert "'")
+      (forward-sexp)
+      (delete-char 1)
+      (setq last (- last 8)))
+
+
     ;;remove the leading progn
-    ;;TODO: instead map cl--do-prettyprint over the list if first elem is progn
+    (goto-char start)
     (skip-chars-forward " \n")
-    (when (looking-at "(progn")
+    (when (looking-at "(progn ")
       (kill-word 1)
-      (setq deleted-progn t))
+      (goto-char (point-max))
+      (re-search-backward ")" nil :noerror)
+      (delete-char 1)
+      (setq last (- last 8)))
 
     ;;add spaces before important functions
-    (while (re-search-forward regex end :noerror)
+    (goto-char start)
+    (while (re-search-forward pyel-pp-newline-function-re last :noerror)
       (goto-char (match-beginning 0))
       (insert "\n")
+      (incf last)
       (goto-char (match-end 0)))
 
-    ;;delete last ')' if first progn was deleted
-    (if (re-search-backward ")" start :noerrror)
-        (delete-char 1)
-      (message "invalid syntax"))
-    ;;delete leading whitespace
-    (goto-char 1)
-    (skip-chars-forward " \n")
-    (kill-region 1 (point))
+    ;; ;;delete leading whitespace
+    ;; (goto-char 1)
+    ;; (skip-chars-forward " \n")
+    ;; (kill-region 1 (point))
 
-    ;;reindent everything ::Q why is it not perfect alread?
-    (indent-region (point-min) (point-max))
-    ))
-
-(defun pyel--do-prettyprint ()
-  "mostly stolen from  `cl--do-prettyprint'"
-  (skip-chars-forward " ")
-  (if (looking-at "(")
-      (let ((skip (or (looking-at "((") (looking-at "(prog")
-                      (looking-at "(unwind-protect ")
-                      (looking-at "(function (")
-                      (looking-at "(cl--block-wrapper ")))
-            (two (or (looking-at "(defclass ")
-                     (looking-at "(defun ")
-                     (looking-at "(defmacro ")
-                     (looking-at "(defmethod ")))
-
-            (let (or (looking-at "(let\\*? ")
-                     (looking-at "(while ")
-                     (looking-at "(save-excursion ")))
-            (set (looking-at "(p?set[qf] ")))
-        (if (or skip let
-                (progn
-                  (forward-sexp)
-                  (and (>= (current-column) 80) (progn (backward-sexp) t))))
-            (let ((nl t))
-              (forward-char 1)
-              (cl--do-prettyprint)
-              (or skip (looking-at ")") (cl--do-prettyprint))
-              (or (not two) (looking-at ")") (cl--do-prettyprint))
-              (while (not (looking-at ")"))
-                (if set (setq nl (not nl)))
-                (if nl (insert "\n"))
-                (lisp-indent-line)
-                (cl--do-prettyprint))
-              (forward-char 1))))
-    (forward-sexp)))
-
-
+    ;; ;;reindent everything
+    ;; (indent-region (point-min) (point-max))
+    (goto-char last)))
 
 
 (provide 'pyel-pp)
