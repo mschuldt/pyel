@@ -462,6 +462,7 @@ main
         ;;    (insert (funcall pyel-pp-function out))
         (lisp-interaction-mode)
         (pyel-prettyprint out)
+        (goto-char 1)
         ;;(emacs-lisp-mode)
         ))
   
