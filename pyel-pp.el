@@ -418,6 +418,11 @@ when finished the point will be after the closing paren"
 (define-pp cond newline?)
 (define-pp ignore-errors newline?)
 
+(define-pp def :name arglist arglist newline?)
+(define-pp define-class :name line? newline)
+(define-pp py-for :vars :in line? newline)
+(define-pp pyel-set group-2)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar pyel-pp-newline-functions nil
@@ -426,7 +431,9 @@ when finished the point will be after the closing paren"
 (setq pyel-pp-newline-functions '("defun"
                                   "defmacro"
                                   "defclass"
-                                  "defmethod")
+                                  "defmethod"
+                                  "define-class"
+                                  "def")
 
       pyel-pp-newline-function-re (mapconcat (lambda (x)
                                                (concat "(" x))
