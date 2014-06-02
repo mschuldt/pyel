@@ -1092,7 +1092,8 @@ d = (1,2,3,4)"
  range-function
  ("range(5)" '(0 1 2 3 4))
  ("range(2,7)" '(2 3 4 5 6))
- ("range(2,20,3)" '(2 5 8 11 14 17)))
+ ("range(2,20,3)" '(2 5 8 11 14 17))
+ ("xrange(2,20,3)" '(2 5 8 11 14 17)))
 
 (pyel-create-tests
  list-function

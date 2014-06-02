@@ -1102,7 +1102,8 @@ Recognizes keyword args in the form 'arg = value'."
                      (object) -> (call-method thing --len--)
                      (_)      -> (length thing))
 
-(push '(range py-range) pyel-function-name-translations)
+(pyel-translate-function-name 'range 'py-range)
+(pyel-translate-function-name 'xrange 'py-range)
 
 (pyel-translate-function-name 'input 'read-string)
 

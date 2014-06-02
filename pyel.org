@@ -5167,10 +5167,11 @@ This will help notify the user when some syntax has not been implemented
    ("len({1:'one', 2:'two'})" 2)
    )
 #+END_SRC
-** range
+** range, xrange
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (push '(range py-range) pyel-function-name-translations)
+  (pyel-translate-function-name 'range 'py-range)
+  (pyel-translate-function-name 'xrange 'py-range)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -5186,7 +5187,8 @@ This will help notify the user when some syntax has not been implemented
    range-function
    ("range(5)" '(0 1 2 3 4))
    ("range(2,7)" '(2 3 4 5 6))
-   ("range(2,20,3)" '(2 5 8 11 14 17)))
+   ("range(2,20,3)" '(2 5 8 11 14 17))
+   ("xrange(2,20,3)" '(2 5 8 11 14 17)))
 #+END_SRC
 ** input
 *** transform
