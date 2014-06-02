@@ -3913,19 +3913,19 @@ TODO: tests!
                              body decorator_list &optional line col)
     (let ((class-def-methods nil) ;; list of methods that are part of this class
           (class-def-slots nil) ;;list of slots that are part of this class
-          (class-def-name (transform name))
+          (class-def-name (_to- (transform name)))
           (t-bases (mapcar 'transform bases)))
       ;;transform body with the class-def context, the transformed code
       ;;will store its methods and slots in class-def-methods and class-def-slots
       ;;respectively.
       (when (context-p 'function-def)
-        (push name let-arglist)
+        (push class-def-name let-arglist)
         (push '__defined-in-function-body t-bases))
       (remove-context
        function-def
        (using-context class-def
                       (add-to-list 'pyel-defined-classes name)
-                      `(define-class ,name ,t-bases
+                      `(define-class ,class-def-name ,t-bases
                          ,@(mapcar 'transform body)
                          )))))
 #+END_SRC
