@@ -1575,6 +1575,11 @@ o2 = a(0,0)"
 o = a()"
   ("sum(o)" 15)))
 
+(pyel-create-tests
+ hash
+ ("hash(3)" 3)
+ ("hash('3')" 63))
+
 ;;
 
 (pyel-create-tests

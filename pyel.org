@@ -153,7 +153,7 @@ http://docs.python.org/2/library/functions.html
 | round        | x      | x     |                                          |
 | __import__   |        |       |                                          |
 | complex      |        |       |                                          |
-| hash         |        |       |                                          |
+| hash         | x      | x     |                                          |
 | min          |        |       |                                          |
 | set          |        |       |                                          |
 | apply        |        |       |                                          |
@@ -6594,6 +6594,18 @@ This will help notify the user when some syntax has not been implemented
     raise StopIteration
   o = a()"
     ("sum(o)" 15)))
+#+END_SRC
+** hash
+*** transform
+#+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-translate-function-name 'hash 'sxhash)
+#+END_SRC
+*** tests
+#+Begin_SRC emacs-lisp :tangle pyel-tests.el
+  (pyel-create-tests
+   hash
+   ("hash(3)" 3)
+   ("hash('3')" 63))
 #+END_SRC
 ** transform template
 *** transform
