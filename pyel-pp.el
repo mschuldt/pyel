@@ -442,7 +442,8 @@ when finished the point will be after the closing paren"
 
 (defun pyel-prettyprint (form)
   "Insert a pretty-printed rendition of a Lisp FORM in current buffer."
-  (let ((start (point)) last)
+  (let ((start (point))
+        last re-indent)
     (insert "\n" (prin1-to-string form) "\n")
     (goto-char start)
     (pyel-pp-sexp)
@@ -455,35 +456,38 @@ when finished the point will be after the closing paren"
       (insert "'")
       (forward-sexp)
       (delete-char 1)
-      (setq last (- last 8)))
-
+      (setq last (- last 8)
+            re-indent t))
 
     ;;remove the leading progn
     (goto-char start)
     (skip-chars-forward " \n")
-    (when (looking-at "(progn ")
+    (when (looking-at "(progn[ \n]")
       (kill-word 1)
       (goto-char last)
       (re-search-backward ")" nil :noerror)
       (delete-char 1)
-      (setq last (- last 8)))
+      (setq last (- last 8)
+            re-indent t))
 
-    ;;add spaces before important functions
-    (goto-char start)
-    (while (re-search-forward pyel-pp-newline-function-re last :noerror)
-      (goto-char (match-beginning 0))
-      (insert "\n")
-      (incf last)
-      (goto-char (match-end 0)))
+      ;;add spaces before important functions
+      (goto-char start)
+      (while (re-search-forward pyel-pp-newline-function-re last :noerror)
+        (goto-char (match-beginning 0))
+        (insert "\n")
+        (incf last)
+        (goto-char (match-end 0)))
 
-    ;; ;;delete leading whitespace
-    ;; (goto-char 1)
-    ;; (skip-chars-forward " \n")
-    ;; (kill-region 1 (point))
+      ;; ;;delete leading whitespace
+      ;; (goto-char 1)
+      ;; (skip-chars-forward " \n")
+      ;; (kill-region 1 (point))
 
-    ;; ;;reindent everything
-    ;; (indent-region (point-min) (point-max))
-    (goto-char last)))
+      ;; ;;reindent everything
+      ;; (indent-region (point-min) (point-max))
+      (goto-char last)
+      (if re-indent
+          (indent-region start last))))
 
 
 
