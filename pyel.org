@@ -1041,24 +1041,31 @@ This will have to be removed after the code is generated
 ** type inference
 #+Begin_SRC emacs-lisp :tangle pyel.el
   ;;this is all temp for testing
-  (setq known-types '((number object ) (number string)))
   
   ;;prevents error: "Wrong type argument: listp, string"
   ;;TODO: this is a bit of a mess now. types 'func' and 'function' in type
   ;;transforms result in different tests but func/function still kind of mean the
   ;;same thing when it comes to python. if func is known type, function should
   ;;also be know. need some kind of an alias mechanism
-  (setq known-types
-        '((number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)
-          (number list vector string object hash function func symbol vfunc class instance int float)))
+  (set (defvar pyel-possible-types nil
+         "list of all types a variable can take")
+         '(number
+           list
+           vector
+           string
+           object
+           hash
+           function
+           func
+           symbol
+           vfunc
+           class
+           instance
+           int
+           float))
+  
+  (setq known-types (mapcar (lambda (_) pyel-possible-types) (py-range 10)))
+        
   (push (list 'known-types known-types) test-variable-values)
   
   (defun pyel-get-possible-types (&rest args)
