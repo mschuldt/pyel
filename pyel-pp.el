@@ -377,7 +377,6 @@ when finished the point will be after the closing paren"
                       (pyel-enter-list)
                       (if (not (pyel-at-closing-paren))
                           (pyel-jump-sexp)))
-                    (setq start (point))
                     ;;point now after the function name
                     ,@(mapcar (lambda (x)
                                 `(if (not (pyel-at-closing-paren))
@@ -464,7 +463,7 @@ when finished the point will be after the closing paren"
     (skip-chars-forward " \n")
     (when (looking-at "(progn ")
       (kill-word 1)
-      (goto-char (point-max))
+      (goto-char last)
       (re-search-backward ")" nil :noerror)
       (delete-char 1)
       (setq last (- last 8)))
@@ -485,6 +484,7 @@ when finished the point will be after the closing paren"
     ;; ;;reindent everything
     ;; (indent-region (point-min) (point-max))
     (goto-char last)))
+
 
 
 (provide 'pyel-pp)
