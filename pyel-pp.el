@@ -478,10 +478,10 @@ when finished the point will be after the closing paren"
         (incf last)
         (goto-char (match-end 0)))
 
-      ;; ;;delete leading whitespace
-      ;; (goto-char 1)
-      ;; (skip-chars-forward " \n")
-      ;; (kill-region 1 (point))
+      ;;delete leading whitespace
+      (goto-char start)
+      (skip-chars-forward " \n")
+      (kill-region 1 (point))
 
       ;; ;;reindent everything
       ;; (indent-region (point-min) (point-max))
