@@ -850,25 +850,27 @@ ARG signature has no effect on the transform dispatch"
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
-         (fsym (intern (concat "pyel-"
-                               (symbol-name name) "-"
-                               (if is-kwarg-transform "kwarg-" "")
-                               "function"))))
+         (name-base (concat "pyel-"
+                            (symbol-name name) "-"
+                            (if is-kwarg-transform "kwarg-" "")
+                            "function")))
     `(def-transform ,(pyel-func-transform-name name is-kwarg-transform) pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches)))
-           (unless (member ',fsym pyel-defined-functions)
-             (push (list 'defmacro ',fsym ',striped-args
+                                             ',type-switches))
+               (name (intern (concat ,name-base
+                                     (number-to-string _pyel-type-sig)))))
+           (unless (member name pyel-defined-functions)
+             (push (list 'defmacro name ',striped-args
                          body)
                    pyel-function-definitions)
-             (push ',fsym pyel-defined-functions)
-             (fset ',fsym (lambda () nil)))
-           (cons ',fsym ,(if rest-arg
-                             `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                           (cons 'list args-just-vars))))))))
+             (push name pyel-defined-functions)
+             (fset name (lambda () nil)))
+           (cons name ,(if rest-arg
+                           `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
+                         (cons 'list args-just-vars))))))))
 
 (defvar pyel-func-transforms2 nil
   "list of functions whose translations are defined
