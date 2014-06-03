@@ -1363,6 +1363,13 @@ This will have to be removed after the code is generated
           (setq new (cons e new))))
       (reverse new)))
   
+  (defvar _pyel-type-sig 0
+    "set by `pyel-do-call-transform'. Its value uniquely describes
+  which types swiches where successful eliminated from the most
+  recent transform. It is a binary number ranging from 1 to 2^n, where n
+  is the number of type switches. Each digit corresponds to a type switch
+  (in order), a value of 1 indicates that the type switch was included.")
+    
   (defun pyel-do-call-transform (possible~types args type-switch)
     "This is responsible for  producing a call to NAME in the most
         efficient way possible with the known types"
@@ -1427,13 +1434,17 @@ This will have to be removed after the code is generated
            ;;                                   args~)))
   
            (c~ 0)
+           (n -1)
            valid~ ;;list of valid arg--types
            found~ all~good len~)
   
+      (setq _pyel-type-sig 0)
+      
       ;;collect all the arg-type--code pairs that are valid possibilities,
       ;;that is, members of possible~types.
       ;;This essentially throws out all the arg types that have been ruled out.
       (dolist (t~s (pyel-expand-type-switch-2 args~just~vars type-switch))
+        (incf n)
         (if (equal (car t~s) 'and)
             (progn (setq all~good t
                          found~ nil)
@@ -1444,16 +1455,18 @@ This will have to be removed after the code is generated
                            (setq found~ t)))
                      (setq all~good (if (and all~good found~) t nil)))
                    (when all~good
-                     (push t~s valid~)))
+                     (push t~s valid~)
+                     (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n)))))
           ;;else
           (if (eq (car t~s) t) ;;when all types are _
               (push t~s valid~)
             ;;otherwise check if the type is one of the valid types
   
-            (dolist(pos~type possible~types)
+            (dolist (pos~type possible~types)
               (when (and (equal (eval (caar t~s)) (car pos~type))
                          (equal (strip$ (cadar t~s)) (cdr pos~type)))
-                (push t~s valid~))))));;TODO: break if found?
+                (push t~s valid~);TODO: break if found?
+                (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n))))))));
   
       ;;generate code to call NAME
       ;;if there is 2 posible types, use IF. For more use COND
