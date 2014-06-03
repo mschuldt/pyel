@@ -264,11 +264,11 @@ Each element in ALIST must have for form (a . b)"
                             `(if (< (length __pyel_args) ,npositional)
                                  (signal 'TypeError (format ,(format "%s() takes at least %s arguments (%%s given)"
                                                                      name npositional)
-                                                            (+ __pyel_kwargs-used __pyel_len))))
+                                                            (length __pyel_args))))
                           `(if (not (= (length __pyel_args) ,npositional))
                                (signal 'TypeError (format ,(format "%s() takes exactly %s arguments (%%s given)"
                                                                    name npositional)
-                                                          (+ __pyel_kwargs-used __pyel_len)))))
+                                                          (length __pyel_args)))))
                        
                        ,@(mapcar (lambda (arg-value) ;;set kwarg defaults
                                    (list 'setq (car arg-value)
