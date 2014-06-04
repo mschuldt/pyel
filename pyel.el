@@ -781,6 +781,13 @@ during interactive emacs-lisp sessions where possible")
       (if (setq parent (pyel-env-get-parent env))
           (pyel-env-get sym parent)))))
 
+(defvar pyel-global-type-env (pyel-make-type-env)
+  "global type environment used for type Reconstruction")
+
+(defmacro pyel-return-type (function types)
+  "declare return type for FUNCTION. TYPES is a symbol or list of possible types"
+  `(pyel-env-set (quote ,function) (quote ,types) pyel-global-type-env))
+
 (defun pyel-filter-non-args(args)
   "remove '&optional' and '&rest' from ARGS list"
   (filter (lambda (x) (not (or (eq x '&optional)

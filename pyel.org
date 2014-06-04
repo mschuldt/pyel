@@ -1116,6 +1116,13 @@ This will have to be removed after the code is generated
         (if (setq parent (pyel-env-get-parent env))
             (pyel-env-get sym parent)))))
   
+  (defvar pyel-global-type-env (pyel-make-type-env)
+    "global type environment used for type Reconstruction")
+  
+  (defmacro pyel-return-type (function types)
+    "declare return type for FUNCTION. TYPES is a symbol or list of possible types"
+    `(pyel-env-set (quote ,function) (quote ,types) pyel-global-type-env))
+  
 #+end_src
 ** type dispatching transforms
 #+Begin_SRC emacs-lisp :tangle pyel.el
