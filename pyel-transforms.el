@@ -1107,7 +1107,7 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'input 'read-string)
 
-(defalias 'py-list 'pyel-list-function)
+(defalias 'py-list 'pyel-list-function31)
 (pyel-func-transform list (object)
                      (string) -> (py-string-to-list object)
                      (object) -> (py-object-to-list object)
