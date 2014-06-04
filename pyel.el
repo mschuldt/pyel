@@ -860,6 +860,9 @@ ARG signature has no effect on the transform dispatch"
                                               ,@args-just-vars)
                                              ',args
                                              ',type-switches))
+               ;;NOTE: if the way this name is constructed changes,
+               ;; the aliases for py-list, pyel-str-function,
+               ;; and pyel-repr-function will have to be updated.
                (name (intern (concat ,name-base
                                      (number-to-string _pyel-type-sig)))))
            (unless (member name pyel-defined-functions)

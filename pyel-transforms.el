@@ -6,6 +6,8 @@
 ;; should not fset functions because the effect takes place globally
 ;; even when the name being set is let bound.
 (pyel-dispatch-func set (_sym _val)
+                    ;;NOTE: if is changed, `setter-functions' 
+                    ;; may need to be updated
                     (_ $function) -> (setq $sym $$val)
                     (_ _) -> (setq $sym $val)) ;;TODO: other?
 
