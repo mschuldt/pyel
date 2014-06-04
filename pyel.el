@@ -734,6 +734,7 @@ during interactive emacs-lisp sessions where possible")
       
 (push (list 'known-types known-types) test-variable-values)
 
+
 (defun pyel-get-possible-types (&rest args)
   "return a list in the form (arg types).
   The car is the argument and the cdr is a list of possible types"
@@ -747,6 +748,38 @@ during interactive emacs-lisp sessions where possible")
 
     (mapcar* (lambda (arg type) (cons arg type))
              args types)))
+
+;;type environment definition
+;;fields:
+;; parent: another environment
+;; ht: a hash table that maps symbols to lists of types
+(defconst pyel-env-array-len 2)
+(defconst pyel-env-parent 0)
+(defconst pyel-env-ht 1)
+
+(defun pyel-make-type-env (&optional parent)
+  (let ((a (vconcat (make-list pyel-env-array-len 0))))
+    (aset a pyel-env-parent parent)
+    (aset a pyel-env-ht (make-hash-table :test 'eq))
+    a))
+
+(defsubst pyel-env-get-ht (env)
+  (aref env pyel-env-ht))
+(defsubst pyel-env-get-parent (env)
+  (aref env pyel-env-parent))
+(defsubst pyel-env-set (sym val env)
+  (puthash sym val (pyel-env-get-ht env)))
+(defsubst pyel-env-set-parent (env parent)
+  (aset env pyel-env-parent parent))
+
+(defun pyel-env-get (sym env)
+  "return a list of possible types for SYM in ENVironment"
+  (let ((val (gethash sym (pyel-env-get-ht env)))
+        parent)
+    (if val
+        val
+      (if (setq parent (pyel-env-get-parent env))
+          (pyel-env-get sym parent)))))
 
 (defun pyel-filter-non-args(args)
   "remove '&optional' and '&rest' from ARGS list"
