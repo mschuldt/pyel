@@ -774,22 +774,28 @@ NOTE: if the name of the function to be created is already in
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
-                       (car (last striped-args)) nil)))
+                       (car (last striped-args)) nil))
+         (name-base (concat "pyel-" (symbol-name name) ""))
+         ;;(fsym (intern (concat "pyel-" (symbol-name name) "")))
+         )
 
     `(def-transform ,name pyel ()
        (lambda ,striped-args
-         (let ((fsym ',(intern (concat "pyel-" (symbol-name name) "")))
-               (body (pyel-do-call-transform (pyel-get-possible-types
+         (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches))) 
-           (unless (member fsym pyel-defined-functions)
-             (push (list 'defmacro fsym ',striped-args
+                                             ',type-switches))
+               (_pyel_name (intern (concat ,name-base
+                                     (number-to-string _pyel-type-sig))))
+               ;;(_pyel_name (intern ,name-base ))
+               )
+           (unless (member _pyel_name pyel-defined-functions)
+             (push (list 'defmacro _pyel_name ',striped-args
                          body)
                    pyel-function-definitions)
-             (push fsym pyel-defined-functions)
-             (fset fsym (lambda () nil)))
-           (cons fsym ,(if rest-arg
+             (push _pyel_name pyel-defined-functions)
+             (fset _pyel_name (lambda () nil)))
+           (cons _pyel_name ,(if rest-arg
                            `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                          (cons 'list args-just-vars))))))))
 
@@ -808,9 +814,9 @@ matches NAME and has the proper arg length then no transform will be called."
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
-         (fsym (intern (format "pyel-%s-method%s"
-                               (symbol-name name)
-                               (pyel-arglist-signature args))))
+         (name-base (format "pyel-%s-method%s"
+                            (symbol-name name)
+                            (pyel-arglist-signature args)))
          (transform-name (pyel-method-transform-name name (list args))))
 
     (pyel-add-method-name-sig name args)
@@ -820,15 +826,17 @@ matches NAME and has the proper arg length then no transform will be called."
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,@args-just-vars)
                                              ',args
-                                             ',type-switches))) 
+                                             ',type-switches))
+               (_pyel_name (intern (concat ,name-base
+                                     (number-to-string _pyel-type-sig)))))
 
-           (unless (member ',fsym pyel-defined-functions)
-             (push (list 'defmacro ',fsym ',striped-args
+           (unless (member _pyel_name pyel-defined-functions)
+             (push (list 'defmacro _pyel_name ',striped-args
                          body)
                    pyel-function-definitions)
-             (push ',fsym pyel-defined-functions)
-             (fset ',fsym (lambda () nil)))
-           (cons ',fsym ,(if rest-arg
+             (push _pyel_name pyel-defined-functions)
+             (fset _pyel_name (lambda () nil)))
+           (cons _pyel_name ,(if rest-arg
                              `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                            (cons 'list args-just-vars))))))))
 
