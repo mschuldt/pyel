@@ -5419,6 +5419,9 @@ This will help notify the user when some syntax has not been implemented
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform str (thing)
+                       ;; if any of these cases are added/removed,
+                       ;; the 'pyel-str-function' alias will
+                       ;; need to be updated 
                        (number) -> (number-to-string thing)
                        (string) -> (format "\"%s\"" thing)
                        (function) -> (py-function-str thing)
@@ -5427,7 +5430,7 @@ This will help notify the user when some syntax has not been implemented
                        (vector) -> (py-vector-str thing)
                        (hash) -> (py-hash-str thing)
                        (symbol) -> (symbol-name thing))
-
+  
   (pyel-translate-function-name 'str 'pyel-str)
 #+END_SRC
 *** python el lib
@@ -5478,6 +5481,8 @@ This will help notify the user when some syntax has not been implemented
   
       (concat "{" (mapconcat 'identity (reverse str) ", ") "}")))
   
+  
+  
   ;;temp fix for 'str' transform
   ;;The problem:
   ;; cannot pass a function name to the str transform because the tranform
@@ -5495,13 +5500,20 @@ This will help notify the user when some syntax has not been implemented
       (list 'pyel-str-function thing)))
   
   ;;Currently, the repr and str transforms are not not called directly
-  ;;so they never have the change to expand.
+  ;;so they never have the chance to expand.
   ;;The expanded functions are used so we force expansion here.
   ;;required functions are `pyel-str-function' and `pyel-repr-function'
   ;;;NOTE: this is also done in `pyel-run-tests'
   (let ((current-transform-table (get-transform-table 'pyel)))
     (call-transform (pyel-func-transform-name 'repr) nil)
     (call-transform (pyel-func-transform-name 'str) nil))
+  
+  ;;The transform now outputs macros unique to the known types
+  ;;if the type cases are changed in the 'str' or 'repr' transforms
+  ;;these aliases will need to be updated
+  (defalias 'pyel-str-function 'pyel-str-function255)
+  (defalias 'pyel-repr-function 'pyel-repr-function255)
+
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -5538,6 +5550,9 @@ This will help notify the user when some syntax has not been implemented
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform repr (thing)
+                       ;; if any of these cases are added/removed,
+                       ;; the 'pyel-repr-function' alias will
+                       ;; need to be updated (in str transform section)
                        (number) -> (number-to-string thing)
                        (string) -> (py-repr-string thing)
                        (function) -> (py-function-str thing)
@@ -5546,7 +5561,7 @@ This will help notify the user when some syntax has not been implemented
                        (object) -> (call-method thing --repr--)
                        (vector) -> (py-vector-str thing)
                        (hash) -> (py-hash-str thing))
-
+  
   (pyel-translate-function-name 'repr 'pyel-repr)
 #+END_SRC
 *** python el lib

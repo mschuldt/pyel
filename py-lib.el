@@ -716,6 +716,8 @@ EXC must be derived from BaseException"
 
     (concat "{" (mapconcat 'identity (reverse str) ", ") "}")))
 
+
+
 ;;temp fix for 'str' transform
 ;;The problem:
 ;; cannot pass a function name to the str transform because the tranform
@@ -733,13 +735,19 @@ EXC must be derived from BaseException"
     (list 'pyel-str-function thing)))
 
 ;;Currently, the repr and str transforms are not not called directly
-;;so they never have the change to expand.
+;;so they never have the chance to expand.
 ;;The expanded functions are used so we force expansion here.
 ;;required functions are `pyel-str-function' and `pyel-repr-function'
 ;;;NOTE: this is also done in `pyel-run-tests'
 (let ((current-transform-table (get-transform-table 'pyel)))
   (call-transform (pyel-func-transform-name 'repr) nil)
   (call-transform (pyel-func-transform-name 'str) nil))
+
+;;The transform now outputs macros unique to the known types
+;;if the type cases are changed in the 'str' or 'repr' transforms
+;;these aliases will need to be updated
+(defalias 'pyel-str-function 'pyel-str-function255)
+(defalias 'pyel-repr-function 'pyel-repr-function255)
 
 ;;temp function. see `pyel-str' for details
 (defmacro pyel-repr (thing)

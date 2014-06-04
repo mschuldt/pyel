@@ -1127,6 +1127,9 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-translate-function-name 'isinstance 'obj-isinstance)
 
 (pyel-func-transform str (thing)
+                     ;; if any of these cases are added/removed,
+                     ;; the 'pyel-str-function' alias will
+                     ;; need to be updated 
                      (number) -> (number-to-string thing)
                      (string) -> (format "\"%s\"" thing)
                      (function) -> (py-function-str thing)
@@ -1139,6 +1142,9 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-translate-function-name 'str 'pyel-str)
 
 (pyel-func-transform repr (thing)
+                     ;; if any of these cases are added/removed,
+                     ;; the 'pyel-repr-function' alias will
+                     ;; need to be updated (in str transform section)
                      (number) -> (number-to-string thing)
                      (string) -> (py-repr-string thing)
                      (function) -> (py-function-str thing)
