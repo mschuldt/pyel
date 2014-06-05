@@ -171,8 +171,8 @@
 
 (def-transform num pyel ()
   (lambda (n &optional line col)
-    (if (context-p 'return-value?)
-        (setq return-value 'number))
+    (if (context-p 'return-type?)
+        (setq return-type 'number))
     n))
 
 (def-transform name pyel ()
@@ -183,7 +183,7 @@
   (let ((new-id)
         (id (read id))
         piece code
-        value return-value)
+        value return-type)
 
     ;;TODO: id should be string. verify?
     (setq ctx (cond ((context-p 'force-load) 'load)
@@ -206,8 +206,8 @@
                  (not (equal ctx 'load)))
         (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
           ctx = %s" ctx)))
-      (if (context-p 'return-value?)
-          (setq return-value (pyel-env-get id type-env)))
+      (if (context-p 'return-type?)
+          (setq return-type (pyel-env-get id type-env)))
       
       (when (and (not (context-p 'function-call))
                  (not (context-p 'get-annotation))
@@ -223,9 +223,9 @@
        ((eq ctx 'load) id)
        ((eq ctx 'store)  (if (context-p 'for-loop-target)
                              id
-                           (setq value (using-context return-value?
+                           (setq value (using-context return-type?
                                                       (transform assign-value)))
-                           (pyel-env-set id return-value type-env)
+                           (pyel-env-set id return-type type-env)
                            (call-transform-no-trans 'set id value)))
        (t  "<ERROR: name>"))
       )))
@@ -235,8 +235,8 @@
     (pyel-list elts ctx line col)))
 
 (defun pyel-list (elts ctx &optional line col)  ;;IGNORING CTX
-  (if (context-p 'return-value?)
-          (setq return-value 'list))
+  (if (context-p 'return-type?)
+          (setq return-type 'list))
   (if (context-p 'macro-call)
       (mapcar 'transform elts)
     (cons 'list (mapcar 'transform elts))))
@@ -248,8 +248,8 @@
     (pyel-dict keys values line col)))
 
 (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
-  (if (context-p 'return-value?)
-          (setq return-value 'hash))
+  (if (context-p 'return-type?)
+          (setq return-type 'hash))
   (cons 'py-dict (mapcar* (lambda (key value)
                             (list key value))
                           (mapcar 'transform  keys)
@@ -257,8 +257,8 @@
 
 (def-transform tuple pyel ()
   (lambda (elts ctx &optional line col) ;;Ignoring ctx for now
-    (if (context-p 'return-value?)
-        (setq return-value 'vector))
+    (if (context-p 'return-type?)
+        (setq return-type 'vector))
     (cons 'vector (mapcar 'transform elts))))
 
 (def-transform str pyel ()
@@ -462,8 +462,8 @@
              ;;normal function call
              ;;`(,t-func ,@(mapcar 'transform args))
              ;;TODO: this is dumb, convert `call-transform' to a macro?
-            (t (if (context-p 'return-value?)
-                   (setq return-value (pyel-env-get t-func type-env)))
+            (t (if (context-p 'return-type?)
+                   (setq return-type (pyel-env-get t-func type-env)))
                (eval `(call-transform 'fcall ,@(cons 't-func
                                                      (mapcar (lambda (x)
                                                                `(quote ,x))
