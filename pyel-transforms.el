@@ -206,6 +206,7 @@
           ctx = %s" ctx)))
 
       (when (and (not (context-p 'function-call))
+                 (not (context-p 'get-annotation))
                  (setq new-id (assoc id pyel-variable-name-translations)))
         (setq id (cadr new-id)))
 
@@ -524,8 +525,11 @@
                             defaults kw_defaults)
   ;;TODO: other args
 
-  (let* ((args (mapcar 'transform args))
-         (defaults (mapcar 'transform defaults)))
+  (let* ((_args args);;save for annotations
+         (args (mapcar 'transform args))
+         (positional args)
+         (defaults (mapcar 'transform defaults))
+         annotations)
 
     ;;&optional
     (when defaults
@@ -555,11 +559,22 @@
     (when kwarg
       (setq args (append args (list '&kwarg kwarg))))
 
+    ;;type annotations
+    (if (context-p 'function-def)
+        (mapcar* (lambda (arg type)
+                   ;;TODO: verify correct type
+                   (pyel-env-set arg type type-env))
+                 positional
+                 (using-context get-annotation
+                                (mapcar 'transform _args))))
     args))
 
 (def-transform arg pyel ()
-  (lambda (arg annotation) ;;Ignoring annotation
-    (read arg)))
+  (lambda (arg annotation)
+    (setq _x annotation)
+    (if (context-p 'get-annotation)
+        (transform annotation)
+      (read arg))))
 
 (def-transform def pyel ()
   (lambda (name args body decoratorlist returns &optional line col)
@@ -578,7 +593,10 @@
     (when (context-p 'function-def)
       (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
 
-    (let* ((func 'def)
+    (let* ((type-env (pyel-make-type-env type-env))
+           ;;NOTE: the 'arguments' transform is responsible for setting
+           ;;the type values of the parameters in this new 'type-env'
+           (func 'def)
            t-body
            arglist
            first
@@ -600,7 +618,7 @@
            (decorators (mapcar 'transform decoratorlist))
            setq-code
            )
-
+      (setq _env type-env)
       (when (or (context-p 'lambda-def)
                 (and inner-defun
                      (not (member '&kwarg args))))
