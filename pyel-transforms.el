@@ -171,8 +171,9 @@
 
 (def-transform num pyel ()
   (lambda (n &optional line col)
-    n 
-    ))
+    (if (context-p 'return-value?)
+        (setq return-value 'number))
+    n))
 
 (def-transform name pyel ()
   (lambda (id ctx &optional line col)
@@ -204,7 +205,9 @@
                  (not (equal ctx 'load)))
         (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
           ctx = %s" ctx)))
-
+      (if (context-p 'return-value?)
+          (setq return-value (pyel-env-get id type-env)))
+      
       (when (and (not (context-p 'function-call))
                  (not (context-p 'get-annotation))
                  (setq new-id (assoc id pyel-variable-name-translations)))
@@ -228,6 +231,8 @@
     (pyel-list elts ctx line col)))
 
 (defun pyel-list (elts ctx &optional line col)  ;;IGNORING CTX
+  (if (context-p 'return-value?)
+          (setq return-value 'list))
   (if (context-p 'macro-call)
       (mapcar 'transform elts)
     (cons 'list (mapcar 'transform elts))))
@@ -239,6 +244,8 @@
     (pyel-dict keys values line col)))
 
 (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
+  (if (context-p 'return-value?)
+          (setq return-value 'hash))
   (cons 'py-dict (mapcar* (lambda (key value)
                             (list key value))
                           (mapcar 'transform  keys)
@@ -246,6 +253,8 @@
 
 (def-transform tuple pyel ()
   (lambda (elts ctx &optional line col) ;;Ignoring ctx for now
+    (if (context-p 'return-value?)
+        (setq return-value 'vector))
     (cons 'vector (mapcar 'transform elts))))
 
 (def-transform str pyel ()
@@ -449,13 +458,15 @@
              ;;normal function call
              ;;`(,t-func ,@(mapcar 'transform args))
              ;;TODO: this is dumb, convert `call-transform' to a macro?
-             (t (eval `(call-transform 'fcall ,@(cons 't-func
-                                                      (mapcar (lambda (x)
-                                                                `(quote ,x))
-                                                              (append args
-                                                                      (mapcar 'car
-                                                                              keywords))
-                                                              )))))))))
+            (t (if (context-p 'return-value?)
+                   (setq return-value (pyel-env-get t-func type-env)))
+               (eval `(call-transform 'fcall ,@(cons 't-func
+                                                     (mapcar (lambda (x)
+                                                               `(quote ,x))
+                                                             (append args
+                                                                     (mapcar 'car
+                                                                             keywords))
+                                                             )))))))))
 
 (def-transform while pyel ()
   (lambda (test body orelse &optional line col)
