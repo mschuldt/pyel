@@ -258,9 +258,10 @@
 
 (def-transform tuple pyel ()
   (lambda (elts ctx &optional line col) ;;Ignoring ctx for now
-    (if (context-p 'return-type?)
-        (setq return-type 'vector))
-    (cons 'vector (mapcar 'transform elts))))
+    (let ((transformed (mapcar 'transform elts)))
+      (if (context-p 'return-type?)
+          (setq return-type 'vector))
+      (cons 'vector transformed))))
 
 (def-transform str pyel ()
   (lambda (s &optional line col)
