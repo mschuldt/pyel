@@ -183,7 +183,7 @@
   (let ((new-id)
         (id (read id))
         piece code
-        value return-type)
+        value)
 
     ;;TODO: id should be string. verify?
     (setq ctx (cond ((context-p 'force-load) 'load)
