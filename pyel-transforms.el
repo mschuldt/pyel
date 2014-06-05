@@ -235,11 +235,12 @@
     (pyel-list elts ctx line col)))
 
 (defun pyel-list (elts ctx &optional line col)  ;;IGNORING CTX
-  (if (context-p 'return-type?)
-          (setq return-type 'list))
-  (if (context-p 'macro-call)
-      (mapcar 'transform elts)
-    (cons 'list (mapcar 'transform elts))))
+  (let ((transformed (mapcar 'transform elts)))
+    (if (context-p 'return-type?)
+        (setq return-type 'list))
+    (if (context-p 'macro-call)
+        transformed
+      (cons 'list transformed))))
 
 (defvar pyel-dict-test 'equal "Test function for dictionaries")
 

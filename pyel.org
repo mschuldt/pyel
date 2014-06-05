@@ -2302,11 +2302,12 @@ This is for all non template specific code.
       (pyel-list elts ctx line col)))
   
   (defun pyel-list (elts ctx &optional line col)  ;;IGNORING CTX
-    (if (context-p 'return-type?)
-            (setq return-type 'list))
-    (if (context-p 'macro-call)
-        (mapcar 'transform elts)
-      (cons 'list (mapcar 'transform elts))))
+    (let ((transformed (mapcar 'transform elts)))
+      (if (context-p 'return-type?)
+          (setq return-type 'list))
+      (if (context-p 'macro-call)
+          transformed
+        (cons 'list transformed))))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
