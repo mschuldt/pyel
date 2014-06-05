@@ -88,7 +88,7 @@ These names will be set globally to their index in this list")
                     nil
                   (or bases '(object)))) ;;everything inherits from object
          ;;Python keeps the bases in a tuple
-         (bases (list-to-vector (mapcar (lambda (x)
+         (bases (vconcat (mapcar (lambda (x)
                                           (let ((base (eval x)))
                                             (if (py-class-p base)
                                                 base
@@ -567,7 +567,7 @@ BOUND-METHOD must test non-nil with `bound-method-p'"
   (setq args [])
 
   (def --init-- (self &rest args) ()
-       (setattr self args (list-to-vector args)))
+       (setattr self args (vconcat args)))
   (def --repr-- (self) ()
        (format "%s(%s)"
                (getattr self --name--)
