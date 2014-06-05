@@ -2410,8 +2410,9 @@ This is for all non template specific code.
   (def-transform str pyel ()
     (lambda (s &optional line col)
       ;;    (format "\"%s\"" s)
-      s
-      ))
+      (if (context-p 'return-type?)
+          (setq return-type 'string))
+      s))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py

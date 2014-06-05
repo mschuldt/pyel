@@ -266,8 +266,9 @@
 (def-transform str pyel ()
   (lambda (s &optional line col)
     ;;    (format "\"%s\"" s)
-    s
-    ))
+    (if (context-p 'return-type?)
+        (setq return-type 'string))
+    s))
 
 (def-transform compare pyel ()
   (lambda (left ops comparators &optional line col)
