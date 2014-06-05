@@ -619,15 +619,6 @@ main
                          (list ,value)
                          (subseq ,list  ,nth))))
   
-  (defun list-to-vector (list)
-    (let ((v (make-vector (length list) nil))
-          (i 0))
-      (while list
-        (aset v i (car list))
-        (setq list (cdr list)
-              i (1+ i)))
-      v))
-  
   (defun pyel-replace-in-thing (from to thing)
     "replace character FROM to TO in THING
   THING may be a symbol, string or list"
@@ -3032,7 +3023,7 @@ This is for all non template specific code.
         (setq args (append args (list '&rest vararg)))
         (when (and (not pyel-use-list-for-varargs)
                    (context-p 'function-def))
-          (push `(setq, vararg (list-to-vector ,vararg)) assign-defaults)))
+          (push `(setq, vararg (vconcat ,vararg)) assign-defaults)))
   
       ;;&kwonly
       (when kwonlyargs

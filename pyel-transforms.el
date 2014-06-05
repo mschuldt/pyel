@@ -561,7 +561,7 @@
       (setq args (append args (list '&rest vararg)))
       (when (and (not pyel-use-list-for-varargs)
                  (context-p 'function-def))
-        (push `(setq, vararg (list-to-vector ,vararg)) assign-defaults)))
+        (push `(setq, vararg (vconcat ,vararg)) assign-defaults)))
 
     ;;&kwonly
     (when kwonlyargs

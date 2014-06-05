@@ -296,15 +296,6 @@ value."
                        (list ,value)
                        (subseq ,list  ,nth))))
 
-(defun list-to-vector (list)
-  (let ((v (make-vector (length list) nil))
-        (i 0))
-    (while list
-      (aset v i (car list))
-      (setq list (cdr list)
-            i (1+ i)))
-    v))
-
 (defun pyel-replace-in-thing (from to thing)
   "replace character FROM to TO in THING
 THING may be a symbol, string or list"
