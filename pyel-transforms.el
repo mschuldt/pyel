@@ -182,7 +182,8 @@
 (defun pyel-name (id ctx &optional line col)
   (let ((new-id)
         (id (read id))
-        piece code)
+        piece code
+        value return-value)
 
     ;;TODO: id should be string. verify?
     (setq ctx (cond ((context-p 'force-load) 'load)
@@ -222,7 +223,10 @@
        ((eq ctx 'load) id)
        ((eq ctx 'store)  (if (context-p 'for-loop-target)
                              id
-                           (call-transform 'set id assign-value)))
+                           (setq value (using-context return-value?
+                                                      (transform assign-value)))
+                           (pyel-env-set id return-value type-env)
+                           (call-transform-no-trans 'set id value)))
        (t  "<ERROR: name>"))
       )))
 
