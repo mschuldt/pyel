@@ -398,6 +398,8 @@ main
                      (pyel-preprocess-buffer2)
                      (buffer-string)))
            (pyel-context nil)
+           (type-env pyel-global-type-env)
+           return-type
            line ret
            )
   
@@ -2026,6 +2028,7 @@ This is for all non template specific code.
     (let ((ctx (eval (car (last target))))
   
           (assign-value value))
+  
   
       ;;the target code is responsible for providing the correct assign function
       ;;

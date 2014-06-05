@@ -75,6 +75,8 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
                    (pyel-preprocess-buffer2)
                    (buffer-string)))
          (pyel-context nil)
+         (type-env pyel-global-type-env)
+         return-type
          line ret
          )
 
