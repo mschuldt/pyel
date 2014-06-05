@@ -1274,6 +1274,10 @@ if was called as (transform '(template-name args))
 NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
   (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
 
+(defun call-transform-no-trans (template-name &rest args)
+  "like call-transform, except that ARGS are not transformed"
+  (eval `(transform '(,template-name ,@args))))  
+
 (defun strip$ (sym)
   (let ((str (symbol-name sym)))
     (if (string-match "\\(^\\$\\)\\(.+\\)" str)
