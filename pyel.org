@@ -1063,7 +1063,7 @@ This will have to be removed after the code is generated
   (push (list 'known-types known-types) test-variable-values)
   
   
-  (defun pyel-get-possible-types (&rest args)
+  (defun pyel-get-possible-types (args)
     "return a list in the form (arg types).
     The car is the argument and the cdr is a list of possible types"
   
@@ -1168,7 +1168,7 @@ This will have to be removed after the code is generated
       `(def-transform ,name pyel ()
          (lambda ,striped-args
            (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                                ,@args-just-vars)
+                                                   ,(cons 'list args-just-vars))
                                                ',args
                                                ',type-switches))
                  (_pyel_name (intern (concat ,name-base
@@ -1210,7 +1210,7 @@ This will have to be removed after the code is generated
       `(def-transform ,transform-name pyel ()
          (lambda ,striped-args
            (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                                ,@args-just-vars)
+                                                ,(cons 'list args-just-vars))
                                                ',args
                                                ',type-switches))
                  (_pyel_name (intern (concat ,name-base
@@ -1251,7 +1251,7 @@ This will have to be removed after the code is generated
       `(def-transform ,(pyel-func-transform-name name is-kwarg-transform) pyel ()
          (lambda ,striped-args
            (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                                ,@args-just-vars)
+                                                ,(cons 'list args-just-vars))
                                                ',args
                                                ',type-switches))
                  ;;NOTE: if the way this name is constructed changes,
@@ -1295,7 +1295,7 @@ This will have to be removed after the code is generated
         This defines a transforms in the pyel transform table with NAME and ARGS"
     `(def-transform ,name pyel ()
        (lambda ,args
-         (pyel-do-call-transform (pyel-get-possible-types ,@args)
+         (pyel-do-call-transform (pyel-get-possible-types ,(cons 'list args))
                                  ',args
                                  ',type-switches))))
   
@@ -1307,7 +1307,7 @@ This will have to be removed after the code is generated
       This defines a transforms in the pyel transform table with NAME and ARGS"
     `(def-transform ,name pyel ()
        (lambda ,args
-         (pyel-do-call-transform (pyel-get-possible-types ,@args)
+         (pyel-do-call-transform (pyel-get-possible-types ,(cons 'list args))
                                  ',args
                                  ',type-switches))))
   
@@ -2056,8 +2056,8 @@ This is for all non template specific code.
   
       ;;The target transform is responsible for generating the code
       ;;The value being assigned to the target is available to the
-      ;;target transform via the variable assign-value.
-      ;;assign-value is untransformed, the target transform must tranform it
+      ;;target transform via the variable 'assign-value'.
+      ;;'assign-value' is untransformed, the target transform must tranform it.
   
       ;; (using-context assign-value
       ;;             (setq assign-value (transform value)))

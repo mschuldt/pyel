@@ -728,7 +728,7 @@ during interactive emacs-lisp sessions where possible")
 (push (list 'known-types known-types) test-variable-values)
 
 
-(defun pyel-get-possible-types (&rest args)
+(defun pyel-get-possible-types (args)
   "return a list in the form (arg types).
   The car is the argument and the cdr is a list of possible types"
 
@@ -830,7 +830,7 @@ NOTE: if the name of the function to be created is already in
     `(def-transform ,name pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                              ,@args-just-vars)
+                                                 ,(cons 'list args-just-vars))
                                              ',args
                                              ',type-switches))
                (_pyel_name (intern (concat ,name-base
@@ -872,7 +872,7 @@ matches NAME and has the proper arg length then no transform will be called."
     `(def-transform ,transform-name pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                              ,@args-just-vars)
+                                              ,(cons 'list args-just-vars))
                                              ',args
                                              ',type-switches))
                (_pyel_name (intern (concat ,name-base
@@ -913,7 +913,7 @@ ARG signature has no effect on the transform dispatch"
     `(def-transform ,(pyel-func-transform-name name is-kwarg-transform) pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                              ,@args-just-vars)
+                                              ,(cons 'list args-just-vars))
                                              ',args
                                              ',type-switches))
                ;;NOTE: if the way this name is constructed changes,
@@ -957,7 +957,7 @@ This is called at the same time `pyel-func-transform' would be called"
       This defines a transforms in the pyel transform table with NAME and ARGS"
   `(def-transform ,name pyel ()
      (lambda ,args
-       (pyel-do-call-transform (pyel-get-possible-types ,@args)
+       (pyel-do-call-transform (pyel-get-possible-types ,(cons 'list args))
                                ',args
                                ',type-switches))))
 
@@ -969,7 +969,7 @@ This is called at the same time `pyel-func-transform' would be called"
     This defines a transforms in the pyel transform table with NAME and ARGS"
   `(def-transform ,name pyel ()
      (lambda ,args
-       (pyel-do-call-transform (pyel-get-possible-types ,@args)
+       (pyel-do-call-transform (pyel-get-possible-types ,(cons 'list args))
                                ',args
                                ',type-switches))))
 
