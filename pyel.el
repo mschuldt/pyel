@@ -732,14 +732,18 @@ during interactive emacs-lisp sessions where possible")
   "return a list in the form (arg types).
   The car is the argument and the cdr is a list of possible types"
 
-  ;;FOR TESTING
-  (let ((types (if (>= (length known-types) (length args))
-                   known-types
-                 (append known-types '(string number list vector integer float))))
-        (args (filter (lambda (x) (not (or (eq x '&optional)
-                                           (eq x '&rest)))) args)))
+  (let* ((len-known (length known-types))
+         (len-args (length args))
+         (types (if (>= len-known len-args)
+                    known-types
+                  (append known-types
+                          (mapcar (lambda (_) pyel-possible-types)
+                                  (number-sequence 1 (- len-args len-known))))))
+         (args (filter (lambda (x) (not (or (eq x '&optional)
+                                            (eq x '&rest)))) args)))
 
-    (mapcar* (lambda (arg type) (cons arg type))
+    (mapcar* (lambda (arg type)
+               (cons arg type))
              args types)))
 
 ;;type environment definition
