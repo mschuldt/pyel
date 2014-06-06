@@ -1100,6 +1100,21 @@ This will have to be removed after the code is generated
   (defsubst pyel-env-set-parent (env parent)
     (aset env pyel-env-parent parent))
   
+  ;;function type
+  ;;  in type environments, function symbols get
+  ;;  mapped to these function types
+  (defsubst pyel-make-func-type (func-type arg-type return-type)
+    (vector func-type arg-type return-type))
+  (defsubst pyel-func-func-type (function-type)
+    (aref function-type 0))
+  (defsubst pyel-func-args-type (function-type)
+    (aref function-type 1))
+  (defsubst pyel-func-return-type (function-type)
+    (aref function-type 2))
+  (defsubst pyel-is-func-type (type)
+    (and (vectorp type) (= (length type) 3)))
+  
+  
   (defun pyel-env-get (sym env)
     "return a list of possible types for SYM in ENVironment"
     (let ((val (gethash sym (pyel-env-get-ht env)))
