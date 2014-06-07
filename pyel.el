@@ -1200,85 +1200,97 @@ is the number of type switches. Each digit corresponds to a type switch
     ;;if there is 2 posible types, use IF. For more use COND
     (setq len~ (length valid~))
 
-    (flet ((replace (code replacements)
-                    (let ((ret nil)
-                          found)
+    (cond ((<= len~ 0) "ERROR: no valid type")
+          ((= len~ 1)
+           (if (eq (caar valid~) 'and)
+               (caddar valid~)
+             ;;there is only one possibility, so replace the args with their quoted counterpart
+             ;;instead of replacing with the let bound vars
+             (list 'backquote (pyel-replace (cadar valid~) arg~quote~replacements))))
+          ;;?TODO: are there possible problems with evaluating the arguments
+          ;;       multiple times? Maybe they should be put in a list
+          (t (let* ((clauses (mapcar 'pyel-gen-cond-clause valid~))
+                    (clauses (if (eq (caar clauses) t)
+                                 clauses
+                               (cons
+                                '(t (error "invalid type, expected <TODO>"))
+                                clauses)))
+                    (varlist (pyel-gen-varlist)))
+               `(backquote ,(if varlist
+                                `(let ,varlist
+                                   (cond ,@(reverse clauses)))
+                              `(cond ,@(reverse clauses)))))))))
 
-                      (dolist (c code)
-                        (setq found nil)
-                        (dolist (r replacements)
-                          (if (consp c)
-                              (setq c (replace c replacements))
-                            (if (and (equal c (car r))
-                                     (not found))
-                                (progn (push (cadr r) ret)
-                                       (setq found t)))))
-                        (unless found
-                          (push c ret)))
-                      (reverse ret)))
+;;helper functions for pyel-do-call-transform
+(defun pyel-replace (code replacements)
+  (let ((ret nil)
+        found)
 
-           (type-tester (x) (cadr (assoc x pyel-type-test-funcs)))
-           (and-type-tester (x) (cadr (assoc (car x) pyel-type-test-funcs)))
-           (get-replacement (arg) ;;returns arg replacement
-                            (cadr (assoc arg current~replace~list)))
-           ;;bug fix maybe...
-           (get-replacement-OLD (arg) ;;returns arg replacement
-                                (or (cadr (assoc arg arg~replacements))
-                                    (cadr (assoc arg arg~replacements4))))
-           ;;replaces the vars, one type at a time
-           (replace-vars (code)
-                         (let* ((current-replace-list arg~replacements1)
-                                (code (replace code arg~replacements1))
-                                (current-replace-list arg~replacements2)
-                                (code (replace code arg~replacements2))
-                                (current-replace-list arg~replacements3))
-                           (replace code arg~replacements3)))
-           (gen-cond-clause (t-s--c) ;;Type-Switch--Code
-                            (if (equal (car t-s--c) 'and)
-                                (progn `((and ,@(mapcar '(lambda (x)
-                                                           ;;TODO: test
-                                                           `(,(type-tester (cadr x))
-                                                             ,(get-replacement-OLD
-                                                               (car x))))
-                                                        (cadr t-s--c)))
-                                         ,(replace-vars (caddr t-s--c))))
+    (dolist (c code)
+      (setq found nil)
+      (dolist (r replacements)
+        (if (consp c)
+            (setq c (pyel-replace c replacements))
+          (if (and (equal c (car r))
+                   (not found))
+              (progn (push (cadr r) ret)
+                     (setq found t)))))
+      (unless found
+        (push c ret)))
+    (reverse ret)))
 
-                              ;;TODO
-                              (progn (if (equal (car t-s--c) t) ;;all types where _
-                                         `(t ,(replace-vars (cadr t-s--c)))
-                                       (let* ((str (symbol-name (cadar t-s--c)))
-                                              (quote-arg-p (string-match-p "\\(^\\$\\)\\(.+\\)"
-                                                                           str))
-                                              (type (if quote-arg-p (intern (match-string 2 str)) (cadar t-s--c)))
-                                              (tester (type-tester type))
-                                              (body (replace-vars (cadr t-s--c)))
-                                              (arg (get-replacement-OLD (caar t-s--c))))
-                                         `((,tester ,(if quote-arg-p (list 'quote (list '\, (caar t-s--c))) arg))
-                                           ,body))))))
-           (gen-varlist ()
-                        (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
-                                let~vars)))
+(defsubst pyel-type-tester (x)
+  (cadr (assoc x pyel-type-test-funcs)))
 
-      (cond ((<= len~ 0) "ERROR: no valid type")
-            ((= len~ 1)
-             (if (eq (caar valid~) 'and)
-                 (caddar valid~)
-               ;;there is only one possibility, so replace the args with their quoted counterpart
-               ;;instead of replacing with the let bound vars
-               (list 'backquote (replace (cadar valid~) arg~quote~replacements))))
-            ;;?TODO: are there possible problems with evaluating the arguments
-            ;;       multiple times? Maybe they should be put in a list
-            (t (let* ((clauses (mapcar 'gen-cond-clause valid~))
-                      (clauses (if (eq (caar clauses) t)
-                                   clauses
-                                 (cons
-                                  '(t (error "invalid type, expected <TODO>"))
-                                  clauses)))
-                      (varlist (gen-varlist)))
-                 `(backquote ,(if varlist
-                                  `(let ,varlist
-                                     (cond ,@(reverse clauses)))
-                                `(cond ,@(reverse clauses))))))))))
+(defsubst pyel-and-type-tester (x)
+  (cadr (assoc (car x) pyel-type-test-funcs)))
+
+(defsubst pyel-get-replacement (arg) ;;returns arg replacement
+  (cadr (assoc arg current~replace~list)))
+
+;;bug fix maybe...
+(defsubst pyel-get-replacement-OLD (arg) ;;returns arg replacement
+  (or (cadr (assoc arg arg~replacements))
+      (cadr (assoc arg arg~replacements4))))
+
+;;replaces the vars, one type at a time
+(defun pyel-replace-vars (code)
+  (let* ((current-replace-list arg~replacements1)
+         (code (pyel-replace code arg~replacements1))
+         (current-replace-list arg~replacements2)
+         (code (pyel-replace code arg~replacements2))
+         (current-replace-list arg~replacements3))
+    (pyel-replace code arg~replacements3)))
+
+(defun pyel-gen-cond-clause (t-s--c) ;;Type-Switch--Code
+  (if (equal (car t-s--c) 'and)
+      (progn `((and ,@(mapcar '(lambda (x)
+                                 ;;TODO: test
+                                 `(,(pyel-type-tester (cadr x))
+                                   ,(pyel-get-replacement-OLD
+                                     (car x))))
+                              (cadr t-s--c)))
+               ,(pyel-replace-vars (caddr t-s--c))))
+
+    ;;TODO
+    (progn (if (equal (car t-s--c) t) ;;all types where _
+               `(t ,(pyel-replace-vars (cadr t-s--c)))
+             (let* ((str (symbol-name (cadar t-s--c)))
+                    (quote-arg-p (string-match-p "\\(^\\$\\)\\(.+\\)"
+                                                 str))
+                    (type (if quote-arg-p (intern (match-string 2 str)) (cadar t-s--c)))
+                    (tester (pyel-type-tester type))
+                    (body (pyel-replace-vars (cadr t-s--c)))
+                    (arg (pyel-get-replacement-OLD (caar t-s--c))))
+               `((,tester ,(if quote-arg-p (list 'quote (list '\, (caar t-s--c))) arg))
+                 ,body))))))
+
+(defsubst pyel-gen-varlist ()
+  (mapcar (lambda (x) `(,(cadr x) ,(list '\, (car x))))
+          let~vars))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun call-transform (template-name &rest args)
   "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
