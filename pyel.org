@@ -1066,8 +1066,12 @@ This will have to be removed after the code is generated
   (defun pyel-get-possible-types (args)
     "return a list in the form (arg types).
     The car is the argument and the cdr is a list of possible types"
-  
-    (let* ((len-known (length known-types))
+    
+    (let* ((known-types (mapcar (lambda (x) (if (null x)
+                                                pyel-possible-types
+                                              x))
+                                known-types))
+           (len-known (length known-types))
            (len-args (length args))
            (types (if (>= len-known len-args)
                       known-types
