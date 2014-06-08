@@ -267,7 +267,7 @@ def Print(dest, values, nl, lineno='nil', col_offset='nil'):
 
 
 
-print(eval(ast.dump(ast.parse(open(options[0],'r').read()))))
+print(eval(ast.dump(ast.parse(open(options[0],'r').read()),include_attributes=True)))
 
 #py-ast.py ends here
 

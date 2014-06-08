@@ -8542,7 +8542,7 @@ macros and macroish primitives
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-  print(eval(ast.dump(ast.parse(open(options[0],'r').read()))))
+  print(eval(ast.dump(ast.parse(open(options[0],'r').read()),include_attributes=True)))
   
   #py-ast.py ends here
 #+END_SRC
