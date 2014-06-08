@@ -311,7 +311,7 @@ put the following line in your config:
   ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 #+END_SRC
 ** python ast
-#+Begin_SRC python :tangle py-ast.py
+#+Begin_SRC python :shebang #!/usr/bin/python3 :tangle py-ast.py
   # This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 #+END_SRC
 
@@ -1925,6 +1925,12 @@ preprocessor expand separately
 This is for all non template specific code.
 #+Begin_SRC python :tangle py-ast.py
   import ast
+  import sys
+  
+  options = sys.argv[1:]
+  if len(options) != 1:
+      print("invalid usage")
+      exit()
   
   #TODO: use *args
   
@@ -8545,7 +8551,9 @@ macros and macroish primitives
 #+END_SRC
 ** python ast
 #+Begin_SRC python :tangle py-ast.py
-#py-ast.py ends here
+  print(eval(ast.dump(ast.parse(open(options[0],'r').read()))))
+  
+  #py-ast.py ends here
 #+END_SRC
 
 * ------------------

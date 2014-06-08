@@ -1,7 +1,14 @@
+#!/usr/bin/python3
 
 # This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
 import ast
+import sys
+
+options = sys.argv[1:]
+if len(options) != 1:
+    print("invalid usage")
+    exit()
 
 #TODO: use *args
 
@@ -259,6 +266,8 @@ def Print(dest, values, nl, lineno='nil', col_offset='nil'):
 
 
 
+
+print(eval(ast.dump(ast.parse(open(options[0],'r').read()))))
 
 #py-ast.py ends here
 
