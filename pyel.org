@@ -368,6 +368,8 @@ main
     "return the full file name of py-ast.el"
     (file-path-concat pyel-directory "py-ast.py"))
   
+  (setq pyel-tmp-file-counter (random (/ most-positive-fixnum 10)))
+  
   (defun pyel (python &optional no-line-and-col-nums include-defuns py-ast-only)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
@@ -385,41 +387,30 @@ main
   
     (setq pyel-last-python-code python)
   
-    (let* (;;Q general way of replacing backslashes?
-           (python (replace-regexp-in-string "\"" "\\\\\"" python))
-                                          ;(python (replace-regexp-in-string "\n" "\\\\n" python nil :literal))
-  
-           ;; (pyel "x = 'x\n'")
-           (py-ast "")
+    (let* ((py-ast "")
            (el-code "")
            (current-transform-table (get-transform-table 'pyel))
            (python (with-temp-buffer
                      (insert python)
                      (pyel-preprocess-buffer2)
                      (buffer-string)))
-           (pyel-context nil)
+           (pyel-context nil)         
            (type-env pyel-global-type-env)
-           return-type
-           line ret
-           )
+           (tmp-file (format "/tmp/pyel-%s.py" (incf pyel-tmp-file-counter)))
+           (ast-command (format "cd %s;./%s %s"
+                                pyel-directory
+                                "py-ast.py";(pyel-py-ast-file-name)
+                                tmp-file))
+           return-type line ret)
   
-      ;;?? setting the mark?
       (with-temp-buffer
-        ;;    (find-file file)
-        ;;    (erase-buffer)
-        (insert-file-contents-literally (pyel-py-ast-file-name))
-        (goto-char (point-max))
-        (insert "\n")
-        (setq line (line-number-at-pos))
-        (insert (format "print(eval(ast.dump(ast.parse(\"\"\"%s\"\"\")%s)))"
-                        python
-                        (if no-line-and-col-nums "" ",include_attributes=True")))
+        (insert python)
         (write-region
          nil
          nil
-         pyel-tmp-file nil 'silent))
+         tmp-file nil 'silent))
   
-      (setq py-ast (shell-command-to-string (format "python3 %s" pyel-tmp-file)))
+      (setq py-ast (shell-command-to-string ast-command))
       (setq _x py-ast)
       (if (setq py-error (pyel-is-error py-ast))
           (progn
