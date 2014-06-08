@@ -1419,7 +1419,7 @@ Recognizes keyword args in the form 'arg = value'."
                          (_)    -> (call-method obj items))
 
 (pyel-method-transform keys (obj)
-                           (hash) -> (pyel-dict-keys obj)
+                           (hash) -> (py-dict-keys obj)
                            (_)    -> (call-method obj key))
 
 (pyel-method-transform values (obj)

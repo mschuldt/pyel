@@ -7497,12 +7497,12 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform keys (obj)
-                             (hash) -> (pyel-dict-keys obj)
+                             (hash) -> (py-dict-keys obj)
                              (_)    -> (call-method obj key))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun pyel-dict-keys (dict)
+  (defun py-dict-keys (dict)
     (let (ret)
       (maphash (lambda (key value)
                  (push key ret))

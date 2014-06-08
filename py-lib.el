@@ -1428,7 +1428,7 @@ Return -1 on failure."
              dict)
     ret))
 
-(defun pyel-dict-keys (dict)
+(defun py-dict-keys (dict)
   (let (ret)
     (maphash (lambda (key value)
                (push key ret))
