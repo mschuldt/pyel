@@ -1111,13 +1111,17 @@ is the number of type switches. Each digit corresponds to a type switch
   ;; To avoid such conflicts, the let bound variables are all
   ;; defined with a tilde
 
-  (let* ((possible~types (let (ret arg)
+  (let* ((n~args (length possible~types))
+         (possible~types (let (ret arg)
                            ;;get entries in form (arg . type)
                            (dolist (p-t possible~types)
                              (setq arg (car p-t))
                              (dolist (type (cdr p-t))
                                (push (cons arg type) ret)))
                            ret))
+         ;;if there is one possible type for every arg then we don't
+         ;;need to use the default case
+         (use~default~p (not (= n~args (length possible~types))))
 
          (args~just~vars (pyel-filter-non-args (mapcar 'strip_ args)))
          (new~args (loop for a in args
@@ -1190,8 +1194,9 @@ is the number of type switches. Each digit corresponds to a type switch
                    (push t~s valid~)
                    (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n)))))
         ;;else
-        (if (eq (car t~s) t) ;;when all types are _
-            (push t~s valid~)
+        (if (eq (car t~s) t);when all types are _
+            (if use~default~p
+                (push t~s valid~))
           ;;otherwise check if the type is one of the valid types
 
           (dolist (pos~type possible~types)
