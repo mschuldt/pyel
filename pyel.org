@@ -6458,6 +6458,7 @@ This will help notify the user when some syntax has not been implemented
 #+END_SRC
 
 ** iter
+Iterators for built in types are defined in py-iter.py
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-func-transform iter (obj)
@@ -6478,16 +6479,6 @@ This will help notify the user when some syntax has not been implemented
        (py-raise (TypeError (format
                              "'%s' object is not iterable"
                              (getattr object --name--)))))))
-  
-  ;;TODO:
-  (defun py-list-iter (obj)
-    (error "Not Implemented"))
-  (defun py-string-iter (obj)
-    (error "Not Implemented"))
-  (defun py-vector-iter (obj)
-    (error "Not Implemented"))
-  (defun py-hash-iter (obj)
-    (error "Not Implemented"))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
