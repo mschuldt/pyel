@@ -2820,17 +2820,46 @@ This is for all non template specific code.
       (pyel-call-transform func args keywords starargs kwargs line col)))
   
   (defun pyel-call-transform (func args keywords starargs kwargs &optional line col)
-    (let ((t-func (using-context function-call
-                                 (transform func)))
+    (let ((t-func (using-context return-type?
+                                 (using-context function-call
+                                                (transform func))))
+          (function-type (progn 
+                           (if (pyel-is-func-type return-type)
+                               (setq return-type (pyel-func-func-type return-type)))
+                           (if (listp return-type)
+                               return-type 
+                             (list return-type))))
           (keyword-args (using-context keywords-alist
                                        (mapcar (lambda (x) (transform (car x)))
                                                keywords)))
-          new-func m-name f-name star-args kw-args)
+          (t-args (mapcar 'transform args))
+          (known-types known-types)
+          new-func m-name f-name star-args kw-args
+          )
+      
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
       ;;        (--init-- __c ,@(mapcar 'transform args))
       ;;        __c)
+  
+      (setq known-types
+            (mapcar (lambda (arg)
+                      (setq type (if (symbolp arg)
+                                     (pyel-env-get arg type-env)
+                                   (using-context return-type?
+                                                  (transform arg))
+                                   return-type))
+                      (if (pyel-is-func-type type)
+                          (setq type (pyel-func-return-type type)))
+                      (if (null type)
+                          ;;if type is not known, it could be anything
+                          (setq type pyel-possible-types))
+                      ;;type for each arg must be a list
+                      (if (listp type)
+                          type
+                        (list type)))
+                    args))
       
       (if (eq (car func) 'attribute);;method call
           (if (and (member (setq m-name (read (caddr func)))
@@ -2880,11 +2909,15 @@ This is for all non template specific code.
                                       (mapcar 'transform args)
                                       keyword-args)))
   
-               ;;normal function call
-               ;;`(,t-func ,@(mapcar 'transform args))
-               ;;TODO: this is dumb, convert `call-transform' to a macro?
+              ;;normal function call
+              ;;`(,t-func ,@(mapcar 'transform args))
+              ;;TODO: this is dumb, convert `call-transform' to a macro?
               (t (if (context-p 'return-type?)
-                     (setq return-type (pyel-env-get t-func type-env)))
+                     (setq return-type (pyel-env-get t-func type-env)
+                           return-type (and return-type
+                                            (pyel-func-return-type return-type))))
+                 (setq known-types (cons function-type known-types))
+                 (setq _known-types known-types)
                  (eval `(call-transform 'fcall ,@(cons 't-func
                                                        (mapcar (lambda (x)
                                                                  `(quote ,x))
