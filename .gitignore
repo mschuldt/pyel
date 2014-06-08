@@ -1,6 +1,7 @@
 *#
 .#*
 .emacs.desktop
+.emacs.desktop.lock
 _*
 *.org_archive
 *.elc
