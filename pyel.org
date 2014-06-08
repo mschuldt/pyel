@@ -1058,9 +1058,9 @@ This will have to be removed after the code is generated
            int
            float))
   
-  (setq known-types (mapcar (lambda (_) pyel-possible-types) (number-sequence 1 10)))
-        
-  (push (list 'known-types known-types) test-variable-values)
+  ;;(setq known-types (mapcar (lambda (_) pyel-possible-types) (number-sequence 1 10)))
+  ;;(push (list 'known-types known-types) test-variable-values)
+  (setq known-types nil)  
   
   
   (defun pyel-get-possible-types (args)

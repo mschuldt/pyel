@@ -723,9 +723,10 @@ during interactive emacs-lisp sessions where possible")
          int
          float))
 
-(setq known-types (mapcar (lambda (_) pyel-possible-types) (number-sequence 1 10)))
+;;(setq known-types (mapcar (lambda (_) pyel-possible-types) (number-sequence 1 10)))
       
-(push (list 'known-types known-types) test-variable-values)
+;;(push (list 'known-types known-types) test-variable-values)
+(setq known-types nil)  
 
 
 (defun pyel-get-possible-types (args)
