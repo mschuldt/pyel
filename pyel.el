@@ -1164,7 +1164,13 @@ is the number of type switches. Each digit corresponds to a type switch
          (arg~quote~replacements (mapcar (lambda (x)
                                            (list x (list '\, x)))
                                          args~just~vars))
+         ;;replacements for the case in which all types are known and nothing
+         ;;is let-bound, arg~quote~replacements must come first
+         (all~known~replacements (append arg~quote~replacements
+                                    arg~replacements3
+                                    arg~replacements2))
          (current~replace~list nil)
+         
          ;; (arg~replacements (append let~vars
          ;;                           (mapcar (lambda (x)
          ;;                                     (list  (intern (format "$%s" x)) (list '\, x)))
@@ -1213,10 +1219,12 @@ is the number of type switches. Each digit corresponds to a type switch
     (cond ((<= len~ 0) "ERROR: no valid type")
           ((= len~ 1)
            (if (eq (caar valid~) 'and)
-               (caddar valid~)
-             ;;there is only one possibility, so replace the args with their quoted counterpart
-             ;;instead of replacing with the let bound vars
-             (list 'backquote (pyel-replace (cadar valid~) arg~quote~replacements))))
+               (caddar valid~);;?
+             ;;there is only one possibility, so replace the args with their
+             ;;quoted counterpart instead of replacing with the let bound vars
+             (list 'backquote (pyel-replace (cadar valid~)
+                                            all~known~replacements))))
+             
           ;;?TODO: are there possible problems with evaluating the arguments
           ;;       multiple times? Maybe they should be put in a list
           (t (let* ((clauses (mapcar 'pyel-gen-cond-clause valid~))
