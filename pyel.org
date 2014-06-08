@@ -5390,6 +5390,9 @@ This will help notify the user when some syntax has not been implemented
 ** list
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (let ((current-transform-table (get-transform-table 'pyel)))
+    (call-transform (pyel-func-transform-name 'list) nil))
+  
   (defalias 'py-list 'pyel-list-function31)
   (pyel-func-transform list (object)
                        (string) -> (py-string-to-list object)
