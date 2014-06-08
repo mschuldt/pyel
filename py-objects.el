@@ -212,7 +212,8 @@ These names will be set globally to their index in this list")
 
     (setq _x new)
     (setq _a args)
-    (eval `(call-method new --init-- ,@args))
+    (eval `(call-method new --init-- ,@(mapcar '(lambda (x) (list 'quote x))
+                                               args)))
     new))
 
 (defun descriptor-p (object)
