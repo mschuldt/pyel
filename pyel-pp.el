@@ -27,6 +27,9 @@ raises scan-error if that is not possible"
   (default n 1)
   (goto-char (scan-sexps (point) n)))
 
+(defmacro default (var value)
+  `(setq ,var (or ,var ,value)))
+
 (defun pyel-sexp-fits-on-line-p (&optional n)
   "return non-nil if the N sexps after point fits within the column
 restriction set by `pyel-pp-max-column'
