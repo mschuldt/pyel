@@ -2887,6 +2887,7 @@ This is for all non template specific code.
   
               ;;this methods transform is overridden
               (progn
+                (setq known-types (cons function-type known-types))
                 ;;dynamic scoping saves the day again!
                 (setq keyword-args keywords
                       star-args starargs
