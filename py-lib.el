@@ -1094,16 +1094,6 @@ otherwise raise a TypeError."
                            "'%s' object is not iterable"
                            (getattr object --name--)))))))
 
-;;TODO:
-(defun py-list-iter (obj)
-  (error "Not Implemented"))
-(defun py-string-iter (obj)
-  (error "Not Implemented"))
-(defun py-vector-iter (obj)
-  (error "Not Implemented"))
-(defun py-hash-iter (obj)
-  (error "Not Implemented"))
-
 (defun py-next (object)
   (let (ret err)
     (if (py-object-p object)
