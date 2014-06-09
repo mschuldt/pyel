@@ -713,7 +713,6 @@ during interactive emacs-lisp sessions where possible")
          float))
 
 ;;(setq known-types (mapcar (lambda (_) pyel-possible-types) (number-sequence 1 10)))
-      
 ;;(push (list 'known-types known-types) test-variable-values)
 (setq known-types nil)  
 
@@ -821,6 +820,7 @@ NOTE: if the name of the function to be created is already in
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
+         (non-rest (if rest-arg (subseq striped-args 0 -2)))
          (name-base (concat "pyel-" (symbol-name name) ""))
          ;;(fsym (intern (concat "pyel-" (symbol-name name) "")))
          )
@@ -828,8 +828,12 @@ NOTE: if the name of the function to be created is already in
     `(def-transform ,name pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                                 ,(cons 'list args-just-vars))
-                                             ',args
+                                              ;;,(cons 'list args-just-vars))
+                                              ,(if rest-arg
+                                                   `(append ,(cons 'list non-rest)
+                                                            ,rest-arg)
+                                                 (cons 'list args-just-vars)))
+                                               ',args
                                              ',type-switches))
                (_pyel_name (intern (concat ,name-base
                                      (number-to-string _pyel-type-sig))))
@@ -860,6 +864,7 @@ matches NAME and has the proper arg length then no transform will be called."
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
+         (non-rest (if rest-arg (subseq striped-args 0 -2)))
          (name-base (format "pyel-%s-method%s"
                             (symbol-name name)
                             (pyel-arglist-signature args)))
@@ -870,7 +875,10 @@ matches NAME and has the proper arg length then no transform will be called."
     `(def-transform ,transform-name pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                              ,(cons 'list args-just-vars))
+                                              ,(if rest-arg
+                                                   `(append ,(cons 'list non-rest)
+                                                            ,rest-arg)
+                                                 (cons 'list args-just-vars)))
                                              ',args
                                              ',type-switches))
                (_pyel_name (intern (concat ,name-base
@@ -904,6 +912,7 @@ ARG signature has no effect on the transform dispatch"
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
+         (non-rest (if rest-arg (subseq striped-args 0 -2)))
          (name-base (concat "pyel-"
                             (symbol-name name) "-"
                             (if is-kwarg-transform "kwarg-" "")
@@ -911,7 +920,10 @@ ARG signature has no effect on the transform dispatch"
     `(def-transform ,(pyel-func-transform-name name is-kwarg-transform) pyel ()
        (lambda ,striped-args
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
-                                              ,(cons 'list args-just-vars))
+                                              ,(if rest-arg
+                                                   `(append ,(cons 'list non-rest)
+                                                            ,rest-arg)
+                                                 (cons 'list args-just-vars)))
                                              ',args
                                              ',type-switches))
                ;;NOTE: if the way this name is constructed changes,
