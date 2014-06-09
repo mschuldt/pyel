@@ -2842,6 +2842,7 @@ This is for all non template specific code.
     (let ((t-func (using-context return-type?
                                  (using-context function-call
                                                 (transform func))))
+          (this-return-type return-type)
           (function-type (progn 
                            (if (pyel-is-func-type return-type)
                                (setq return-type (pyel-func-func-type return-type)))
@@ -2853,8 +2854,7 @@ This is for all non template specific code.
                                                keywords)))
           (t-args (mapcar 'transform args))
           (known-types known-types)
-          new-func m-name f-name star-args kw-args
-          )
+          new-func m-name f-name star-args kw-args ret)
       
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
@@ -2880,6 +2880,8 @@ This is for all non template specific code.
                         (list type)))
                     args))
       
+      (setq return-type this-return-type)
+      
       (if (eq (car func) 'attribute);;method call
           (if (and (member (setq m-name (read (caddr func)))
                            pyel-method-transforms)
@@ -2893,16 +2895,23 @@ This is for all non template specific code.
                 ;;dynamic scoping saves the day again!
                 (setq keyword-args keywords
                       star-args starargs
-                      kw-args kwargs)
-  
-                (eval `(call-transform ',m-name
-                                       ',(transform (cadr func))
-                                       ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+                      kw-args kwargs
+                      ret (eval `(call-transform
+                                  ',m-name
+                                  ',(transform (cadr func))
+                                  ,@(mapcar '(lambda (x) `(quote ,x)) args)))
+                      return-type this-return-type)
+                ret)
             ;;normal method call
-            (remove-context method-call-override
-                            (using-context method-call
-                                           `(,(transform func) ,@(remove-context method-call
-                                                                                 (mapcar 'transform args))))))
+            (remove-context
+             method-call-override
+             (setq ret (using-context
+                        method-call
+                        `(,(transform func) ,@(remove-context
+                                               method-call
+                                               (mapcar 'transform args))))
+                   return-type this-return-type)
+             ret))
   
         (when (setq new-func (assoc t-func pyel-function-name-translations));;function call
           ;;translate name
@@ -2913,22 +2922,29 @@ This is for all non template specific code.
         (cond ((and keyword-args
                     (member t-func pyel-func-kwarg-transforms))
                ;;transform defined with `pyel-func-kwarg-transform'
-               (eval `(call-transform ',(pyel-func-transform-name t-func t)
-                                      ',keyword-args
-                                      ,@(mapcar '(lambda (x) `(quote ,x)) args))))
+               (setq ret (eval `(call-transform ',(pyel-func-transform-name t-func t)
+                                                ',keyword-args
+                                                ,@(mapcar '(lambda (x) `(quote ,x))
+                                                          args)))
+                     return-type this-return-type)
+               ret)
+              
               ((member t-func pyel-func-transforms)
                ;;transform defined with `pyel-func-transform'
-               (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                      ;;',(transform (cadr func))
-                                      ,@(mapcar '(lambda (x) `(quote ,x)) args))))
-              
+               (setq ret (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                                ;;',(transform (cadr func))
+                                                ,@(mapcar '(lambda (x) `(quote ,x))
+                                                          args)))
+                     return-type this-return-type)
+               ret)
   
               ((member t-func pyel-func-transforms2)
                ;;transform defined with `pyel-define-function-translation'
-               (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                      ;;,(mapcar '(lambda (x) `(quote ,x)) args)
-                                      (mapcar 'transform args)
-                                      keyword-args)))
+               (setq ret (eval `(call-transform ',(pyel-func-transform-name t-func)
+                                                ;;,(mapcar '(lambda (x) `(quote ,x)) args)
+                                                (mapcar 'transform args)
+                                                keyword-args))
+                     return-type this-return-type))
   
               ;;normal function call
               ;;`(,t-func ,@(mapcar 'transform args))
@@ -2937,18 +2953,18 @@ This is for all non template specific code.
                      (setq return-type (pyel-env-get t-func type-env)
                            return-type (and return-type
                                             (pyel-func-return-type return-type))))
-                 (setq known-types (cons function-type known-types))
-                 (setq _known-types known-types)
-                 (eval `(call-transform 'fcall ,@(cons 't-func
-                                                       (mapcar (lambda (x)
-                                                                 `(quote ,x))
-                                                               (append args
-                                                                       (mapcar 'car
-                                                                               keywords))
-                                                               )))))))))
-  
-  
-  
+                 (setq known-types (cons function-type known-types)
+                       _known-types known-types
+                       ret (eval `(call-transform
+                                    'fcall ,@(cons 't-func
+                                                   (mapcar (lambda (x)
+                                                             `(quote ,x))
+                                                           (append args
+                                                                   (mapcar 'car
+                                                                           keywords)
+                                                           )))))
+                       return-type this-return-type)
+                 ret)))))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
