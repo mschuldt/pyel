@@ -1438,7 +1438,9 @@ This will have to be removed after the code is generated
   recent transform. It is a binary number ranging from 1 to 2^n, where n
   is the number of type switches. Each digit corresponds to a type switch
   (in order), a value of 1 indicates that the type switch was included.")
-    
+  
+  
+  
   (defun pyel-do-call-transform (possible~types args type-switch)
     "This is responsible for  producing a call to NAME in the most
         efficient way possible with the known types"
@@ -1547,7 +1549,7 @@ This will have to be removed after the code is generated
                          (equal (strip$ (cadar t~s)) (cdr pos~type)))
                 (push t~s valid~);TODO: break if found?
                 (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n))))))));
-  
+      
       ;;generate code to call NAME
       ;;if there is 2 posible types, use IF. For more use COND
       (setq len~ (length valid~))
@@ -1957,7 +1959,7 @@ This is for all non template specific code.
   
   def keyword(arg, value, lineno='nil', col_offset='nil'):
       return l_str(["(keyword ", arg, " ", value, lineno, col_offset, ")"])
-
+  
   def Param():
       return "'param"
   
@@ -2906,6 +2908,7 @@ This is for all non template specific code.
           ;;translate name
           (setq t-func (cadr new-func)))
   
+        
         ;;call function transform if one was defined
         (cond ((and keyword-args
                     (member t-func pyel-func-kwarg-transforms))
@@ -2943,6 +2946,9 @@ This is for all non template specific code.
                                                                        (mapcar 'car
                                                                                keywords))
                                                                )))))))))
+  
+  
+  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -3106,9 +3112,9 @@ This is for all non template specific code.
                                   (setq arg (_to- arg))
                                   (cons arg default))
                                 (reverse args) (reverse defaults)))
-          (setq args (append (subseq args 0 (- (length args) (length defaults)))
-                             '(&optional)
-                             defaults)))
+        (setq args (append (subseq args 0 (- (length args) (length defaults)))
+                           '(&optional)
+                           defaults)))
   
       ;;&rest
       (when vararg
@@ -3334,8 +3340,7 @@ FunctionDef(name='a',
                                  (,let-arglist
                                   (,@ret
                                    ,@t-body
-                                   ))))
-             ))))))
+                                   ))))))))))
   
   (defun pyel-sort-kwargs (args)
     "Organize args in the format required by functions that accept keyword args

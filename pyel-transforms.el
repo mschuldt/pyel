@@ -98,6 +98,7 @@
 
         (assign-value value))
 
+
     ;;the target code is responsible for providing the correct assign function
     ;;
 
@@ -109,8 +110,8 @@
 
     ;;The target transform is responsible for generating the code
     ;;The value being assigned to the target is available to the
-    ;;target transform via the variable assign-value.
-    ;;assign-value is untransformed, the target transform must tranform it
+    ;;target transform via the variable 'assign-value'.
+    ;;'assign-value' is untransformed, the target transform must tranform it.
 
     ;; (using-context assign-value
     ;;             (setq assign-value (transform value)))
@@ -443,7 +444,7 @@
                         type
                       (list type)))
                   args))
-        
+    
     (if (eq (car func) 'attribute);;method call
         (if (and (member (setq m-name (read (caddr func)))
                          pyel-method-transforms)
@@ -472,6 +473,7 @@
         ;;translate name
         (setq t-func (cadr new-func)))
 
+      
       ;;call function transform if one was defined
       (cond ((and keyword-args
                   (member t-func pyel-func-kwarg-transforms))
@@ -493,9 +495,9 @@
                                     (mapcar 'transform args)
                                     keyword-args)))
 
-             ;;normal function call
-             ;;`(,t-func ,@(mapcar 'transform args))
-             ;;TODO: this is dumb, convert `call-transform' to a macro?
+            ;;normal function call
+            ;;`(,t-func ,@(mapcar 'transform args))
+            ;;TODO: this is dumb, convert `call-transform' to a macro?
             (t (if (context-p 'return-type?)
                    (setq return-type (pyel-env-get t-func type-env)
                          return-type (and return-type
@@ -590,9 +592,9 @@
                                 (setq arg (_to- arg))
                                 (cons arg default))
                               (reverse args) (reverse defaults)))
-        (setq args (append (subseq args 0 (- (length args) (length defaults)))
-                           '(&optional)
-                           defaults)))
+      (setq args (append (subseq args 0 (- (length args) (length defaults)))
+                         '(&optional)
+                         defaults)))
 
     ;;&rest
     (when vararg
@@ -767,8 +769,7 @@
                                (,let-arglist
                                 (,@ret
                                  ,@t-body
-                                 ))))
-           ))))))
+                                 ))))))))))
 
 (defun pyel-sort-kwargs (args)
   "Organize args in the format required by functions that accept keyword args

@@ -1103,7 +1103,9 @@ which types swiches where successful eliminated from the most
 recent transform. It is a binary number ranging from 1 to 2^n, where n
 is the number of type switches. Each digit corresponds to a type switch
 (in order), a value of 1 indicates that the type switch was included.")
-  
+
+
+
 (defun pyel-do-call-transform (possible~types args type-switch)
   "This is responsible for  producing a call to NAME in the most
       efficient way possible with the known types"
@@ -1212,7 +1214,7 @@ is the number of type switches. Each digit corresponds to a type switch
                        (equal (strip$ (cadar t~s)) (cdr pos~type)))
               (push t~s valid~);TODO: break if found?
               (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n))))))));
-
+    
     ;;generate code to call NAME
     ;;if there is 2 posible types, use IF. For more use COND
     (setq len~ (length valid~))
