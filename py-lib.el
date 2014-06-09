@@ -1094,6 +1094,9 @@ otherwise raise a TypeError."
                            "'%s' object is not iterable"
                            (getattr object --name--)))))))
 
+(defalias 'py-vector-iter 'py-tuple-iter)
+(defalias 'py-hash-iter 'py-dict-iter)
+
 (defun py-next (object)
   (let (ret err)
     (if (py-object-p object)

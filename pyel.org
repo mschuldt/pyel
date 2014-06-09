@@ -6549,6 +6549,9 @@ Iterators for built in types are defined in py-iter.py
        (py-raise (TypeError (format
                              "'%s' object is not iterable"
                              (getattr object --name--)))))))
+  
+  (defalias 'py-vector-iter 'py-tuple-iter)
+  (defalias 'py-hash-iter 'py-dict-iter)
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
