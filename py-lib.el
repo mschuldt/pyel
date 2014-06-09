@@ -588,7 +588,66 @@ else is optional"
     (error (format "py-object-member: invalid type for OBJ parameter (%s)"
                    (type-of obj)))))
 
+(defun py-parse-comprehension-forms (forms)
+  (let (generators target iter ifs e)
+    (while forms
+      (setq e (car forms)
+            forms (cdr forms))
+      (cond ((eq e 'for)
+             (when target
+               (push (list target iter ifs) generators)
+               (setq target nil
+                     iter nil
+                     ifs nil))
 
+             (setq target (car forms)
+                   forms (cdr forms)
+                   _in (car forms)
+                   forms (cdr forms)
+                   iter (car forms)
+                   forms (cdr forms))
+             (assert (eq _in 'in) "invalid comprehension. expected 'in'")
+             (assert (not (null iter)) "invalid comprehension. bad iter "))
+            
+            ((eq e 'in)
+             (error "invalid list comprehension. unexpected 'in'"))
+            ((eq e 'if)
+             (assert (car forms) "invalid list comprehension. bad condition")
+             (push (car forms) ifs)
+             (setq forms (cdr forms)))))
+    (if target
+        (cons (list target iter ifs) generators)
+      generators)))
+
+(defmacro py-list-comp (elt &rest body)
+  "elements of BODY have the structure:
+   for <var> in <iterator>
+or:
+   if <conditions>
+with the same semantics as python list comprehensions"
+  (let ((generators (py-parse-comprehension-forms body))
+        code)
+    (setq code `(push ,elt __pyel_lst__))
+    (while generators
+      (setq ifs (car generators)
+            target (nth 0 ifs)
+            iter (nth 1 ifs)
+            ifs (nth 2 ifs)
+            generators (cdr generators))
+      (when ifs
+        (setq code `(if ,(if (> (length ifs) 1)
+                             (cons 'and ifs)
+                           (car ifs))
+                        ,code)))
+      (setq code
+            `(let ((__tmp_lst__ (py-list ,iter)))
+               (while __tmp_lst__
+                 (setq ,target (car __tmp_lst__)
+                       __tmp_lst__ (cdr __tmp_lst__))
+                 ,code))))
+    `(let (__pyel_lst__)
+       ,code
+       (reverse __pyel_lst__))))
 
 
 

@@ -1085,42 +1085,21 @@ Recognizes keyword args in the form 'arg = value'."
   (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
 
 (defun pyel-comprehension (target iter ifs)
-  ;;this uses the inter-transform var 'comprehension-body'
-  (assert (boundp 'comprehension-body)
-          "`comprehension-body' must be defined for this transform")
-  ;;TODO: ifs
-  `(loop for ,(using-context for-loop-target
-                             (transform target))
-         in (py-list ,(transform iter))
-         ,(if ifs
-              (list '@ 'if
-                       (cons (if (> (length ifs) 1)
-                                 'and
-                               '@)
-                             (mapcar 'transform ifs)))
-            pyel-nothing)
-         do ,comprehension-body))
-
+  (cons 'for (cons (using-context for-loop-target
+                                  (transform target))
+                   (cons 'in (cons (transform iter)
+                                   (reduce 'append
+                                           (mapcar (lambda (x)
+                                                     (list 'if (transform x)))
+                                                   ifs)))))))
 (def-transform list-comp pyel (elt generators)
   (lambda (elt generators &optional line col)
     (pyel-list-comp elt generators line col)))
 
-(defun pyel-list-comp (elt generators &optional line col)
-  (let* ((list-var '__list__)
-         (comprehension-body `(setq ,list-var (cons ,(transform elt) ,list-var)))
-         (i (length generators))
-         code)
-    ;;`comprehension-body' is an inter-transform var
-    (while (> i 0)
-      (setq i (1- i))
-      ;;'comprehension-body' holds the inner code, and each transform
-      ;; is the inner code for the preceding generator in 'generators'
-      ;; (loop ... collect ...) produces a list, so no additional work is needed
-      (setq comprehension-body (transform (nth i generators))))
 
-    `(let ((,list-var nil))
-       ,comprehension-body
-       (reverse ,list-var))))
+(defun pyel-list-comp (elt generators &optional line col)
+  (cons 'py-list-comp (cons (transform elt)
+                            (reduce 'append (mapcar 'transform generators)))))
 
 (def-transform dict-comp pyel (key value generators)
   (lambda (key value generators &optional line col)

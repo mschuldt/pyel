@@ -5085,42 +5085,21 @@ DOC: generator expressions are translated to list comprehensions
     (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
   
   (defun pyel-comprehension (target iter ifs)
-    ;;this uses the inter-transform var 'comprehension-body'
-    (assert (boundp 'comprehension-body)
-            "`comprehension-body' must be defined for this transform")
-    ;;TODO: ifs
-    `(loop for ,(using-context for-loop-target
-                               (transform target))
-           in (py-list ,(transform iter))
-           ,(if ifs
-                (list '@ 'if
-                         (cons (if (> (length ifs) 1)
-                                   'and
-                                 '@)
-                               (mapcar 'transform ifs)))
-              pyel-nothing)
-           do ,comprehension-body))
-  
+    (cons 'for (cons (using-context for-loop-target
+                                    (transform target))
+                     (cons 'in (cons (transform iter)
+                                     (reduce 'append
+                                             (mapcar (lambda (x)
+                                                       (list 'if (transform x)))
+                                                     ifs)))))))
   (def-transform list-comp pyel (elt generators)
     (lambda (elt generators &optional line col)
       (pyel-list-comp elt generators line col)))
   
-  (defun pyel-list-comp (elt generators &optional line col)
-    (let* ((list-var '__list__)
-           (comprehension-body `(setq ,list-var (cons ,(transform elt) ,list-var)))
-           (i (length generators))
-           code)
-      ;;`comprehension-body' is an inter-transform var
-      (while (> i 0)
-        (setq i (1- i))
-        ;;'comprehension-body' holds the inner code, and each transform
-        ;; is the inner code for the preceding generator in 'generators'
-        ;; (loop ... collect ...) produces a list, so no additional work is needed
-        (setq comprehension-body (transform (nth i generators))))
   
-      `(let ((,list-var nil))
-         ,comprehension-body
-         (reverse ,list-var))))
+  (defun pyel-list-comp (elt generators &optional line col)
+    (cons 'py-list-comp (cons (transform elt)
+                              (reduce 'append (mapcar 'transform generators)))))
   
   (def-transform dict-comp pyel (key value generators)
     (lambda (key value generators &optional line col)
@@ -5160,7 +5139,66 @@ DOC: generator expressions are translated to list comprehensions
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-
+  (defun py-parse-comprehension-forms (forms)
+    (let (generators target iter ifs e)
+      (while forms
+        (setq e (car forms)
+              forms (cdr forms))
+        (cond ((eq e 'for)
+               (when target
+                 (push (list target iter ifs) generators)
+                 (setq target nil
+                       iter nil
+                       ifs nil))
+  
+               (setq target (car forms)
+                     forms (cdr forms)
+                     _in (car forms)
+                     forms (cdr forms)
+                     iter (car forms)
+                     forms (cdr forms))
+               (assert (eq _in 'in) "invalid comprehension. expected 'in'")
+               (assert (not (null iter)) "invalid comprehension. bad iter "))
+              
+              ((eq e 'in)
+               (error "invalid list comprehension. unexpected 'in'"))
+              ((eq e 'if)
+               (assert (car forms) "invalid list comprehension. bad condition")
+               (push (car forms) ifs)
+               (setq forms (cdr forms)))))
+      (if target
+          (cons (list target iter ifs) generators)
+        generators)))
+  
+  (defmacro py-list-comp (elt &rest body)
+    "elements of BODY have the structure:
+     for <var> in <iterator>
+  or:
+     if <conditions>
+  with the same semantics as python list comprehensions"
+    (let ((generators (py-parse-comprehension-forms body))
+          code)
+      (setq code `(push ,elt __pyel_lst__))
+      (while generators
+        (setq ifs (car generators)
+              target (nth 0 ifs)
+              iter (nth 1 ifs)
+              ifs (nth 2 ifs)
+              generators (cdr generators))
+        (when ifs
+          (setq code `(if ,(if (> (length ifs) 1)
+                               (cons 'and ifs)
+                             (car ifs))
+                          ,code)))
+        (setq code
+              `(let ((__tmp_lst__ (py-list ,iter)))
+                 (while __tmp_lst__
+                   (setq ,target (car __tmp_lst__)
+                         __tmp_lst__ (cdr __tmp_lst__))
+                   ,code))))
+      `(let (__pyel_lst__)
+         ,code
+         (reverse __pyel_lst__))))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
