@@ -1225,8 +1225,8 @@ is the number of type switches. Each digit corresponds to a type switch
                (caddar valid~);;?
              ;;there is only one possibility, so replace the args with their
              ;;quoted counterpart instead of replacing with the let bound vars
-             (list 'backquote (pyel-replace (cadar valid~)
-                                            all~known~replacements))))
+             (list 'backquote (pyel-replace-backquoted (cadar valid~)
+                                                       all~known~replacements))))
              
           ;;?TODO: are there possible problems with evaluating the arguments
           ;;       multiple times? Maybe they should be put in a list
@@ -1258,6 +1258,27 @@ is the number of type switches. Each digit corresponds to a type switch
         (unless found
           (push c ret))))
     (reverse ret)))
+
+(defun pyel-replace-backquoted (code replacements)
+  "only replace in code that is backquoted.
+unquote or splice regions are ignored"
+  ;;TODO: nested backquotes
+    (let ((ret nil)
+          found)
+      (dolist (c code)
+        (setq found nil)
+        (if (and (consp c)
+                 (not (eq (car c) '\,))
+                 (not (eq (car c) '\,@)))
+            (push (pyel-replace c replacements) ret)
+          (dolist (r replacements)
+            (if (and (equal c (car r))
+                     (not found))
+                (progn (push (cadr r) ret)
+                       (setq found t))))
+          (unless found
+            (push c ret))))
+      (reverse ret)))
 
 (defsubst pyel-type-tester (x)
   (cadr (assoc x pyel-type-test-funcs)))
