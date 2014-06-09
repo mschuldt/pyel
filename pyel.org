@@ -6588,7 +6588,28 @@ Iterators for built in types are defined in py-iter.py
   x = it.__next__()
   x2 = it.__next__()"
     ("x" "5")
-    ("x2" "4")))
+    ("x2" "4"))
+   
+   ;;built-in types
+   ("list_i = iter([1,2,3])
+  tuple_i = iter(('1','2','3'))
+  string_i = iter('str')
+  dict_i = iter({1:'1', '5':5})
+  s = 's2'
+  string_i2 = iter(s)
+  tuple_i2 = iter([[(2,4)]][0][0])
+  string_i3 = iter('string')
+  tuple_i3 = iter(('1','2','3'))"
+    ("next(list_i)" 1)
+    ("next(list_i)" 2)
+    ("next(tuple_i)" "1")
+    ("next(string_i)" "s")
+    ("next(string_i)" "t")
+    ("next(dict_i)"  "5")
+    ("next(string_i2)" "s")
+    ("next(tuple_i2)" 2)
+    ("[x for x in 'string']" '("s" "t" "r" "i" "n" "g"))
+    ("[x for x in {1:'1', '5':5,(2,3):3}]" '([2 3] "5" 1))))
 #+END_SRC
 ** next
 *** transform
