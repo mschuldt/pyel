@@ -112,29 +112,27 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
 (defvar pyel-last-python-code nil
   "last python string `pyel' attempted to transform")
 
-(defun pyel-buffer-to-string (&optional ast-only)
-  "transform python in current buffer and return a string"
-  ;;THIS DOES NOT RETURN A STRING!
+(defun pyel-buffer-to-lisp (&optional ast-only)
+  "transform and return python in current buffer to emacs-lisp"
   (pyel (buffer-string) nil nil ast-only))
 
 (defvar pyel-pp-function 'pp-to-string
   "function that pretty prints pyel e-lisp code")
 
-(defun pyel-buffer (&optional out-buff)
-  "transform python in current buffer and display in OUT-BUFF,
-OUT-BUFF defaults to *pyel-output*"
-  (interactive)
-  (let ((out (pyel-buffer-to-string))
-        (buff (or out-buff "*pyel-output*")))
-
-      (switch-to-buffer-other-window buff)
-      (erase-buffer)
-      ;;    (insert (funcall pyel-pp-function out))
-      (lisp-interaction-mode)
-      (pyel-prettyprint out)
-      (goto-char 1)
-      ;;(emacs-lisp-mode)
-      ))
+;; (defun pyel-buffer (&optional out-buff)
+;;   "transform python in current buffer and display in OUT-BUFF,
+;; OUT-BUFF defaults to *pyel-output*"
+;;   (interactive)
+;;   (let ((out (pyel-buffer-to-lisp))
+;;         (buff (or out-buff "*pyel-output*")))
+;;       (switch-to-buffer-other-window buff)
+;;       (erase-buffer)
+;;       ;;    (insert (funcall pyel-pp-function out))
+;;       (lisp-interaction-mode)
+;;       (pyel-prettyprint out)
+;;       (goto-char 1)
+;;       ;;(emacs-lisp-mode)
+;;       ))
 
 (defun pyel-transform-ast (ast &optional no-splice)
   "transform a python AST to Emacs Lisp, AST must be a string
