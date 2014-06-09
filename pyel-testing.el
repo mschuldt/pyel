@@ -279,6 +279,7 @@ generated lisp code.
             (erase-buffer)
             (mapc (lambda (x)
                     ;;macroexpand so edebug-defun can be used on it
+                    (setq pyel-testing-last-test x)
                     (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
                   pyel-test-py-functions)
             (save-buffer)
