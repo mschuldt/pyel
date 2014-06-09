@@ -1244,18 +1244,17 @@ is the number of type switches. Each digit corresponds to a type switch
 (defun pyel-replace (code replacements)
   (let ((ret nil)
         found)
-
     (dolist (c code)
       (setq found nil)
-      (dolist (r replacements)
-        (if (consp c)
-            (setq c (pyel-replace c replacements))
+      (if (consp c)
+          (push (pyel-replace c replacements) ret)
+        (dolist (r replacements)
           (if (and (equal c (car r))
                    (not found))
               (progn (push (cadr r) ret)
-                     (setq found t)))))
-      (unless found
-        (push c ret)))
+                     (setq found t))))
+        (unless found
+          (push c ret))))
     (reverse ret)))
 
 (defsubst pyel-type-tester (x)
