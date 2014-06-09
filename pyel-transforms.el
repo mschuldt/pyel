@@ -1147,19 +1147,8 @@ Recognizes keyword args in the form 'arg = value'."
     (pyel-dict-comp key value generators line col)))
 
 (defun pyel-dict-comp (key value generators &optional line col)
-  (let* ((hash-var '__dict__)
-         (comprehension-body (list 'puthash (transform key)
-                                   (transform value)
-                                   hash-var))
-         (i (length generators))
-         code)
-    (while (> i 0)
-      (setq i (1- i))
-      (setq comprehension-body (transform (nth i generators))))
-
-    `(let ((,hash-var (make-hash-table :test 'equal)))
-       ,comprehension-body
-       ,hash-var)))
+  (append (list 'py-dict-comp (transform key) ': (transform value))
+          (reduce 'append (mapcar 'transform generators))))
 
 (def-transform boolop pyel (op values)
   (lambda (op values &optional line col)

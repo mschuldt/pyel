@@ -5175,19 +5175,8 @@ DOC: generator expressions are translated to list comprehensions
       (pyel-dict-comp key value generators line col)))
   
   (defun pyel-dict-comp (key value generators &optional line col)
-    (let* ((hash-var '__dict__)
-           (comprehension-body (list 'puthash (transform key)
-                                     (transform value)
-                                     hash-var))
-           (i (length generators))
-           code)
-      (while (> i 0)
-        (setq i (1- i))
-        (setq comprehension-body (transform (nth i generators))))
-  
-      `(let ((,hash-var (make-hash-table :test 'equal)))
-         ,comprehension-body
-         ,hash-var)))
+    (append (list 'py-dict-comp (transform key) ': (transform value))
+            (reduce 'append (mapcar 'transform generators))))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -5268,6 +5257,32 @@ DOC: generator expressions are translated to list comprehensions
       `(let (__pyel_lst__)
          ,code
          (reverse __pyel_lst__))))
+  
+  
+  (defmacro py-dict-comp (key : val &rest body)
+    (let ((generators (py-parse-comprehension-forms body))
+          code)
+      (setq code `(puthash ,key ,val __pyel_dict__))
+      (while generators
+        (setq ifs (car generators)
+              target (nth 0 ifs)
+              iter (nth 1 ifs)
+              ifs (nth 2 ifs)
+              generators (cdr generators))
+        (when ifs
+          (setq code `(if ,(if (> (length ifs) 1)
+                               (cons 'and ifs)
+                             (car ifs))
+                          ,code)))
+        (setq code
+              `(let ((__tmp_lst__ (py-list ,iter)))
+                 (while __tmp_lst__
+                   (setq ,target (car __tmp_lst__)
+                         __tmp_lst__ (cdr __tmp_lst__))
+                   ,code))))
+      `(let ((__pyel_dict__ (make-hash-table :test 'equal)))
+         ,code
+         __pyel_dict__)))
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

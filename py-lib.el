@@ -650,6 +650,32 @@ with the same semantics as python list comprehensions"
        (reverse __pyel_lst__))))
 
 
+(defmacro py-dict-comp (key : val &rest body)
+  (let ((generators (py-parse-comprehension-forms body))
+        code)
+    (setq code `(puthash ,key ,val __pyel_dict__))
+    (while generators
+      (setq ifs (car generators)
+            target (nth 0 ifs)
+            iter (nth 1 ifs)
+            ifs (nth 2 ifs)
+            generators (cdr generators))
+      (when ifs
+        (setq code `(if ,(if (> (length ifs) 1)
+                             (cons 'and ifs)
+                           (car ifs))
+                        ,code)))
+      (setq code
+            `(let ((__tmp_lst__ (py-list ,iter)))
+               (while __tmp_lst__
+                 (setq ,target (car __tmp_lst__)
+                       __tmp_lst__ (cdr __tmp_lst__))
+                 ,code))))
+    `(let ((__pyel_dict__ (make-hash-table :test 'equal)))
+       ,code
+       __pyel_dict__)))
+
+
 
 (defun py-raise (exc &optional cause)
   "signal an error with the name of EXC, an class/object
