@@ -3123,19 +3123,27 @@ This is for all non template specific code.
                                       (mapcar* 'cons
                                                (mapcar 'transform kwonlyargs)
                                                (mapcar 'transform kw_defaults))))))
-                                      
+      
       ;;&kwarg
       (when kwarg
         (setq args (append args (list '&kwarg kwarg))))
   
       ;;type annotations
-      (if (context-p 'function-def)
-          (mapcar* (lambda (arg type)
-                     ;;TODO: verify correct type
-                     (pyel-env-set arg type type-env))
-                   positional
-                   (using-context get-annotation
-                                  (mapcar 'transform _args))))
+      (when (context-p 'function-def)
+        (mapcar* (lambda (arg type)
+                   ;;TODO: verify correct type
+                   (pyel-env-set arg type type-env)
+                   (push type annotations))
+                 positional
+                 (using-context get-annotation
+                                (mapcar 'transform _args)))
+        ;; 'function-name', 'function-type',  and 'return-type' are set
+        ;; by the 'return' transform.
+        (pyel-env-set function-name 
+                      (pyel-make-func-type function-type
+                                           (reverse annotations)
+                                           return-type)
+                      (pyel-env-get-parent type-env)))
       args))
 #+END_SRC
 *** python ast
@@ -3213,9 +3221,19 @@ FunctionDef(name='a',
       (when (context-p 'function-def)
         (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
   
-      (let* ((type-env (pyel-make-type-env type-env))
+      (let* ((inner-defun (context-p 'function-def))
+             (function-name name)
+             (function-type (if (or inner-defun (context-p 'lambda-def))
+                                'vfunc 'func))
+             (return-type (using-context get-annotation (transform returns)))
+             ;;'return-type', 'function-name', and 'function-type,
+             ;; are used to pass values to the 'arguments' transform
+             (type-env (pyel-make-type-env type-env))
              ;;NOTE: the 'arguments' transform is responsible for setting
              ;;the type values of the parameters in this new 'type-env'
+             ;;The 'arguments' transform also maps the function name to
+             ;;its argument and parameter types in the parent of this 'type-env'
+             
              (func 'def)
              t-body
              arglist
@@ -3233,12 +3251,13 @@ FunctionDef(name='a',
                 ;;;
              (ret pyel-nothing)
              (args (_to- (using-context function-def (transform (car args)))))
-             (inner-defun (context-p 'function-def))
              (orig-name name)
              (decorators (mapcar 'transform decoratorlist))
              setq-code
              )
+  
         (setq _env type-env)
+  
         (when (or (context-p 'lambda-def)
                   (and inner-defun
                        (not (member '&kwarg args))))
