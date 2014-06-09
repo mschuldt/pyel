@@ -776,7 +776,6 @@ during interactive emacs-lisp sessions where possible")
 (defsubst pyel-is-func-type (type)
   (and (vectorp type) (= (length type) 3)))
 
-
 (defun pyel-env-get (sym env)
   "return a list of possible types for SYM in ENVironment"
   (let ((val (gethash sym (pyel-env-get-ht env)))
@@ -789,9 +788,15 @@ during interactive emacs-lisp sessions where possible")
 (defvar pyel-global-type-env (pyel-make-type-env)
   "global type environment used for type Reconstruction")
 
-(defmacro pyel-return-type (function types)
-  "declare return type for FUNCTION. TYPES is a symbol or list of possible types"
-  `(pyel-env-set (quote ,function) (quote ,types) pyel-global-type-env))
+(defmacro pyel-declare-el-func (function returns)
+  `(pyel-declare-el-func-fn ',function ',returns))
+
+(defun pyel-declare-el-func-fn (function returns)
+  (assert (symbolp function) "FUNCTION name must be a symbol")
+  ;;TODO: check that RETURNS is valid
+  (pyel-env-set function
+                (pyel-make-func-type function nil returns)
+                pyel-global-type-env))
 
 (defun pyel-filter-non-args(args)
   "remove '&optional' and '&rest' from ARGS list"
