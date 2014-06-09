@@ -70,8 +70,8 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
                    (insert python)
                    (pyel-preprocess-buffer2)
                    (buffer-string)))
-         (pyel-context nil)         
-         (type-env pyel-global-type-env)
+         (pyel-context nil)
+         (type-env (pyel-make-type-env pyel-global-type-env))
          (tmp-file (format "/tmp/pyel-%s.py" (incf pyel-tmp-file-counter)))
          (ast-command (format "cd %s;./%s %s"
                               pyel-directory
