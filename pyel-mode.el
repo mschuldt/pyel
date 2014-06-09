@@ -390,10 +390,11 @@ if arg is positive, turn on, else turn off"
 (defvar pyel-required '(cl)
   "list of required featured used by pyel generated code")
 
-(defun pyel-load (file &optional el-file no-error)
+(defun pyel-load (file &optional el-file no-error no-compile)
   "Convert python FILE to e-lisp file named EL-FILE, bypte compile it.
 EL-FILE defaults to FILE.py.el, if such a file exists, it will be
-overwritten without warning"
+overwritten without warning
+if NO-COMPILE is non-nil, don't byte compile before loading"
   ;;TODO: load byte compiled file if it is more recent
   (let ((pyel-function-definitions nil)
         (pyel-defined-functions nil)
@@ -418,8 +419,10 @@ overwritten without warning"
             ;;       pyel-function-definitions)
             (pyel-prettyprint python)
             (write-file el-file))))
-    (save-window-excursion
-      (byte-compile-file el-file :load))))
+    (if no-compile
+        (load-file el-file)
+      (save-window-excursion
+        (byte-compile-file el-file :load)))))
 
 
 (defun back-to-open-paren ()
