@@ -410,14 +410,13 @@ overwritten without warning"
       (if (not error)
           (progn
             (erase-buffer)
+            (emacs-lisp-mode)
             (mapc (lambda (x) (cl-prettyprint `(require ',x)))
                   pyel-required)
             (insert "\n")
             ;; (mapc (lambda (x) (cl-prettyprint x))
             ;;       pyel-function-definitions)
-            (if (and (listp python) (equal (car python) 'progn))
-                (mapc (lambda (x) (cl-prettyprint x)) (cdr python))
-              (cl-prettyprint python))
+            (pyel-prettyprint python)
             (write-file el-file))))
     (save-window-excursion
       (byte-compile-file el-file :load))))
