@@ -297,6 +297,8 @@ put the following line in your config:
 ** main
 #+Begin_SRC emacs-lisp :tangle pyel.el
   ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
+  
+  ;;  PYEL -> translate PYthon to Emacs Lisp
 #+END_SRC
 ** transforms
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
@@ -316,7 +318,6 @@ put the following line in your config:
 #+END_SRC
 
 * main
-header
 ** require
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (add-to-list 'load-path "~/programming/pyel/")
@@ -327,11 +328,6 @@ header
   ;;other requires are at the end
 #+END_SRC
 ** main
-#+Begin_SRC emacs-lisp :tangle pyel.el
-;; This is a tangled file  -- DO NOT HAND-EDIT --
-;;PYEL -> translate PYthon to Emacs Lisp
-#+END_SRC
-
 main
 #+Begin_SRC emacs-lisp :tangle pyel.el
   (defun mpp (code)

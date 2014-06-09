@@ -1,15 +1,14 @@
 
 ;; This is a tangled file  -- DO NOT EDIT --  Edit in pyel.org
 
+;;  PYEL -> translate PYthon to Emacs Lisp
+
 (add-to-list 'load-path "~/programming/pyel/")
 (add-to-list 'load-path "~/programming/code-transformer/")
 (require 'eieio)
 (require 'cl)
 
 ;;other requires are at the end
-
-;; This is a tangled file  -- DO NOT HAND-EDIT --
-;;PYEL -> translate PYthon to Emacs Lisp
 
 (defun mpp (code)
   (let ((pp (pp-to-string code)))
