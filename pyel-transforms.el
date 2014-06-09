@@ -249,12 +249,13 @@
     (pyel-dict keys values line col)))
 
 (defun pyel-dict (keys values line col) ;;TODO: move to lambda in template and create template vars
-  (if (context-p 'return-type?)
-          (setq return-type 'hash))
-  (cons 'py-dict (mapcar* (lambda (key value)
-                            (list key value))
-                          (mapcar 'transform  keys)
-                          (mapcar 'transform  values))))
+  (let ((ret (cons 'py-dict (mapcar* (lambda (key value)
+                                       (list key value))
+                                     (mapcar 'transform  keys)
+                                     (mapcar 'transform  values)))))
+    (if (context-p 'return-type?)
+        (setq return-type 'hash))
+    ret))
 
 (def-transform tuple pyel ()
   (lambda (elts ctx &optional line col) ;;Ignoring ctx for now
