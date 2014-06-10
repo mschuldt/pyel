@@ -798,6 +798,10 @@ during interactive emacs-lisp sessions where possible")
                 (pyel-make-func-type function nil returns)
                 pyel-global-type-env))
 
+(defvar pyel-last-transform nil
+  "name of the last transform that was expanded with
+`pyel-do-call-transform'")
+
 (defun pyel-filter-non-args(args)
   "remove '&optional' and '&rest' from ARGS list"
   (filter (lambda (x) (not (or (eq x '&optional)
@@ -832,6 +836,7 @@ NOTE: if the name of the function to be created is already in
 
     `(def-transform ,name pyel ()
        (lambda ,striped-args
+         (setq pyel-last-transform ',name)
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ;;,(cons 'list args-just-vars))
                                               ,(if rest-arg
@@ -879,6 +884,7 @@ matches NAME and has the proper arg length then no transform will be called."
     
     `(def-transform ,transform-name pyel ()
        (lambda ,striped-args
+         (setq pyel-last-transform ',name)
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,(if rest-arg
                                                    `(append ,(cons 'list non-rest)
@@ -924,6 +930,7 @@ ARG signature has no effect on the transform dispatch"
                             "function")))
     `(def-transform ,(pyel-func-transform-name name is-kwarg-transform) pyel ()
        (lambda ,striped-args
+         (setq pyel-last-transform ',name)
          (let ((body (pyel-do-call-transform (pyel-get-possible-types
                                               ,(if rest-arg
                                                    `(append ,(cons 'list non-rest)
@@ -972,6 +979,7 @@ This is called at the same time `pyel-func-transform' would be called"
       This defines a transforms in the pyel transform table with NAME and ARGS"
   `(def-transform ,name pyel ()
      (lambda ,args
+       (setq pyel-last-transform ',name)
        (pyel-do-call-transform (pyel-get-possible-types ,(cons 'list args))
                                ',args
                                ',type-switches))))
@@ -984,6 +992,7 @@ This is called at the same time `pyel-func-transform' would be called"
     This defines a transforms in the pyel transform table with NAME and ARGS"
   `(def-transform ,name pyel ()
      (lambda ,args
+       (setq pyel-last-transform ',name)
        (pyel-do-call-transform (pyel-get-possible-types ,(cons 'list args))
                                ',args
                                ',type-switches))))
@@ -1221,12 +1230,13 @@ is the number of type switches. Each digit corresponds to a type switch
                  use~default~p)
              default~)
         (push default~ valid~))
-
+        
     ;;generate code to call NAME
     ;;if there is 2 posible types, use IF. For more use COND
     (setq len~ (length valid~))
 
-    (cond ((<= len~ 0) "ERROR: no valid type")
+    (cond ((<= len~ 0)
+           (error "unable to match dispatch types: %s" pyel-last-transform))
           ((= len~ 1)
            ;;there is only one possibility, so replace the args with their
            ;;quoted counterpart instead of replacing with the let bound vars
