@@ -1128,10 +1128,9 @@ is the number of type switches. Each digit corresponds to a type switch
                              (dolist (type (cdr p-t))
                                (push (cons arg type) ret)))
                            ret))
-         ;;if there is one possible type for every arg then we don't
-         ;;need to use the default case
+         ;;if there is one possible type for every arg then we don't need to
+         ;;use the default case unless the default is the only matchine case
          (use~default~p (not (= n~args (length possible~types))))
-
          (args~just~vars (pyel-filter-non-args (mapcar 'strip_ args)))
          (new~args (loop for a in args
                          collect (if (or (eq a '&optional)
@@ -1187,7 +1186,7 @@ is the number of type switches. Each digit corresponds to a type switch
          (c~ 0)
          (n -1)
          valid~ ;;list of valid arg--types
-         found~ all~good len~)
+         found~ all~good len~ default~)
 
     (setq _pyel-type-sig 0)
     
@@ -1210,16 +1209,19 @@ is the number of type switches. Each digit corresponds to a type switch
                    (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n)))))
         ;;else
         (if (eq (car t~s) t);when all types are _
-            (if use~default~p
-                (push t~s valid~))
+            (setq default~ t~s)
           ;;otherwise check if the type is one of the valid types
-
           (dolist (pos~type possible~types)
             (when (and (equal (eval (caar t~s)) (car pos~type))
                        (equal (strip$ (cadar t~s)) (cdr pos~type)))
               (push t~s valid~);TODO: break if found?
               (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n))))))));
-    
+
+    (if (and (or (= (length valid~) 0)
+                 use~default~p)
+             default~)
+        (push default~ valid~))
+
     ;;generate code to call NAME
     ;;if there is 2 posible types, use IF. For more use COND
     (setq len~ (length valid~))
