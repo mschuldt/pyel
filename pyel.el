@@ -1226,12 +1226,12 @@ is the number of type switches. Each digit corresponds to a type switch
 
     (cond ((<= len~ 0) "ERROR: no valid type")
           ((= len~ 1)
-           (if (eq (caar valid~) 'and)
-               (caddar valid~);;?
-             ;;there is only one possibility, so replace the args with their
-             ;;quoted counterpart instead of replacing with the let bound vars
-             (list 'backquote (pyel-replace-backquoted (cadar valid~)
-                                                       all~known~replacements))))
+           ;;there is only one possibility, so replace the args with their
+           ;;quoted counterpart instead of replacing with the let bound vars
+           (list 'backquote (pyel-replace-backquoted (if (eq (caar valid~) 'and)
+                                                         (caddar valid~)
+                                                       (cadar valid~))
+                                                     all~known~replacements)))
              
           ;;?TODO: are there possible problems with evaluating the arguments
           ;;       multiple times? Maybe they should be put in a list
