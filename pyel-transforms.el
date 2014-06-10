@@ -348,25 +348,49 @@
 
 (defun pyel-if (test body orelse &optional line col)
   (let* ((tst (transform test))
-         (true-body (if (> (length body) 1)
-                        (append (remove-context tail-context
-                                                (mapcar 'transform
-                                                        (or (subseq body 0 -1)
-                                                            (list (car body)))))
-                                (list (transform (car (last body)))))
-                      (mapcar 'transform body)))
-         (false-body (if (> (length orelse) 1)
-                        (append (remove-context tail-context
-                                                (mapcar 'transform
-                                                        (or (subseq orelse 0 -1)
-                                                            (list (car orelse)))))
-                                (list (transform (car (last orelse)))))
-                      (mapcar 'transform orelse))) 
+         true-type false-type trans
+         (true-body
+          (if (> (length body) 1)
+              (append (remove-context
+                       ;;(tail-context return-type)
+                       tail-context
+                       (mapcar 'transform
+                               (or (subseq body 0 -1)
+                                   (list (car body)))))
+                      (using-context
+                       return-type?
+                       (setq trans (list (transform (car (last body))))
+                             true-type return-type)
+                       trans))
+            (using-context return-type?
+                           (setq trans (mapcar 'transform body)
+                                 true-type return-type)
+                           trans)))
+         (false-body
+          (if (> (length orelse) 1)
+              (append (remove-context
+                       ;;(tail-context return-type)
+                       tail-context
+                       (mapcar 'transform
+                               (or (subseq orelse 0 -1)
+                                   (list (car orelse)))))
+                      (using-context
+                       return-type?
+                       (setq trans (list (transform (car (last orelse))))
+                             false-type return-type)
+                       trans))
+            (using-context return-type?
+                           (setq trans (mapcar 'transform orelse)
+                                 false-type return-type)
+                           trans))) 
          (progn-code (if (> (length true-body) 1)
                          '(@ progn)
                        '@)))
-
-    `(if  ,(if (equal tst []) nil tst)
+    
+    (setq return-type (if (equal true-type false-type)
+                          true-type
+                        (list true-type false-type)))
+    `(if ,(if (equal tst []) nil tst)
 
          (,progn-code ,@true-body)
        ,@false-body)))
