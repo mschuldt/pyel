@@ -824,59 +824,48 @@ Recognizes keyword args in the form 'arg = value'."
     (call-transform op left right)))
 
 (pyel-dispatch-func * (l r)
-                    (object _)  -> (call-method l --mul-- r)
-                    (string _)
-                    (_ string)  -> (pyel-mul-num-str l r)
-                    (_ _)       -> (* l r))
+                    (number number) -> (* l r)
+                    (string number)
+                    (number string)  -> (pyel-mul-num-str l r)
+                    (object _)  -> (call-method l --mul-- r))
 
 (pyel-dispatch-func + (lhs rhs)
-                    (number _) -> (+ lhs rhs)
-                    (string _) -> (concat lhs rhs)
-                    (list _)   -> (append lhs rhs)
+                    (number number) -> (+ lhs rhs)
+                    (string string) -> (concat lhs rhs)
+                    (list list)   -> (append lhs rhs)
                     (object _) -> (call-method lhs --add-- rhs)
-                    (_ number)  -> (+ lhs rhs)
-                    (vector _)
-                    (_ vector)  -> (vconcat lhs rhs)
-                    (_ string) -> (concat lhs rhs)
-                    (_ list)   -> (append lhs rhs))
+                    (vector vector) -> (vconcat lhs rhs))
 
 (pyel-dispatch-func - (l r)
-                    (number _) -> (- l r)
-                    (object _) -> (call-method l --sub-- r)
-                    (_ number) -> (- l r))
+                    (number number) -> (- l r)
+                    (object _) -> (call-method l --sub-- r))
 
 (pyel-dispatch-func ** (l r) ;;pow
-                    (number _) -> (expt l r)
-                    (object _) -> (call-method l --pow-- r)
-                    (_ number) -> (expt l r))
+                    (number number) -> (expt l r)
+                    (object _) -> (call-method l --pow-- r))
 
 (pyel-dispatch-func / (l r)
-                    (number _) -> (pyel-div l r)
-                    (object _) -> (call-method l --truediv-- r)
-                    (_ number) -> (pyel-div l r))
+                    (number number) -> (pyel-div l r)
+                    (object _) -> (call-method l --truediv-- r))
 
 (pyel-dispatch-func // (l r) ;;floored (normal) division
-                    (number _) -> (/ l r)
-                    (object _) -> (call-method l --floordiv-- r)
-                    (_ number) -> (/ l r))
+                    (number number) -> (/ l r)
+                    (object _) -> (call-method l --floordiv-- r))
 
 (pyel-dispatch-func ^ (l r) ;;bit xor
-                    (number _) -> (logxor l r)
-                    (object _) -> (call-method l --xor-- r)
-                    (_ number) -> (logxor l r))
+                    (number number) -> (logxor l r)
+                    (object _) -> (call-method l --xor-- r))
 
 (pyel-dispatch-func & (l r) ;;bit and
-                    (number _) -> (logand l r)
-                    (object _) -> (call-method l --and-- r)
-                    (_ number) -> (logand l r))
+                    (number number) -> (logand l r)
+                    (object _) -> (call-method l --and-- r))
 
 (pyel-dispatch-func | (l r) ;;bit or
-                    (number _) -> (logior l r)
-                    (object _) -> (call-method l --or-- r)
-                    (_ number) -> (logior l r))
+                    (number number) -> (logior l r)
+                    (object _) -> (call-method l --or-- r))
 
 (pyel-dispatch-func % (l r)
-                    (number _) -> (% l r)
+                    (number number) -> (% l r)
                     (object _) -> (call-method l --mod-- r))
 
 (defclass PySlice nil ;;TODO: name?
