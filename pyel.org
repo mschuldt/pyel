@@ -4031,23 +4031,23 @@ TODO: tests!
            (ctx (cond ((context-p 'force-load) 'load)
                       ((context-p 'force-store) 'store)
                       (t (eval ctx))))
-           start stop step)
+           start stop step ret)
   
       (when (object-p slice)
         (setq start (oref slice start)
               stop (oref slice end)
               step (oref slice step)))
-      (if (eq ctx 'load)
-          (if (object-p slice)
-              (call-transform 'subscript-load-slice value start stop step) ;;load slice
-            (call-transform 'subscript-load-index value slice)) ;;load index
-        ;;else: store
-        (if (object-p slice)
-            (call-transform 'subscript-store-slice value start stop step assign-value)
-          (call-transform 'subscript-store-index value slice assign-value)) ;;load index
-  
-        ;;      (test value start stop step assign-value)
-        )))
+      (setq ret
+            (if (eq ctx 'load)
+                (if (object-p slice)
+                    (call-transform 'subscript-load-slice value start stop step) ;;load slice
+                  (call-transform 'subscript-load-index value slice)) ;;load index
+              ;;else: store
+              (if (object-p slice)
+                  (call-transform 'subscript-store-slice value start stop step assign-value)
+                (call-transform 'subscript-store-index value slice assign-value)))) ;;store index
+      (setq return-type nil) ;;return type unknown
+      ret))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
