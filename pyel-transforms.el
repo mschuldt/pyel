@@ -768,12 +768,12 @@
         ;;                                    ,@t-body)
         ;;                                 class-def-methods)))
 
-        (t (setq last-line (using-context tail-context
-                                          (transform (car (last body))))
-                 first (subseq body 0 (1- (length body)))
+        (t (setq first (subseq body 0 (1- (length body)))
                  first (if first
                            (mapcar 'transform first)
                          nil)
+                 last-line (using-context tail-context
+                                          (transform (car (last body))))
                  t-body (append first (list last-line)))
 
            ;;(setq t-body (transform-last-with-context
