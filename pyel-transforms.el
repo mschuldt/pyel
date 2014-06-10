@@ -303,7 +303,7 @@
                     ;;TODO: macro for this
                     (string string) -> (pyel-string> l r)
                     (list list) -> (pyel-list-> l r)
-                    (object _) -> (call-method l __gt__ r)
+                    (object _) -> (call-method l --gt-- r)
                     (vector vector) -> (pyel-vector-> l r)
                     )
 
@@ -314,27 +314,27 @@
                     (number number) -> (< l r)
                     (string string) -> (string< l r)
                     (list list) -> (pyel-list-< l r)
-                    (object _) -> (call-method l __lt__ r)
+                    (object _) -> (call-method l --lt-- r)
                     (vector vector) -> (pyel-vector-< l r))
 
 (pyel-dispatch-func >= (l r)
                     (number number) -> (>= l r)
                     (string string) -> (pyel-string>= l r)
                     (list list)     ->  (pyel-list>= l r)
-                    (object _) -> (call-method l __ge__ r)
+                    (object _) -> (call-method l --ge-- r)
                     (vector vector) -> (pyel-vector->= l r))
 
 (pyel-dispatch-func <= (l r)
                     (number number) -> (<= l r)
                     (string string) -> (pyel-string<= l r)
                     (list list)     -> (pyel-list<= l r)
-                    (object _) -> (call-method l __le__ r)
+                    (object _) -> (call-method l --le-- r)
                     (vector vector) -> (pyel-vector-<= l r))
 
 (pyel-dispatch-func != (l r)
                     (number number) -> (pyel-number!= l r)
                     (string string) -> (pyel-string!= l r)
-                    (object _) -> (call-method l __ne__ r)
+                    (object _) -> (call-method l --ne-- r)
                     (_ _) -> (!equal l r))
 
 ;;this is defined as a transform because `pyel-compare' expects
