@@ -5427,10 +5427,7 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform if-exp pyel ()
     (lambda (test body orelse &optional line col)
-      (let ((tst (transform test)))
-        `(if ,(if (equal tst []) nil tst)
-             ,(transform body)
-           ,(transform orelse)))))
+      (pyel-if test (list body) (list orelse) line col)))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py

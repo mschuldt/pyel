@@ -1183,10 +1183,7 @@ Recognizes keyword args in the form 'arg = value'."
 
 (def-transform if-exp pyel ()
   (lambda (test body orelse &optional line col)
-    (let ((tst (transform test)))
-      `(if ,(if (equal tst []) nil tst)
-           ,(transform body)
-         ,(transform orelse)))))
+    (pyel-if test (list body) (list orelse) line col)))
 
 (def-transform raise pyel ()
   (lambda (exc cause &optional line col)
