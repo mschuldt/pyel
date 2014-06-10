@@ -2250,10 +2250,14 @@ This is for all non template specific code.
   
         (cond
          ((eq ctx 'store)
+          (setq ret (list 'setattr t-value attr (transform assign-value))
+                return-type nil)
           ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
-          (list 'setattr t-value attr (transform assign-value)))
+          ret)
+  
          ((eq ctx 'load) ;;assign value
           ;;(list 'oref t-value attr)
+          (setq return-type nil)
           (list 'getattr t-value attr))
          (t "Error in attribute-- invalid ctx"))
         )))
