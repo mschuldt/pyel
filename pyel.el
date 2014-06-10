@@ -1197,9 +1197,9 @@ is the number of type switches. Each digit corresponds to a type switch
     (dolist (t~s (pyel-expand-type-switch-2 args~just~vars type-switch))
       (incf n)
       (if (equal (car t~s) 'and)
-          (progn (setq all~good t
-                       found~ nil)
+          (progn (setq all~good t)
                  (dolist  (~x (cadr t~s)) ;;for each 'and' member type-switch
+                   (setq found~ nil) 
                    (dolist (pos~type possible~types) ;;for each arg type
                      (if (and (equal (eval (car ~x)) (car pos~type))
                               (equal (cadr ~x) (cdr pos~type)))
