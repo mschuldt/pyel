@@ -1672,11 +1672,41 @@ This will have to be removed after the code is generated
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
+  (defun pyel-get-trans--type (form)
+    "return a cons cell with the form (transformed . type) where
+  'transformed is the transformed value of FORM and 'type' is the
+  possible type or types of FORM"
+    (let* (t-form
+           (type (if (symbolp form)
+                     (progn (setq t-form form)
+                            (pyel-env-get form type-env))
+                   (setq t-form (using-context return-type?
+                                               (transform form)))
+                   return-type)))
+      (if (pyel-is-func-type type)
+          (setq type (pyel-func-return-type type)))
+      (if (null type)
+          ;;if type is not known, it could be anything
+          (setq type pyel-possible-types))    
+      ;;type for form must be a list
+      (if (listp type)
+          (cons t-form type)
+        (cons t-form (list type)))))
+  
   (defun call-transform (template-name &rest args)
     "expand TEMPLATE-NAME with ARGS in the same way that `transform' would
   if was called as (transform '(template-name args))
   NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
-    (eval `(transform '(,template-name ,@(mapcar 'transform args)))))
+    (let (t-args) ;;t-args is set by 
+      (setq known-types (mapcar (lambda (x)
+                                  (setq x (pyel-get-trans--type x)
+                                        t-args (cons (car x) t-args))
+                                  (cdr x))
+                                args)
+  
+            t-args (reverse t-args))
+      (eval `(transform '(,template-name ,@(mapcar 'transform args))))))
+  
   
   (defun call-transform-no-trans (template-name &rest args)
     "like call-transform, except that ARGS are not transformed"
