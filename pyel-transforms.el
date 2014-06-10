@@ -132,7 +132,8 @@
                   ((context-p 'force-store) 'store)
                   (t (eval ctx))))
   (let ((t-value (transform value))
-        (attr (read (_to- (transform attr)))))
+        (attr (read (_to- (transform attr))))
+        ret)
 
     ;;create slot for this attribute if it does not already exist
     (when (and (context-p 'method-def)
@@ -436,11 +437,11 @@
                                (using-context function-call
                                               (transform func))))
         (this-return-type return-type)
-        (function-type (progn 
+        (function-type (progn
                          (if (pyel-is-func-type return-type)
                              (setq return-type (pyel-func-func-type return-type)))
                          (if (listp return-type)
-                             return-type 
+                             return-type
                            (list return-type))))
         (keyword-args (using-context keywords-alist
                                      (mapcar (lambda (x) (transform (car x)))
@@ -450,7 +451,7 @@
                                args))
         (known-types known-types)
         new-func m-name f-name star-args kw-args ret)
-    
+
     ;; (if (member t-func pyel-defined-classes)
     ;;     ;;instantiate an object and call its initializer
     ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
@@ -474,9 +475,9 @@
                         type
                       (list type)))
                   args))
-    
+
     (setq return-type this-return-type)
-    
+
     (if (eq (car func) 'attribute);;method call
         (if (and (member (setq m-name (read (caddr func)))
                          pyel-method-transforms)
@@ -522,7 +523,7 @@
                                ,@t-args-quoted))
                    return-type this-return-type)
              ret)
-            
+
             ((member t-func pyel-func-transforms)
              ;;transform defined with `pyel-func-transform'
              (setq ret (eval `(call-transform-no-trans

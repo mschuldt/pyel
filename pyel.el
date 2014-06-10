@@ -641,6 +641,7 @@ during interactive emacs-lisp sessions where possible")
   "remove CONTEXT and translate CODE, then restore context"
   `(let ((pyel-context (remove ',context pyel-context)))
      ,@code))
+
 (def-edebug-spec remove-context (symbolp &rest form))
 
 (defmacro context-switch (&rest forms)
@@ -1183,8 +1184,8 @@ is the number of type switches. Each digit corresponds to a type switch
          ;;replacements for the case in which all types are known and nothing
          ;;is let-bound, arg~quote~replacements must come first
          (all~known~replacements (append arg~quote~replacements
-                                    arg~replacements3
-                                    arg~replacements2))
+                                         arg~replacements3
+                                         arg~replacements2))
          (current~replace~list nil)
          
          ;; (arg~replacements (append let~vars
@@ -1244,7 +1245,7 @@ is the number of type switches. Each digit corresponds to a type switch
                                                          (caddar valid~)
                                                        (cadar valid~))
                                                      all~known~replacements)))
-             
+          
           ;;?TODO: are there possible problems with evaluating the arguments
           ;;       multiple times? Maybe they should be put in a list
           (t (let* ((clauses (mapcar 'pyel-gen-cond-clause valid~))

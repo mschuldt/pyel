@@ -971,6 +971,7 @@ This will have to be removed after the code is generated
     "remove CONTEXT and translate CODE, then restore context"
     `(let ((pyel-context (remove ',context pyel-context)))
        ,@code))
+  
   (def-edebug-spec remove-context (symbolp &rest form))
   
   (defmacro context-switch (&rest forms)
@@ -1517,8 +1518,8 @@ This will have to be removed after the code is generated
            ;;replacements for the case in which all types are known and nothing
            ;;is let-bound, arg~quote~replacements must come first
            (all~known~replacements (append arg~quote~replacements
-                                      arg~replacements3
-                                      arg~replacements2))
+                                           arg~replacements3
+                                           arg~replacements2))
            (current~replace~list nil)
            
            ;; (arg~replacements (append let~vars
@@ -1578,7 +1579,7 @@ This will have to be removed after the code is generated
                                                            (caddar valid~)
                                                          (cadar valid~))
                                                        all~known~replacements)))
-               
+            
             ;;?TODO: are there possible problems with evaluating the arguments
             ;;       multiple times? Maybe they should be put in a list
             (t (let* ((clauses (mapcar 'pyel-gen-cond-clause valid~))
@@ -2262,7 +2263,8 @@ This is for all non template specific code.
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
     (let ((t-value (transform value))
-          (attr (read (_to- (transform attr)))))
+          (attr (read (_to- (transform attr))))
+          ret)
   
       ;;create slot for this attribute if it does not already exist
       (when (and (context-p 'method-def)
@@ -2551,7 +2553,7 @@ This is for all non template specific code.
                      "x = 'a'"
                      "['a','b']")
 #+END_SRC
-** comparisons: >, <, ==, !=, <=, >=
+** comparisons: >, <, ==, !=, <=, >=, is
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (def-transform compare pyel ()
@@ -2938,11 +2940,11 @@ This is for all non template specific code.
                                  (using-context function-call
                                                 (transform func))))
           (this-return-type return-type)
-          (function-type (progn 
+          (function-type (progn
                            (if (pyel-is-func-type return-type)
                                (setq return-type (pyel-func-func-type return-type)))
                            (if (listp return-type)
-                               return-type 
+                               return-type
                              (list return-type))))
           (keyword-args (using-context keywords-alist
                                        (mapcar (lambda (x) (transform (car x)))
@@ -2952,7 +2954,7 @@ This is for all non template specific code.
                                  args))
           (known-types known-types)
           new-func m-name f-name star-args kw-args ret)
-      
+  
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
       ;;     `(let ((__c (,t-func ,(pyel-next-obj-name))))
@@ -2976,9 +2978,9 @@ This is for all non template specific code.
                           type
                         (list type)))
                     args))
-      
+  
       (setq return-type this-return-type)
-      
+  
       (if (eq (car func) 'attribute);;method call
           (if (and (member (setq m-name (read (caddr func)))
                            pyel-method-transforms)
@@ -3024,7 +3026,7 @@ This is for all non template specific code.
                                  ,@t-args-quoted))
                      return-type this-return-type)
                ret)
-              
+  
               ((member t-func pyel-func-transforms)
                ;;transform defined with `pyel-func-transform'
                (setq ret (eval `(call-transform-no-trans
@@ -3062,6 +3064,7 @@ This is for all non template specific code.
                                                                    keywords))))))
                        return-type this-return-type)
                  ret)))))
+  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -3920,7 +3923,7 @@ TODO: tests!
            `(/ ,l ,(* 1.0 r)))
           (t `(/ (* ,l 1.0) ,r))))
 #+END_SRC
-*** tests TODO
+*** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
    add-op
@@ -5864,7 +5867,7 @@ This will help notify the user when some syntax has not been implemented
   ;;these aliases will need to be updated
   (defalias 'pyel-str-function 'pyel-str-function255)
   (defalias 'pyel-repr-function 'pyel-repr-function255)
-
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
