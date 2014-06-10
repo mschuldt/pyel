@@ -417,7 +417,9 @@
         (keyword-args (using-context keywords-alist
                                      (mapcar (lambda (x) (transform (car x)))
                                              keywords)))
-        (t-args (mapcar 'transform args))
+        (t-args-quoted (mapcar (lambda (x)
+                                 (list 'quote (transform x)))
+                               args))
         (known-types known-types)
         new-func m-name f-name star-args kw-args ret)
     
@@ -461,10 +463,10 @@
               (setq keyword-args keywords
                     star-args starargs
                     kw-args kwargs
-                    ret (eval `(call-transform
+                    ret (eval `(call-transform-no-trans
                                 ',m-name
                                 ',(transform (cadr func))
-                                ,@(mapcar '(lambda (x) `(quote ,x)) args)))
+                                ,@t-args-quoted))
                     return-type this-return-type)
               ret)
           ;;normal method call
@@ -482,33 +484,32 @@
         ;;translate name
         (setq t-func (cadr new-func)))
 
-      
       ;;call function transform if one was defined
       (cond ((and keyword-args
                   (member t-func pyel-func-kwarg-transforms))
              ;;transform defined with `pyel-func-kwarg-transform'
-             (setq ret (eval `(call-transform ',(pyel-func-transform-name t-func t)
-                                              ',keyword-args
-                                              ,@(mapcar '(lambda (x) `(quote ,x))
-                                                        args)))
+             (setq ret (eval `(call-transform-no-trans
+                               ',(pyel-func-transform-name t-func t)
+                               ',keyword-args
+                               ,@t-args-quoted))
                    return-type this-return-type)
              ret)
             
             ((member t-func pyel-func-transforms)
              ;;transform defined with `pyel-func-transform'
-             (setq ret (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                              ;;',(transform (cadr func))
-                                              ,@(mapcar '(lambda (x) `(quote ,x))
-                                                        args)))
+             (setq ret (eval `(call-transform-no-trans
+                               ',(pyel-func-transform-name t-func)
+                               ,@t-args-quoted))
                    return-type this-return-type)
              ret)
 
             ((member t-func pyel-func-transforms2)
              ;;transform defined with `pyel-define-function-translation'
-             (setq ret (eval `(call-transform ',(pyel-func-transform-name t-func)
-                                              ;;,(mapcar '(lambda (x) `(quote ,x)) args)
-                                              (mapcar 'transform args)
-                                              keyword-args))
+             (setq ret (eval `(call-transform-no-trans
+                               ',(pyel-func-transform-name t-func)
+                               ;;,(mapcar '(lambda (x) `(quote ,x)) args)
+                               (mapcar 'transform args) ;;?
+                               keyword-args))
                    return-type this-return-type))
 
             ;;normal function call
@@ -520,14 +521,15 @@
                                           (pyel-func-return-type return-type))))
                (setq known-types (cons function-type known-types)
                      _known-types known-types
-                     ret (eval `(call-transform
-                                  'fcall ,@(cons 't-func
+                     ret (eval `(call-transform-no-trans
+                                 'fcall ,@(cons 't-func
+                                                (append
+                                                 t-args-quoted
                                                  (mapcar (lambda (x)
-                                                           `(quote ,x))
-                                                         (append args
-                                                                 (mapcar 'car
-                                                                         keywords)
-                                                         )))))
+                                                           (list 'quote
+                                                                 (transform x)))
+                                                         (mapcar 'car
+                                                                 keywords))))))
                      return-type this-return-type)
                ret)))))
 
