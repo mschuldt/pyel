@@ -853,6 +853,10 @@ during interactive emacs-lisp sessions where possible")
 (defun pyel-declare-el-func-fn (function returns)
   (assert (symbolp function) "FUNCTION name must be a symbol")
   ;;TODO: check that RETURNS is valid
+  (setq returns (if (or (eq returns 'any)
+                        (eq returns nil))
+                    pyel-possible-types
+                  returns))
   (pyel-env-set function
                 (pyel-make-func-type function nil returns)
                 pyel-global-type-env))
