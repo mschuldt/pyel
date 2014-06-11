@@ -1254,7 +1254,7 @@ is the number of type switches. Each digit corresponds to a type switch
          (c~ 0)
          (n -1)
          valid~ ;;list of valid arg--types
-         found~ all~good len~ default~)
+         found~ all~good len~ default~ default~n)
 
     (setq _pyel-type-sig 0)
     
@@ -1277,7 +1277,8 @@ is the number of type switches. Each digit corresponds to a type switch
                    (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n)))))
         ;;else
         (if (eq (car t~s) t);when all types are _
-            (setq default~ t~s)
+            (progn (setq default~ t~s
+                         default~n n))
           ;;otherwise check if the type is one of the valid types
           (dolist (pos~type possible~types)
             (when (and (equal (eval (caar t~s)) (car pos~type))
@@ -1285,10 +1286,11 @@ is the number of type switches. Each digit corresponds to a type switch
               (push t~s valid~);TODO: break if found?
               (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n))))))));
 
-    (if (and (or (= (length valid~) 0)
+    (when (and (or (= (length valid~) 0)
                  use~default~p)
              default~)
-        (push default~ valid~))
+        (push default~ valid~)
+        (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 default~n))))
         
     ;;generate code to call NAME
     ;;if there is 2 posible types, use IF. For more use COND
