@@ -430,6 +430,63 @@ main
           ret
           ))))
   
+  (defun pyel-file (file &optional el-file extras-file no-error compile)
+    "Convert python FILE to e-lisp file named EL-FILE
+  EL-FILE defaults to FILE.el, if such a file exists, it will be
+  overwritten without warning
+  If EXTRAS-FILE is given, save all the pyel generated functions/macros
+  in it. If EXTRAS-FILE is 't', automatically create a file name with
+  the format FILE_pyel-extras.el. if EXTRAS-FILE is nil, save the
+  the generated functions at the top of the output file.
+  If COMPILE is non-nil, byte compile resulting e-lisp.
+  If "
+    (let ((pyel-function-definitions nil)
+          (pyel-defined-functions nil)
+          (pyel-context nil)
+          (el-file (or el-file (format "%s.el" file)))
+          (extras-file (if extras-file
+                           (if (eq extras-file t)
+                               (format "%s_pyel-extras.el" (remove-file-extension
+                                                            file))
+                             extras-file)))
+          python error)
+      (with-temp-buffer
+        (insert-file-contents file)
+        (setq python (pyel (buffer-string) t t))
+        (if (equal python pyel-error-string)
+            (if no-error
+                (setq error t)
+              (error "pyel-load: Error loading file %s" file)))  ;;x
+        (if (not error)
+            (progn
+              (erase-buffer)
+              (emacs-lisp-mode)
+              (mapc (lambda (x)
+                      (insert (format "(require '%s)\n" x)))
+                    pyel-required)
+              (if extras-file
+                  (progn
+                    (insert (format "(require '%s)\n\n"
+                                    (file-name-base extras-file)))
+                    (with-temp-buffer
+                      (emacs-lisp-mode)
+                      (mapc '(lambda (x)
+                               (pyel-prettyprint x)
+                               (insert "\n"))
+                            (pyel-sort-functions
+                             pyel-function-definitions))
+                      (insert (format "(provide '%s)\n"
+                                      (file-name-base extras-file)))
+                      (write-file extras-file)))
+                (mapc '(lambda (x)
+                         (pyel-prettyprint x)
+                         (insert "\n"))
+                      (pyel-sort-functions
+                       pyel-function-definitions)))
+  
+              (pyel-prettyprint python)
+              (write-file el-file))))))
+  
   (defvar pyel-last-python-code nil
     "last python string `pyel' attempted to transform")
   
