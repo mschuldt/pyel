@@ -1,0 +1,32 @@
+(require 'cl)
+(require 'pyel_pyel-extras)
+
+(def pyel-eval-buffer nil (interactive)
+     (pyel-fcall15 py-eval (pyel-fcall15 pyel (pyel-fcall15 buffer-string)))
+     (pyel-fcall15 pyel-eval-extra-generated-code))
+
+(def pyel-buffer (&optional (out-buff . "*pyel-output*")) (interactive)
+     (let (lisp)
+       (pyel-set2 lisp (pyel-fcall15 pyel-buffer-to-lisp))
+       (pyel-fcall15 switch-to-buffer-other-window out-buff)
+       (pyel-fcall15 erase-buffer)
+       (pyel-fcall15 lisp-interaction-mode)
+       (pyel-fcall15 pyel-prettyprint lisp)
+       (pyel-fcall15 goto-char 1)))
+
+(def back-to-open-paren nil nil
+     (let (pc c)
+       (pyel-set2 pc 0)
+       (while (and (pyel-not3 (pyel-fcall15 bobp)) (pyel-!=1 pc 1))
+         (pyel-fcall15 backward-char)
+         (pyel-set2 c (pyel-fcall15 thing-at-point (pyel-fcall15 quote char)))
+         (if (pyel-==5 (pyel-fcall15 py-ord c) 34)
+             (progn (pyel-fcall15 forward-char)
+                    (pyel-fcall15 backward-sexp))
+           (if (pyel-==6 c ")")
+               (pyel-set2 pc (pyel--1 pc 1))
+             (if (pyel-==6 c "(")
+                 (pyel-set2 pc (pyel-+1 pc 1))))))
+       (if (and (pyel-fcall15 bobp) (pyel-not3 (pyel-fcall15 looking-at "(")))
+           nil
+         t)))

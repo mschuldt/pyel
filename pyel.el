@@ -1675,6 +1675,8 @@ prevents multiple/none '/' seporating file names"
 (pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
 ;;...I'm so sorry
 
+(load "pyel.py")
+(load "py-iter.py")
 (provide 'pyel)
 ;;pyel.el ends here
 
