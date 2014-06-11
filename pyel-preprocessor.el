@@ -54,9 +54,19 @@ TODO: not all macro translations will work when  declared this way."
   "a-list of marked ast pieces
   element form: (marker . ast)")
 
+(defun pyel-convert-backticks ()
+  (goto-char 1)
+  (while (re-search-forward "`" nil :no-error)
+    (when (not (python-syntax-comment-or-string-p))
+      (backward-delete-char 1)
+      (insert "quote(")
+      (forward-sexp)
+      (insert ")"))))
+
 (defun pyel-preprocess-buffer2 () ;;recursive function
   (interactive)
   (python-mode)
+  (pyel-convert-backticks)
   (cl-flet ((create-regex (name)
                           (format "\\(%s\\)[ \t\n]*("
                                   (replace-regexp-in-string "-" "_" name))))
