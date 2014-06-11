@@ -39,6 +39,27 @@ TODO: not all macro translations will work when  declared this way."
   "a-list of marked ast pieces
   element form: (marker . ast)")
 
+(defvar pyel-type-declaration-regexp
+  "^[ \t]*\\([a-zA-Z1-9_]+\\)[ \t]+\\([a-zA-Z1-9_]+\\)\\([,a-zA-Z1-9_]*\\)[ \t]*$"
+  "matches variable type declaration syntax
+match fields: 1. type
+              2. variable name
+              3. list of comma separated variable names")
+
+(defvar py-reserved-keywords
+  (let ((ht (make-hash-table :test 'eq :size 100)))
+    (mapc (lambda (x)
+            (puthash x t ht))
+          '(False      class      finally    is         return
+                       None       continue   for        lambda     try
+                       True       def        from       nonlocal   while
+                       and        del        global     not        with
+                       as         elif       if         or         yield
+                       assert     else       import     pass
+                       break      except     in         raise))
+    ht)
+  "hash table of reserved python keywords")
+
 (defun pyel-convert-backticks ()
   (goto-char 1)
   (while (re-search-forward "`" nil :no-error)
@@ -48,9 +69,34 @@ TODO: not all macro translations will work when  declared this way."
       (forward-sexp)
       (insert ")"))))
 
+(defun pyel-convert-type-declarations ()
+  (save-excursion
+    (goto-char 1)
+    (let (fmt-string type first rest)
+      (while (re-search-forward pyel-type-declaration-regexp nil :no-error)
+        (when (and (not (save-match-data (python-syntax-comment-or-string-p)))
+                   (not (gethash (intern (match-string 1))
+                                 py-reserved-keywords)))
+
+          (setq type (match-string 1)
+                first (match-string 2)
+                rest (or (match-string 3) "")
+                fmt-string (format "%s(%%s, %s)"
+                                   pyel-type-declaration-function
+                                   type))
+          (back-to-indentation)
+          (kill-line)
+          (insert (format fmt-string first))
+          (mapc (lambda (x)
+                  (newline-and-indent)
+                  (insert (format fmt-string x)))
+                ;;first elem is empty string
+                (subseq (split-string rest ",") 1)))))))
+
 (defun pyel-preprocess-buffer () ;;recursive function
   (interactive)
   (python-mode)
+  (pyel-convert-type-declarations)
   (pyel-convert-backticks)
   (cl-flet ((create-regex (name)
                           (format "\\(%s\\)[ \t\n]*("

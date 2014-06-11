@@ -1079,6 +1079,13 @@ This will have to be removed after the code is generated
 #+end_src
 ** type reconstruction
 #+Begin_SRC emacs-lisp :tangle pyel.el
+  (defvar pyel-type-declaration-function '_pyel_declare_type_
+    "name of the function that is used to communicate variable types
+  to the pyel translator.
+  Type declarations are replaced with a call to this function.")
+  
+  (setq pyel-type-declaration-function2 (_to- pyel-type-declaration-function))
+  
   (set (defvar pyel-possible-types nil
          "list of all (built-in) types a variable can take")
          '(number
@@ -3070,109 +3077,117 @@ This is for all non template specific code.
       ;;        (--init-- __c ,@(mapcar 'transform args))
       ;;        __c)
   
-      (setq known-types
-            (mapcar (lambda (arg)
-                      (setq type (if (symbolp arg)
-                                     (pyel-env-get arg type-env)
-                                   (using-context return-type?
-                                                  (transform arg))
-                                   return-type))
-                      (if (pyel-is-func-type type)
-                          (setq type (pyel-func-return-type type)))
-                      (if (null type)
-                          ;;if type is not known, it could be anything
-                          (setq type pyel-possible-types))
-                      ;;type for each arg must be a list
-                      (if (listp type)
-                          type
-                        (list type)))
-                    args))
+      (if (eq t-func pyel-type-declaration-function2)
+          ;;declare variable type, return nothing
+          (progn
+            (assert (= (length args) 2) "type declaration function requires 2 args")
+            (pyel-env-set (transform (car args)) (transform (cadr args)) type-env)
+            pyel-nothing)
+        ;;else: normal function/method call
+        (setq known-types
+              (mapcar (lambda (arg)
+                        (setq type (if (symbolp arg)
+                                       (pyel-env-get arg type-env)
+                                     (using-context return-type?
+                                                    (transform arg))
+                                     return-type))
+                        (if (pyel-is-func-type type)
+                            (setq type (pyel-func-return-type type)))
+                        (if (null type)
+                            ;;if type is not known, it could be anything
+                            (setq type pyel-possible-types))
+                        ;;type for each arg must be a list
+                        (if (listp type)
+                            type
+                          (list type)))
+                      args))
   
-      (setq return-type this-return-type)
+        (setq return-type this-return-type)
   
-      (if (eq (car func) 'attribute);;method call
-          (if (and (member (setq m-name (read (caddr func)))
-                           pyel-method-transforms)
-                   (setq m-name (pyel-find-method-transform-name
-                                 m-name
-                                 (1+ (length args)))));;1+ because args does not include the object
+        (if (eq (car func) 'attribute);;method call
+            (if (and (member (setq m-name (read (caddr func)))
+                             pyel-method-transforms)
+                     (setq m-name (pyel-find-method-transform-name
+                                   m-name
+                                   (1+ (length args)))));;1+ because args does not include the object
   
-              ;;this methods transform is overridden
-              (progn
-                (setq known-types (cons function-type known-types))
-                ;;dynamic scoping saves the day again!
-                (setq keyword-args keywords
-                      star-args starargs
-                      kw-args kwargs
-                      ret (eval `(call-transform-no-trans
-                                  ',m-name
-                                  ',(transform (cadr func))
-                                  ,@t-args-quoted))
-                      return-type this-return-type)
-                ret)
-            ;;normal method call
-            (remove-context
-             method-call-override
-             (setq ret (using-context
-                        method-call
-                        `(,(transform func) ,@(remove-context
-                                               method-call
-                                               (mapcar 'transform args))))
-                   return-type this-return-type)
-             ret))
-  
-        (when (setq new-func (assoc t-func pyel-function-name-translations));;function call
-          ;;translate name
-          (setq t-func (cadr new-func)))
-  
-        ;;call function transform if one was defined
-        (cond ((and keyword-args
-                    (member t-func pyel-func-kwarg-transforms))
-               ;;transform defined with `pyel-func-kwarg-transform'
-               (setq ret (eval `(call-transform-no-trans
-                                 ',(pyel-func-transform-name t-func t)
-                                 ',keyword-args
-                                 ,@t-args-quoted))
+                ;;this methods transform is overridden
+                (progn
+                  (setq known-types (cons function-type known-types))
+                  ;;dynamic scoping saves the day again!
+                  (setq keyword-args keywords
+                        star-args starargs
+                        kw-args kwargs
+                        ret (eval `(call-transform-no-trans
+                                    ',m-name
+                                    ',(transform (cadr func))
+                                    ,@t-args-quoted))
+                        return-type this-return-type)
+                  ret)
+              ;;normal method call
+              (remove-context
+               method-call-override
+               (setq ret (using-context
+                          method-call
+                          `(,(transform func) ,@(remove-context
+                                                 method-call
+                                                 (mapcar 'transform args))))
                      return-type this-return-type)
-               ret)
+               ret))
   
-              ((member t-func pyel-func-transforms)
-               ;;transform defined with `pyel-func-transform'
-               (setq ret (eval `(call-transform-no-trans
-                                 ',(pyel-func-transform-name t-func)
-                                 ,@t-args-quoted))
-                     return-type this-return-type)
-               ret)
+          ;;function call
+          (when (setq new-func (assoc t-func pyel-function-name-translations))
+            ;;translate name
+            (setq t-func (cadr new-func)))
   
-              ((member t-func pyel-func-transforms2)
-               ;;transform defined with `pyel-define-function-translation'
-               (setq ret (eval `(call-transform-no-trans
-                                 ',(pyel-func-transform-name t-func)
-                                 ;;,(mapcar '(lambda (x) `(quote ,x)) args)
-                                 (mapcar 'transform args) ;;?
-                                 keyword-args))
-                     return-type this-return-type))
-  
-              ;;normal function call
-              ;;`(,t-func ,@(mapcar 'transform args))
-              ;;TODO: this is dumb, convert `call-transform' to a macro?
-              (t (if (context-p 'return-type?)
-                     (setq return-type (pyel-env-get t-func type-env)
-                           return-type (and return-type
-                                            (pyel-func-return-type return-type))))
-                 (setq known-types (cons function-type known-types)
-                       _known-types known-types
-                       ret (eval `(call-transform-no-trans
-                                   'fcall ,@(cons 't-func
-                                                  (append
-                                                   t-args-quoted
-                                                   (mapcar (lambda (x)
-                                                             (list 'quote
-                                                                   (transform x)))
-                                                           (mapcar 'car
-                                                                   keywords))))))
+          ;;call function transform if one was defined
+          (cond ((and keyword-args
+                      (member t-func pyel-func-kwarg-transforms))
+                 ;;transform defined with `pyel-func-kwarg-transform'
+                 (setq ret (eval `(call-transform-no-trans
+                                   ',(pyel-func-transform-name t-func t)
+                                   ',keyword-args
+                                   ,@t-args-quoted))
                        return-type this-return-type)
-                 ret)))))
+                 ret)
+  
+                ((member t-func pyel-func-transforms)
+                 ;;transform defined with `pyel-func-transform'
+                 (setq ret (eval `(call-transform-no-trans
+                                   ',(pyel-func-transform-name t-func)
+                                   ,@t-args-quoted))
+                       return-type this-return-type)
+                 ret)
+  
+                ((member t-func pyel-func-transforms2)
+                 ;;transform defined with `pyel-define-function-translation'
+                 (setq ret (eval `(call-transform-no-trans
+                                   ',(pyel-func-transform-name t-func)
+                                   ;;,(mapcar '(lambda (x) `(quote ,x)) args)
+                                   (mapcar 'transform args) ;;?
+                                   keyword-args))
+                       return-type this-return-type))
+  
+                ;;normal function call
+                ;;`(,t-func ,@(mapcar 'transform args))
+                ;;TODO: this is dumb, convert `call-transform' to a macro?
+                (t (if (context-p 'return-type?)
+                       (setq return-type (pyel-env-get t-func type-env)
+                             return-type (and return-type
+                                              (pyel-func-return-type return-type))))
+                   (setq known-types (cons function-type known-types)
+                         _known-types known-types
+                         ret (eval `(call-transform-no-trans
+                                     'fcall ,@(cons 't-func
+                                                    (append
+                                                     t-args-quoted
+                                                     (mapcar (lambda (x)
+                                                               (list 'quote
+                                                                     (transform x)))
+                                                             (mapcar 'car
+                                                                     keywords))))))
+                         return-type this-return-type)
+                   ret))))))
   
 #+END_SRC
 *** python ast

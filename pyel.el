@@ -747,6 +747,13 @@ during interactive emacs-lisp sessions where possible")
   ;;TODO:
   )
 
+(defvar pyel-type-declaration-function '_pyel_declare_type_
+  "name of the function that is used to communicate variable types
+to the pyel translator.
+Type declarations are replaced with a call to this function.")
+
+(setq pyel-type-declaration-function2 (_to- pyel-type-declaration-function))
+
 (set (defvar pyel-possible-types nil
        "list of all (built-in) types a variable can take")
        '(number
