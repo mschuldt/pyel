@@ -135,14 +135,14 @@
         (attr (read (_to- (transform attr))))
         ret)
 
-    ;;create slot for this attribute if it does not already exist
-    (when (and (context-p 'method-def)
-               (not (assoc attr class-def-slots)))
-      (push `(,attr :initarg ,(intern (concat ":"
-                                              (symbol-name attr)))
-                    :initform nil)
+    ;; ;;create slot for this attribute if it does not already exist
+    ;; (when (and (context-p 'method-def)
+    ;;            (not (assoc attr class-def-slots)))
+    ;;   (push `(,attr :initarg ,(intern (concat ":"
+    ;;                                           (symbol-name attr)))
+    ;;                 :initform nil)
 
-            class-def-slots))
+    ;;         class-def-slots))
     (if (and (context-p 'method-call)
              (not (context-p 'method-call-override)))
         (using-context method-call-override
@@ -986,20 +986,17 @@ Recognizes keyword args in the form 'arg = value'."
 
 (defun pyel-defclass (name bases keywords starargs kwargs
                            body decorator_list &optional line col)
-  (let ((class-def-methods nil) ;; list of methods that are part of this class
-        (class-def-slots nil) ;;list of slots that are part of this class
-        (class-def-name (_to- (transform name)))
+  (let ((class-def-name (_to- (transform name)))
         (t-bases (mapcar 'transform bases)))
-    ;;transform body with the class-def context, the transformed code
-    ;;will store its methods and slots in class-def-methods and class-def-slots
-    ;;respectively.
+
     (when (context-p 'function-def)
       (push class-def-name let-arglist)
       (push '__defined-in-function-body t-bases))
+    
+    (add-to-list 'pyel-defined-classes name)
     (remove-context
      function-def
      (using-context class-def
-                    (add-to-list 'pyel-defined-classes name)
                     `(define-class ,class-def-name ,t-bases
                        ,@(mapcar 'transform body)
                        )))))
