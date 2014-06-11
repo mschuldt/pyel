@@ -388,7 +388,7 @@ main
            (current-transform-table (get-transform-table 'pyel))
            (python (with-temp-buffer
                      (insert python)
-                     (pyel-preprocess-buffer2)
+                     (pyel-preprocess-buffer)
                      (buffer-string)))
            (pyel-context nil)
            (type-env (pyel-make-type-env pyel-global-type-env))

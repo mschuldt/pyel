@@ -31,21 +31,6 @@ TODO: not all macro translations will work when  declared this way."
   "Find and add names of built in macros to `pyel-pp--macro-names'"
   )
 
-(defun pyel-preprocess-buffer ()
-  (interactive)
-  (cl-flet ((create-regex (name)
-                          (format "\\(%s\\)[ \t\n]*("
-                                  (replace-regexp-in-string "-" "_" name))))
-    (let (re)
-      (dolist (name pyel-pp--macro-names)
-        ;;TODO group these names together to minimize transverses
-        (setq re (create-regex name))
-        (goto-char 1)
-        (while (re-search-forward re nil :no-error)
-          (replace-match (format "while %s%s:"
-                                 pyel-py-macro-prefix
-                                 (match-string 1))))))))
-
 (defun pyel-create-new-marker ()
   (format "__pyel_marker_%d__" (incf pyel-marker-counter)))
 
@@ -63,7 +48,7 @@ TODO: not all macro translations will work when  declared this way."
       (forward-sexp)
       (insert ")"))))
 
-(defun pyel-preprocess-buffer2 () ;;recursive function
+(defun pyel-preprocess-buffer () ;;recursive function
   (interactive)
   (python-mode)
   (pyel-convert-backticks)
