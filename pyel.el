@@ -747,15 +747,8 @@ during interactive emacs-lisp sessions where possible")
   ;;TODO:
   )
 
-;;this is all temp for testing
-
-;;prevents error: "Wrong type argument: listp, string"
-;;TODO: this is a bit of a mess now. types 'func' and 'function' in type
-;;transforms result in different tests but func/function still kind of mean the
-;;same thing when it comes to python. if func is known type, function should
-;;also be know. need some kind of an alias mechanism
 (set (defvar pyel-possible-types nil
-       "list of all types a variable can take")
+       "list of all (built-in) types a variable can take")
        '(number
          list
          vector
@@ -771,10 +764,7 @@ during interactive emacs-lisp sessions where possible")
          int
          float))
 
-;;(setq known-types (mapcar (lambda (_) pyel-possible-types) (number-sequence 1 10)))
-;;(push (list 'known-types known-types) test-variable-values)
-(setq known-types nil)  
-
+(setq known-types nil)
 
 (defun pyel-get-possible-types (args)
   "return a list in the form (arg types).
@@ -797,8 +787,8 @@ during interactive emacs-lisp sessions where possible")
     (mapcar* (lambda (arg type)
                (cons arg type))
              args types)))
-
-;;type environment definition
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;type environment object definition
 ;;fields:
 ;; parent: another environment
 ;; ht: a hash table that maps symbols to lists of types
@@ -821,6 +811,7 @@ during interactive emacs-lisp sessions where possible")
 (defsubst pyel-env-set-parent (env parent)
   (aset env pyel-env-parent parent))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;function type
 ;;  in type environments, function symbols get
 ;;  mapped to these function types
@@ -863,6 +854,11 @@ during interactive emacs-lisp sessions where possible")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; function declarations
+
+;;currently a type of nil is treated as unknown and will be treated
+;;as every possible type, so it is equivalent to a type of 'any'
+;;They are treated separately here in case things should change
+;;in the future
 
 (mapc (lambda (f)
         (pyel-declare-el-func-fn f nil))
