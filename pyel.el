@@ -106,6 +106,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
                                      (transform (read  (format "(@ %s)" py-ast))))))
         ;;TODO: this is a temp solution for convenience
         (mapc 'eval pyel-function-definitions)
+        (delete-file tmp-file)
         ret
         ))))
 

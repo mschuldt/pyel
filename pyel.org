@@ -426,6 +426,7 @@ main
                                        (transform (read  (format "(@ %s)" py-ast))))))
           ;;TODO: this is a temp solution for convenience
           (mapc 'eval pyel-function-definitions)
+          (delete-file tmp-file)
           ret
           ))))
   
