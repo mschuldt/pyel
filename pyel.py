@@ -2,6 +2,7 @@
 @interactive
 def pyel_eval_buffer():
     eval(pyel(buffer_string()))
+    pyel_eval_extra_generated_code()
 
 @interactive
 def pyel_buffer(out_buff='*pyel-output*'):
