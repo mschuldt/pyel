@@ -484,14 +484,11 @@ when finished the point will be after the closing paren"
       ;;delete leading whitespace
       (goto-char start)
       (skip-chars-forward " \n")
-      (kill-region 1 (point))
+      (kill-region start (point))
 
       ;; ;;reindent everything
-      ;; (indent-region (point-min) (point-max))
       (goto-char last)
       (if re-indent
           (indent-region start last))))
-
-
 
 (provide 'pyel-pp)
