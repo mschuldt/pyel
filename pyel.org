@@ -5572,7 +5572,8 @@ This will help notify the user when some syntax has not been implemented
 ** list
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (let ((current-transform-table (get-transform-table 'pyel)))
+  (let ((current-transform-table (get-transform-table 'pyel))
+        (type-env (pyel-make-type-env pyel-global-type-env)))
     (call-transform (pyel-func-transform-name 'list) nil))
   
   (defalias 'py-list 'pyel-list-function31)
@@ -5858,7 +5859,8 @@ This will help notify the user when some syntax has not been implemented
   ;;The expanded functions are used so we force expansion here.
   ;;required functions are `pyel-str-function' and `pyel-repr-function'
   ;;;NOTE: this is also done in `pyel-run-tests'
-  (let ((current-transform-table (get-transform-table 'pyel)))
+  (let ((current-transform-table (get-transform-table 'pyel))
+        (type-env (pyel-make-type-env pyel-global-type-env)))
     (call-transform (pyel-func-transform-name 'repr) nil)
     (call-transform (pyel-func-transform-name 'str) nil))
   

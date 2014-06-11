@@ -1204,7 +1204,8 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'input 'read-string)
 
-(let ((current-transform-table (get-transform-table 'pyel)))
+(let ((current-transform-table (get-transform-table 'pyel))
+      (type-env (pyel-make-type-env pyel-global-type-env)))
   (call-transform (pyel-func-transform-name 'list) nil))
 
 (defalias 'py-list 'pyel-list-function31)
