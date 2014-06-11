@@ -1192,6 +1192,55 @@ This will have to be removed after the code is generated
     (pyel-env-set function
                   (pyel-make-func-type function nil returns)
                   pyel-global-type-env))
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; function declarations
+  
+  (mapc (lambda (f)
+          (pyel-declare-el-func-fn f nil))
+        ;;returns nil (?)
+        '(pyel-eval-extra-generated-code
+          switch-to-buffer-other-window  ;;buffer
+          erase-buffer
+          lisp-interaction-mode
+          pyel-prettyprint
+          goto-char
+          backward-char
+          forward-char
+          backward-sexp
+          forward-sexp
+          provide))
+  
+  (mapc (lambda (f)
+          (pyel-declare-el-func-fn f 'string))
+        ;;returns string
+        '(concat
+          substring
+          buffer-substring
+          buffer-substring-no-properties
+          buffer-string))
+  
+  (mapc (lambda (f)
+          (pyel-declare-el-func-fn f 'number))
+        ;;return number
+        '(length))
+  
+  (mapc (lambda (f)
+          (pyel-declare-el-func-fn f 'bool))
+        ;;returns bool
+        '(looking-at
+          bobp eobp
+          bolp eolp))
+  
+  (mapc (lambda (f)
+          (pyel-declare-el-func-fn f 'any))
+        ;;returns any
+        '(car cdr cadr cddr cdar
+              thing-at-point ;;?)
+              first last
+              nth
+              quote
+              aref aset))
 #+end_src
 ** type dispatching transforms
 #+Begin_SRC emacs-lisp :tangle pyel.el
