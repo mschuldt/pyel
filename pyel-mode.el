@@ -387,7 +387,7 @@ if arg is positive, turn on, else turn off"
   ;;TODO: write to file and then load so the code can be revied later
   (mapc 'eval pyel-function-definitions))
 
-(defvar pyel-required '(cl)
+(defvar pyel-required '(cl py-lib)
   "list of required featured used by pyel generated code")
 
 (defun pyel-load (file &optional el-file no-error no-compile)
