@@ -119,7 +119,9 @@ These names will be set globally to their index in this list")
       ;;collect symbols that get bound during class definition
       (cond ((and (consp attr)
                   (symbolp (cadr attr))
-                  (member (car attr) setter-functions))
+                  (or (member (car attr) setter-functions)
+                      (string-match "pyel-set[0-9]+" (symbol-name (car attr)))))
+
              (progn (push (cadr attr) class-variables)
                     (push attr non-method)))
 
