@@ -689,7 +689,7 @@ during interactive emacs-lisp sessions where possible")
        (condition-case err
            (setq ret (progn ,@code))
          (error (pop pyel-context)
-                (error (format "using-context: %s" err))))
+                (error (format "context %s: %s" ',context err))))
        (pop pyel-context)
        ret)))
 
