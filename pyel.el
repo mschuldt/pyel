@@ -685,13 +685,13 @@ during interactive emacs-lisp sessions where possible")
 (defmacro using-context (context &rest code)
   `(progn
      (push ',context pyel-context)
-     (let (ret)
+     (let (_using-context_ret_)
        (condition-case err
-           (setq ret (progn ,@code))
+           (setq _using-context_ret_ (progn ,@code))
          (error (pop pyel-context)
                 (error (format "context %s: %s" ',context err))))
        (pop pyel-context)
-       ret)))
+       _using-context_ret_)))
 
 (def-edebug-spec using-context (symbolp &rest form))
 
