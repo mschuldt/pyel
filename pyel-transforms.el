@@ -987,12 +987,13 @@ Recognizes keyword args in the form 'arg = value'."
 (defun pyel-defclass (name bases keywords starargs kwargs
                            body decorator_list &optional line col)
   (let ((class-name (_to- (transform name)))
-        (t-bases (mapcar 'transform bases)))
+        (t-bases (mapcar 'transform bases))
+        (type-env (pyel-make-type-env type-env)))
 
     (when (context-p 'function-def)
       (push class-name let-arglist)
       (push '__defined-in-function-body t-bases))
-    
+
     (add-to-list 'pyel-defined-classes name)
     (remove-context
      function-def
