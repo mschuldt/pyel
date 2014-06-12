@@ -1325,7 +1325,7 @@ is the number of type switches. Each digit corresponds to a type switch
                    (setq found~ nil) 
                    (dolist (pos~type possible~types) ;;for each arg type
                      (if (and (equal (eval (car ~x)) (car pos~type))
-                              (equal (cadr ~x) (cdr pos~type)))
+                              (pyel-type-compare (cadr ~x) (cdr pos~type)))
                          (setq found~ t)))
                    (setq all~good (if (and all~good found~) t nil)))
                  (when all~good
@@ -1338,7 +1338,7 @@ is the number of type switches. Each digit corresponds to a type switch
           ;;otherwise check if the type is one of the valid types
           (dolist (pos~type possible~types)
             (when (and (equal (eval (caar t~s)) (car pos~type))
-                       (equal (strip$ (cadar t~s)) (cdr pos~type)))
+                       (pyel-type-compare (strip$ (cadar t~s)) (cdr pos~type)))
               (push t~s valid~);TODO: break if found?
               (setq _pyel-type-sig (logior _pyel-type-sig (expt 2 n))))))));
 
@@ -1375,6 +1375,13 @@ is the number of type switches. Each digit corresponds to a type switch
                                 `(let ,varlist
                                    (cond ,@(reverse clauses)))
                               `(cond ,@(reverse clauses)))))))))
+
+(defsubst pyel-type-compare (switch-type possible-type)
+  (if (eq switch-type 'object)
+      (or (eq possible-type 'instance)
+          (eq possible-type 'class)
+          (eq possible-type 'object))
+    (eq switch-type possible-type)))
 
 ;;helper functions for pyel-do-call-transform
 (defun pyel-replace (code replacements)
