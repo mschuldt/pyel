@@ -351,10 +351,10 @@ if arg is positive, turn on, else turn off"
           (end (progn (python-nav-end-of-defun) (point))))
       (pyel-eval-region start end))))
 
-(defun pyel-eval-buffer ()
-  "translate and eval the whole buffer"
-  (interactive)
-  (pyel-eval-region (point-min) (point-max)))
+;; (defun pyel-eval-buffer ()
+;;   "translate and eval the whole buffer"
+;;   (interactive)
+;;   (pyel-eval-region (point-min) (point-max)))
 
 (defvar pyel-show-translation t
   "if non-nil, pyel will display live translation everytime the buffer is changed")
