@@ -473,22 +473,22 @@ when finished the point will be after the closing paren"
       (setq last (- last 8)
             re-indent t))
 
-      ;;add spaces before important functions
-      (goto-char start)
-      (while (re-search-forward pyel-pp-newline-function-re last :noerror)
-        (goto-char (match-beginning 0))
-        (insert "\n")
-        (incf last)
-        (goto-char (match-end 0)))
+    ;;add spaces before important functions
+    (goto-char start)
+    (while (re-search-forward pyel-pp-newline-function-re last :noerror)
+      (goto-char (match-beginning 0))
+      (insert "\n")
+      (incf last)
+      (goto-char (match-end 0)))
 
-      ;;delete leading whitespace
-      (goto-char start)
-      (skip-chars-forward " \n")
-      (kill-region start (point))
+    ;;delete leading whitespace
+    (goto-char start)
+    (skip-chars-forward " \n")
+    (kill-region start (point))
 
-      ;; ;;reindent everything
-      (goto-char last)
-      (if re-indent
-          (indent-region start last))))
+    ;; ;;reindent everything
+    (goto-char last)
+    (if re-indent
+        (indent-region start last))))
 
 (provide 'pyel-pp)
