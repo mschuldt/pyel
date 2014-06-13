@@ -1561,7 +1561,7 @@ NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
                               args)
 
           t-args (reverse t-args))
-    (eval `(transform '(,template-name ,@(mapcar 'transform args))))))
+    (eval `(transform '(,template-name ,@t-args)))))
 
 
 (defun call-transform-no-trans (template-name &rest args)

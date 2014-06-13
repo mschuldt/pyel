@@ -1895,7 +1895,7 @@ This will have to be removed after the code is generated
                                 args)
   
             t-args (reverse t-args))
-      (eval `(transform '(,template-name ,@(mapcar 'transform args))))))
+      (eval `(transform '(,template-name ,@t-args)))))
   
   
   (defun call-transform-no-trans (template-name &rest args)
