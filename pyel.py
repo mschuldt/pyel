@@ -5,7 +5,7 @@ def pyel_eval_buffer():
     pyel_eval_extra_generated_code()
 
 @interactive
-def pyel_buffer(out_buff='*pyel-output*'):
+def pyel_buffer(out_buff:string='*pyel-output*'):
     lisp = pyel_buffer_to_lisp()
     switch_to_buffer_other_window(out_buff)
     erase_buffer()
