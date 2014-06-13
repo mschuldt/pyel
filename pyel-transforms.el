@@ -782,6 +782,7 @@
               ;;;
            (ret pyel-nothing)
            (args (_to- (using-context function-def (transform (car args)))))
+           (this-return return-type) ;;return-type set by the argument transform
            (orig-name name)
            (decorators (mapcar 'transform decoratorlist))
            setq-code first-arg-name
@@ -868,6 +869,8 @@
            (if interactive
                (push 'interactive decorators))
 
+           (setq _func-env type-env)
+           (setq return-type this-return)
            `(,setq-code (,func ,name ,args ,decorators
                                ,docstring
                                ,@assign-defaults
