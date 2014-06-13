@@ -133,7 +133,7 @@
                   (t (eval ctx))))
   (let ((t-value (transform value))
         (attr (read (_to- (transform attr))))
-        ret)
+        ret obj-type obj-name)
 
     ;; ;;create slot for this attribute if it does not already exist
     ;; (when (and (context-p 'method-def)
@@ -163,16 +163,39 @@
 
       (cond
        ((eq ctx 'store)
-        (setq ret (list 'setattr t-value attr (transform assign-value))
-              return-type nil)
+        (using-context return-type?
+                       (setq ret (list 'setattr t-value attr
+                                       (transform assign-value))))
+                                        ;(setq return-type nil)
+        (setq obj-type (pyel-env-get t-value type-env))
+        ;;if the know the object type then map its attribute to a new type
+        (cond ((pyel-is-class-type obj-type)
+               (setq obj-name (pyel-class-type-name obj-type))
+               ;;set the type mapping in the type-env that the object was defined in
+               (pyel-env-set (pyel-env-attr-key obj-name attr)
+                             return-type
+                             (pyel-class-type-env obj-type)))
+              ((pyel-is-instance-type obj-type)
+               (setq obj-name (pyel-instance-type-name obj-type))
+               ;;set the type mapping in the type-env that the object was defined in
+               (pyel-env-set (pyel-env-attr-key obj-name attr)
+                             return-type
+                             (pyel-instance-type-env obj-type))))
+        
         ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
         ret)
 
        ((eq ctx 'load) ;;assign value
         ;;(list 'oref t-value attr)
-        (setq return-type nil)
+        (setq obj-type (pyel-env-get t-value type-env))        
+        (setq return-type
+              (if (pyel-is-object-type obj-type)
+                  (progn
+                    (setq obj-name (pyel-object-type-name obj-type))
+                    (pyel-env-get (pyel-env-attr-key obj-name attr) type-env))))
+
         (list 'getattr t-value attr))
-       (t "Error in attribute-- invalid ctx"))
+       (t (t "Error in attribute-- invalid ctx")))
       )))
 
 (def-transform num pyel ()
@@ -440,6 +463,10 @@
         (function-type (progn
                          (if (pyel-is-func-type return-type)
                              (setq return-type (pyel-func-func-type return-type)))
+                         (if (pyel-is-class-type return-type)
+                             (setq return-type '(class)))
+                         (if (pyel-is-instance-type return-type)
+                             (setq return-type '(instance)))
                          (if (listp return-type)
                              return-type
                            (list return-type))))
@@ -472,11 +499,15 @@
                                    (using-context return-type?
                                                   (transform arg))
                                    return-type))
-                      (if (pyel-is-func-type type)
-                          (setq type (pyel-func-return-type type)))
-                      (if (null type)
-                          ;;if type is not known, it could be anything
-                          (setq type pyel-possible-types))
+                      (cond ((pyel-is-func-type type)
+                             (setq type (pyel-func-return-type type)))
+                            ((pyel-is-class-type type)
+                             (setq type '(class)))
+                            ((pyel-is-instance-type type)
+                             (setq type '(instance)))
+                            ((null type)
+                             ;;if type is not known, it could be anything
+                             (setq type pyel-possible-types)))
                       ;;type for each arg must be a list
                       (if (listp type)
                           type
@@ -554,8 +585,12 @@
               ;;TODO: this is dumb, convert `call-transform' to a macro?
               (t (if (context-p 'return-type?)
                      (setq return-type (pyel-env-get t-func type-env)
-                           return-type (and return-type
-                                            (pyel-func-return-type return-type))))
+                           return-type (cond ((pyel-is-func-type return-type)
+                                              (pyel-func-return-type return-type))
+                                             ((pyel-is-class-type return-type)
+                                              (pyel-make-instance-type
+                                               return-type type-env))
+                                             (t return-type))))
                  (setq known-types (cons function-type known-types)
                        _known-types known-types
                        ret (eval `(call-transform-no-trans
@@ -749,17 +784,26 @@
            (args (_to- (using-context function-def (transform (car args)))))
            (orig-name name)
            (decorators (mapcar 'transform decoratorlist))
-           setq-code
+           setq-code first-arg-name
            )
 
       (setq _env type-env)
 
-      (when (or (context-p 'lambda-def)
+      (when (or (null name)
+                (context-p 'lambda-def)
                 (and inner-defun
                      (not (member '&kwarg args))))
 
         (setq decorators (cons 'pyel-lambda decorators)
               name nil))
+
+      (when (context-p 'class-def)
+        ;;this is a method. set a reference to the name of the first arg
+        ;;This is used by the type declaration code
+        (setq first-arg-name (car args))
+        ;;map the first arg to its class type. 
+        ;;`class-name' is set by the class transform
+        (pyel-env-set first-arg-name (pyel-env-get class-name type-env) type-env))
 
       (using-context
        function-def
@@ -991,13 +1035,18 @@ Recognizes keyword args in the form 'arg = value'."
                            body decorator_list &optional line col)
   (let ((class-name (_to- (transform name)))
         (t-bases (mapcar 'transform bases))
+        (outer-env type-env)
         (type-env (pyel-make-type-env type-env)))
-
+    
+    ;;set the type of this class in the outer type-env
+    (pyel-env-set class-name (pyel-make-class-type class-name outer-env) outer-env)
+    
     (when (context-p 'function-def)
       (push class-name let-arglist)
       (push '__defined-in-function-body t-bases))
-
+    
     (add-to-list 'pyel-defined-classes name)
+    (setq _class-env type-env)
     (remove-context
      function-def
      (using-context class-def

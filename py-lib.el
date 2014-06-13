@@ -824,7 +824,8 @@ EXC must be derived from BaseException"
 ;;The expanded functions are used so we force expansion here.
 ;;required functions are `pyel-str-function' and `pyel-repr-function'
 ;;;NOTE: this is also done in `pyel-run-tests'
-(let ((current-transform-table (get-transform-table 'pyel)))
+(let ((current-transform-table (get-transform-table 'pyel))
+      (type-env (pyel-make-type-env pyel-global-type-env)))
   (call-transform (pyel-func-transform-name 'repr) nil)
   (call-transform (pyel-func-transform-name 'str) nil))
 

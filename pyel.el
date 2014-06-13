@@ -813,6 +813,8 @@ Type declarations are replaced with a call to this function.")
   (aref env pyel-env-ht))
 (defsubst pyel-env-get-parent (env)
   (aref env pyel-env-parent))
+(defsubst pyel-env-get-grandparent (env)
+  (pyel-env-get-parent (pyel-env-get-parent env)))
 (defsubst pyel-env-set (sym val env)
   (puthash sym val (pyel-env-get-ht env)))
 (defsubst pyel-env-set-parent (env parent)
@@ -833,6 +835,55 @@ Type declarations are replaced with a call to this function.")
 (defsubst pyel-is-func-type (type)
   (and (vectorp type) (= (length type) 3)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;class type
+;;  in type environments, object name symbols get
+;;  mapped to these types
+(defsubst pyel-make-class-type (object-name type-env)
+  ;;forth elem exists to make the length 4.
+  ;;This allows `pyel-is-class-type' to just check the length
+  (vector object-name type-env 0 nil))
+(defsubst pyel-class-type-name (obj-type)
+  (aref obj-type 0))
+(defsubst pyel-class-type-env (obj-type)
+  (aref obj-type 1))
+(defsubst pyel-class-type-num (obj-type)
+  (aref obj-type 2))
+(defsubst pyel-class-type-inc (class-type)
+  "increment and return the instance number"
+  (aset class-type 2 (1+ (aref class-type 2))))
+
+(defsubst pyel-is-class-type (type)
+  (and (vectorp type) (= (length type) 4)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;instance type
+;;the only field contains name of the instance in form <classname><instance num>
+(defsubst pyel-make-instance-type (object type-env)
+  (vector (intern (concat (symbol-name (pyel-class-type-name object))
+                          (number-to-string (pyel-class-type-inc object))))
+          type-env))
+(defsubst pyel-instance-type-name (obj-type)
+  (aref obj-type 0))
+(defsubst pyel-instance-type-env (obj-type)
+  (aref obj-type 1))
+(defsubst pyel-is-instance-type (type)
+  (and (vectorp type) (= (length type) 2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defsubst pyel-is-object-type (type)
+  (and (vectorp type) (or (= (length type) 2)
+                          (= (length type) 4))))
+(defsubst pyel-object-type-name (type)
+  (if (pyel-is-instance-type type)
+      (pyel-instance-type-name type)
+    (pyel-class-type-name type)))
+
+;;creates a key for the class/instance attribute to type mapping
+(defun pyel-env-attr-key (class attr)
+  (intern (concat (symbol-name class) ":" (symbol-name attr))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun pyel-env-get (sym env)
   "return a list of possible types for SYM in ENVironment"
   (let ((val (gethash sym (pyel-env-get-ht env)))
@@ -1234,7 +1285,6 @@ is the number of type switches. Each digit corresponds to a type switch
 (in order), a value of 1 indicates that the type switch was included.")
 
 
-
 (defun pyel-do-call-transform (possible~types args type-switch)
   "This is responsible for  producing a call to NAME in the most
       efficient way possible with the known types"
@@ -1487,6 +1537,10 @@ possible type or types of FORM"
                  return-type)))
     (if (pyel-is-func-type type)
         (setq type (pyel-func-return-type type)))
+    (if (pyel-is-class-type type)
+        (setq type '(class))) ;;for transforms, they are all the same
+    (if (pyel-is-instance-type type)
+        (setq type '(instance)))
     (if (null type)
         ;;if type is not known, it could be anything
         (setq type pyel-possible-types))    
