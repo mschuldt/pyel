@@ -709,12 +709,15 @@
     (append first (list last-line))))
 
 (defun pyel-def (name args body decoratorlist returns &optional line col)
-  (let ((name (read (_to- name))))
+  (let ((name (if (null name) name (read (_to- name)))))
 
-    (when (context-p 'function-def)
+    ;;when 'name' is nil, define an anonymous function
+    (when (and (context-p 'function-def)
+               (not (null name)))
       (push name let-arglist)) ;;do this before the let-arglists gets overridden for this transform
 
-    (let* ((inner-defun (context-p 'function-def))
+    (let* ((inner-defun (and (context-p 'function-def)
+                             (not (null name))))
            (function-name name)
            (function-type (if (or inner-defun (context-p 'lambda-def))
                               'vfunc 'func))
@@ -1061,7 +1064,7 @@ Recognizes keyword args in the form 'arg = value'."
 (def-transform lambda pyel ()
   (lambda (args body &optional line col)
     (using-context lambda-def
-                   (pyel-def "dkl" args body nil nil line col))))
+                   (pyel-def nil args body nil nil line col))))
 
 (def-transform unary-op pyel ()
   (lambda (op operand &optional line col)
