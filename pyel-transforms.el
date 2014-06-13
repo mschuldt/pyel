@@ -716,12 +716,12 @@
                positional
                (using-context get-annotation
                               (mapcar 'transform _args)))
-      ;; 'function-name', 'function-type',  and 'return-type' are set
+      ;; 'function-name', 'function-type',  and 'type-of-return' are set
       ;; by the 'return' transform.
       (pyel-env-set function-name 
                     (pyel-make-func-type function-type
                                          (reverse annotations)
-                                         return-type)
+                                         type-of-return)
                     (pyel-env-get-parent type-env)))
     args))
 
@@ -756,7 +756,7 @@
            (function-name name)
            (function-type (if (or inner-defun (context-p 'lambda-def))
                               'vfunc 'func))
-           (return-type (using-context get-annotation (transform returns)))
+           (type-of-return (using-context get-annotation (transform returns)))
            ;;'return-type', 'function-name', and 'function-type,
            ;; are used to pass values to the 'arguments' transform
            (type-env (pyel-make-type-env type-env))
