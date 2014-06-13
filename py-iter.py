@@ -56,4 +56,4 @@ class py_dict_iter:
             raise StopIteration
 
 
-provide(quote(py_iter))
+provide(`py_iter)
