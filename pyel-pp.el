@@ -445,6 +445,8 @@ when finished the point will be after the closing paren"
 
 (defun pyel-prettyprint (form)
   "Insert a pretty-printed rendition of a Lisp FORM in current buffer."
+  (assert (or (eq major-mode 'lisp-interaction-mode)
+              (eq major-mode 'emacs-lisp-mode)))
   (let ((start (point))
         last re-indent)
     (insert "\n" (prin1-to-string form) "\n")
