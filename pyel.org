@@ -3285,18 +3285,18 @@ This is for all non template specific code.
       (pyel-call-transform func args keywords starargs kwargs line col)))
   
   (defun pyel-call-transform (func args keywords starargs kwargs &optional line col)
-    (let ((t-func (using-context return-type?
+    (let* ((t-func (using-context return-type?
                                  (using-context function-call
                                                 (transform func))))
-          (function-type (let ((type (cond ((pyel-is-func-type return-type)
-                                            (pyel-func-func-type return-type))
-                                           ((pyel-is-class-type return-type)
-                                            '(class))
-                                           ((pyel-is-instance-type return-type)
-                                            '(instance)))))
-                           (if (listp type)
-                               type
-                             (list type))))
+           (function-type (cond ((pyel-is-func-type return-type)
+                                 (pyel-func-func-type return-type))
+                                ((pyel-is-class-type return-type)
+                                 '(class))
+                                ((pyel-is-instance-type return-type)
+                                 '(instance))))
+          (function-type (if (listp type)
+                             type
+                           (list type)))
           (this-return-type return-type)
           
           (keyword-args (using-context keywords-alist
