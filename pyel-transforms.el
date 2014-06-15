@@ -466,9 +466,9 @@
                                '(class))
                               ((pyel-is-instance-type return-type)
                                '(instance))))
-        (function-type (if (listp type)
-                           type
-                         (list type)))
+        (function-type (if (listp function-type)
+                           function-type
+                         (list function-type)))
         (this-return-type return-type)
         
         (keyword-args (using-context keywords-alist
