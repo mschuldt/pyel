@@ -448,9 +448,18 @@
     (pyel-call-transform func args keywords starargs kwargs line col)))
 
 (defun pyel-call-transform (func args keywords starargs kwargs &optional line col)
-  (let* ((t-func (using-context return-type?
-                               (using-context function-call
-                                              (transform func))))
+  (let* ((is-method-call (eq (car func) 'attribute))
+         (t-func (using-context return-type?
+                                (using-context function-call
+                                               (transform func))))
+         new-func
+         ;;check if this function name needs to be translated
+         (t-func (if (and (not is-method-call)
+                          (setq new-func (assoc t-func
+                                                pyel-function-name-translations)))
+                     (cadr new-func)
+                   t-func))
+          
          (function-type (cond ((pyel-is-func-type return-type)
                                (pyel-func-func-type return-type))
                               ((pyel-is-class-type return-type)
@@ -508,7 +517,7 @@
 
       (setq return-type this-return-type)
 
-      (if (eq (car func) 'attribute);;method call
+      (if is-method-call
           (if (and (member (setq m-name (read (caddr func)))
                            pyel-method-transforms)
                    (setq m-name (pyel-find-method-transform-name
@@ -538,11 +547,6 @@
                                                (mapcar 'transform args))))
                    return-type this-return-type)
              ret))
-
-        ;;function call
-        (when (setq new-func (assoc t-func pyel-function-name-translations))
-          ;;translate name
-          (setq t-func (cadr new-func)))
 
         ;;call function transform if one was defined
         (cond ((and keyword-args
