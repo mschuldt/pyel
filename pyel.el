@@ -107,6 +107,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
         ;;TODO: this is a temp solution for convenience
         (mapc 'eval pyel-function-definitions)
         (delete-file tmp-file)
+        (setq pyel-last-type-env type-env)
         ret
         ))))
 
@@ -660,6 +661,13 @@ during interactive emacs-lisp sessions where possible")
 
 (defvar pyel-interactive nil
   "non-nil during interactive session translation and evaluation")
+
+(defvar pyel-last-type-env nil
+  "reverence to type environment for testing purposes")
+(defvar pyel-last-func-type-env nil
+  "reverence to type environment for testing purposes")
+(defvar pyel-last-class-type-env nil
+  "reverence to type environment for testing purposes")
 
 (defvar pyel-default--init--method
   "(defmethod --init-- ((self %s))

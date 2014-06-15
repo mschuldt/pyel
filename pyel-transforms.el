@@ -863,7 +863,7 @@
            (if interactive
                (push 'interactive decorators))
 
-           (setq _func-env type-env)
+           (setq pyel-last-func-type-env type-env)
            (setq return-type this-return)
            `(,setq-code (,func ,name ,args ,decorators
                                ,docstring
@@ -1043,7 +1043,7 @@ Recognizes keyword args in the form 'arg = value'."
       (push '__defined-in-function-body t-bases))
     
     (add-to-list 'pyel-defined-classes name)
-    (setq _class-env type-env)
+    (setq pyel-last-class-type-env type-env)
     (remove-context
      function-def
      (using-context class-def

@@ -427,6 +427,7 @@ main
           ;;TODO: this is a temp solution for convenience
           (mapc 'eval pyel-function-definitions)
           (delete-file tmp-file)
+          (setq pyel-last-type-env type-env)
           ret
           ))))
   
@@ -982,6 +983,13 @@ main
   
   (defvar pyel-interactive nil
     "non-nil during interactive session translation and evaluation")
+  
+  (defvar pyel-last-type-env nil
+    "reverence to type environment for testing purposes")
+  (defvar pyel-last-func-type-env nil
+    "reverence to type environment for testing purposes")
+  (defvar pyel-last-class-type-env nil
+    "reverence to type environment for testing purposes")
 #+END_SRC
 ** syntax output variables
 variables that effect the form of the output code
@@ -3754,7 +3762,7 @@ FunctionDef(name='a',
              (if interactive
                  (push 'interactive decorators))
   
-             (setq _func-env type-env)
+             (setq pyel-last-func-type-env type-env)
              (setq return-type this-return)
              `(,setq-code (,func ,name ,args ,decorators
                                  ,docstring
@@ -4554,7 +4562,7 @@ TODO: tests!
         (push '__defined-in-function-body t-bases))
       
       (add-to-list 'pyel-defined-classes name)
-      (setq _class-env type-env)
+      (setq pyel-last-class-type-env type-env)
       (remove-context
        function-def
        (using-context class-def
