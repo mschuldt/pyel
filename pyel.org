@@ -1152,70 +1152,6 @@ This will have to be removed after the code is generated
   (defsubst pyel-env-set-parent (env parent)
     (aset env pyel-env-parent parent))
   
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;function type
-  ;;  in type environments, function symbols get
-  ;;  mapped to these function types
-  (defsubst pyel-make-func-type (func-type arg-type return-type)
-    (vector func-type arg-type return-type))
-  (defsubst pyel-func-func-type (function-type)
-    (aref function-type 0))
-  (defsubst pyel-func-args-type (function-type)
-    (aref function-type 1))
-  (defsubst pyel-func-return-type (function-type)
-    (aref function-type 2))
-  (defsubst pyel-is-func-type (type)
-    (and (vectorp type) (= (length type) 3)))
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;class type
-  ;;  in type environments, object name symbols get
-  ;;  mapped to these types
-  (defsubst pyel-make-class-type (object-name type-env)
-    ;;forth elem exists to make the length 4.
-    ;;This allows `pyel-is-class-type' to just check the length
-    (vector object-name type-env 0 nil))
-  (defsubst pyel-class-type-name (obj-type)
-    (aref obj-type 0))
-  (defsubst pyel-class-type-env (obj-type)
-    (aref obj-type 1))
-  (defsubst pyel-class-type-num (obj-type)
-    (aref obj-type 2))
-  (defsubst pyel-class-type-inc (class-type)
-    "increment and return the instance number"
-    (aset class-type 2 (1+ (aref class-type 2))))
-  
-  (defsubst pyel-is-class-type (type)
-    (and (vectorp type) (= (length type) 4)))
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;instance type
-  ;;the only field contains name of the instance in form <classname><instance num>
-  (defsubst pyel-make-instance-type (object type-env)
-    (vector (intern (concat (symbol-name (pyel-class-type-name object))
-                            (number-to-string (pyel-class-type-inc object))))
-            type-env))
-  (defsubst pyel-instance-type-name (obj-type)
-    (aref obj-type 0))
-  (defsubst pyel-instance-type-env (obj-type)
-    (aref obj-type 1))
-  (defsubst pyel-is-instance-type (type)
-    (and (vectorp type) (= (length type) 2)))
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (defsubst pyel-is-object-type (type)
-    (and (vectorp type) (or (= (length type) 2)
-                            (= (length type) 4))))
-  (defsubst pyel-object-type-name (type)
-    (if (pyel-is-instance-type type)
-        (pyel-instance-type-name type)
-      (pyel-class-type-name type)))
-  
-  ;;creates a key for the class/instance attribute to type mapping
-  (defun pyel-env-attr-key (class attr)
-    (intern (concat (symbol-name class) ":" (symbol-name attr))))
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (defun pyel-env-get (sym env)
     "return a list of possible types for SYM in ENVironment"
     (let ((val (gethash sym (pyel-env-get-ht env)))
@@ -1226,7 +1162,148 @@ This will have to be removed after the code is generated
             (pyel-env-get sym parent)))))
   
   (defvar pyel-global-type-env (pyel-make-type-env)
-    "global type environment used for type Reconstruction")
+    "global type environment used for type reconstruction")
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;function type
+  ;;  in type environments, function symbols get
+  ;;  mapped to these function types
+  
+  (defconst pyel-env-func:type 0)
+  (defconst pyel-env-func:args 1)
+  (defconst pyel-env-func:ret 2)
+    
+  (defsubst pyel-make-func-type (func-type arg-type return-type)
+    (vector func-type arg-type return-type))
+  (defsubst pyel-func-func-type (function-type)
+    (aref function-type pyel-env-func:type))
+  (defsubst pyel-func-args-type (function-type)
+    (aref function-type pyel-env-func:args))
+  (defsubst pyel-func-return-type (function-type)
+    (aref function-type pyel-env-func:ret))
+  (defsubst pyel-is-func-type (type)
+    (and (vectorp type) (= (length type) 3)))
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;class type
+  ;;  in type environments, object name symbols get
+  ;;  mapped to these types
+  (defconst pyel-env-class:name 0)
+  (defconst pyel-env-class:env 1)
+  (defconst pyel-env-class:attrs 2)
+  (defconst pyel-env-class:supers 3)
+  
+  (defconst pyel-env-class-length 5)
+  
+  (defsubst pyel-make-class-type (object-name type-env)
+    ;;forth elem exists to make the length 4.
+    ;;This allows `pyel-is-class-type' to just check the length
+    (vector object-name ;;name of class
+            type-env  ;;type-env it was defined in
+            (make-hash-table :test 'eq) ;;attribute--type mapping
+            nil ;; list of super classes
+            nil))
+  (defsubst pyel-class-type-name (obj-type)
+    (aref obj-type pyel-env-class:name))
+  (defsubst pyel-class-type-env (obj-type)
+    (aref obj-type pyel-env-class:env))
+  (defsubst pyel-class-type-supers (obj-type)
+    (aref obj-type pyel-env-class:supers))
+  (defsubst pyel-class-type-set-supers (obj-type supers)
+    (aset obj-type pyel-env-class:supers
+          (append supers (aref obj-type pyel-env-class:supers))))
+  
+  ;;attributes that can take on any time are mapped to the symbol 'all'
+  (defsubst pyel-class-type-set-attr (obj-type attr val)
+    (puthash attr (if (null val) 'all val) (aref obj-type pyel-env-class:attrs)))
+  
+  (defun _pyel-class-type-get-attr (obj-type attr)
+    ;;this returns the type value as stored in the attr--type mapping
+    ;;so if the name maps to any type then 'all is returned
+    (let ((val (gethash attr (aref obj-type pyel-env-class:attrs)))
+          supers found)
+      (when (not val)
+        ;;check super classes 
+        (setq supers (aref obj-type pyel-env-class:supers)
+              val nil)
+        (while (and (not found) supers)
+          (setq val (pyel-class-type-get-attr (car supers) attr))
+          (if val
+              (setq found t)
+            (setq supers (cdr supers)))))
+      val))
+  
+  (defsubst pyel-class-type-get-attr (obj-type attr)
+    (let ((val (_pyel-class-type-get-attr obj-type attr)))
+      (if (eq val 'all)
+          nil
+        val)))
+  
+  (defsubst pyel-class-type-has-attr (obj-type attr)
+    (not (null (_pyel-class-type-get-attr obj-type attr))))
+  
+  (defsubst pyel-is-class-type (type)
+    (and (vectorp type) (= (length type) pyel-env-class-length)))
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;instance type
+  ;;the only field contains name of the instance in form <classname><instance num>
+  (defconst pyel-env-inst:class 0)
+  (defconst pyel-env-inst:env 1)
+  (defconst pyel-env-inst:attrs 2)
+  
+  (defconst pyel-env-inst-length 4)
+    
+  (defsubst pyel-make-instance-type (object type-env)
+    (vector object ;;object type
+            type-env ;;create here
+            nil ;;alist of attributes. Form: (name . type)
+            nil))
+  (defsubst pyel-instance-type-class (obj-type)
+    (aref obj-type pyel-env-inst:class))
+  (defsubst pyel-instance-type-env (obj-type)
+    (aref obj-type pyel-env-inst:env))
+  (defsubst pyel-instance-type-get-attrs (obj-type)
+    (aref obj-type pyel-env-inst:attrs))
+  (defsubst pyel-is-instance-type (type)
+    (and (vectorp type)
+         (= (length type) pyel-env-inst-length)))
+  
+  (defsubst pyel-iter-type-set-attr (obj-type attr type)
+    (aset obj-type pyel-env-inst:attrs
+          (cons (cons attr type) (aref obj-type pyel-env-inst:attrs))))
+  
+  (defun pyel-iter-type-get-attr (obj-type attr)
+    (let ((val (assoc attr (aref obj-type pyel-env-inst:attrs))))
+      (if val
+          (cdr val)
+        ;;check the class
+        (pyel-class-type-get-attr (aref obj-type pyel-env-inst:class) attr))))
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (defsubst pyel-is-object-type (type)
+    (and (vectorp type) (or (= (length type) pyel-env-class-length)
+                            (= (length type) pyel-env-inst-length))))
+  
+  (defsubst pyel-type-get-attr (obj attr)
+    (if (pyel-is-instance-type obj)
+        (pyel-iter-type-get-attr obj attr)
+      (pyel-class-type-get-attr obj attr)))
+  
+  (defsubst pyel-type-set-attr (obj attr val)
+    (if (pyel-is-instance-type obj)
+        (pyel-iter-type-set-attr obj attr val)
+      (pyel-class-type-set-attr obj attr val)))
+  
+  (defsubst pyel-object-type-name (type)
+    (if (pyel-is-instance-type type)
+        (pyel-instance-type-name type)
+      (pyel-class-type-name type)))
+  
+  ;;creates a key for the class/instance attribute to type mapping
+  (defun pyel-env-attr-key (class attr)
+    (intern (concat (symbol-name class) ":" (symbol-name attr))))
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
   (defmacro pyel-declare-el-func (function returns)
     `(pyel-declare-el-func-fn ',function ',returns))
@@ -2475,36 +2552,28 @@ This is for all non template specific code.
                          (setq ret (list 'setattr t-value attr
                                          (transform assign-value))))
                                           ;(setq return-type nil)
-          (setq obj-type (pyel-env-get t-value type-env))
-          ;;if the know the object type then map its attribute to a new type
-          (cond ((pyel-is-class-type obj-type)
-                 (setq obj-name (pyel-class-type-name obj-type))
-                 ;;set the type mapping in the type-env that the object was defined in
-                 (pyel-env-set (pyel-env-attr-key obj-name attr)
-                               return-type
-                               (pyel-class-type-env obj-type)))
-                ((pyel-is-instance-type obj-type)
-                 (setq obj-name (pyel-instance-type-name obj-type))
-                 ;;set the type mapping in the type-env that the object was defined in
-                 (pyel-env-set (pyel-env-attr-key obj-name attr)
-                               return-type
-                               (pyel-instance-type-env obj-type))))
+  
+          (if (setq obj-type (pyel-env-get t-value type-env))
+              (if (pyel-is-object-type obj-type)
+                  (pyel-type-set-attr obj-type attr return-type)
+                ;;TODO:? make a new object?
+                (pyel-env-set t-value nil type-env)))
           
           ;;(list 'oset t-value attr (transform assign-value)) ;;assign target
           ret)
   
          ((eq ctx 'load) ;;assign value
           ;;(list 'oref t-value attr)
-          (setq obj-type (pyel-env-get t-value type-env))        
+  
           (setq return-type
-                (if (pyel-is-object-type obj-type)
-                    (progn
-                      (setq obj-name (pyel-object-type-name obj-type))
-                      (pyel-env-get (pyel-env-attr-key obj-name attr) type-env))))
+                (if (and (setq obj-type (pyel-env-get t-value type-env))
+                         (pyel-is-object-type obj-type))
+                    (pyel-type-get-attr obj-type attr)))
   
           (list 'getattr t-value attr))
-         (t (t "Error in attribute-- invalid ctx")))
+         (t (error "Error in attribute-- invalid ctx")))
         )))
+  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
@@ -2610,6 +2679,7 @@ This is for all non template specific code.
                              (setq value (using-context return-type?
                                                         (transform assign-value)))
                              (pyel-env-set id return-type type-env)
+                             (setq known-types (list nil (list return-type)))
                              (call-transform-no-trans 'set id value)))
          (t  "<ERROR: name>"))
         )))
@@ -3157,7 +3227,7 @@ This is for all non template specific code.
                                    (list 'quote (transform x)))
                                  args))
           (known-types known-types)
-          new-func m-name f-name star-args kw-args ret)
+          new-func m-name f-name star-args kw-args ret this-return)
   
       ;; (if (member t-func pyel-defined-classes)
       ;;     ;;instantiate an object and call its initializer
@@ -3264,13 +3334,13 @@ This is for all non template specific code.
                 ;;`(,t-func ,@(mapcar 'transform args))
                 ;;TODO: this is dumb, convert `call-transform' to a macro?
                 (t (if (context-p 'return-type?)
-                       (setq return-type (pyel-env-get t-func type-env)
-                             return-type (cond ((pyel-is-func-type return-type)
-                                                (pyel-func-return-type return-type))
-                                               ((pyel-is-class-type return-type)
+                       (setq this-return (pyel-env-get t-func type-env)
+                             this-return (cond ((pyel-is-func-type this-return)
+                                                (pyel-func-return-type this-return))
+                                               ((pyel-is-class-type this-return)
                                                 (pyel-make-instance-type
-                                                 return-type type-env))
-                                               (t return-type))))
+                                                 this-return type-env))
+                                               (t this-return))))
                    (setq known-types (cons function-type known-types)
                          _known-types known-types
                          ret (eval `(call-transform-no-trans
@@ -3282,7 +3352,7 @@ This is for all non template specific code.
                                                                      (transform x)))
                                                              (mapcar 'car
                                                                      keywords))))))
-                         return-type this-return-type)
+                         return-type this-return)
                    ret))))))
 #+END_SRC
 *** python ast
@@ -3480,11 +3550,13 @@ This is for all non template specific code.
                                 (mapcar 'transform _args)))
         ;; 'function-name', 'function-type',  and 'type-of-return' are set
         ;; by the 'return' transform.
-        (pyel-env-set function-name 
-                      (pyel-make-func-type function-type
-                                           (reverse annotations)
-                                           type-of-return)
-                      (pyel-env-get-parent type-env)))
+        (setq return-type (pyel-make-func-type function-type
+                                               (reverse annotations)
+                                               type-of-return))
+        (if function-name
+            (pyel-env-set function-name 
+                          return-type
+                          (pyel-env-get-parent type-env))))
       args))
 #+END_SRC
 *** python ast
@@ -4386,7 +4458,7 @@ TODO: tests!
   x = a()
   assert x[1:2] == 3
   assert x[5:7] == 12"
-
+  
    ;;store index
    ;; list
    "def __add(a,b):
@@ -4411,7 +4483,7 @@ TODO: tests!
   x[3] = 5
   assert x.index == 3
   assert x.value == 5"
-
+  
    ;;store slice
    ;;list
    "a = [1,2,3,4,5,6]
@@ -4449,10 +4521,10 @@ TODO: tests!
   assert x.start == 2
   assert x.end == 3
   assert x.value == [1,2,3]"
-
+  
   "a[2] += 3"
   "a[2] += b[3]"
-
+  
   "[2,3,3][2]"
   "assert [1,2,(3,2,8)][2][2] == 8"
    )
