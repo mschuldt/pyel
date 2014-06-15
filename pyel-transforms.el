@@ -1289,7 +1289,7 @@ Recognizes keyword args in the form 'arg = value'."
                      (hash)   -> (py-hash-to-vector object)
                      (object) -> (py-object-to-vector object))
 
-(pyel-declare-el-func-fn 'tuple 'bool)
+(pyel-declare-el-func-fn 'hasattr 'bool)
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 
 (pyel-declare-el-func-fn 'isinstance 'bool)
