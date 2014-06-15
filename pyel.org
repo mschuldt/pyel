@@ -489,6 +489,12 @@ main
               (pyel-prettyprint python)
               (write-file el-file))))))
   
+  (defun pyel-sort-functions (functions)
+    (sort (copy-list functions) (lambda (a b) (string< (symbol-name (nth 1 a))
+                                                       (symbol-name (nth 1 b))))))
+  (defsubst remove-file-extension (filename)
+    (expand-file-name (file-name-base filename) (file-name-directory filename)))
+  
   (defvar pyel-last-python-code nil
     "last python string `pyel' attempted to transform")
   
