@@ -69,7 +69,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
          (current-transform-table (get-transform-table 'pyel))
          (python (with-temp-buffer
                    (insert python)
-                   (pyel-preprocess-buffer2)
+                   (pyel-preprocess-buffer)
                    (buffer-string)))
          (pyel-context nil)
          (type-env (pyel-make-type-env pyel-global-type-env))
@@ -1663,15 +1663,16 @@ possible type or types of FORM"
                  (setq t-form (using-context return-type?
                                              (transform form)))
                  return-type)))
-    (if (pyel-is-func-type type)
-        (setq type (pyel-func-return-type type)))
-    (if (pyel-is-class-type type)
-        (setq type '(class))) ;;for transforms, they are all the same
-    (if (pyel-is-instance-type type)
-        (setq type '(instance)))
+    (setq type (cond ((pyel-is-func-type type)
+                      (pyel-func-return-type type))
+                     ((pyel-is-class-type type)
+                      '(class)) ;;for transforms, they are all the same
+                     ((pyel-is-instance-type type)
+                      '(instance))
+                     (t type)))
     (if (null type)
         ;;if type is not known, it could be anything
-        (setq type pyel-possible-types))    
+        (setq type pyel-possible-types))
     ;;type for form must be a list
     (if (listp type)
         (cons t-form type)

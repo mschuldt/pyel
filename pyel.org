@@ -2002,7 +2002,8 @@ This will have to be removed after the code is generated
                        ((pyel-is-class-type type)
                         '(class)) ;;for transforms, they are all the same
                        ((pyel-is-instance-type type)
-                        '(instance))))
+                        '(instance))
+                       (t type)))
       (if (null type)
           ;;if type is not known, it could be anything
           (setq type pyel-possible-types))
@@ -2559,7 +2560,7 @@ This is for all non template specific code.
 ** attribute
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (def-transform attribute pyel ()
+   (def-transform attribute pyel ()
     (lambda (value attr ctx &optional line col)
       (pyel-attribute value attr ctx line col)))
   
