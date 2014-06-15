@@ -1327,6 +1327,47 @@ This will have to be removed after the code is generated
                   (pyel-make-func-type function nil returns)
                   pyel-global-type-env))
   
+  ;;;;;;
+  
+  (ert-deftest pyel-test-type-env ()
+    (should
+     (let* ((env (pyel-make-type-env))
+            o i)
+       (pyel-env-set 'superclass (pyel-make-class-type 'superclass env) env)
+       (setq o (pyel-env-get 'superclass env))
+       (pyel-env-set 'classname (pyel-make-class-type 'classname env) env)
+       (pyel-class-type-set-supers (pyel-env-get 'classname env) (list o))
+  
+       (pyel-env-set 'instname (pyel-make-instance-type (pyel-env-get 'classname env)
+                                                        env) env)
+       (setq i (pyel-env-get 'instname env))
+  
+       (pyel-type-set-attr (pyel-env-get 'instname env) 'instattr 'string)
+       (pyel-type-set-attr (pyel-env-get 'classname env) 'classattr 'number)
+       (pyel-type-set-attr (pyel-env-get 'superclass env) 'superattr 'list)
+  
+       (and
+        (pyel-is-object-type o)
+        (pyel-is-object-type i)
+        (eq (pyel-type-get-attr (pyel-env-get 'instname env) 'instattr)
+            'string)
+        (eq (pyel-type-get-attr (pyel-env-get 'instname env) 'classattr)
+            'number)
+        (eq (pyel-type-get-attr (pyel-env-get 'instname env) 'superattr)
+            'list)
+        (eq (pyel-type-get-attr (pyel-env-get 'classname env) 'instattr)
+            nil)
+        (eq (pyel-type-get-attr (pyel-env-get 'classname env) 'classattr)
+            'number)
+        (eq (pyel-type-get-attr (pyel-env-get 'classname env) 'superattr)
+            'list)
+        (eq (pyel-type-get-attr (pyel-env-get 'superclass env) 'instattr)
+            nil)
+        (eq (pyel-type-get-attr (pyel-env-get 'superclass env) 'classattr)
+            nil)
+        (eq (pyel-type-get-attr (pyel-env-get 'superclass env) 'superattr)
+            'list)))))
+  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; function declarations
   
