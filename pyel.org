@@ -366,6 +366,7 @@ main
   
   (setq pyel-tmp-file-counter (random (/ most-positive-fixnum 10)))
   
+  (pyel-declare-el-func-fn 'pyel 'list)
   (defun pyel (python &optional no-line-and-col-nums include-defuns py-ast-only)
     "translate PYTHON into Emacs Lisp.
   PYTHON is a string.
@@ -491,6 +492,7 @@ main
   (defvar pyel-last-python-code nil
     "last python string `pyel' attempted to transform")
   
+  (pyel-declare-el-func-fn 'pyel-buffer-to-lisp 'list)
   (defun pyel-buffer-to-lisp (&optional ast-only)
     "transform and return python in current buffer to emacs-lisp"
     (pyel (buffer-string) nil nil ast-only))
@@ -5898,6 +5900,7 @@ This will help notify the user when some syntax has not been implemented
 ** len
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'len 'number)
   (pyel-func-transform len (thing)
                        (hash)   -> (hash-table-count thing)
                        (object) -> (call-method thing --len--)
@@ -5923,6 +5926,8 @@ This will help notify the user when some syntax has not been implemented
 ** range, xrange
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'range 'list)
+  (pyel-declare-el-func-fn 'xrange 'list)
   (pyel-translate-function-name 'range 'py-range)
   (pyel-translate-function-name 'xrange 'py-range)
 #+END_SRC
@@ -5946,11 +5951,14 @@ This will help notify the user when some syntax has not been implemented
 ** input
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'input 'read-string)
+  (pyel-declare-el-func-fn 'input 'string)
+  (pyel-translate-function-name 'input 'read-string)
 #+END_SRC
 ** list
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'list 'list)
+  
   (let ((current-transform-table (get-transform-table 'pyel))
         (type-env (pyel-make-type-env pyel-global-type-env)))
     (call-transform (pyel-func-transform-name 'list) nil))
@@ -6042,6 +6050,7 @@ This will help notify the user when some syntax has not been implemented
 ** tuple
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'tuple 'vector)
   (pyel-func-transform tuple (object)
                        (string) -> (py-string-to-vector object)
                        (list)   -> (py-list-to-vector object)
@@ -6134,7 +6143,8 @@ This will help notify the user when some syntax has not been implemented
 ** hasattr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'hasattr 'obj-hasattr)
+  (pyel-declare-el-func-fn 'tuple 'bool)
+  (pyel-translate-function-name 'hasattr 'obj-hasattr)
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -6143,7 +6153,8 @@ This will help notify the user when some syntax has not been implemented
 ** isinstance
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'isinstance 'obj-isinstance)
+  (pyel-declare-el-func-fn 'isinstance 'bool)
+  (pyel-translate-function-name 'isinstance 'obj-isinstance)
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
@@ -6166,6 +6177,7 @@ This will help notify the user when some syntax has not been implemented
                        (symbol) -> (symbol-name thing))
   
   (pyel-translate-function-name 'str 'pyel-str)
+  (pyel-declare-el-func-fn 'str 'string)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6298,6 +6310,7 @@ This will help notify the user when some syntax has not been implemented
                        (hash) -> (py-hash-str thing))
   
   (pyel-translate-function-name 'repr 'pyel-repr)
+  (pyel-declare-el-func-fn 'repr 'string)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6365,7 +6378,8 @@ This will help notify the user when some syntax has not been implemented
 ** hex
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'hex 'py-hex)
+  (pyel-declare-el-func-fn 'hex 'string)
+  (pyel-translate-function-name 'hex 'py-hex)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6382,7 +6396,8 @@ This will help notify the user when some syntax has not been implemented
 ** bin
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'bin 'py-bin)
+  (pyel-declare-el-func-fn 'bin 'string)
+  (pyel-translate-function-name 'bin 'py-bin)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6404,6 +6419,7 @@ This will help notify the user when some syntax has not been implemented
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   ;;(pyel-translate-function-name 'print 'py-print)
+  (pyel-declare-el-func-fn 'print 'bool)
   (pyel-define-function-translation
    print
    `(py-print ,(cadr (assoc 'sep kwargs))
@@ -6442,6 +6458,7 @@ This will help notify the user when some syntax has not been implemented
 ** pow
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'pow 'number)
   (pyel-define-function-translation
    pow
    (case (length args)
@@ -6463,7 +6480,8 @@ This will help notify the user when some syntax has not been implemented
 ** eval
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'eval 'py-eval)
+  (pyel-declare-el-func-fn 'eval 'list)
+  (pyel-translate-function-name 'eval 'py-eval)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6490,6 +6508,7 @@ This will help notify the user when some syntax has not been implemented
 ** type
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  ;;(pyel-declare-el-func-fn 'type 'symbol)
   (pyel-translate-function-name 'type 'py-type)
   
   (pyel-translate-variable-name 'int 'py-int)
@@ -6562,6 +6581,8 @@ This will help notify the user when some syntax has not been implemented
 ** abs
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'abs 'number)
+                           
   (pyel-func-transform abs (object)
                        (number) -> (abs object)
                        (object) -> (call-method object --abs--))
@@ -6582,6 +6603,7 @@ This will help notify the user when some syntax has not been implemented
 ** chr
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'chr 'string)
   (pyel-translate-function-name 'chr 'py-chr)
 #+END_SRC
 *** python el lib
@@ -6601,6 +6623,7 @@ This will help notify the user when some syntax has not been implemented
 ** ord
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'ord 'number)
   (pyel-translate-function-name 'ord 'py-ord)
 #+END_SRC
 *** python el lib
@@ -6619,7 +6642,8 @@ This will help notify the user when some syntax has not been implemented
 ** exit
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-(pyel-translate-function-name 'exit 'pyel-exit)
+  (pyel-declare-el-func-fn 'chr nil)
+  (pyel-translate-function-name 'exit 'pyel-exit)
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
@@ -6634,6 +6658,7 @@ This will help notify the user when some syntax has not been implemented
 ** int
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'int 'number)
   (pyel-func-transform int (object)
                        (string) -> (py-str-to-int object)
                        (number) -> (py-number-to-int object)
@@ -6677,6 +6702,7 @@ This will help notify the user when some syntax has not been implemented
 ** float
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'float 'number)
   (pyel-func-transform float (object)
                        (string) -> (py-str-to-float object)
                        (number) -> (py-number-to-float object)
@@ -6720,6 +6746,8 @@ This will help notify the user when some syntax has not been implemented
 ** dict
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'dict 'hash)
+  
   (pyel-func-kwarg-transform dict (kwargs)
                              (_)-> (pyel-alist-to-hash2 'kwargs))
   
@@ -6824,6 +6852,7 @@ This will help notify the user when some syntax has not been implemented
 ** round
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'round 'number)
   (pyel-translate-function-name 'round 'py-round)
 #+END_SRC
 *** python el lib
@@ -6845,6 +6874,8 @@ This will help notify the user when some syntax has not been implemented
 ** enumerate
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'enumerate 'list)
+  
   (pyel-func-transform enumerate (obj &optional start)
                        (list)   -> (py-enumerate-list obj start)
                        (string) -> (py-enumerate-string obj start)
@@ -6902,6 +6933,8 @@ This will help notify the user when some syntax has not been implemented
 ** interactive
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'interactive nil)
+  
   (pyel-define-function-translation
    interactive
    (setq interactive t))
@@ -6909,6 +6942,8 @@ This will help notify the user when some syntax has not been implemented
 ** divmod
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'divmod 'vector)
+  
   (pyel-func-transform divmod (x y)
                        (_ float)
                        (_ float) -> (py-divmod-f x y)
@@ -6960,6 +6995,8 @@ This will help notify the user when some syntax has not been implemented
 ** bool
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'bool 'bool)
+  
   (pyel-func-transform bool (object)
                        (object) -> (py-object-bool object)
                        (_) -> (py-bool object))
@@ -7027,6 +7064,8 @@ This will help notify the user when some syntax has not been implemented
 Iterators for built in types are defined in py-iter.py
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'iter 'object)
+  
   (pyel-func-transform iter (obj)
                        (list)   -> (py-list-iter obj)
                        (string) -> (py-string-iter obj)
@@ -7094,6 +7133,8 @@ Iterators for built in types are defined in py-iter.py
 ** next
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'next nil)
+  
   (pyel-translate-function-name 'next 'py-next)
 #+END_SRC
 *** python el lib
@@ -7134,6 +7175,8 @@ Iterators for built in types are defined in py-iter.py
 ** all
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'all 'bool)
+  
   (pyel-func-transform all (obj)
                        (list)   -> (py-list-all obj)
                        (string) -> (py-string-all obj)
@@ -7226,6 +7269,8 @@ Iterators for built in types are defined in py-iter.py
 ** any
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'any 'bool)
+  
   (pyel-func-transform any (obj)
                        (list)   -> (py-list-any obj)
                        (string) -> (py-string-any obj)
@@ -7318,6 +7363,8 @@ Iterators for built in types are defined in py-iter.py
 ** sum
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'sum 'number)
+  
   (pyel-func-transform sum (obj)
                        (list)   -> (py-list-sum obj)
                        (object) -> (py-object-sum obj)
@@ -7386,6 +7433,8 @@ Iterators for built in types are defined in py-iter.py
 ** hash
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-declare-el-func-fn 'hash 'number)
+  
   (pyel-translate-function-name 'hash 'sxhash)
 #+END_SRC
 *** tests

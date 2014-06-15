@@ -46,6 +46,7 @@ nil for no error
 
 (setq pyel-tmp-file-counter (random (/ most-positive-fixnum 10)))
 
+(pyel-declare-el-func-fn 'pyel 'list)
 (defun pyel (python &optional no-line-and-col-nums include-defuns py-ast-only)
   "translate PYTHON into Emacs Lisp.
 PYTHON is a string.
@@ -171,6 +172,7 @@ If "
 (defvar pyel-last-python-code nil
   "last python string `pyel' attempted to transform")
 
+(pyel-declare-el-func-fn 'pyel-buffer-to-lisp 'list)
 (defun pyel-buffer-to-lisp (&optional ast-only)
   "transform and return python in current buffer to emacs-lisp"
   (pyel (buffer-string) nil nil ast-only))

@@ -1249,15 +1249,21 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-translate-function-name 'map 'mapcar)
 
+(pyel-declare-el-func-fn 'len 'number)
 (pyel-func-transform len (thing)
                      (hash)   -> (hash-table-count thing)
                      (object) -> (call-method thing --len--)
                      (_)      -> (length thing))
 
+(pyel-declare-el-func-fn 'range 'list)
+(pyel-declare-el-func-fn 'xrange 'list)
 (pyel-translate-function-name 'range 'py-range)
 (pyel-translate-function-name 'xrange 'py-range)
 
+(pyel-declare-el-func-fn 'input 'string)
 (pyel-translate-function-name 'input 'read-string)
+
+(pyel-declare-el-func-fn 'list 'list)
 
 (let ((current-transform-table (get-transform-table 'pyel))
       (type-env (pyel-make-type-env pyel-global-type-env)))
@@ -1271,6 +1277,7 @@ Recognizes keyword args in the form 'arg = value'."
                      (hash)   -> (py-hash-to-list object)
                      (list)   -> (py-copy-list object))
 
+(pyel-declare-el-func-fn 'tuple 'vector)
 (pyel-func-transform tuple (object)
                      (string) -> (py-string-to-vector object)
                      (list)   -> (py-list-to-vector object)
@@ -1278,8 +1285,10 @@ Recognizes keyword args in the form 'arg = value'."
                      (hash)   -> (py-hash-to-vector object)
                      (object) -> (py-object-to-vector object))
 
+(pyel-declare-el-func-fn 'tuple 'bool)
 (pyel-translate-function-name 'hasattr 'obj-hasattr)
 
+(pyel-declare-el-func-fn 'isinstance 'bool)
 (pyel-translate-function-name 'isinstance 'obj-isinstance)
 
 (pyel-func-transform str (thing)
@@ -1296,6 +1305,7 @@ Recognizes keyword args in the form 'arg = value'."
                      (symbol) -> (symbol-name thing))
 
 (pyel-translate-function-name 'str 'pyel-str)
+(pyel-declare-el-func-fn 'str 'string)
 
 (pyel-func-transform repr (thing)
                      ;; if any of these cases are added/removed,
@@ -1311,12 +1321,16 @@ Recognizes keyword args in the form 'arg = value'."
                      (hash) -> (py-hash-str thing))
 
 (pyel-translate-function-name 'repr 'pyel-repr)
+(pyel-declare-el-func-fn 'repr 'string)
 
+(pyel-declare-el-func-fn 'hex 'string)
 (pyel-translate-function-name 'hex 'py-hex)
 
+(pyel-declare-el-func-fn 'bin 'string)
 (pyel-translate-function-name 'bin 'py-bin)
 
 ;;(pyel-translate-function-name 'print 'py-print)
+(pyel-declare-el-func-fn 'print 'bool)
 (pyel-define-function-translation
  print
  `(py-print ,(cadr (assoc 'sep kwargs))
@@ -1324,6 +1338,7 @@ Recognizes keyword args in the form 'arg = value'."
             nil ;;TODO: file=sys.stdout
             ,@args))
 
+(pyel-declare-el-func-fn 'pow 'number)
 (pyel-define-function-translation
  pow
  (case (length args)
@@ -1332,8 +1347,10 @@ Recognizes keyword args in the form 'arg = value'."
    (t "ERROR") ;;TODO
    ))
 
+(pyel-declare-el-func-fn 'eval 'list)
 (pyel-translate-function-name 'eval 'py-eval)
 
+;;(pyel-declare-el-func-fn 'type 'symbol)
 (pyel-translate-function-name 'type 'py-type)
 
 (pyel-translate-variable-name 'int 'py-int)
@@ -1345,25 +1362,34 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-translate-variable-name 'bool 'py-bool)
 (pyel-translate-variable-name 'type 'py-type)
 
+(pyel-declare-el-func-fn 'abs 'number)
+                         
 (pyel-func-transform abs (object)
                      (number) -> (abs object)
                      (object) -> (call-method object --abs--))
 
+(pyel-declare-el-func-fn 'chr 'string)
 (pyel-translate-function-name 'chr 'py-chr)
 
+(pyel-declare-el-func-fn 'ord 'number)
 (pyel-translate-function-name 'ord 'py-ord)
 
+(pyel-declare-el-func-fn 'chr nil)
 (pyel-translate-function-name 'exit 'pyel-exit)
 
+(pyel-declare-el-func-fn 'int 'number)
 (pyel-func-transform int (object)
                      (string) -> (py-str-to-int object)
                      (number) -> (py-number-to-int object)
                      (object) -> (call-method object --int--))
 
+(pyel-declare-el-func-fn 'float 'number)
 (pyel-func-transform float (object)
                      (string) -> (py-str-to-float object)
                      (number) -> (py-number-to-float object)
                      (object) -> (call-method object --float--))
+
+(pyel-declare-el-func-fn 'dict 'hash)
 
 (pyel-func-kwarg-transform dict (kwargs)
                            (_)-> (pyel-alist-to-hash2 'kwargs))
@@ -1374,7 +1400,10 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (pyel-vector-to-dict object)
                      (hash)   -> (copy-hash-table object))
 
+(pyel-declare-el-func-fn 'round 'number)
 (pyel-translate-function-name 'round 'py-round)
+
+(pyel-declare-el-func-fn 'enumerate 'list)
 
 (pyel-func-transform enumerate (obj &optional start)
                      (list)   -> (py-enumerate-list obj start)
@@ -1383,9 +1412,13 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-enumerate-vector obj start)
                      (hash)   -> (py-enumerate-hash obj start))
 
+(pyel-declare-el-func-fn 'interactive nil)
+
 (pyel-define-function-translation
  interactive
  (setq interactive t))
+
+(pyel-declare-el-func-fn 'divmod 'vector)
 
 (pyel-func-transform divmod (x y)
                      (_ float)
@@ -1393,9 +1426,13 @@ Recognizes keyword args in the form 'arg = value'."
                      (int int) -> (py-divmod-i x y)
                      (_ _)     -> (py-divmod x y))
 
+(pyel-declare-el-func-fn 'bool 'bool)
+
 (pyel-func-transform bool (object)
                      (object) -> (py-object-bool object)
                      (_) -> (py-bool object))
+
+(pyel-declare-el-func-fn 'iter 'object)
 
 (pyel-func-transform iter (obj)
                      (list)   -> (py-list-iter obj)
@@ -1404,7 +1441,11 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-vector-iter obj)
                      (hash)   -> (py-hash-iter obj))
 
+(pyel-declare-el-func-fn 'next nil)
+
 (pyel-translate-function-name 'next 'py-next)
+
+(pyel-declare-el-func-fn 'all 'bool)
 
 (pyel-func-transform all (obj)
                      (list)   -> (py-list-all obj)
@@ -1413,6 +1454,8 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-vector-all obj)
                      (hash)   -> (py-hash-all obj))
 
+(pyel-declare-el-func-fn 'any 'bool)
+
 (pyel-func-transform any (obj)
                      (list)   -> (py-list-any obj)
                      (string) -> (py-string-any obj)
@@ -1420,11 +1463,15 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-vector-any obj)
                      (hash)   -> (py-hash-any obj))
 
+(pyel-declare-el-func-fn 'sum 'number)
+
 (pyel-func-transform sum (obj)
                      (list)   -> (py-list-sum obj)
                      (object) -> (py-object-sum obj)
                      (vector) -> (py-vector-sum obj)
                      (hash)   -> (py-hash-sum obj))
+
+(pyel-declare-el-func-fn 'hash 'number)
 
 (pyel-translate-function-name 'hash 'sxhash)
 
