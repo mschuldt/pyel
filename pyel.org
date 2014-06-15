@@ -1954,15 +1954,15 @@ This will have to be removed after the code is generated
                    (setq t-form (using-context return-type?
                                                (transform form)))
                    return-type)))
-      (if (pyel-is-func-type type)
-          (setq type (pyel-func-return-type type)))
-      (if (pyel-is-class-type type)
-          (setq type '(class))) ;;for transforms, they are all the same
-      (if (pyel-is-instance-type type)
-          (setq type '(instance)))
+      (setq type (cond ((pyel-is-func-type type)
+                        (pyel-func-return-type type))
+                       ((pyel-is-class-type type)
+                        '(class)) ;;for transforms, they are all the same
+                       ((pyel-is-instance-type type)
+                        '(instance))))
       (if (null type)
           ;;if type is not known, it could be anything
-          (setq type pyel-possible-types))    
+          (setq type pyel-possible-types))
       ;;type for form must be a list
       (if (listp type)
           (cons t-form type)
@@ -3217,17 +3217,17 @@ This is for all non template specific code.
     (let ((t-func (using-context return-type?
                                  (using-context function-call
                                                 (transform func))))
+          (function-type (let ((type (cond ((pyel-is-func-type return-type)
+                                            (pyel-func-func-type return-type))
+                                           ((pyel-is-class-type return-type)
+                                            '(class))
+                                           ((pyel-is-instance-type return-type)
+                                            '(instance)))))
+                           (if (listp type)
+                               type
+                             (list type))))
           (this-return-type return-type)
-          (function-type (progn
-                           (if (pyel-is-func-type return-type)
-                               (setq return-type (pyel-func-func-type return-type)))
-                           (if (pyel-is-class-type return-type)
-                               (setq return-type '(class)))
-                           (if (pyel-is-instance-type return-type)
-                               (setq return-type '(instance)))
-                           (if (listp return-type)
-                               return-type
-                             (list return-type))))
+          
           (keyword-args (using-context keywords-alist
                                        (mapcar (lambda (x) (transform (car x)))
                                                keywords)))

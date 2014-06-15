@@ -451,17 +451,17 @@
   (let ((t-func (using-context return-type?
                                (using-context function-call
                                               (transform func))))
+        (function-type (let ((type (cond ((pyel-is-func-type return-type)
+                                          (pyel-func-func-type return-type))
+                                         ((pyel-is-class-type return-type)
+                                          '(class))
+                                         ((pyel-is-instance-type return-type)
+                                          '(instance)))))
+                         (if (listp type)
+                             type
+                           (list type))))
         (this-return-type return-type)
-        (function-type (progn
-                         (if (pyel-is-func-type return-type)
-                             (setq return-type (pyel-func-func-type return-type)))
-                         (if (pyel-is-class-type return-type)
-                             (setq return-type '(class)))
-                         (if (pyel-is-instance-type return-type)
-                             (setq return-type '(instance)))
-                         (if (listp return-type)
-                             return-type
-                           (list return-type))))
+        
         (keyword-args (using-context keywords-alist
                                      (mapcar (lambda (x) (transform (car x)))
                                              keywords)))
