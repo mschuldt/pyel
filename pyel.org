@@ -4086,21 +4086,22 @@ TODO: tests!
   
   (pyel-dispatch-func subscript-load-index (name value)
                       (list _) -> (nth value name)
-                      (object _) -> (--getitem-- name value)
+                      (object _) -> (call-method name --getitem-- value)
                       (vector _) -> (aref name value)
                       (string _) -> (char-to-string (aref name value))
                       (hash _) -> (gethash value name))
   
   (pyel-dispatch-func subscript-load-slice (name start end step)
-                      (object _ _ _) -> (--getitem-- name (PySlice "slice"
-                                                                   :start start
-                                                                   :end  end
-                                                                   :step  step))
+                      (object _ _ _) -> (call-method name --getitem--
+                                                     (PySlice "slice"
+                                                              :start start
+                                                              :end  end
+                                                              :step  step))
                       ;;TODO implement step
                       (_ _ _ _) -> (subseq name start end))
   
   (pyel-dispatch-func subscript-store-slice (name start end step assign)
-                      (object _ _ _) -> (--setitem-- name
+                      (object _ _ _) -> (call-method name --setitem-- 
                                                      (PySlice "slice"
                                                               :start start
                                                               :end  end
@@ -4112,7 +4113,7 @@ TODO: tests!
   
   (pyel-dispatch-func subscript-store-index (name value assign)
                       (list _) -> (setf (nth value name) assign)
-                      (object _) -> (--setitem-- name value assign)
+                      (object _) -> (call-method name --setitem-- value assign)
                       (vector _) -> (setf (aref name value) assign)
                       (hash _) -> (puthash value assign name))
   ;;                  (string _) -> not supported in python
