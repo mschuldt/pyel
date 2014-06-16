@@ -224,18 +224,18 @@ Type declarations are replaced with a call to this function.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro pyel-declare-el-func (function returns)
-  `(pyel-declare-el-func-fn ',function ',returns))
+(defmacro pyel-declare-el-func (name returns)
+  `(pyel-declare-el-func-fn ',name ',returns))
 
-(defun pyel-declare-el-func-fn (function returns)
-  (assert (symbolp function) "FUNCTION name must be a symbol")
+(defun pyel-declare-el-func-fn (name returns)
+  (assert (symbolp name) "FUNCTION name must be a symbol")
   ;;TODO: check that RETURNS is valid
   (setq returns (if (or (eq returns 'any)
                         (eq returns nil))
                     pyel-possible-types
                   returns))
-  (pyel-env-set function
-                (pyel-make-func-type function nil returns)
+  (pyel-env-set name
+                (pyel-make-func-type 'function nil returns)
                 pyel-global-type-env))
 
 ;;;;;;
