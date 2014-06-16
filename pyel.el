@@ -167,6 +167,7 @@ If "
                      pyel-function-definitions)))
 
             (pyel-prettyprint python)
+            (untabify (point-min) (point-max))
             (write-file el-file))))))
 
 (defun pyel-sort-functions (functions)
