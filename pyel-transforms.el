@@ -781,6 +781,7 @@
               ;;;
            (ret pyel-nothing)
            (args (_to- (using-context function-def (transform (car args)))))
+           (arg-names (mapcar (lambda (x) (if (consp x) (car x) x)) args))
            (this-return return-type) ;;return-type set by the argument transform
            (orig-name name)
            (decorators (mapcar 'transform decoratorlist))
@@ -836,11 +837,12 @@
            ;;                'tail-context body))
 
            ;;remove variables from the let arglist that have been declared global
-           (setq let-arglist (let (arglist) (mapcar (lambda (x)
-                                                      (unless (or (member x global-vars)
-                                                                  (member x args))
-                                                        (push x arglist)))
-                                                    let-arglist)
+           (setq let-arglist (let (arglist)
+                               (mapcar (lambda (x)
+                                         (unless (or (member x global-vars)
+                                                     (member x arg-names))
+                                           (push x arglist)))
+                                       let-arglist)
                                   arglist))
            ;;      ?remove variables that are defined in emacs?
 
