@@ -5639,10 +5639,6 @@ This will help notify the user when some syntax has not been implemented
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-declare-el-func-fn 'list 'list)
   
-  (let ((current-transform-table (get-transform-table 'pyel))
-        (type-env (pyel-make-type-env pyel-global-type-env)))
-    (call-transform (pyel-func-transform-name 'list) nil))
-  
   (defalias 'py-list 'pyel-list-function31)
   (pyel-func-transform list (object)
                        (string) -> (py-string-to-list object)
@@ -5650,6 +5646,10 @@ This will help notify the user when some syntax has not been implemented
                        (vector) -> (py-vector-to-list object)
                        (hash)   -> (py-hash-to-list object)
                        (list)   -> (py-copy-list object))
+  
+  (let ((current-transform-table (get-transform-table 'pyel))
+        (type-env (pyel-make-type-env pyel-global-type-env)))
+    (call-transform (pyel-func-transform-name 'list) nil))
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el

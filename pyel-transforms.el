@@ -1275,10 +1275,6 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-declare-el-func-fn 'list 'list)
 
-(let ((current-transform-table (get-transform-table 'pyel))
-      (type-env (pyel-make-type-env pyel-global-type-env)))
-  (call-transform (pyel-func-transform-name 'list) nil))
-
 (defalias 'py-list 'pyel-list-function31)
 (pyel-func-transform list (object)
                      (string) -> (py-string-to-list object)
@@ -1286,6 +1282,10 @@ Recognizes keyword args in the form 'arg = value'."
                      (vector) -> (py-vector-to-list object)
                      (hash)   -> (py-hash-to-list object)
                      (list)   -> (py-copy-list object))
+
+(let ((current-transform-table (get-transform-table 'pyel))
+      (type-env (pyel-make-type-env pyel-global-type-env)))
+  (call-transform (pyel-func-transform-name 'list) nil))
 
 (pyel-declare-el-func-fn 'tuple 'vector)
 (pyel-func-transform tuple (object)
