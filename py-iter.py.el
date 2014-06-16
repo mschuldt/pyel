@@ -1,4 +1,5 @@
 (require 'cl)
+(require 'py-lib)
 (require 'py-iter_pyel-extras)
 
 (define-class py-list-iter
@@ -29,10 +30,10 @@
   (def --next-- (self) nil
        (let (i ret)
          (pyel-set2 i (getattr self i))
-         (if (pyel-<31 i (getattr self length))
+         (if (pyel-<1 i (getattr self length))
              (progn
                (pyel-set2 ret (pyel-fcall8 aref (getattr self tup) i))
-               (setattr self i (pyel-+9 (getattr self i) 1))
+               (setattr self i (pyel-+1 (getattr self i) 1))
                ret)
            (py-raise StopIteration)))))
 
@@ -47,14 +48,14 @@
   (def --next-- (self) nil
        (let (i ret)
          (pyel-set2 i (getattr self i))
-         (if (pyel-<31 i (getattr self length))
+         (if (pyel-<1 i (getattr self length))
              (progn
                (pyel-set2 ret
                           (pyel-fcall8 substring
                                        (getattr self s)
                                        i
-                                       (pyel-+9 i 1)))
-               (setattr self i (pyel-+9 (getattr self i) 1))
+                                       (pyel-+1 i 1)))
+               (setattr self i (pyel-+1 (getattr self i) 1))
                ret)
            (py-raise StopIteration)))))
 
@@ -62,7 +63,7 @@
   nil
 
   (def --init-- (self d) nil
-       (setattr self keys (pyel-fcall8 py-dict-keys d))
+       (setattr self keys (pyel-fcall15 py-dict-keys d))
        (setattr self length (pyel-fcall8 length (getattr self keys))))
 
   (def --next-- (self) nil

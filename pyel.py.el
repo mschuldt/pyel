@@ -1,4 +1,5 @@
 (require 'cl)
+(require 'py-lib)
 (require 'pyel_pyel-extras)
 
 (def pyel-eval-buffer nil (interactive)
