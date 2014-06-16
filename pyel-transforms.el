@@ -1219,16 +1219,21 @@ Recognizes keyword args in the form 'arg = value'."
 
 
 (defun pyel-list-comp (elt generators &optional line col)
-  (cons 'py-list-comp (cons (transform elt)
-                            (reduce 'append (mapcar 'transform generators)))))
+  (let ((ret (cons 'py-list-comp
+                   (cons (transform elt)
+                         (reduce 'append (mapcar 'transform generators))))))
+    (setq return-type 'list)
+    ret))
 
 (def-transform dict-comp pyel (key value generators)
   (lambda (key value generators &optional line col)
     (pyel-dict-comp key value generators line col)))
 
 (defun pyel-dict-comp (key value generators &optional line col)
-  (append (list 'py-dict-comp (transform key) ': (transform value))
-          (reduce 'append (mapcar 'transform generators))))
+  (let ((ret (append (list 'py-dict-comp (transform key) ': (transform value))
+                     (reduce 'append (mapcar 'transform generators)))))
+    (setq return-type 'hash)
+    ret))
 
 (def-transform boolop pyel (op values)
   (lambda (op values &optional line col)
