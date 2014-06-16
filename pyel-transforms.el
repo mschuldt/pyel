@@ -453,7 +453,8 @@
                                 (using-context function-call
                                                (transform func))))
          new-func
-         ;;check if this function name needs to be translated
+         (name t-func);;original name before (possible) translation
+         ;;check if this function name needs to be translated         
          (t-func (if (and (not is-method-call)
                           (setq new-func (assoc t-func
                                                 pyel-function-name-translations)))
@@ -580,7 +581,7 @@
               ;;`(,t-func ,@(mapcar 'transform args))
               ;;TODO: this is dumb, convert `call-transform' to a macro?
               (t (if (context-p 'return-type?)
-                     (setq this-return (pyel-env-get t-func type-env)
+                     (setq this-return (pyel-env-get name type-env)
                            this-return (cond ((pyel-is-func-type this-return)
                                               (pyel-func-return-type this-return))
                                              ((pyel-is-class-type this-return)
