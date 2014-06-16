@@ -678,10 +678,10 @@
 
     ;;&optional
     (when defaults
-      (setq defaults (mapcar* (lambda (arg default)
-                                (setq arg (_to- arg))
-                                (cons arg default))
-                              (reverse args) (reverse defaults)))
+      (setq defaults (reverse (mapcar* (lambda (arg default)
+                                         (setq arg (_to- arg))
+                                         (cons arg default))
+                                       (reverse args) (reverse defaults))))
       (setq args (append (subseq args 0 (- (length args) (length defaults)))
                          '(&optional)
                          defaults)))
