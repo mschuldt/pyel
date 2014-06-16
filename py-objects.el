@@ -49,6 +49,7 @@ NAME can be a symbol or a string, return type will match"
              --get--
              --set--
              --getitem--
+             --setitem--
              --len--
              --bool--
              --next--
