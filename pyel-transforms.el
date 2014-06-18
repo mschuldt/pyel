@@ -966,8 +966,8 @@ Recognizes keyword args in the form 'arg = value'."
                  (transform step))))
 
 (def-transform subscript pyel ()
-  (lambda (value slice ctx &optional line col)
-    (pyel-subscript value slice ctx line col)))
+  (lambda (value _slice ctx &optional line col)
+    (pyel-subscript value _slice ctx line col)))
 
 (pyel-dispatch-func subscript-load-index (name value)
                     (list _) -> (nth value name)
@@ -1005,25 +1005,25 @@ Recognizes keyword args in the form 'arg = value'."
                     (hash _) -> (puthash value assign name))
 ;;                  (string _) -> not supported in python
 
-(defun pyel-subscript (value slice ctx &optional line col)
+(defun pyel-subscript (value _slice ctx &optional line col)
   (let* (;(value (transform value))
-         (slice (transform slice))
+         (slice (transform _slice))
          (ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
          start stop step ret)
 
-    (when (object-p slice)
-      (setq start (oref slice start)
-            stop (oref slice end)
-            step (oref slice step)))
+    (when (py-object-p slice)
+      (setq start (getattr slice start)
+            stop (getattr slice stop)
+            step (getattr slice step)))
     (setq ret
           (if (eq ctx 'load)
-              (if (object-p slice)
+              (if (py-object-p slice)
                   (call-transform 'subscript-load-slice value start stop step) ;;load slice
                 (call-transform 'subscript-load-index value slice)) ;;load index
             ;;else: store
-            (if (object-p slice)
+            (if (py-object-p slice)
                 (call-transform 'subscript-store-slice value start stop step assign-value)
               (call-transform 'subscript-store-index value slice assign-value)))) ;;store index
     (setq return-type nil) ;;return type unknown
