@@ -5,11 +5,11 @@
 (define-class py-list-iter
   nil
 
-  (def --init-- (self lst) nil
+  (def --init-- (self lst) (pyel-lambda)
        (setattr self lst lst)
        (setattr self length (pyel-fcall8 length lst)))
 
-  (def --next-- (self) nil
+  (def --next-- (self) (pyel-lambda)
        (let (lst ret)
          (pyel-set2 lst (getattr self lst))
          (if lst
@@ -22,12 +22,12 @@
 (define-class py-tuple-iter
   nil
 
-  (def --init-- (self tup) nil
+  (def --init-- (self tup) (pyel-lambda)
        (setattr self tup tup)
        (setattr self length (pyel-fcall8 length tup))
        (setattr self i 0))
 
-  (def --next-- (self) nil
+  (def --next-- (self) (pyel-lambda)
        (let (i ret)
          (pyel-set2 i (getattr self i))
          (if (pyel-<1 i (getattr self length))
@@ -40,12 +40,12 @@
 (define-class py-string-iter
   nil
 
-  (def --init-- (self str) nil
+  (def --init-- (self str) (pyel-lambda)
        (setattr self s str)
        (setattr self length (pyel-fcall8 length str))
        (setattr self i 0))
 
-  (def --next-- (self) nil
+  (def --next-- (self) (pyel-lambda)
        (let (i ret)
          (pyel-set2 i (getattr self i))
          (if (pyel-<1 i (getattr self length))
@@ -62,11 +62,11 @@
 (define-class py-dict-iter
   nil
 
-  (def --init-- (self d) nil
+  (def --init-- (self d) (pyel-lambda)
        (setattr self keys (pyel-fcall15 py-dict-keys d))
        (setattr self length (pyel-fcall8 length (getattr self keys))))
 
-  (def --next-- (self) nil
+  (def --next-- (self) (pyel-lambda)
        (let (keys ret)
          (pyel-set2 keys (getattr self keys))
          (if keys

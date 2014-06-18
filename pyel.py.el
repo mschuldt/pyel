@@ -31,3 +31,23 @@
        (if (and (pyel-fcall8 bobp) (pyel-not2 (pyel-fcall8 looking-at "(")))
            nil
          t)))
+
+(define-class slice
+  nil
+
+  (def --init-- (self start &optional (stop) (step)) (pyel-lambda)
+       (if (pyel-not3 stop)
+           (progn (pyel-set2 stop start)
+                  (pyel-set2 start 0)))
+       (setattr self start start)
+       (setattr self stop stop)
+       (setattr self step step))
+
+  (def --repr-- (self) (pyel-lambda)
+       (pyel-fcall15 format
+                     "slice(%s, %s, %s)"
+                     (getattr self start)
+                     (getattr self stop)
+                     (getattr self step)))
+
+  (def indices (self length) (pyel-lambda) nil))
