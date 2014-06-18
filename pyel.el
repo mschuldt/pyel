@@ -45,8 +45,6 @@ nil for no error
   "return the full file name of py-ast.el"
   (file-path-concat pyel-directory "py-ast.py"))
 
-(setq pyel-tmp-file-counter (random (/ most-positive-fixnum 10)))
-  
 (defun pyel (python &optional no-line-and-col-nums include-defuns py-ast-only)
   "translate PYTHON into Emacs Lisp.
 PYTHON is a string.
@@ -73,7 +71,7 @@ If INCLUDE-DEFUNS, include the list of pyel defined functions in the output
                    (buffer-string)))
          (pyel-context nil)
          (type-env (pyel-make-type-env pyel-global-type-env))
-         (tmp-file (format "/tmp/pyel-%s.py" (incf pyel-tmp-file-counter)))
+         (tmp-file (make-temp-file "pyel-" nil ".py"))
          (ast-command (format "cd %s;./%s %s"
                               pyel-directory
                               "py-ast.py";(pyel-py-ast-file-name)

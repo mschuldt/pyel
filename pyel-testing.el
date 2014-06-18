@@ -269,25 +269,24 @@ generated lisp code.
     (progv
         (mapcar 'car test-variable-values)
         (mapcar 'cadr test-variable-values)
-
-      (if (or (string= selector "pyel-test")
-              (string= selector "pyel"))
-          (let ((tmp-file "/tmp/pyel-test-functions.el"))
-            (message "Evaluating test functions...")
-            ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
-            (find-file tmp-file)
-            (erase-buffer)
-            (mapc (lambda (x)
-                    ;;macroexpand so edebug-defun can be used on it
-                    (setq pyel-testing-last-test x)
-                    (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
-                  pyel-test-py-functions)
-            (save-buffer)
-            (kill-buffer)
-            (load-file tmp-file)))
-
+      (let ((tmp-file (make-temp-file "pyel-test-functions" nil ".el")))
+        (if (or (string= selector "pyel-test")
+                (string= selector "pyel"))
+            (progn
+              (message "Evaluating test functions...")
+              ;;(mapc (lambda (x) (eval (pyel x))) pyel-test-py-functions)
+              (find-file tmp-file)
+              (erase-buffer)
+              (mapc (lambda (x)
+                      ;;macroexpand so edebug-defun can be used on it
+                      (setq pyel-testing-last-test x)
+                      (insert (cl-prettyprint-to-string (macroexpand (pyel x)))))
+                    pyel-test-py-functions)
+              (save-buffer)
+              (kill-buffer)
+              (load-file tmp-file)))
       (ert-run-tests-interactively selector)
-      )))
+      (delete-file temp-file)))))
 
 (defun pyel-functionize (py-code &optional func-name &rest args)
   "wrap PY-CODE in a function definition
