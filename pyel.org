@@ -2303,25 +2303,32 @@ This is for all non template specific code.
 
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests attribute
-                     "a.b"
-                     "a.b.c"
-                     "a.b.c.e"
-                     "a.b()"
-                     "a.b.c()"
-                     "a.b.c.d()"
-                     "a.b.c.d(1,3)"
-                     "a.b = 2"
-                     "a.b.e = 2"
-                     "a.b.c = d.e"
-                     "a.b.c = d.e.f"
-                     "a.b.c = d.e()"
-                     "a.b.c = d.e.f()"
-                     "a.b.c = d.e.f(1,3)"
-                     "a.b, a.b.c = d.e.f(1,3), e.g.b"
-                     "a.b(x.y,y)"
-                     "a.b(x.y(g.g()),y.y)")
+  (pyel-create-tests
+   attribute
+   ("class a:
+   b = 3
   
+  class b:
+   x = a()
+  
+  class c:
+   y =  b()
+  o = b()
+  o2 = c()"
+    ("a.b" 3)
+    ("b.x.b" 3)
+    ("o.x.b" 3)
+    ("o2.y.x.b" 3)
+    ("c.y.x.b" 3)
+    ("a.b = 2"
+     ("a.b" 2))
+    ("b.x.y = 2"
+     ("b.x.y" 2))
+    ("b.v = 4
+  o2.y.v = b.v"
+     ("o2.y.v" 4))
+    ("o2.f = lambda x: x+1"
+     ("o2.f(3)" 4))))
 #+END_SRC
 ** num
 *** transform
