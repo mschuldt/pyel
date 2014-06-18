@@ -426,6 +426,7 @@
 ;; this allows locally defined functions to override their global
 ;; counterparts without defining themselves globally
 (pyel-dispatch-func fcall (_func &rest _args)
+                    ($list _) 
                     (vfunc _) -> (funcall $func ,@(pyel-sort-kwargs args))
                     ;;($function _) -> ($func ,@(pyel-sort-kwargs args))
                     (class _) -> (call-method $func --new--
