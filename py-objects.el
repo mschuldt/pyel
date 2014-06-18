@@ -77,6 +77,7 @@ These names will be set globally to their index in this list")
     (aset v obj-dict-index (make-hash-table :test 'equal))
     v))
 
+
 (defmacro define-class (name bases &rest attributes)
   (let* ((new (make-empty-class))
          (in-function-p (if (member '__defined-in-function-body bases)
@@ -90,11 +91,11 @@ These names will be set globally to their index in this list")
                   (or bases '(object)))) ;;everything inherits from object
          ;;Python keeps the bases in a tuple
          (bases (vconcat (mapcar (lambda (x)
-                                          (let ((base (eval x)))
-                                            (if (py-class-p base)
-                                                base
-                                              (error "Invalid base"))))
-                                        bases)))
+                                   (let ((base (eval x)))
+                                     (if (py-class-p base)
+                                         base
+                                       (error "Invalid base"))))
+                                 bases)))
          (doc (if (eq (type-of (car attributes)) 'string)
                   (pop attributes) nil))
          class-variables
