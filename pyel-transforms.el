@@ -804,7 +804,8 @@
         (setq first-arg-name (car args))
         ;;map the first arg to its class type. 
         ;;`class-name' is set by the class transform
-        (pyel-env-set first-arg-name (pyel-env-get class-name type-env) type-env))
+        (pyel-env-set first-arg-name (pyel-env-get class-name type-env) type-env)
+        (setq decorators (cons 'pyel-lambda decorators)))
 
       (using-context
        function-def
