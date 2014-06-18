@@ -273,6 +273,7 @@ useing python3 unless PYTHON2 is non-nil"
 (defun pyel-reload ()
   (interactive)
   (pyel-reset)
+  (setq pyel-global-type-env (pyel-make-type-env))
   (dolist (f '(pyel
                pyel-tests
                pyel-transforms
@@ -290,7 +291,6 @@ useing python3 unless PYTHON2 is non-nil"
   "reset internal variables"
   (interactive)
   (setq pyel-method-name-arg-signature (make-hash-table :test 'eq)
-        pyel-global-type-env (pyel-make-type-env)
         pyel-function-definitions nil
         pyel-defined-functions nil
         pyel-method-transforms nil
