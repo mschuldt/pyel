@@ -283,7 +283,8 @@ useing python3 unless PYTHON2 is non-nil"
                pyel-preprocessor
                pyel-tests-generated
                py-lib
-               transformer))
+               transformer
+               pyel-type-reconstruction))
     (setq features (remove f features)))
   (require 'pyel))
 
