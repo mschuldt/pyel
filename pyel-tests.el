@@ -659,6 +659,21 @@ assert x.value == [1,2,3]"
  )
 
 (pyel-create-tests
+ slice-object
+ ("o1 = slice(5)
+o2 = slice(1, 5)
+o3 = slice(2, 6, 7)"
+  ("o1.start" 0)
+  ("o1.end" 5)
+  ("o1.step" nil)
+  ("o2.start" 1)
+  ("o2.end" 5)
+  ("o2.step" nil)
+  ("o3.start" 2)
+  ("o3.end" 6)
+  ("o3.step" 7)))
+
+(pyel-create-tests
  objects
  ("class tclass():
  '''a test class'''
