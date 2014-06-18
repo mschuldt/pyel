@@ -130,17 +130,24 @@ These names will be set globally to their index in this list")
             ((eq (car attr) 'def)
              (if (< (length attr) 4)
                  (error "improper method form")
-               (let* ((name (pop attr))
-                      (name (pop attr))
-                      (args (pop attr))
-                      (decorators (pop attr))
-                      (doc (if (and (> (length attr) 1)
-                                    (eq (type-of (car attr)) 'string))
+               (let* ((tmp attr)
+                      (name (pop tmp))
+                      (name (pop tmp))
+                      (args (pop tmp))
+                      (decorators (pop tmp))
+                      (doc (if (and (> (length tmp) 1)
+                                    (eq (type-of (car tmp)) 'string))
                                ;;if method body is only a string, assume
                                ;;it is meant to be returned
-                               (pop attr) nil))
-                      (func `(lambda ,args ,@attr))
-                      attr type )
+                               (pop tmp) nil))
+                      func tmp type )
+
+                 (if decorators
+                     (unless (member 'pyel-lambda decorators)
+                       (py-append decorators 'pyel-lambda))
+                   (py-insert attr 3 '(pyel-lambda)))
+
+                 (setq func (cadr (macroexpand attr)));;`(lambda ,args ,@tmp))
 
                  (if (eq name '--init--)
                      (setq has-init-method t))
