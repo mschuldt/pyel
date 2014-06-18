@@ -1587,6 +1587,8 @@ prevents multiple/none '/' seporating file names"
 (require 'py-objects)
 (require 'pyel-mode)
 (require 'py-lib)
+(require 'py-classes)
+
 (require 'pyel-testing)
 
 (pyel "this_fixes_a_bug") ;;prevents errors the first time pyel-run-tests is run
