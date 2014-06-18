@@ -30,3 +30,18 @@ def back_to_open_paren():
         return False
     else:
         return True
+
+class slice:
+    def __init__(self, start, stop=None, step=None):
+        if not stop:
+            stop = start
+            start = 0
+        self.start = start
+        self.stop = stop
+        self.step = step
+
+    def __repr__(self):
+        return format("slice(%s, %s, %s)", self.start, self.stop, self.step)
+
+    def indices(self, length):
+        pass #TODO

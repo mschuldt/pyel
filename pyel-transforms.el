@@ -952,21 +952,17 @@ Recognizes keyword args in the form 'arg = value'."
                     (number number) -> (% l r)
                     (object _) -> (call-method l --mod-- r))
 
-(defclass PySlice nil ;;TODO: name?
-  ((start :initarg :start)
-   (end :initarg :end)
-   (step :initarg :step)))
-
 (def-transform index pyel ()
   (lambda (value &optional line col)
     (transform value)))
 
 (def-transform slice pyel ()
   (lambda (lower upper step)
-    (PySlice "slice"
-             :start (transform lower)
-             :end (transform upper)
-             :step (transform step))))
+    (call-method slice
+                 --new-- 
+                 (transform lower)
+                 (transform upper)
+                 (transform step))))
 
 (def-transform subscript pyel ()
   (lambda (value slice ctx &optional line col)
@@ -981,19 +977,21 @@ Recognizes keyword args in the form 'arg = value'."
 
 (pyel-dispatch-func subscript-load-slice (name start end step)
                     (object _ _ _) -> (call-method name --getitem--
-                                                   (PySlice "slice"
-                                                            :start start
-                                                            :end  end
-                                                            :step  step))
+                                                   (call-method slice
+                                                                --new--
+                                                                start
+                                                                end
+                                                                step))
                     ;;TODO implement step
                     (_ _ _ _) -> (subseq name start end))
 
 (pyel-dispatch-func subscript-store-slice (name start end step assign)
-                    (object _ _ _) -> (call-method name --setitem-- 
-                                                   (PySlice "slice"
-                                                            :start start
-                                                            :end  end
-                                                            :step  step)
+                    (object _ _ _) -> (call-method name --setitem--
+                                                   (call-method slice
+                                                                --new--
+                                                                start
+                                                                end
+                                                                step)
                                                    assign)
 
                     ;;TODO implement step
