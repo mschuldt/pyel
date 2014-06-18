@@ -4164,134 +4164,136 @@ TODO: tests!
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
   (pyel-create-tests
-  subscript
+   subscript
    ;;load index====
    ;;string
-   "a = '1X23'
-  assert a[1] == 'X'"
+   ("a = '1X23'"
+    ("a[1]" "X"))
    ;;list
-   "a = [1,2,3,4]
-  assert a[1] == 2"
+   ("a = [1,2,3,4]"
+    ("a[1]" "2"))
    ;;vector
-   "a = (1,2,3,4)
-  assert a[1] == 2"
+   ("a = (1,2,3,4)"
+    ("a[1]" "2"))
    ;;object
-   "class a:
+   ("class a:
    def __getitem__ (self, value):
     return value + 4
-  x = a()
-  assert x[1] == 5"
+  x = a()"
+    ("x[1]" "5"))
    ;;=load slice====
    ;;vector
-   "a = (1,2,3,4,5)
-  assert a[1:4] == (2,3,4)
-  assert a[:4] == (1,2,3,4)
-  assert a[2:] == (3,4,5)
-  assert a[:] == (1,2,3,4,5)"
+   ("a = (1,2,3,4,5)"
+    ("a[1:4]" "(2,3,4)")
+    ("a[:4]" "(1,2,3,4)")
+    ("a[2:]" "(3,4,5)")
+    ("a[:]" "(1,2,3,4,5)"))
    ;;list
-   "a = [1,2,3,4,5]
-  assert a[1:4] == [2,3,4]
-  assert a[:4] == [1,2,3,4]
-  assert a[2:] == [3,4,5]
-  assert a[:] == [1,2,3,4,5]"
+   ("a = [1,2,3,4,5]"
+    ("a[1:4]"  "[2,3,4]")
+    ("a[:4]"  "[1,2,3,4]")
+    ("a[2:]"  "[3,4,5]")
+    ("a[:]"  "[1,2,3,4,5]"))
    ;;strings
-   "a = '012345678'
-  assert a[1:4] == '123'
-  assert a[:4] == '0123'
-  assert a[2:] == '2345678'
-  assert a[:] == '012345678'"
+   ("a = '012345678'"
+    ("a[1:4]" "123")
+    ("a[:4]" "0123")
+    ("a[2:]" "2345678")
+    ("a[:]" "012345678"))
    ;;object
-   "class a:
+   ("class a:
    def __getitem__ (self, value):
-    return value.start + value.end
-  x = a()
-  assert x[1:2] == 3
-  assert x[5:7] == 12"
+    return value.start + value.stop
+  x = a()"
+    ("x[1:2]" "3")
+    ("x[5:7]"  "12"))
   
    ;;store index
    ;; list
-   "def __add(a,b):
+   ("def __add(a,b):
    return a+b
   a = [1,2,3,4]
   a[0] = __add(a[1],a[2])
-  assert a[0] == 5
-  a[2] = 'str'
-  assert a[2] == 'str'"
+  a[2] = 'str'"
+    ("a[0]"  5)
+    ("a[2]"  "str"))
    ;;vector
-   "a = (1,2,3,4)
+   ("a = (1,2,3,4)
   a[0] = a[1] + a[2]
-  assert aa[0] == 5
-  a[2] = 'str'
-  assert a[2] == 'str'"
+  a[2] = 'str'"
+    ("a[0]"  5)
+    ("a[2]"  "str"))
    ;;object
-   "class a:
+   ("class a:
    def __setitem__ (self, index, value):
     self.index = index
     self.value = value
   x = a()
-  x[3] = 5
-  assert x.index == 3
-  assert x.value == 5"
+  x[3] = 5"
+    ("x.index" 3)
+    ("x.value" 5))
   
    ;;store slice
    ;;list
-   "a = [1,2,3,4,5,6]
-  a[1:4] = [5,4,'f']
-  assert a == [1,5,4,'f',5,6]
-  a[:3] = ['a',4,2.2]
-  assert a == ['a',4,2.2,'f',5,6]
-  a[3:] = [3,3]
-  assert a == ['a', 4, 2.2, 3, 3, 6]#TODO: should == ['a', 4, 2.2, 3, 3]"
+   ("a = [1,2,3,4,5,6]"
+    ("a[1:4] = [5,4,'f']"
+     ("a"  '(1 5 4 "f" 5 6)))
+    ("a[:3] = ['a',4,2.2]"
+     ("a" '("a" 4 2.2 4 5 6)))
+    ("a[3:] = [3,3]"
+     ("a" '(1 2 3 3 3 6)))) ;;TODO: should == '(1 2 3 3 3 6)
+  
    ;;vector
-   "a = (1,2,3,4,5,6)
-  a[1:4] = (5,4,'f')
-  assert a == (1,5,4,'f',5,6)
-  a[:3] = ('a',4,2.2)
-  assert a == ('a',4,2.2,'f',5,6)
-  a[3:] = (3,3)
-  assert a == ('a', 4, 2.2, 3, 3, 6)#TODO: should == ('a', 4, 2.2, 3, 3)"
+   ("a = (1,2,3,4,5,6)
+  a[1:4] = (5,4,'f')"
+    ("a" [1 5 4 "f" 5 6]))
+   ("a = (1,2,3,4,5,6)
+  a[:3] = ('a',4,2.2)"
+    ("a" ["a" 4 2.2 4 5 6]))
+   ("a = (1,2,3,4,5,6)
+  a[3:] = (3,3)"
+    ("a" [1 2 3 3 3 6])) ;; TODO: should == [1, 2, 3, 3, 3]
+  
    ;;string
-   "a = '123456'
-  a[1:4] = '54f'
-  assert a == '154f56'
-  a[:3] = 'a42'
-  assert a == 'a42f56'
-  a[3:] = '33'
-  assert a == 'a42336'#TODO: should == 'a4233'"
+   ("a = '123456'
+  a[1:4] = '54f'"
+    ("a" "154f56"))
+  
+   ("a = '123456'
+  a[:3] = 'a42'"
+    ("a" "a42f56"))
+  
+   ("a = '123456'
+  a[3:] = '33'"
+    ("a" "'a42336'")) ;;TODO: should == '12333'"
+  
    ;;object
-   "class a:
+   ("class a:
    def __setitem__ (self, index, value):
     self.start = index.start
-    self.end = index.end
+    self.stop = index.stop
     self.step = index.step
     self.value = value
   x = a()
-  x[2:3] = [1,2,3]
-  assert x.start == 2
-  assert x.end == 3
-  assert x.value == [1,2,3]"
+  x[2:3] = [1,2,3]"
+    ("x.start" "2")
+    ("x.stop" "3")
+    ("x.value" "[1,2,3]"))
+   ("x.start" "2")
+   ("x.stop" "3")
+   ("x.value" "[1,2,3]")
   
-  "a[2] += 3"
-  "a[2] += b[3]"
+   ("a = [1,2,3,4,5,6]
+  a[2] += 3"
+    ("a" '(1 2 6 4 5 6)))
   
-  "[2,3,3][2]"
-  "assert [1,2,(3,2,8)][2][2] == 8"
-   )
+   ("a = [1,2,3,4,5,6]
+  b = [1,2,3,4,5,6]
+  a[2] += b[3]"
+    ("a" '(1 2 7 4 5 6)))
   
-  (pyel-create-tests
-   slice-object
-   ("o1 = slice(5)
-  o2 = slice(1, 5)
-  o3 = slice(2, 6, 7)"
-    ("o1.start" 0)
-    ("o1.end" 5)
-    ("o1.step" nil)
-    ("o2.start" 1)
-    ("o2.end" 5)
-    ("o2.step" nil)
-    ("o3.start" 2)
-    ("o3.end" 6)
-    ("o3.step" 7)))
+   ("[2,3,3][2]" 3)
+   ("[1,2,(3,2,8)][2][2]" 8))
 #+END_SRC
 
 ** class
