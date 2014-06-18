@@ -2538,10 +2538,12 @@ This is for all non template specific code.
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests string
-                     "'a'"
-                     "x = 'a'"
-                     "['a','b']")
+  (pyel-create-tests 
+   string
+   ("'a'"  "a")
+   ("x = 'a'"
+    ("x" "a"))
+   ("['a']" '("a")))
 #+END_SRC
 ** comparisons: >, <, ==, !=, <=, >=, is
 *** transform

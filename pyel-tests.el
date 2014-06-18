@@ -153,10 +153,12 @@ d = {}"
                    "(a, (b, (c,d)))"
                    "((((((((a))))))))")
 
-(pyel-create-tests string
-                   "'a'"
-                   "x = 'a'"
-                   "['a','b']")
+(pyel-create-tests 
+ string
+ ("'a'"  "a")
+ ("x = 'a'"
+  ("x" "a"))
+ ("['a']" '("a")))
 
 (pyel-create-tests
  compare
