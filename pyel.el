@@ -168,6 +168,13 @@ If "
             (untabify (point-min) (point-max))
             (write-file el-file))))))
 
+(defmacro pyel-eval (code)
+  "translate and eval python CODE"
+  `(let ((lexical-binding t))
+     (eval
+      (let (lexical-binding)
+        (pyel ,code)))))
+
 (defun pyel-sort-functions (functions)
   (sort (copy-list functions) (lambda (a b) (string< (symbol-name (nth 1 a))
                                                      (symbol-name (nth 1 b))))))
