@@ -170,10 +170,9 @@ If "
 
 (defmacro pyel-eval (code)
   "translate and eval python CODE"
-  `(let ((lexical-binding t))
-     (eval
-      (let (lexical-binding)
-        (pyel ,code)))))
+  `(eval (let (lexical-binding)
+           (pyel ,code))
+         :lexical))
 
 (defun pyel-sort-functions (functions)
   (sort (copy-list functions) (lambda (a b) (string< (symbol-name (nth 1 a))
