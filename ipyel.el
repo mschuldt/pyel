@@ -396,7 +396,7 @@ simply inserts a newline."
                                     ;;mbs
                                     (let ((pyel-interactive t))
                                       (pyel-repr (eval ipyel-form
-                                                       lexical-binding))))
+                                                       :lexical))))
                               (setq ipyel-wbuf (current-buffer))
                               (setq
                                ipyel-temp-buffer
