@@ -901,9 +901,10 @@ EXC must be derived from BaseException"
   (cond (others
          (error "Only the first arg in `py-eval' is implemented"))
         ((stringp source)
-         (eval (pyel source)))
+         (pyel-eval source))
         ((listp source)
-         (eval source))
+         (let ((lexical-binding t))
+           (eval source)))
     (t (py-raise (TypeError "eval() arg 1 must be a string, bytes or code object)")))))
 
 ;;TODO: when the built in type classes are finished and `py-type'

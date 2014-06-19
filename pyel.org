@@ -6237,9 +6237,10 @@ This will help notify the user when some syntax has not been implemented
     (cond (others
            (error "Only the first arg in `py-eval' is implemented"))
           ((stringp source)
-           (eval (pyel source)))
+           (pyel-eval source))
           ((listp source)
-           (eval source))
+           (let ((lexical-binding t))
+             (eval source)))
       (t (py-raise (TypeError "eval() arg 1 must be a string, bytes or code object)")))))
 #+END_SRC
 *** tests
