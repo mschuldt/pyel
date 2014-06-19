@@ -4831,24 +4831,17 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests global
-
-                     "def a():
+  (pyel-create-tests
+   global
+   ("x = 1
+  y = 1
+  def f():
    global x
    x = 3
-   y = 1"
-
-                     "x = 1
-  y = 1
-  def func():
-   global x
-   x = 7
-   y = 7
-  func()
-  assert x == 7
-  assert y == 1
-  "
-                     )
+   y = 2
+  f()"
+    ("x" 3)
+    ("y" 1)))
 #+END_SRC
 ** nonlocal
 DOC: 'nonlocal' is currently equivalent to 'global'

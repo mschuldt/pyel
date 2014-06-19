@@ -862,24 +862,17 @@ for n in obj:
  x.append(n)"
   ("x" '("5" "4" "3" "2" "1"))))
 
-(pyel-create-tests global
-
-                   "def a():
+(pyel-create-tests
+ global
+ ("x = 1
+y = 1
+def f():
  global x
  x = 3
- y = 1"
-
-                   "x = 1
-y = 1
-def func():
- global x
- x = 7
- y = 7
-func()
-assert x == 7
-assert y == 1
-"
-                   )
+ y = 2
+f()"
+  ("x" 3)
+  ("y" 1)))
 
 ;;
 
