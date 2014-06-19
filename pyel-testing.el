@@ -158,10 +158,10 @@ car is 'lambda or 'quote"
                                (push `(ert-deftest
                                           ,(intern (format "pyel-test-%s-%s" name-str
                                                            (number-to-string (setq c (1+ c))))) ()
-                                        (equal (eval (pyel ,(if (= (length test) 2)
+                                        (equal (pyel-eval ,(if (= (length test) 2)
 
-                                                                (format "%s()" test-name)
-                                                              (format "%s(%s)" test-name (setq d (1+ d))))))
+                                                               (format "%s()" test-name)
+                                                             (format "%s(%s)" test-name (setq d (1+ d)))))
                                                ,(if (and (listp (cadr x))
                                                          (not (or (eq (caadr x) 'lambda)
                                                                   (eq (caadr x) 'quote))))
@@ -176,8 +176,8 @@ car is 'lambda or 'quote"
                      (push `(ert-deftest
                                 ,(intern (concat "pyel-" (symbol-name name)
                                                  (number-to-string (setq c (1+ c))))) ()
-                              (equal (eval (pyel ,(concat (pyel-functionize (car test) "_pyel21312")
-                                                          "\n_pyel21312()")))
+                              (equal (pyel-eval ,(concat (pyel-functionize (car test) "_pyel21312")
+                                                          "\n_pyel21312()"))
                                      ,(cadr test)))
 
                            _pyel-tests))
