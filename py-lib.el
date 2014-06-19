@@ -786,7 +786,8 @@ EXC must be derived from BaseException"
                 (-to_ (bound-method-name func))
                 obj-name)
       (format "<function %s at 0x18b071>" (if (and (listp func)
-                                                   (or (eq (car func) 'lambda)))
+                                                   (or (eq (car func) 'lambda)
+                                                       (eq (car func) 'closure)))
                                               "<lambda>"
                                             (symbol-name func))))))
 
