@@ -4931,7 +4931,23 @@ TODO: tests!
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  
+  (pyel-create-tests
+   not
+   ("class c:
+   def __init__(self, n):
+    self.length = n
+   def __len__(self):
+    return self.length
+  x = c(0)
+  y = c(1)"
+    ("not x" t)
+    ("not x" nil))
+   ("not 's'" nil)
+   ("not ''" t)
+   ("not []" t)
+   ("not ()" t)
+   ("not {}" t)
+   ("not (2,)" nil))
 #+END_SRC
 ** augmented assignment
 *** transform

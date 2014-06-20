@@ -887,7 +887,23 @@ f3 = lambda x, *rest, **k : [x, rest, k]"
    "[1, [2, 3, 4, 5], {b--: 2, a--: 1}]"))
  ("reduce(lambda a,b:a+b, range(2, 9))" 35))
 
-;;
+(pyel-create-tests
+ not
+ ("class c:
+ def __init__(self, n):
+  self.length = n
+ def __len__(self):
+  return self.length
+x = c(0)
+y = c(1)"
+  ("not x" t)
+  ("not x" nil))
+ ("not 's'" nil)
+ ("not ''" t)
+ ("not []" t)
+ ("not ()" t)
+ ("not {}" t)
+ ("not (2,)" nil))
 
 (pyel-create-tests
  aug-assign
