@@ -1159,11 +1159,11 @@ b = False"
 
 ;;
 
-(pyel-create-tests conditional-expressions
-                   "1 if True else 0"
-                   "true() if tst() else false()"
-                   "a[1] if a[2:2] else a[2]"
-                   )
+(pyel-create-tests
+ conditional-expressions
+ ("1 if True else 0" 1)
+ ("len((2,3)) if 's' else 3" 2)
+ ("2 if '' else 4" 4))
 
 ;;
 
