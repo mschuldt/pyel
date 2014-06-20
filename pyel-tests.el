@@ -906,6 +906,12 @@ y = c(1)"
  ("not (2,)" nil))
 
 (pyel-create-tests
+ usub
+ ("-1" -1)
+ ("a = 2"
+  ("-a" -1)))
+
+(pyel-create-tests
  aug-assign
  ("x = 2"
   ("x += 3" ("x" 5))

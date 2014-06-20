@@ -4947,6 +4947,12 @@ TODO: tests!
    ("not ()" t)
    ("not {}" t)
    ("not (2,)" nil))
+  
+  (pyel-create-tests
+   usub
+   ("-1" -1)
+   ("a = 2"
+    ("-a" -1)))
 #+END_SRC
 ** augmented assignment
 *** transform
