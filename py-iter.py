@@ -4,6 +4,8 @@ class py_list_iter:
     def __init__(self, lst):
         self.lst = lst
         self.length = length(lst)
+    def __iter__(self):
+        return self
     def __next__(self):
         lst = self.lst
         if lst:
@@ -18,6 +20,8 @@ class py_tuple_iter:
         self.tup = tup
         self.length = length(tup)
         self.i = 0
+    def __iter__(self):
+        return self
     def __next__(self):
         i = self.i
         if i < self.length:
@@ -32,6 +36,8 @@ class py_string_iter:
         self.s = str
         self.length = length(str)
         self.i = 0
+    def __iter__(self):
+        return self
     def __next__(self):
         i = self.i
         if i < self.length:
@@ -46,6 +52,8 @@ class py_dict_iter:
         #self.keys = d.keys()
         self.keys = py_dict_keys(d)
         self.length = length(self.keys)
+    def __iter__(self):
+        return self
     def __next__(self):
         keys = self.keys
         if keys:
