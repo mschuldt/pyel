@@ -526,7 +526,13 @@ else is optional"
   (lambda () (setq __for-continue t)
     '(throw '__continue__ nil)))
 
-
+(defsubst pyel-object-bool (obj)
+  (condition-case nil
+      (call-method obj --bool--)
+    (AttributeError
+     (condition-case nil
+         (= (call-method obj --len--) 0)
+       (AttributeError t)))))
 
 
 

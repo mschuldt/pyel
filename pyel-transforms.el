@@ -1124,9 +1124,14 @@ Recognizes keyword args in the form 'arg = value'."
   (lambda (op operand &optional line col)
     (call-transform op operand)))
 
-(pyel-dispatch-func not (x)
-                    (object) -> (--not-- x) ;;?
-                    (_) -> (not x))
+(pyel-dispatch-func not (obj)
+                    (number) -> (eq obj 0)
+                    (string) -> (eq obj "")
+                    (list)   -> (null obj)
+                    (object) -> (pyel-object-bool obj)
+                    (vector) -> (eq obj [])
+                    (hash)   -> (= (hash-table-count obj) 0)
+                    (_)      -> (not obj))
 
 (pyel-dispatch-func usub (x)
                     (number) -> (- x)
