@@ -406,8 +406,7 @@
     (setq return-type (if (equal true-type false-type)
                           true-type
                         (list true-type false-type)))
-    `(if ,(if (equal tst []) nil tst)
-
+    `(if (py-bool ,tst)
          (,progn-code ,@true-body)
        ,@false-body)))
 
