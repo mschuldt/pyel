@@ -1137,14 +1137,23 @@ for i in range(4):
   ("hash_table_count(x)" 20)
   ("x[3],x[5],x[10]" [(0 1 4) (0 1 4 9 16) (0 1 4 9 16 25 36 49 64 81)])))
 
-(pyel-create-tests boolop
-                   "a or b"
-                   "a or b or c"
-                   "a.c or b.c() or a[2]"
-                   "a and b"
-                   "a and b or c"
-                   "a[2] and b.f() or c.e"
-                   "a.e and b[2] or c.e() and 2 ")
+(pyel-create-tests
+ boolop
+ ("a = True
+b = False"
+  ("a or b" t)
+  ("False or b or True" t)  
+  ("a and b" nil)
+  ("False or 'a'" "a"))
+ 
+ ("False or False" nil)
+ ("3 and 's'" "s")
+ ("1 and 2 and 3" 3)
+ ("False or []" nil)
+ ("False or ()" [])
+ ("'' or 's'" "s")
+ ("{} or 3" 3)
+ ("d and ''" nil))
 
 ;;
 

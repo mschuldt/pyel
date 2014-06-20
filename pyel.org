@@ -5533,25 +5533,48 @@ DOC: generator expressions are translated to list comprehensions
     (lambda (op values &optional line col)
       (cons op (mapcar 'transform values))))
 #+END_SRC
+*** python el lib
+#+Begin_SRC emacs-lisp :tangle py-lib.el
+  (defmacro py-or (&rest conditions)
+    (cons 'or (mapcar (lambda (x)
+                        `(let ((__val ,x))
+                           (if (py-bool __val) __val)))
+                      conditions)))
+  
+  (defmacro py-and (&rest conditions)
+    (cons 'and (mapcar (lambda (x)
+                         `(let ((__val ,x))
+                            (if (py-bool __val) __val)))
+                       conditions)))
+#+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
   def BoolOp(op, values, lineno='nil', col_offset='nil'):
       return l_str(["boolop", op, l_str(values), lineno, col_offset])
   def Or():
-      return "or"
+      return "py-or"
   def And():
-      return "and"
+      return "py-and"
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests boolop
-                     "a or b"
-                     "a or b or c"
-                     "a.c or b.c() or a[2]"
-                     "a and b"
-                     "a and b or c"
-                     "a[2] and b.f() or c.e"
-                     "a.e and b[2] or c.e() and 2 ")
+  (pyel-create-tests
+   boolop
+   ("a = True
+  b = False"
+    ("a or b" t)
+    ("False or b or True" t)  
+    ("a and b" nil)
+    ("False or 'a'" "a"))
+   
+   ("False or False" nil)
+   ("3 and 's'" "s")
+   ("1 and 2 and 3" 3)
+   ("False or []" nil)
+   ("False or ()" [])
+   ("'' or 's'" "s")
+   ("{} or 3" 3)
+   ("d and ''" nil))
 #+END_SRC
 ** pass
 *** transform
@@ -6769,7 +6792,6 @@ This will help notify the user when some syntax has not been implemented
   (pyel-func-transform bool (object)
                        (object) -> (py-object-bool object)
                        (_) -> (py-bool object))
-  
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el

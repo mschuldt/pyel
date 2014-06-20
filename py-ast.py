@@ -242,9 +242,9 @@ def SetComp(elt, generators, lineno='nil', col_offset='nil'):
 def BoolOp(op, values, lineno='nil', col_offset='nil'):
     return l_str(["boolop", op, l_str(values), lineno, col_offset])
 def Or():
-    return "or"
+    return "py-or"
 def And():
-    return "and"
+    return "py-and"
 
 def Pass(lineno=None, col_offset=None):
     return l_str(["pass", lineno, col_offset])

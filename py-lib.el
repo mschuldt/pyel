@@ -681,6 +681,18 @@ with the same semantics as python list comprehensions"
        ,code
        __pyel_dict__)))
 
+(defmacro py-or (&rest conditions)
+  (cons 'or (mapcar (lambda (x)
+                      `(let ((__val ,x))
+                         (if (py-bool __val) __val)))
+                    conditions)))
+
+(defmacro py-and (&rest conditions)
+  (cons 'and (mapcar (lambda (x)
+                       `(let ((__val ,x))
+                          (if (py-bool __val) __val)))
+                     conditions)))
+
 
 
 (defun py-raise (exc &optional cause)
