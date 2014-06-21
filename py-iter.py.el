@@ -1,6 +1,7 @@
-
 (require 'cl)
 (require 'py-lib)
+(require 'py-iter_pyel-extras)
+
 (define-class py-list-iter
   nil
 
@@ -83,5 +84,3 @@
                ret)
            (py-raise StopIteration)))))
 (pyel-fcall16 provide (pyel-fcall16 quote py-iter))
-
-
