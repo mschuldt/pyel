@@ -3,6 +3,7 @@
 (require 'py-objects)
 (require 'py-lib)
 
+(pyel-def-error BaseException)
 (pyel-def-error AttributeError)
 (pyel-def-error TypeError)
 (pyel-def-error StopIteration)
