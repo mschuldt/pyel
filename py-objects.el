@@ -167,7 +167,7 @@ These names will be set globally to their index in this list")
 
     (unless has-init-method
       (aset new (cdr (assoc '--init-- special-method-names))
-            (list (list (lambda (self) nil)))))
+            (list (list (def nil (self) (pyel-lambda)-nil)))))
 
     ;;eval non-method bits
     (setq class-variables

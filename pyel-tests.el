@@ -296,23 +296,25 @@ def e():
   e()"
   ("test()" 5)))
 
-(pyel-create-tests call
-                   "aa()"
-                   "aa(b,c(1,2))"
-                   ;;"aa()()" does not work yet
-                   "aa=b()"
-                   ;;"aa.b()"
-                   ;;"[aa.b()==4]"
-                   "aa(3,b(c(),[2,(2,3)]))"
-                   "aa.b()"
-                   "aa.b(1,2)"
-                   "aa.b(1,a.b(1,2,3))"
-
-                   "a.b().c()"
-                   "a.b().c().d()"
-                   "a.b(x.y().e()).c()"
-
-                   )
+(pyel-create-tests
+ call
+ ("def a(): return 4"
+  ("a()" 4)
+  ("x = a()"
+   ("x" 4)))
+ ("def f():
+ return lambda: 3"
+  ("f()()" 3))
+ ("def f(a):
+ def g(b):
+  return a + b
+ return g"
+ ("f(3)(4)" 7))
+ ("def f(x): return x + 1
+def g(x): return x + 2"
+  ("f(g(1))" 4))
+ 
+ )
 
 (pyel-create-tests 
  while
