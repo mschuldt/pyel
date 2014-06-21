@@ -699,12 +699,16 @@ with the same semantics as python list comprehensions"
   "signal an error with the name of EXC, an class/object
 EXC must be derived from BaseException"
   (if (py-object-p exc)
-         ;;;;TODO: after `issubclass' is implemented
+      ;;TODO: after `issubclass' is implemented
       ;; (or (and (py-class-p exc)
       ;;          (issubclass exc BaseException))
       ;;     (and (py-instance-p exc)
       ;;          (issubclass (py-type exc) BaseException)))
-      (signal (intern (getattr exc --name--)) exc)
+      (let ((name (getattr exc --name--))
+            (args (getattr exc args)))
+        (signal (intern name) (format "%s: %s" name (if (= (length args) 1)
+                                                        (aref args 0)
+                                                      args))))
     (signal 'TypeError "TypeError: exceptions must derive from BaseException")))
 
 
