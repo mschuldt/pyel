@@ -101,7 +101,8 @@ Type declarations are replaced with a call to this function.")
   (aref function-type pyel-env-func:ret))
 (defsubst pyel-is-func-type (type)
   (and (vectorp type) (= (length type) 3)))
-
+(defsubst pyel-change-to-vfunc-type (type)
+  (aset type pyel-env-func:type 'vfunc))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;class type
 ;;  in type environments, object name symbols get
