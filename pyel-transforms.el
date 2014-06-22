@@ -94,7 +94,7 @@
 
 (defun py-assign2 (target value)
   ;;access line and col values from `py-assign' calling env.
-  (let ((ctx (eval (car (last target))))
+  (let ((ctx (eval (nth 2 target)))
 
         (assign-value value))
 
