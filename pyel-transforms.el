@@ -103,9 +103,9 @@
     ;;
 
     ;;TODO:     is context-value still used?
-    ;; (using-context assign-target
+    ;; (using-context 'assign-target
     ;;             (setq t-target (transform target)))
-    ;; (using-context assign-value
+    ;; (using-context 'assign-value
     ;;             (setq t-value (transform value)))
 
     ;;The target transform is responsible for generating the code
@@ -113,11 +113,11 @@
     ;;target transform via the variable 'assign-value'.
     ;;'assign-value' is untransformed, the target transform must tranform it.
 
-    ;; (using-context assign-value
+    ;; (using-context 'assign-value
     ;;             (setq assign-value (transform value)))
     ;;problem: code was being transformed multiple times
     (setq assign-value value)
-    (using-context assign-target
+    (using-context 'assign-target
                    (transform target))
     ;;    (list assign-func t-target t-value)
 
@@ -145,7 +145,7 @@
     ;;         class-def-slots))
     (if (and (context-p 'method-call)
              (not (context-p 'method-call-override)))
-        (using-context method-call-override
+        (using-context 'method-call-override
                        ;;ctx?
                        `(@ call-method ,(transform value) ,attr))
 
@@ -163,7 +163,7 @@
 
       (cond
        ((eq ctx 'store)
-        (using-context return-type?
+        (using-context 'return-type?
                        (setq ret (list 'setattr t-value attr
                                        (transform assign-value))))
                                         ;(setq return-type nil)
@@ -216,7 +216,7 @@
         (progn
           (setq piece (assoc id pyel-marked-ast-pieces))
           ;;'piece' has form: (marker macro-name macro-body)
-          (using-context macro-call
+          (using-context 'macro-call
                          (list (second piece)
                                (pyel-transform-ast (third piece) :nosplice))))
 
@@ -377,11 +377,11 @@
                                (or (subseq body 0 -1)
                                    (list (car body)))))
                       (using-context
-                       return-type?
+                       'return-type?
                        (setq trans (list (transform (car (last body))))
                              true-type return-type)
                        trans))
-            (using-context return-type?
+            (using-context 'return-type?
                            (setq trans (mapcar 'transform body)
                                  true-type return-type)
                            trans)))
@@ -394,11 +394,11 @@
                                (or (subseq orelse 0 -1)
                                    (list (car orelse)))))
                       (using-context
-                       return-type?
+                       'return-type?
                        (setq trans (list (transform (car (last orelse))))
                              false-type return-type)
                        trans))
-            (using-context return-type?
+            (using-context 'return-type?
                            (setq trans (mapcar 'transform orelse)
                                  false-type return-type)
                            trans))) 
@@ -452,8 +452,8 @@
 
 (defun pyel-call-transform (func args keywords starargs kwargs &optional line col)
   (let* ((is-method-call (eq (car func) 'attribute))
-         (t-func (using-context return-type?
-                                (using-context function-call
+         (t-func (using-context 'return-type?
+                                (using-context 'function-call
                                                (transform func))))
          new-func
          (name t-func);;original name before (possible) translation
@@ -475,7 +475,7 @@
                          (list function-type)))
         (this-return-type return-type)
         
-        (keyword-args (using-context keywords-alist
+        (keyword-args (using-context 'keywords-alist
                                      (mapcar (lambda (x) (transform (car x)))
                                              keywords)))
         (t-args-quoted (mapcar (lambda (x)
@@ -501,7 +501,7 @@
             (mapcar (lambda (arg)
                       (setq type (if (symbolp arg)
                                      (pyel-env-get arg type-env)
-                                   (using-context return-type?
+                                   (using-context 'return-type?
                                                   (transform arg))
                                    return-type))
                       (cond ((pyel-is-func-type type)
@@ -545,7 +545,7 @@
             (remove-context
              method-call-override
              (setq ret (using-context
-                        method-call
+                        'method-call
                         `(,(transform func) ,@(remove-context
                                                method-call
                                                (mapcar 'transform args))))
@@ -630,7 +630,7 @@
              (string-match (format "^%s\\([A-Za-z0-9_]+\\)$" pyel-py-macro-prefix)
                            (symbol-name tst)))
         (using-context
-         macro-call
+         'macro-call
          ;;expand as a macro call
          `(,(intern (replace-regexp-in-string "_" "-"
                                               (match-string 1 (symbol-name tst))))
@@ -639,7 +639,7 @@
 
       ;;expand as a normal while loop
       (using-context
-       while
+       'while
 
        (setq code (remove-context tail-context (mapcar 'transform body))
              ;;^ no tail calls from while loop
@@ -714,7 +714,7 @@
                  (pyel-env-set arg type type-env)
                  (push type annotations))
                positional
-               (using-context get-annotation
+               (using-context 'get-annotation
                               (mapcar 'transform _args)))
       ;; 'function-name', 'function-type',  and 'type-of-return' are set
       ;; by the 'return' transform.
@@ -740,7 +740,7 @@
 
 (defun transform-last-with-context (context code)
   ;;TODO: this does not work: fix and replace code in `pyel-def
-  (let*  ((last-line (using-context context
+  (let*  ((last-line (using-context 'context
                                     (transform (car (last code)))))
           (first (mapcar 'transform (subseq code 0 (1- (length code))))))
     (append first (list last-line))))
@@ -758,7 +758,7 @@
            (function-name name)
            (function-type (if (or inner-defun (context-p 'lambda-def))
                               'vfunc 'func))
-           (type-of-return (using-context get-annotation (transform returns)))
+           (type-of-return (using-context 'get-annotation (transform returns)))
            ;;'return-type', 'function-name', and 'function-type,
            ;; are used to pass values to the 'arguments' transform
            (type-env (pyel-make-type-env type-env))
@@ -783,7 +783,7 @@
 
               ;;;
            (ret pyel-nothing)
-           (args (_to- (using-context function-def (transform (car args)))))
+           (args (_to- (using-context 'function-def (transform (car args)))))
            (arg-names (mapcar (lambda (x) (if (consp x) (car x) x)) args))
            (this-return return-type) ;;return-type set by the argument transform
            (orig-name name)
@@ -811,11 +811,11 @@
         (setq decorators (cons 'pyel-lambda decorators)))
 
       (using-context
-       function-def
+       'function-def
        (cond
 
-        ;; ((context-p 'class-def) (using-context method-def
-        ;;                           (setq last-line (using-context tail-context
+        ;; ((context-p 'class-def) (using-context 'method-def
+        ;;                           (setq last-line (using-context 'tail-context
         ;;                                                          (transform (car (last body))))
         ;;                                 first (mapcar 'transform (subseq body 0 (1- (length body))))
         ;;                                 t-body (append first (list last-line)))
@@ -833,7 +833,7 @@
                  first (if first
                            (mapcar 'transform first)
                          nil)
-                 last-line (using-context tail-context
+                 last-line (using-context 'tail-context
                                           (transform (car (last body))))
                  t-body (append first (list last-line)))
 
@@ -1056,7 +1056,7 @@ Recognizes keyword args in the form 'arg = value'."
     (setq pyel-last-class-type-env type-env)
     (remove-context
      function-def
-     (using-context class-def
+     (using-context 'class-def
                     `(define-class ,class-name ,t-bases
                        ,@(mapcar 'transform body)
                        )))))
@@ -1076,11 +1076,11 @@ Recognizes keyword args in the form 'arg = value'."
 ;;TODO: check if iter is an object, then do the iterator thing
 
 (defun pyel-for (target iter body orelse &optional line col)
-  (let ((target (using-context for-loop-target
+  (let ((target (using-context 'for-loop-target
                                (if (eq (car target) 'tuple)
                                    (mapcar 'transform (cadr target))
                                  (list (transform target)))))
-        (body (using-context for (mapcar 'transform body)))
+        (body (using-context 'for (mapcar 'transform body)))
         (else (mapcar 'transform orelse))) ;;break/continue for else?
     (when else
       (setq body (append body (cons 'else else))))
@@ -1094,14 +1094,14 @@ Recognizes keyword args in the form 'arg = value'."
 
 ;;   (let* ((continue-for nil)
 ;;          (break-for nil)
-;;          (code (using-context for (mapcar 'transform body)))
+;;          (code (using-context 'for (mapcar 'transform body)))
 ;;          (break-code (if break-for '(catch '__break__)
 ;;                        pyel-nothing))
 ;;          (continue-code (if continue-for '(catch '__continue__)
 ;;                           pyel-nothing)))
 ;;     (setq _x break-for)
 ;;     `(,@break-code
-;;       (loop for ,(using-context for-loop-target
+;;       (loop for ,(using-context 'for-loop-target
 ;;                                 (transform target))
 ;;             in (py-list ,(transform iter))
 ;;             do (,@continue-code
@@ -1119,7 +1119,7 @@ Recognizes keyword args in the form 'arg = value'."
 
 (def-transform lambda pyel ()
   (lambda (args body &optional line col)
-    (using-context lambda-def
+    (using-context 'lambda-def
                    (pyel-def nil args body nil nil line col))))
 
 (def-transform unary-op pyel ()
@@ -1149,7 +1149,7 @@ Recognizes keyword args in the form 'arg = value'."
                                      ;;other then a simple name?
                                      ;;=> ok as long as nothing acknowledges
                                      ;;   the  force-load context
-                                     (using-context force-load
+                                     (using-context 'force-load
                                                     (transform target))
                                      value))))
 
@@ -1216,7 +1216,7 @@ Recognizes keyword args in the form 'arg = value'."
   (lambda (target iter ifs) (pyel-comprehension target iter ifs)))
 
 (defun pyel-comprehension (target iter ifs)
-  (cons 'for (cons (using-context for-loop-target
+  (cons 'for (cons (using-context 'for-loop-target
                                   (transform target))
                    (cons 'in (cons (transform iter)
                                    (reduce 'append

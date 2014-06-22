@@ -1336,7 +1336,7 @@ possible type or types of FORM"
          (type (if (symbolp form)
                    (progn (setq t-form form)
                           (pyel-env-get form type-env))
-                 (setq t-form (using-context return-type?
+                 (setq t-form (using-context 'return-type?
                                              (transform form)))
                  return-type)))
     (setq type (cond ((pyel-is-func-type type)
