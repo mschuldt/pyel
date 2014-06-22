@@ -244,9 +244,12 @@
        ((eq ctx 'store)  (if (context-p 'for-loop-target)
                              id
                            (setq value (using-context return-type?
-                                                      (transform assign-value)))
+                                                      (transform assign-value))
+                                 return-type (if (pyel-is-func-type return-type)
+                                                 (pyel-func-func-type return-type)
+                                               return-type)
+                                 known-types (list '(_) (list return-type)))
                            (pyel-env-set id return-type type-env)
-                           (setq known-types (list nil (list return-type)))
                            (call-transform-no-trans 'set id value)))
        (t  "<ERROR: name>"))
       )))
