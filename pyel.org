@@ -1052,7 +1052,7 @@ This will have to be removed after the code is generated
            (pop pyel-context))
          _using-context_ret_)))
   
-  (def-edebug-spec using-context (symbolp &rest form))
+  (def-edebug-spec using-context (sexp &rest form))
   
   (defmacro remove-context (context &rest code)
     "remove CONTEXT and translate CODE, then restore context"
