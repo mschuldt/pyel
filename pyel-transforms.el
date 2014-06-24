@@ -1019,7 +1019,7 @@ Recognizes keyword args in the form 'arg = value'."
          (t-value (using-context 'return-type?
                                  (transform value)))
          (_value-type return-type)
-         start stop step ret)
+         start stop step ret rhs assign-val)
     
     (setq slice-type (if (null slice-type) nil (list slice-type))
           value-type (if (null _value-type) nil (list _value-type)))
@@ -1032,15 +1032,25 @@ Recognizes keyword args in the form 'arg = value'."
     (setq ret
           (if (context-p 'aug-assign)
               (progn
-                (setq known-types (list value-type '(_) '(_) '(_)))
                 (if (py-object-p t-slice)
-                    (call-transform-no-trans 'augmented-assign-slice
-                                             t-value start stop step)
+                    (progn
+                      (setq known-types (list value-type '(_) '(_) '(_)))
+                      (call-transform-no-trans 'augmented-assign-slice
+                                               t-value start stop step))
+
+                  (setq rhs (using-context 'return-type?
+                                           (transform aug-assign-value))
+                        return-type (pyel-force-list return-type)
+                        known-types (list return-type return-type)
+                        ;;^assume that both types are the same
+                        ;;TODO: is this really a valid assumption?
+                        assign-val (call-transform-no-trans aug-assign-op
+                                                            aug-assign-lhs
+                                                            rhs))
+                  (setq known-types (list value-type '(_) '(_)))
                   (call-transform-no-trans 'augmented-assign-index
                                            t-value t-slice
-                                           ;;these two variables are
-                                           ;;set in `pyel-aug-assign'
-                                           aug-assign-op aug-assign-value)))
+                                           assign-val)))
             ;;else: normal index or slice
             
             (if (eq ctx 'load)
