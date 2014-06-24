@@ -1010,26 +1010,52 @@ Recognizes keyword args in the form 'arg = value'."
 
 (defun pyel-subscript (value _slice ctx &optional line col)
   (let* (;(value (transform value))
-         (slice (transform _slice))
+         (t-slice (using-context 'return-type?
+                                 (transform _slice)))
+         (slice-type return-type)
          (ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
+         (t-value (using-context 'return-type?
+                                 (transform value)))
+         (_value-type return-type)
          start stop step ret)
+    
+    (setq slice-type (if (null slice-type) nil (list slice-type))
+          value-type (if (null _value-type) nil (list _value-type)))
 
-    (when (py-object-p slice)
-      (setq start (getattr slice start)
-            stop (getattr slice stop)
-            step (getattr slice step)))
+    (when (py-object-p t-slice)
+      (setq start (getattr t-slice start)
+            stop (getattr t-slice stop)
+            step (getattr t-slice step)))
     (setq ret
           (if (eq ctx 'load)
-              (if (py-object-p slice)
-                  (call-transform 'subscript-load-slice value start stop step) ;;load slice
-                (call-transform 'subscript-load-index value slice)) ;;load index
+              (if (py-object-p t-slice)
+                  (progn
+                    (setq known-types (list value-type '(_) '(_) '(_)))
+                    (call-transform-no-trans 'subscript-load-slice
+                                             t-value start stop step)) ;;load slice
+                (setq known-types (list value-type slice-type))
+                (call-transform-no-trans 'subscript-load-index
+                                         t-value t-slice)) ;;load index
             ;;else: store
-            (if (py-object-p slice)
-                (call-transform 'subscript-store-slice value start stop step assign-value)
-              (call-transform 'subscript-store-index value slice assign-value)))) ;;store index
-    (setq return-type nil) ;;return type unknown
+            (setq t-assign-value (using-context 'return-type?
+                                                (transform assign-value))
+                  assign-value-type return-type)
+            (if (py-object-p t-slice)
+                (progn
+                  (setq known-types (list value-type '(_) '(_) '(_) '(_)))
+                  (call-transform-no-trans 'subscript-store-slice
+                                           t-value start stop step t-assign-value))
+              (setq known-types (list value-type '(_) '(_)))
+              (call-transform-no-trans 'subscript-store-index
+                                       t-value t-slice t-assign-value)))) ;;store index
+    (if (context-p 'aug-assign)
+        (setq return-type _value-type
+              ;;aug-assign-value is an inter-transform var
+              aug-assign-value t-value)
+              
+      (setq return-type nil)) ;;return type unknown
     ret))
 
 (def-transform classdef pyel ()
