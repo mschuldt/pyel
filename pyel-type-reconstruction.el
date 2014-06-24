@@ -24,6 +24,12 @@ Type declarations are replaced with a call to this function.")
 
 (setq known-types nil)
 
+(defun pyel-force-list (thing)
+  (if (or (null thing)
+          (listp thing))
+      thing
+    (list thing)))
+
 (defun pyel-get-possible-types (args)
   "return a list in the form (arg types).
   The car is the argument and the cdr is a list of possible types"

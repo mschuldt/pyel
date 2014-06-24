@@ -5003,6 +5003,11 @@ TODO: tests!
 ** augmented assignment
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
+  (pyel-dispatch-func augmented-assign-index (target index op value)
+                      (list _ _) -> (py-list-aug-assign target index op value)
+                      (hash _ _) -> (py-hash-aug-assign target index op value)
+                      (object _ _) -> (py-obj-aug-assign target index op value))
+  
   (def-transform aug-assign pyel ()
     (lambda (target op value &optional line col)
       (pyel-aug-assign target op value line col)))
@@ -5017,6 +5022,18 @@ TODO: tests!
   
       (using-context 'aug-assign
                      (transform target))))
+  
+  
+  (defmacro py-list-aug-assign (target index op value)
+    ;;TODO
+    )
+  (defmacro py-hash-aug-assign (table key op value)
+    ;;TODO
+    )
+  (defmacro py-obj-aug-assign (object op value)
+    ;;TODO
+    )
+  
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
