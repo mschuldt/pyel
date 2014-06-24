@@ -534,7 +534,25 @@ else is optional"
          (= (call-method obj --len--) 0)
        (AttributeError t)))))
 
+;;To prevent repeated evaluation and allow the augmented assignment operation
+;;to be fully expanded on known types, some trickiness is employed.
+;;The intermediate variable `aug-assign-lhs' is created for the left-hand side,
+;;The operation is expanded with it and then in augmented assign macros
+;;such as `py-list-aug-assign' the `aug-assign-lhs' variable is given a value
 
+(defconst aug-assign-lhs '_lhs)
+
+(defmacro py-list-aug-assign (target index assign-val)
+  (let ((aug-assign-lhs-val '(car __cell__)))
+    `(let* ((__cell__ (nthcdr ,index ,target))
+            (,aug-assign-lhs (car __cell__)))
+       (setcar __cell__ ,assign-val))))
+
+(defmacro py-hash-aug-assign (table key assign-val)
+  `(let* ((__tbl__ ,table)
+          (__key__ ,key)
+          (,aug-assign-lhs (gethash __key__ __tbl__)))
+     (puthash __key__ ,assign-val __tbl__)))
 
 
 

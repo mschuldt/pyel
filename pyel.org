@@ -5003,10 +5003,9 @@ TODO: tests!
 ** augmented assignment
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
-  (pyel-dispatch-func augmented-assign-index (target index op value)
-                      (list _ _) -> (py-list-aug-assign target index op value)
-                      (hash _ _) -> (py-hash-aug-assign target index op value)
-                      (object _ _) -> (py-obj-aug-assign target index op value))
+  (pyel-dispatch-func augmented-assign-index (target index assign-val )
+                      (list _ _ _) -> (py-list-aug-assign target index assign-val)
+                      (hash _ _ _) -> (py-hash-aug-assign target index assign-val))
   
   (def-transform aug-assign pyel ()
     (lambda (target op value &optional line col)
@@ -5017,22 +5016,11 @@ TODO: tests!
                                    (transform value)))
            (value-type (pyel-force-list return-type))
            ;;inter-transform variables:
-           (aug-assign-value (transform value)) 
+           (aug-assign-value value) 
            (aug-assign-op op))
   
       (using-context 'aug-assign
                      (transform target))))
-  
-  
-  (defmacro py-list-aug-assign (target index op value)
-    ;;TODO
-    )
-  (defmacro py-hash-aug-assign (table key op value)
-    ;;TODO
-    )
-  (defmacro py-obj-aug-assign (object op value)
-    ;;TODO
-    )
   
 #+END_SRC
 *** python ast
@@ -5042,7 +5030,27 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-
+  ;;To prevent repeated evaluation and allow the augmented assignment operation
+  ;;to be fully expanded on known types, some trickiness is employed.
+  ;;The intermediate variable `aug-assign-lhs' is created for the left-hand side,
+  ;;The operation is expanded with it and then in augmented assign macros
+  ;;such as `py-list-aug-assign' the `aug-assign-lhs' variable is given a value
+  
+  (defconst aug-assign-lhs '_lhs)
+  
+  (defmacro py-list-aug-assign (target index assign-val)
+    (let ((aug-assign-lhs-val '(car __cell__)))
+      `(let* ((__cell__ (nthcdr ,index ,target))
+              (,aug-assign-lhs (car __cell__)))
+         (setcar __cell__ ,assign-val))))
+  
+  (defmacro py-hash-aug-assign (table key assign-val)
+    `(let* ((__tbl__ ,table)
+            (__key__ ,key)
+            (,aug-assign-lhs (gethash __key__ __tbl__)))
+       (puthash __key__ ,assign-val __tbl__)))
+  
+  
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el

@@ -1175,6 +1175,10 @@ Recognizes keyword args in the form 'arg = value'."
                     (object) -> (--usub-- x) ;;?
                     )
 
+(pyel-dispatch-func augmented-assign-index (target index assign-val )
+                    (list _ _ _) -> (py-list-aug-assign target index assign-val)
+                    (hash _ _ _) -> (py-hash-aug-assign target index assign-val))
+
 (def-transform aug-assign pyel ()
   (lambda (target op value &optional line col)
     (pyel-aug-assign target op value line col)))
@@ -1184,7 +1188,7 @@ Recognizes keyword args in the form 'arg = value'."
                                  (transform value)))
          (value-type (pyel-force-list return-type))
          ;;inter-transform variables:
-         (aug-assign-value (transform value)) 
+         (aug-assign-value value) 
          (aug-assign-op op))
 
     (using-context 'aug-assign
