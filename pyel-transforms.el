@@ -1028,34 +1028,43 @@ Recognizes keyword args in the form 'arg = value'."
       (setq start (getattr t-slice start)
             stop (getattr t-slice stop)
             step (getattr t-slice step)))
+
     (setq ret
-          (if (eq ctx 'load)
+          (if (context-p 'aug-assign)
+              (progn
+                (setq known-types (list value-type '(_) '(_) '(_)))
+                (if (py-object-p t-slice)
+                    (call-transform-no-trans 'augmented-assign-slice
+                                             t-value start stop step)
+                  (call-transform-no-trans 'augmented-assign-index
+                                           t-value t-slice
+                                           ;;these two variables are
+                                           ;;set in `pyel-aug-assign'
+                                           aug-assign-op aug-assign-value)))
+            ;;else: normal index or slice
+            
+            (if (eq ctx 'load)
+                (if (py-object-p t-slice)
+                    (progn
+                      (setq known-types (list value-type '(_) '(_) '(_)))
+                      (call-transform-no-trans 'subscript-load-slice
+                                               t-value start stop step)) ;;load slice
+                  (setq known-types (list value-type slice-type))
+                  (call-transform-no-trans 'subscript-load-index
+                                           t-value t-slice)) ;;load index
+              ;;else: store
+              (setq t-assign-value (using-context 'return-type?
+                                                  (transform assign-value))
+                    assign-value-type return-type)
               (if (py-object-p t-slice)
                   (progn
-                    (setq known-types (list value-type '(_) '(_) '(_)))
-                    (call-transform-no-trans 'subscript-load-slice
-                                             t-value start stop step)) ;;load slice
-                (setq known-types (list value-type slice-type))
-                (call-transform-no-trans 'subscript-load-index
-                                         t-value t-slice)) ;;load index
-            ;;else: store
-            (setq t-assign-value (using-context 'return-type?
-                                                (transform assign-value))
-                  assign-value-type return-type)
-            (if (py-object-p t-slice)
-                (progn
-                  (setq known-types (list value-type '(_) '(_) '(_) '(_)))
-                  (call-transform-no-trans 'subscript-store-slice
-                                           t-value start stop step t-assign-value))
-              (setq known-types (list value-type '(_) '(_)))
-              (call-transform-no-trans 'subscript-store-index
-                                       t-value t-slice t-assign-value)))) ;;store index
-    (if (context-p 'aug-assign)
-        (setq return-type _value-type
-              ;;aug-assign-value is an inter-transform var
-              aug-assign-value t-value)
-              
-      (setq return-type nil)) ;;return type unknown
+                    (setq known-types (list value-type '(_) '(_) '(_) '(_)))
+                    (call-transform-no-trans 'subscript-store-slice
+                                             t-value start stop step t-assign-value))
+                (setq known-types (list value-type '(_) '(_)))
+                (call-transform-no-trans 'subscript-store-index
+                                         t-value t-slice t-assign-value))))) ;;store index
+    (setq return-type nil) ;;return type unknown
     ret))
 
 (def-transform classdef pyel ()
