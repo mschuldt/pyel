@@ -1175,18 +1175,20 @@ Recognizes keyword args in the form 'arg = value'."
                     (object) -> (--usub-- x) ;;?
                     )
 
-(def-transform aug-assign pyel (target op value)
+(def-transform aug-assign pyel ()
   (lambda (target op value &optional line col)
-    (call-transform 'assign
-                    `(,target)
-                    (call-transform  op
-                                     ;;TODO: what if this is something else
-                                     ;;other then a simple name?
-                                     ;;=> ok as long as nothing acknowledges
-                                     ;;   the  force-load context
-                                     (using-context 'force-load
-                                                    (transform target))
-                                     value))))
+    (pyel-aug-assign target op value line col)))
+
+(defun pyel-aug-assign (target op value &optional line col)
+  (let* ((t-value (using-context 'return-type?
+                                 (transform value)))
+         (value-type (pyel-force-list return-type))
+         ;;inter-transform variables:
+         (aug-assign-value (transform value)) 
+         (aug-assign-op op))
+
+    (using-context 'aug-assign
+                   (transform target))))
 
 (def-transform return pyel ()
   (lambda (value &optional line col)
