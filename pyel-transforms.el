@@ -240,18 +240,60 @@
         (add-to-list 'let-arglist id))
 
       (cond
-       ((eq ctx 'load) id)
+       ((context-p 'aug-assign)
+        (setq return-type nil
+              rhs (using-context 'return-type?
+                                 (transform aug-assign-value))
+              return-type (pyel-force-list return-type)
+              known-types (list return-type return-type)
+              ;;^assume that both types are the same
+              ;;TODO: is this really a valid assumption?
+              aug-assign-value (transform aug-assign-value)
+              assign-val (call-transform-no-trans aug-assign-op id rhs)
+              type (pyel-env-get id type-env)
+              type (if (pyel-is-object-type type)
+                       '(object)
+                     type)
+              known-types (list (pyel-force-list type) '(_) '(_) '(_)))
+
+        ;;the aug-assign vaurs are set in `pyel-aug-assign'
+        (call-transform-no-trans 'augmented-assign-name
+                                 id
+                                 aug-assign-op
+                                 aug-assign-value
+                                 assign-val))
+
+       ((eq ctx 'load)
+        (setq return-type (pyel-env-get id type-env))
+        id)
        ((eq ctx 'store)  (if (context-p 'for-loop-target)
                              id
-                           (setq value (using-context return-type?
+                           (setq value (using-context 'return-type?
                                                       (transform assign-value))
-                                 return-type (if (pyel-is-func-type return-type)
-                                                 (pyel-func-func-type return-type)
-                                               return-type)
+                                 return-type
+                                 (if (pyel-is-func-type return-type)
+                                     (progn
+                                       (setq orig-func-type return-type)
+                                       (pyel-func-func-type return-type))
+                                   return-type)
                                  known-types (list '(_) (list return-type)))
-                           (pyel-env-set id return-type type-env)
+                           ;;if the assign value is a function then the
+                           ;;resulting type of the target is a vfunc
+                           (if orig-func-type
+                               (setq return-type
+                                     (pyel-change-to-vfunc-type orig-func-type)))
+                           
+                           (if (and (context-p 'class-def)
+                                    (not (context-p 'method-def)))
+                               ;;class variable
+                               ;;`current-class-type' is set in `pyel-defclass'
+                               (pyel-type-set-attr current-class-type
+                                                   id
+                                                   return-type)
+                             ;;else: normal variable
+                             (pyel-env-set id return-type type-env))
                            (call-transform-no-trans 'set id value)))
-       (t  "<ERROR: name>"))
+       (t "<ERROR: name>"))
       )))
 
 (def-transform list pyel ()
