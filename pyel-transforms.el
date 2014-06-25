@@ -254,7 +254,7 @@
               type (if (pyel-is-object-type type)
                        '(object)
                      type)
-              known-types (list (pyel-force-list type) '(_) '(_) '(_)))
+              known-types (list (pyel-force-list type) none none none))
 
         ;;the aug-assign vaurs are set in `pyel-aug-assign'
         (call-transform-no-trans 'augmented-assign-name
@@ -276,7 +276,7 @@
                                        (setq orig-func-type return-type)
                                        (pyel-func-func-type return-type))
                                    return-type)
-                                 known-types (list '(_) (list return-type)))
+                                 known-types (list none (list return-type)))
                            ;;if the assign value is a function then the
                            ;;resulting type of the target is a vfunc
                            (if orig-func-type
@@ -1061,6 +1061,7 @@ Recognizes keyword args in the form 'arg = value'."
          (t-value (using-context 'return-type?
                                  (transform value)))
          (_value-type return-type)
+         (none '(_))
          start stop step ret rhs assign-val)
     
     (setq slice-type (if (null slice-type) nil (list slice-type))
@@ -1076,7 +1077,7 @@ Recognizes keyword args in the form 'arg = value'."
               (progn
                 (if (py-object-p t-slice)
                     (progn
-                      (setq known-types (list value-type '(_) '(_) '(_)))
+                      (setq known-types (list value-type none none none))
                       (call-transform-no-trans 'augmented-assign-slice
                                                t-value start stop step))
 
@@ -1089,7 +1090,7 @@ Recognizes keyword args in the form 'arg = value'."
                         assign-val (call-transform-no-trans aug-assign-op
                                                             aug-assign-lhs
                                                             rhs))
-                  (setq known-types (list value-type '(_) '(_)))
+                  (setq known-types (list value-type none none))
                   (call-transform-no-trans 'augmented-assign-index
                                            t-value t-slice
                                            assign-val)))
@@ -1098,7 +1099,7 @@ Recognizes keyword args in the form 'arg = value'."
             (if (eq ctx 'load)
                 (if (py-object-p t-slice)
                     (progn
-                      (setq known-types (list value-type '(_) '(_) '(_)))
+                      (setq known-types (list value-type none none none))
                       (call-transform-no-trans 'subscript-load-slice
                                                t-value start stop step)) ;;load slice
                   (setq known-types (list value-type slice-type))
@@ -1110,10 +1111,10 @@ Recognizes keyword args in the form 'arg = value'."
                     assign-value-type return-type)
               (if (py-object-p t-slice)
                   (progn
-                    (setq known-types (list value-type '(_) '(_) '(_) '(_)))
+                    (setq known-types (list value-type none none none none))
                     (call-transform-no-trans 'subscript-store-slice
                                              t-value start stop step t-assign-value))
-                (setq known-types (list value-type '(_) '(_)))
+                (setq known-types (list value-type none none))
                 (call-transform-no-trans 'subscript-store-index
                                          t-value t-slice t-assign-value))))) ;;store index
     (setq return-type nil) ;;return type unknown
