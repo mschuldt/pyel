@@ -554,6 +554,21 @@ else is optional"
           (,aug-assign-lhs (gethash __key__ __tbl__)))
      (puthash __key__ ,assign-val __tbl__)))
 
+(defmacro py-obj-aug-assign (object op value)
+  (let ((method (cadr (assoc op '((+ --iadd--)
+                                  (& --iand--)
+                                  (// --ifloordiv--)
+                                  (<< --ilshift--)
+                                  (% --imod--)
+                                  (* --imul--)
+                                  (| --ior--)
+                                  (** --ipow--)
+                                  (>> --irshift--)
+                                  (- --isub--)
+                                  (/ --itruediv--)
+                                  (^ --ixor--))))))
+    (list 'call-method object method value)))
+
 
 
 (defun py-vector-member (elt vector)
