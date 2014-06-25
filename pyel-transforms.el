@@ -162,6 +162,19 @@
         (error "`pyel-attribute': Presumption failed: ctx==store but assign-value is unbound"))
 
       (cond
+       ((context-p 'aug-assign)
+        (setq rhs (using-context 'return-type?
+                                 (transform aug-assign-value))
+              return-type (pyel-force-list return-type)
+              known-types (list return-type return-type)
+              ;;^assume that both types are the same
+              ;;TODO: is this really a valid assumption?
+              assign-val (call-transform-no-trans aug-assign-op
+                                                  aug-assign-lhs
+                                                  rhs))
+        (list 'py-attr-aug-assign t-value attr assign-val))
+
+       
        ((eq ctx 'store)
         (using-context 'return-type?
                        (setq ret (list 'setattr t-value attr

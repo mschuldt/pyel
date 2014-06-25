@@ -569,6 +569,11 @@ else is optional"
                                   (^ --ixor--))))))
     (list 'call-method object method value)))
 
+(defmacro py-attr-aug-assign (obj attr value)
+  `(let* ((__obj__ ,obj)
+          (,aug-assign-lhs (getattr __obj__ ,attr)))
+     (setattr __obj__ ,attr ,value)))
+
 
 
 (defun py-vector-member (elt vector)
