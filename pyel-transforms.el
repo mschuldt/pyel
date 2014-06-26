@@ -155,10 +155,12 @@
       ;;check the presumption:
       (when (and (eq ctx 'store)
                  (not (context-p 'assign-target))
+                 (not (context-p 'aug-assign))
                  nil);;for this to work, this function need to set context as well
         (error "`pyel-attribute': Presumption failed: ctx==store but not in assign context"))
       (when (and (eq ctx 'store)
-                 (not (boundp 'assign-value)))
+                 (not (boundp 'assign-value))
+                 (not (context-p 'aug-assign)))
         (error "`pyel-attribute': Presumption failed: ctx==store but assign-value is unbound"))
 
       (cond
