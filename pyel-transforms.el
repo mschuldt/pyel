@@ -1241,9 +1241,9 @@ Recognizes keyword args in the form 'arg = value'."
                     (object) -> (--usub-- x) ;;?
                     )
 
-(pyel-dispatch-func augmented-assign-index (target index assign-val )
-                    (list _ _ _) -> (py-list-aug-assign target index assign-val)
-                    (hash _ _ _) -> (py-hash-aug-assign target index assign-val))
+(pyel-dispatch-func augmented-assign-index (target index _assign-val)
+                    (list _ _ _) -> (py-list-aug-assign target index $assign-val)
+                    (hash _ _ _) -> (py-hash-aug-assign target index $assign-val))
 
 (pyel-dispatch-func augmented-assign-name (target _op value _assign-value)
                     (object _ _ _) -> (py-obj-aug-assign target $op value)
