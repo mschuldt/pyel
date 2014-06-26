@@ -147,7 +147,7 @@
              (not (context-p 'method-call-override)))
         (using-context 'method-call-override
                        ;;ctx?
-                       `(@ call-method ,(transform value) ,attr))
+                       `(@ call-method ,t-value ,attr))
 
       ;; (if (context-p 'assign-target)
       ;;          (setq assign-func 'oset))
