@@ -306,8 +306,7 @@
                              ;;else: normal variable
                              (pyel-env-set id return-type type-env))
                            (call-transform-no-trans 'set id value)))
-       (t "<ERROR: name>"))
-      )))
+       (t (error "name transform: invalid context"))))))
 
 (def-transform list pyel ()
   (lambda (elts ctx &optional line col)

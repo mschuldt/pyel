@@ -2479,8 +2479,7 @@ This is for all non template specific code.
                                ;;else: normal variable
                                (pyel-env-set id return-type type-env))
                              (call-transform-no-trans 'set id value)))
-         (t "<ERROR: name>"))
-        )))
+         (t (error "name transform: invalid context"))))))
 #+END_SRC
 *** python ast
 #+Begin_SRC python :tangle py-ast.py
