@@ -131,7 +131,7 @@
   (setq ctx (cond ((context-p 'force-load) 'load)
                   ((context-p 'force-store) 'store)
                   (t (eval ctx))))
-  (let ((t-value (transform value))
+  (let ((t-value (remove-context aug-assign (transform value)))
         (attr (read (_to- (transform attr))))
         ret obj-type obj-name)
 
@@ -1070,8 +1070,9 @@ Recognizes keyword args in the form 'arg = value'."
          (ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
-         (t-value (using-context 'return-type?
-                                 (transform value)))
+         (t-value (remove-context aug-assign
+                                  (using-context 'return-type?
+                                                 (transform value))))
          (_value-type return-type)
          (none '(_))
          start stop step ret rhs assign-val)
