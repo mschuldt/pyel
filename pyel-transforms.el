@@ -1773,7 +1773,7 @@ Recognizes keyword args in the form 'arg = value'."
                        (_)      -> (call-method obj rindex sub start end))
 
 (pyel-method-transform replace (obj old new &optional count)
-                       (string) -> (py-replace obj old new count)
+                       (string) -> (py-string-replace obj old new count)
                        (_)      -> (call-method obj replace old new count))
 
 (pyel-method-transform clear (obj)

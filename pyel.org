@@ -8872,7 +8872,7 @@ x.insert(1,'hi')"
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
   (pyel-method-transform replace (obj old new &optional count)
-                         (string) -> (py-replace obj old new count)
+                         (string) -> (py-string-replace obj old new count)
                          (_)      -> (call-method obj replace old new count))
 #+END_SRC
 *** python el lib
