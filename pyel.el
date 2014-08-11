@@ -802,6 +802,7 @@ NOTE: if the name of the function to be created is already in
          (non-rest (if rest-arg (subseq striped-args 0 -2)))
          (name-base (concat "pyel-" (symbol-name name) ""))
          ;;(fsym (intern (concat "pyel-" (symbol-name name) "")))
+         ;;no-macro
          )
 
     `(def-transform ,name pyel ()
@@ -1371,7 +1372,7 @@ NOTE: this calls `transform' on all ARGS, but not TEMPLATE-NAME"
 
 (defun call-transform-no-trans (template-name &rest args)
   "like call-transform, except that ARGS are not transformed"
-  (eval `(transform '(,template-name ,@args))))  
+  (eval `(transform '(,template-name ,@args))))
 
 (defun strip$ (sym)
   (let ((str (symbol-name sym)))

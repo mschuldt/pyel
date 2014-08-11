@@ -110,7 +110,7 @@ Each element in ALIST must have for form (a . b)"
       (push nil body))
 
   (using-context
-   function-def
+   'function-def
    ;; (if (or (member '&kwarg args)
    ;;         (member '&kwonly args))
    (let* ((n -1)

@@ -1142,6 +1142,7 @@ This will have to be removed after the code is generated
            (non-rest (if rest-arg (subseq striped-args 0 -2)))
            (name-base (concat "pyel-" (symbol-name name) ""))
            ;;(fsym (intern (concat "pyel-" (symbol-name name) "")))
+           ;;no-macro
            )
   
       `(def-transform ,name pyel ()
@@ -1676,7 +1677,7 @@ This will have to be removed after the code is generated
            (type (if (symbolp form)
                      (progn (setq t-form form)
                             (pyel-env-get form type-env))
-                   (setq t-form (using-context return-type?
+                   (setq t-form (using-context 'return-type?
                                                (transform form)))
                    return-type)))
       (setq type (cond ((pyel-is-func-type type)
@@ -1711,7 +1712,7 @@ This will have to be removed after the code is generated
   
   (defun call-transform-no-trans (template-name &rest args)
     "like call-transform, except that ARGS are not transformed"
-    (eval `(transform '(,template-name ,@args))))  
+    (eval `(transform '(,template-name ,@args))))
   
   (defun strip$ (sym)
     (let ((str (symbol-name sym)))
@@ -2414,9 +2415,6 @@ This is for all non template specific code.
                    (not (equal ctx 'load)))
           (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
             ctx = %s" ctx)))
-        (if (context-p 'return-type?)
-            (setq return-type (pyel-env-get id type-env)))
-        
         (when (and (not (context-p 'function-call))
                    (not (context-p 'get-annotation))
                    (setq new-id (assoc id pyel-variable-name-translations)))
@@ -3530,7 +3528,9 @@ FunctionDef(name='a',
           (setq decorators (cons 'pyel-lambda decorators)))
   
         (using-context
-         'function-def
+         (if (context-p 'class-def)
+             '(function-def method-def)
+           'function-def)
          (cond
   
           ;; ((context-p 'class-def) (using-context 'method-def
@@ -4959,8 +4959,7 @@ TODO: tests!
     ("y" 1)))
 #+END_SRC
 ** nonlocal
-DOC: 'nonlocal' is currently equivalent to 'global'
-     It seems to be working fine...
+TODO: 'nonlocal' is currently equivalent to 'global'
 *** transform
 #+Begin_SRC emacs-lisp :tangle pyel-transforms.el
 
@@ -7039,7 +7038,7 @@ This will help notify the user when some syntax has not been implemented
    ("bool(())" nil)
    ("bool('s')" t)
    ("bool('')" nil)
-   ("bool({})") nil)
+   ("bool({})" nil)
    
    ;;objects
    ("class a():

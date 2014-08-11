@@ -1555,7 +1555,7 @@ b = 13"
  ("bool(())" nil)
  ("bool('s')" t)
  ("bool('')" nil)
- ("bool({})") nil)
+ ("bool({})" nil)
  
  ;;objects
  ("class a():
