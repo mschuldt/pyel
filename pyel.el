@@ -1481,7 +1481,7 @@ will return the name of the first match"
                               (setq min (car sig)
                                     max (cdr sig))
                               (and (>= num-args min)
-                                   (or (<= num-args max)
+                                   (or (and (numberp max) (<= num-args max))
                                        (eq max 'I)))))
                      (setq signatures nil
                            found sig)))
