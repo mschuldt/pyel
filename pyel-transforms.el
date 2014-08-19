@@ -1605,8 +1605,9 @@ Recognizes keyword args in the form 'arg = value'."
                      (hash)   -> (py-hash-sum obj))
 
 (pyel-declare-el-func-fn 'hash 'number)
-
-(pyel-translate-function-name 'hash 'sxhash)
+(pyel-func-transform hash (obj)
+                     (object) -> (call-method obj --hash--)
+                     (_) -> (sxhash obj))
 
 ;;
 

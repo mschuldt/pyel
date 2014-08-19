@@ -1733,9 +1733,15 @@ o = a()"
   ("sum(o)" 15)))
 
 (pyel-create-tests
- hash
- ("hash(3)" 3)
- ("hash('3')" 63))
+hash
+("hash(3)" 3)
+("hash('3')" 63)
+("class a:
+    x = 5
+    def __hash__(self):
+     return 1234
+   o = a()"
+ ("hash(o)" 1234)))
 
 ;;
 
