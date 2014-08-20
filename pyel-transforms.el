@@ -176,7 +176,6 @@
                                                   rhs))
         (list 'py-attr-aug-assign t-value attr assign-val))
 
-       
        ((eq ctx 'store)
         (using-context 'return-type?
                        (setq ret (list 'setattr t-value attr
@@ -217,14 +216,14 @@
 (defun pyel-name (id ctx &optional line col)
   (let ((new-id)
         (id (read id))
+        (none '(_))
         piece code
-        value)
+        value orig-func-type assign-val rhs)
 
     ;;TODO: id should be string. verify?
     (setq ctx (cond ((context-p 'force-load) 'load)
                     ((context-p 'force-store) 'store)
                     (t (eval ctx))))
-
 
     (if (assoc id pyel-marked-ast-pieces)
         ;;this id is a marker, insert the corresponding macro
@@ -241,9 +240,6 @@
                  (not (equal ctx 'load)))
         (error (format "In transform name: context is 'assign-value' but ctx is not 'load'.
           ctx = %s" ctx)))
-      (if (context-p 'return-type?)
-          (setq return-type (pyel-env-get id type-env)))
-      
       (when (and (not (context-p 'function-call))
                  (not (context-p 'get-annotation))
                  (setq new-id (assoc id pyel-variable-name-translations)))
@@ -529,7 +525,8 @@
         (function-type (if (listp function-type)
                            function-type
                          (list function-type)))
-        (this-return-type return-type)
+        (this-return-type (if (pyel-is-func-type return-type)
+                              (pyel-func-return-type return-type)))
         
         (keyword-args (using-context 'keywords-alist
                                      (mapcar (lambda (x) (transform (car x)))
@@ -867,7 +864,9 @@
         (setq decorators (cons 'pyel-lambda decorators)))
 
       (using-context
-       'function-def
+       (if (context-p 'class-def)
+           '(function-def method-def)
+         'function-def)
        (cond
 
         ;; ((context-p 'class-def) (using-context 'method-def
@@ -1075,7 +1074,11 @@ Recognizes keyword args in the form 'arg = value'."
          (t-value (remove-context aug-assign
                                   (using-context 'return-type?
                                                  (transform value))))
-         (_value-type return-type)
+         (_value-type (cond ((pyel-is-class-type return-type)
+                             '(class))
+                            ((pyel-is-instance-type return-type)
+                             '(instance))
+                            (t return-type)))
          (none '(_))
          start stop step ret rhs assign-val)
     
@@ -1143,13 +1146,15 @@ Recognizes keyword args in the form 'arg = value'."
 
 (defun pyel-defclass (name bases keywords starargs kwargs
                            body decorator_list &optional line col)
-  (let ((class-name (_to- (transform name)))
+  (let* ((class-name (_to- (transform name)))
         (t-bases (mapcar 'transform bases))
         (outer-env type-env)
-        (type-env (pyel-make-type-env type-env)))
+        (type-env (pyel-make-type-env type-env))
+        ;;`class-type' is used by other transforms
+        (current-class-type (pyel-make-class-type class-name outer-env)))
     
     ;;set the type of this class in the outer type-env
-    (pyel-env-set class-name (pyel-make-class-type class-name outer-env) outer-env)
+    (pyel-env-set class-name current-class-type outer-env)
     
     (when (context-p 'function-def)
       (push class-name let-arglist)
