@@ -705,16 +705,24 @@ during interactive emacs-lisp sessions where possible")
 
 (defmacro using-context (context &rest code)
   `(progn
-     (push ',context pyel-context)
-     (let (_using-context_ret_)
+     (let ((__using-context_n_ 0)
+           _using-context_ret_)
+       (if (listp ,context)
+           (dolist (c ,context)
+             (when c
+               (push c pyel-context)
+               (incf __using-context_n_)))
+         (push ,context pyel-context)
+         (setq __using-context_n_ 1))
        (condition-case err
            (setq _using-context_ret_ (progn ,@code))
          (error (pop pyel-context)
                 (error (format "context %s: %s" ',context err))))
-       (pop pyel-context)
+       (dotimes (_ __using-context_n_)
+         (pop pyel-context))
        _using-context_ret_)))
 
-(def-edebug-spec using-context (symbolp &rest form))
+(def-edebug-spec using-context (sexp &rest form))
 
 (defmacro remove-context (context &rest code)
   "remove CONTEXT and translate CODE, then restore context"
