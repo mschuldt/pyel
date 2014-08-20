@@ -1082,8 +1082,8 @@ Recognizes keyword args in the form 'arg = value'."
          (none '(_))
          start stop step ret rhs assign-val)
     
-    (setq slice-type (if (null slice-type) nil (list slice-type))
-          value-type (if (null _value-type) nil (list _value-type)))
+    (setq slice-type (if (null slice-type) nil (pyel-force-list slice-type))
+          value-type (if (null _value-type) nil (pyel-force-list _value-type)))
 
     (when (py-object-p t-slice)
       (setq start (getattr t-slice start)
