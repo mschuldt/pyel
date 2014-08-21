@@ -7448,17 +7448,17 @@ Iterators for built in types are defined in py-iter.py
 #+END_SRC
 *** tests
 #+Begin_SRC emacs-lisp :tangle pyel-tests.el
-  (pyel-create-tests
- hash
- ("hash(3)" 3)
- ("hash('3')" 63)
- ("class a:
-     x = 5
-     def __hash__(self):
-      return 1234
-    o = a()"
-  ("hash(o)" 1234)))
-
+   (pyel-create-tests
+  hash
+  ("hash(3)" 3)
+  ("hash('3')" 63)
+  ("class a:
+   x = 5
+   def __hash__(self):
+    return 1234
+  o = a()"
+   ("hash(o)" 1234)))
+  
 #+END_SRC
 ** transform template
 *** transform
