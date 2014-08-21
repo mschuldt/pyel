@@ -131,7 +131,9 @@
   (setq ctx (cond ((context-p 'force-load) 'load)
                   ((context-p 'force-store) 'store)
                   (t (eval ctx))))
-  (let ((t-value (remove-context aug-assign (transform value)))
+  (let ((t-value (remove-context aug-assign
+                                 (remove-context method-call
+                                                 (transform value))))
         (attr (read (_to- (transform attr))))
         ret obj-type obj-name)
 
@@ -143,11 +145,9 @@
     ;;                 :initform nil)
 
     ;;         class-def-slots))
-    (if (and (context-p 'method-call)
-             (not (context-p 'method-call-override)))
-        (using-context 'method-call-override
-                       ;;ctx?
-                       `(@ call-method ,t-value ,attr))
+    (if (context-p 'method-call)
+        ;;ctx?
+        (list 'call-method t-value attr)
 
       ;; (if (context-p 'assign-target)
       ;;          (setq assign-func 'oset))
@@ -504,6 +504,7 @@
 
 (defun pyel-call-transform (func args keywords starargs kwargs &optional line col)
   (let* ((is-method-call (eq (car func) 'attribute))
+         ;;TODO: prevent repeated transformation when `is-method-call' is true
          (t-func (using-context 'return-type?
                                 (using-context 'function-call
                                                (transform func))))
@@ -574,7 +575,7 @@
 
       (setq return-type this-return-type)
 
-      (if is-method-call
+      (if is-method-call 
           (if (and (member (setq m-name (read (caddr func)))
                            pyel-method-transforms)
                    (setq m-name (pyel-find-method-transform-name
@@ -595,15 +596,10 @@
                       return-type this-return-type)
                 ret)
             ;;normal method call
-            (remove-context
-             method-call-override
-             (setq ret (using-context
-                        'method-call
-                        `(,(transform func) ,@(remove-context
-                                               method-call
-                                               (mapcar 'transform args))))
-                   return-type this-return-type)
-             ret))
+            (setq ret (append (using-context 'method-call (transform func))
+                              (mapcar 'transform args))
+                  return-type this-return-type)
+            ret)
 
         ;;call function transform if one was defined
         (cond ((and keyword-args
