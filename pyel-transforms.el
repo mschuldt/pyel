@@ -254,12 +254,12 @@
        ((context-p 'aug-assign)
         (setq return-type nil
               rhs (using-context 'return-type?
-                                 (transform aug-assign-value))
+                                 (remove-context aug-assign
+                                                 (transform aug-assign-value)))
               return-type (pyel-force-list return-type)
               known-types (list return-type return-type)
               ;;^assume that both types are the same
               ;;TODO: is this really a valid assumption?
-              aug-assign-value (transform aug-assign-value)
               assign-val (call-transform-no-trans aug-assign-op id rhs)
               type (pyel-env-get id type-env)
               type (if (pyel-is-object-type type)
@@ -271,7 +271,7 @@
         (call-transform-no-trans 'augmented-assign-name
                                  id
                                  aug-assign-op
-                                 aug-assign-value
+                                 rhs
                                  assign-val))
 
        ((eq ctx 'load)
@@ -1100,7 +1100,9 @@ Recognizes keyword args in the form 'arg = value'."
                                                t-value start stop step))
 
                   (setq rhs (using-context 'return-type?
-                                           (transform aug-assign-value))
+                                           (remove-context
+                                            aug-assign
+                                            (transform aug-assign-value)))
                         return-type (pyel-force-list return-type)
                         known-types (list return-type return-type)
                         ;;^assume that both types are the same
@@ -1261,10 +1263,7 @@ Recognizes keyword args in the form 'arg = value'."
     (pyel-aug-assign target op value line col)))
 
 (defun pyel-aug-assign (target op value &optional line col)
-  (let* ((t-value (using-context 'return-type?
-                                 (transform value)))
-         (value-type (pyel-force-list return-type))
-         ;;inter-transform variables:
+  (let* (;;inter-transform variables:
          (aug-assign-value value) 
          (aug-assign-op op))
 
