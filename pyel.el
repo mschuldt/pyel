@@ -291,7 +291,9 @@ useing python3 unless PYTHON2 is non-nil"
                transformer
                pyel-type-reconstruction))
     (setq features (remove f features)))
-  (require 'pyel))
+  (let ((start (current-time)))
+    (if (require 'pyel)
+        (message "pyel load time: %.06f" (float-time (time-since start))))))
 
 (defun pyel-reset()
   "reset internal variables"
