@@ -574,32 +574,48 @@
                     args))
 
       (setq return-type this-return-type)
-
       (if is-method-call 
-          (if (and (member (setq m-name (read (caddr func)))
-                           pyel-method-transforms)
-                   (setq m-name (pyel-find-method-transform-name
-                                 m-name
-                                 (1+ (length args)))));;1+ because args does not include the object
+          (cond ((and (member (setq m-name (read (caddr func)))
+                              pyel-method-kwarg-transforms)
+                      keyword-args
+                      (setq m-name (pyel-find-method-transform-name
+                                    m-name
+                                    (+ (length args) (length keyword-args) 1)
+                                    :kwargs))
+                      )
+                 ;;transform defined with `pyel-method-kwarg-transform'
+                 (setq ;;keyword-args keywords
+                       ;;star-args starargs
+                       ;;kw-args kwargs
+                       ret (eval `(call-transform-no-trans
+                                   ',m-name
+                                   ',(transform (cadr func))
+                                   ',keyword-args
+                                   ,@t-args-quoted))
+                       return-type this-return-type)
+                 ret)
 
-              ;;this methods transform is overridden
-              (progn
-                (setq known-types (cons function-type known-types))
-                ;;dynamic scoping saves the day again!
-                (setq keyword-args keywords
-                      star-args starargs
-                      kw-args kwargs
-                      ret (eval `(call-transform-no-trans
-                                  ',m-name
-                                  ',(transform (cadr func))
-                                  ,@t-args-quoted))
-                      return-type this-return-type)
-                ret)
+                ((and (member m-name pyel-method-transforms)
+                      (setq m-name (pyel-find-method-transform-name
+                                    m-name
+                                    (1+ (length args)))));;1+ because args does not include the object
+                 ;;transform defined with `pyel-method-transform'
+                 (setq known-types (cons function-type known-types))
+                 ;;dynamic scoping saves the day again!
+                 (setq keyword-args keywords
+                       star-args starargs
+                       kw-args kwargs
+                       ret (eval `(call-transform-no-trans
+                                   ',m-name
+                                   ',(transform (cadr func))
+                                   ,@t-args-quoted))
+                       return-type this-return-type)
+                 ret)
             ;;normal method call
-            (setq ret (append (using-context 'method-call (transform func))
+            (t (setq ret (append (using-context 'method-call (transform func))
                               (mapcar 'transform args))
                   return-type this-return-type)
-            ret)
+            ret))
 
         ;;call function transform if one was defined
         (cond ((and keyword-args

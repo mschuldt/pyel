@@ -306,14 +306,16 @@ useing python3 unless PYTHON2 is non-nil"
         pyel-func-transforms2 nil
         pyel-marked-ast-pieces nil
         pyel-ast-backtrace nil        
-        pyel-context nil))
+        pyel-context nil
+        pyel-func-kwarg-transforms nil
+        pyel-method-kwarg-transforms nil))
 
-(defvar pyel-method-name-format-string "_%s-method%s"
+(defvar pyel-method-name-format-string "_%s%s-method%s"
   "format string for the method transform names
 It must accept two args, the name of the method
 and its arg signature")
 
-(defun pyel-method-transform-name (method-name &optional arglist)
+(defun pyel-method-transform-name (method-name &optional arglist kwarg)
   "Return the name of the temlate that transform the method METHOD-NAME.
     template names are modified to avoid potential conflict with other templates
   the arglist must be placed in a list before passing so that the code can
@@ -323,7 +325,9 @@ and its arg signature")
           "Invalid arglist. Expected a list of a list")
   (let* ((signature (if arglist (pyel-arglist-signature (car arglist)) "_"))
          (name (format pyel-method-name-format-string
-                       (symbol-name method-name) signature)))
+                       (symbol-name method-name)
+                       (if kwarg "-kwarg" "")
+                       signature)))
     (if arglist
         (assert (equal (pyel-extract-arg-descriptor signature)
                        (pyel-arg-descriptor (car arglist)))
@@ -648,6 +652,9 @@ during interactive emacs-lisp sessions where possible")
 (defvar pyel-func-kwarg-transforms nil
   "list of function names that have kwarg transforms defined for them")
 
+(defvar pyel-method-kwarg-transforms nil
+  "list of method transforms that accept kwargs")
+
 (defconst pyel-nothing '(@)
   "value to return from a function/transform when it should
         not contribute to the output code")
@@ -841,6 +848,18 @@ NOTE: if the name of the function to be created is already in
                          (cons 'list args-just-vars))))))))
 
 (defmacro pyel-method-transform (name args &rest type-switches)
+  (add-to-list 'pyel-method-transforms name)
+  `(pyel-method-transform-1 ,name ,args nil ,@type-switches))
+
+(defmacro pyel-method-kwarg-transform (name args &rest type-switches)
+  "transforms will have the kwarg alist passed as the first parameter
+This transform is only called if there are kwargs. If the kwargs are
+optional to the transform, then a separate transform should be defined
+with `pyel-func-transform' to handle that case."
+  (add-to-list 'pyel-method-kwarg-transforms name)
+  `(pyel-method-transform-1 ,name ,args t ,@type-switches))
+
+(defmacro pyel-method-transform-1 (name args kwargs &rest type-switches)
   "Defines a transform for methods that dispatches on NAME and ARG length.
 The syntax and the function creation is the same as with `pyel-dispatch-func'.
 These transforms are automatically called for methods during translation time.
@@ -849,16 +868,18 @@ of arguments that ARGS allows.
 During translation time, if no transform is found for a method call that
 matches NAME and has the proper arg length then no transform will be called."
   (add-to-list 'pyel-method-transforms name)
-
+ 
   ;;temp solution: does not check types etc
   (let* ((striped-args (mapcar 'strip_ args))
          (args-just-vars (pyel-filter-non-args striped-args))
          (rest-arg (if (eq (car (last striped-args 2)) '&rest)
                        (car (last striped-args)) nil))
          (non-rest (if rest-arg (subseq striped-args 0 -2)))
-         (name-base (format "pyel-%s-method%s"
+         (name-base (format "pyel-%s%s-method%s"
                             (symbol-name name)
+                            (if kwargs "-kwarg" "")
                             (pyel-arglist-signature args)))
+         ;;(transform-name (pyel-method-transform-name name kwargs (list args))))
          (transform-name (pyel-method-transform-name name (list args))))
 
     (pyel-add-method-name-sig name args)
@@ -892,6 +913,10 @@ matches NAME and has the proper arg length then no transform will be called."
   `(pyel-func-transform-1 ,name ,args nil ,@type-switches))
 
 (defmacro pyel-func-kwarg-transform (name args &rest type-switches)
+  "transforms will have the kwarg alist passed as the first parameter
+This transform is only called if there are kwargs. If the kwargs are
+optional to the transform, then a separate transform should be defined
+with `pyel-func-transform' to handle that case."
   (add-to-list 'pyel-func-kwarg-transforms name)
   `(pyel-func-transform-1 ,name ,args t ,@type-switches))
 
@@ -1472,9 +1497,10 @@ This does not check if ARGLIST has a valid form"
     (add-to-list 'signatures (pyel-arg-descriptor args))
     (puthash name signatures pyel-method-name-arg-signature)))
 
-(defun pyel-find-method-transform-name (name num-args)
+(defun pyel-find-method-transform-name (name num-args &optional kwarg)
   "find a matching method transform for NAME with NUM-ARGS
-will return the name of the first match"
+will return the name of the first match, nil if there are no matches
+An error will be raised if transform NAME was never defined"
   (let ((signatures (gethash name pyel-method-name-arg-signature))
         found min max)
     (if signatures
@@ -1498,8 +1524,9 @@ will return the name of the first match"
                (if found
                    (intern (format pyel-method-name-format-string
                                    name
+                                   (if kwarg "-kwarg" "")
                                    (pyel-arg-descriptor-to-signature found)))))
-      (error "method transform %s does not exist in the signature table"
+      (error "method transform '%s' does not exist in the signature table"
              name))))
 
 (defvar pyel-translation-messages nil
