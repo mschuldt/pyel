@@ -907,6 +907,27 @@ matches NAME and has the proper arg length then no transform will be called."
                              `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                            (cons 'list args-just-vars))))))))
 
+(defvar pyel-method-transforms2 nil
+  "list of functions whose translations are defined
+  with the macro `pyel-define-method-translation'")
+ 
+(defmacro pyel-define-method-translation (name args &rest body)
+  "BODY will form the body of a function that is called during transform time
+to translate the method NAME, variables 'ojb', 'args', and 'kwargs'
+are available at this point. 'obj' is the object the method is called on,
+'args' will be a list and 'kwargs will be an alist This is called at the
+same time `pyel-method-transform' would be called ARGS discribe the type
+of argument list that this transformation willbe called for. Only the number
+and type of arguments matter, the names have no effect on the transform
+and cannot be used to reference the actual argument values"
+  (add-to-list 'pyel-method-transforms2 name)
+  (pyel-add-method-name-sig name args)
+
+  `(def-transform ,(pyel-func-transform-name name) pyel ()
+     (lambda (obj args kwargs)
+       ,@body
+       )))
+
 (defmacro pyel-func-transform (name args &rest type-switches)
   (add-to-list 'pyel-func-transforms name)
   ;;TODO: should name be modified to avoid conflicts ?

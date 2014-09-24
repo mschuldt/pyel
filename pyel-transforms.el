@@ -576,7 +576,20 @@
       (setq return-type this-return-type)
       (if is-method-call 
           (cond ((and (member (setq m-name (read (caddr func)))
-                              pyel-method-kwarg-transforms)
+                              pyel-method-transforms2)
+                      (setq m-name (pyel-find-method-transform-name
+                                    m-name
+                                    (+ (length args) (length keyword-args) 1))))
+                      
+               ;;transform defined with `pyel-define-method-translation'
+               (setq ret (eval `(call-transform-no-trans
+                                 ',m-name
+                                 ',(transform (cadr func))
+                                 ,t-args-quoted
+                                 keyword-args))
+                     return-type this-return-type))
+
+                 ((and (member m-name pyel-method-kwarg-transforms)
                       keyword-args
                       (setq m-name (pyel-find-method-transform-name
                                     m-name
