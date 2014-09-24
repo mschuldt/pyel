@@ -150,7 +150,7 @@ match fields: 1. type
                                         ;           (save-buffer)
           (push (list (read marker)
                       (read (_to- name))
-                      (pyel-buffer-to-string :ast-only))
+                      (read (pyel-buffer-to-string :ast-only)))
                 pyel-marked-ast-pieces))))))
 
 (provide 'pyel-preprocessor)
