@@ -309,6 +309,7 @@ Type declarations are replaced with a call to this function.")
         forward-char
         backward-sexp
         forward-sexp
+        insert
         provide))
 
 (mapc (lambda (f)
@@ -318,7 +319,9 @@ Type declarations are replaced with a call to this function.")
         substring
         buffer-substring
         buffer-substring-no-properties
-        buffer-string))
+        buffer-string
+        format
+        single-key-description))
 
 (mapc (lambda (f)
         (pyel-declare-el-func-fn f 'number))
@@ -342,7 +345,11 @@ Type declarations are replaced with a call to this function.")
             first last
             nth
             quote
-            aref aset))
+            aref aset
+            ;;other:
+            switch-to-buffer ;;returns buffer
+            local-set-key
+            ))
 
 (pyel-declare-el-func-fn 'pyel-buffer-to-lisp 'list)
 (pyel-declare-el-func-fn 'pyel 'list)
