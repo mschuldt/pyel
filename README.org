@@ -1,0 +1,33 @@
+Pyel translates PYthon to Emacs Lisp.
+
+Pyel can translate a large subset of Python, it takes advantage of 
+reconstructable types and type annotations to generate efficient code.
+Pyel support Python syntactic extensions that allow for calling e-lisp macros
+and making additional type annotation.
+
+* setup
+In your configuration file:
+#+Begin_SRC emacs-lisp
+  (setq pyel-directory "path/to/pyel/directory")
+  (require 'pyel)
+#+END_SRC
+* usage
+#+Begin_SRC emacs-lisp
+(pyel "python code string")
+(pyel "python code string")
+#+END_SRC
+Returns unevaled e-lisp with supporting function added to `pyel-function-definitions'
+#+Begin_SRC emacs-lisp
+(pyel-load "filename.py")
+#+END_SRC
+Convert python file to an e-lisp file, bypte compile it and load it.
+** interactive usage
+#+Begin_SRC emacs-lisp
+M-x ipyel
+#+END_SRC
+An ielm style repl
+#+Begin_SRC emacs-lisp
+M-x pyel-mode
+#+END_SRC
+Displays the translated python side-by-side in a split buffer
+ (still buggy, best to avoid for now)
