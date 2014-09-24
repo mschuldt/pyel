@@ -1052,14 +1052,14 @@ Recognizes keyword args in the form 'arg = value'."
   (lambda (value _slice ctx &optional line col)
     (pyel-subscript value _slice ctx line col)))
 
-(pyel-dispatch-func subscript-load-index (name value)
+(pyel-dispatch-func sc-load-i (name value)
                     (list _) -> (nth value name)
                     (object _) -> (call-method name --getitem-- value)
                     (vector _) -> (aref name value)
                     (string _) -> (char-to-string (aref name value))
                     (hash _) -> (gethash value name))
 
-(pyel-dispatch-func subscript-load-slice (name start end step)
+(pyel-dispatch-func sc-load-s (name start end step)
                     (object _ _ _) -> (call-method name --getitem--
                                                    (call-method slice
                                                                 --new--
@@ -1069,7 +1069,7 @@ Recognizes keyword args in the form 'arg = value'."
                     ;;TODO implement step
                     (_ _ _ _) -> (subseq name start end))
 
-(pyel-dispatch-func subscript-store-slice (name start end step assign)
+(pyel-dispatch-func sc-store-s (name start end step assign)
                     (object _ _ _) -> (call-method name --setitem--
                                                    (call-method slice
                                                                 --new--
@@ -1081,7 +1081,7 @@ Recognizes keyword args in the form 'arg = value'."
                     ;;TODO implement step
                     (_ _ _ _) -> (setf (subseq name start end) assign))
 
-(pyel-dispatch-func subscript-store-index (name value assign)
+(pyel-dispatch-func sc-store-i (name value assign)
                     (list _) -> (setf (nth value name) assign)
                     (object _) -> (call-method name --setitem-- value assign)
                     (vector _) -> (setf (aref name value) assign)
@@ -1145,10 +1145,10 @@ Recognizes keyword args in the form 'arg = value'."
                 (if (py-object-p t-slice)
                     (progn
                       (setq known-types (list value-type none none none))
-                      (call-transform-no-trans 'subscript-load-slice
+                      (call-transform-no-trans 'sc-load-s
                                                t-value start stop step)) ;;load slice
                   (setq known-types (list value-type slice-type))
-                  (call-transform-no-trans 'subscript-load-index
+                  (call-transform-no-trans 'sc-load-i
                                            t-value t-slice)) ;;load index
               ;;else: store
               (setq t-assign-value (using-context 'return-type?
@@ -1157,10 +1157,10 @@ Recognizes keyword args in the form 'arg = value'."
               (if (py-object-p t-slice)
                   (progn
                     (setq known-types (list value-type none none none none))
-                    (call-transform-no-trans 'subscript-store-slice
+                    (call-transform-no-trans 'sc-store-s
                                              t-value start stop step t-assign-value))
                 (setq known-types (list value-type none none))
-                (call-transform-no-trans 'subscript-store-index
+                (call-transform-no-trans 'sc-store-i
                                          t-value t-slice t-assign-value))))) ;;store index
     (setq return-type nil) ;;return type unknown
     ret))
