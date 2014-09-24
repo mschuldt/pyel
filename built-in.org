@@ -1,0 +1,174 @@
+* built-in methods
+| method           | list? | tuple? | str? | dict? | tests | notes                       |
+|------------------+-------+--------+------+-------+-------+-----------------------------|
+| append           | X     | -      | -    | -     | X     |                             |
+| count            | X     | X      | X    | -     | X     |                             |
+| extend           | X     | -      | -    | -     | X     |                             |
+| index            | X     | X      | X    | -     | X     |                             |
+| insert           | X     | -      | -    | -     | X     |                             |
+| pop              | X     | -      | -    | X     | X     |                             |
+| remove           | X     | -      | -    | -     | X     |                             |
+| reverse          | X     | -      | -    | -     | X     |                             |
+| sort             |       | -      | -    | -     |       |                             |
+| clear            | -     | -      | -    | X     |       |                             |
+| copy             | -     | -      | -    | X     | X     |                             |
+| fromkeys         | -     | -      | -    | X     |       |                             |
+| get              | -     | -      | -    | X     | X     |                             |
+| items            | -     | -      | -    | X     | X     |                             |
+| keys             | -     | -      | -    | X     | X     |                             |
+| popitem          | -     | -      | -    | X     | X     |                             |
+| setdefault       | -     | -      | -    |       |       |                             |
+| update           | -     | -      | -    |       |       |                             |
+| values           | -     | -      | -    | X     | X     |                             |
+| zfill            | -     | -      | X    | -     | X     |                             |
+| upper            | -     | -      | X    | X     | X     |                             |
+| translate        | -     | -      |      | -     |       |                             |
+| title            | -     | -      | X    | -     | X     |                             |
+| swapcase         | -     | -      | X    | -     | X     |                             |
+| strip            | -     | -      | X    | X     | X     |                             |
+| startswith       | -     | -      | X    | -     | X     |                             |
+| splitlines       | -     | -      | X    | -     | X     |                             |
+| split            | -     | -      | X    | X     | X     |                             |
+| rstrip           | -     | -      | X    | -     | X     |                             |
+| rsplit           | -     | -      | X    | -     | X     | equivalent to str.split     |
+| rpartition       | -     | -      | X    | -     | X     | equivalent to str.partition |
+| rjust            | -     | -      | X    | -     | X     |                             |
+| rindex           | -     | -      | X    | -     |       |                             |
+| rfind            | -     | -      | X    | -     | X     |                             |
+| replace          | -     | -      | X    | -     |       |                             |
+| partition        | -     | -      | X    | -     | X     |                             |
+| lstrip           | -     | -      | X    | -     | X     |                             |
+| lower            | -     | -      | X    | X     | X     |                             |
+| ljust            | -     | -      | X    | -     | X     |                             |
+| join             | -     | -      | X    | -     | X     |                             |
+| isupper          | -     | -      | X    | -     | X     |                             |
+| istitle          | -     | -      | X    | -     | X     |                             |
+| isspace          | -     | -      |      | -     |       |                             |
+| isprintable      | -     | -      | X    | -     |       |                             |
+| isnumeric        | -     | -      |      | -     |       |                             |
+| islower          | -     | -      | X    | -     | X     |                             |
+| isidentifier     | -     | -      |      | -     |       |                             |
+| isdigit          | -     | -      |      | -     |       |                             |
+| isdecimal        | -     | -      |      | -     |       |                             |
+| isalpha          | -     | -      | X    | -     | X     |                             |
+| isalnum          | -     | -      | X    | -     | X     |                             |
+| format-map       | -     | -      |      | -     |       |                             |
+| format           | -     | -      |      | -     |       |                             |
+| find             | -     | -      | X    | -     | X     |                             |
+| expandtabs       | -     | -      |      | -     |       |                             |
+| capitalize       | -     | -      |      | -     |       |                             |
+| center           | -     | -      |      | -     |       |                             |
+| encode           | -     | -      |      | -     |       |                             |
+| endswith         | -     | -      |      | -     |       |                             |
+| maketrans        | -     | -      |      | -     |       |                             |
+| __add__          |       |        |      | -     |       |                             |
+| __contains__     |       |        |      |       |       |                             |
+| __delitem__      |       | -      | -    |       |       |                             |
+| __eq__           |       | -      |      |       |       |                             |
+| __ge__           |       | -      |      |       |       |                             |
+| __getattribute__ |       |        |      |       |       |                             |
+| __getitem__      |       |        |      |       |       |                             |
+| __getnewargs__   | -     |        |      | -     |       |                             |
+| __hash__         |       |        |      |       |       |                             |
+| __gt__           |       |        |      |       |       |                             |
+| __iadd__         |       | -      | -    | -     |       |                             |
+| __imul__         |       | -      | -    | -     |       |                             |
+| __init__         |       |        |      |       |       |                             |
+| __iter__         |       |        |      |       |       |                             |
+| __le__           |       |        |      |       |       |                             |
+| __len__          |       |        |      |       |       |                             |
+| __lt__           |       |        |      |       |       |                             |
+| __mul__          |       |        |      | -     |       |                             |
+| __ne__           |       |        |      |       |       |                             |
+| __repr__         |       |        |      |       |       |                             |
+| __rmul__         |       |        |      | -     |       |                             |
+| __reversed__     |       | -      | -    | -     |       |                             |
+| __rmul__         |       |        |      | -     |       |                             |
+| __setitem__      |       | -      | -    |       |       |                             |
+| __sizeof__       |       |        |      |       |       |                             |
+
+* built-in functions
+http://docs.python.org/2/library/functions.html
+
+| function     | status | tests | notes                                    |
+|--------------+--------+-------+------------------------------------------|
+| abs          | x      | x     |                                          |
+| divmod       | x      | x     |                                          |
+| input        | x      |       | reads a string from the minibuffer       |
+| open         |        |       |                                          |
+| staticmethod |        |       |                                          |
+| all          | x      | x     |                                          |
+| enumerate    | x      | x     |                                          |
+| int          | x      | x     |                                          |
+| ord          | x      | x     | strings > 1 char does not raise an error |
+| str          | x      | x     |                                          |
+| any          | x      | x     |                                          |
+| eval         | x      | x     | does not implement global/local params   |
+| isinstance   | x      |       |                                          |
+| pow          | x      | x     |                                          |
+| sum          | x      | x     |                                          |
+| basestring   |        |       |                                          |
+| execfile     |        |       |                                          |
+| issubclass   |        |       |                                          |
+| super        |        |       |                                          |
+| bin          | x      | x     |                                          |
+| file         |        |       |                                          |
+| iter         | -      | -     |                                          |
+| property     |        |       |                                          |
+| tuple        | x      | x     |                                          |
+| bool         | x      | x     |                                          |
+| filter       |        |       |                                          |
+| len          | x      | x     |                                          |
+| range        | x      | x     |                                          |
+| type         | x      | x     | non-standard but mostly compatible       |
+| bytearray    |        |       |                                          |
+| float        | x      | x     |                                          |
+| list         | x      | x     |                                          |
+| raw_input    |        |       |                                          |
+| unichr       |        |       |                                          |
+| callable     |        |       |                                          |
+| format       |        |       |                                          |
+| locals       |        |       |                                          |
+| reduce       |        |       |                                          |
+| unicode      |        |       |                                          |
+| chr          | x      | x     |                                          |
+| frozenset    |        |       |                                          |
+| long         |        |       |                                          |
+| reload       |        |       |                                          |
+| vars         |        |       |                                          |
+| classmethod  |        |       |                                          |
+| getattr      | x      |       |                                          |
+| map          |        |       |                                          |
+| repr         | x      | x     |                                          |
+| xrange       |        |       |                                          |
+| cmp          |        |       |                                          |
+| globals      |        |       |                                          |
+| max          |        |       |                                          |
+| reversed     |        |       |                                          |
+| zip          |        |       |                                          |
+| compile      |        |       |                                          |
+| hasattr      | x      |       |                                          |
+| memoryview   |        |       |                                          |
+| round        | x      | x     |                                          |
+| __import__   |        |       |                                          |
+| complex      |        |       |                                          |
+| hash         | x      | x     |                                          |
+| min          |        |       |                                          |
+| set          |        |       |                                          |
+| apply        |        |       |                                          |
+| delattr      |        |       |                                          |
+| help         |        |       |                                          |
+| next         | x      | x     |                                          |
+| setattr      |        |       |                                          |
+| buffer       |        |       |                                          |
+| dict         | x      | x     |                                          |
+| hex          | x      | x     |                                          |
+| object       | x      |       |                                          |
+| slice        |        |       |                                          |
+| coerce       |        |       |                                          |
+| dir          |        |       |                                          |
+| id           |        |       |                                          |
+| oct          |        |       |                                          |
+| sorted       |        |       |                                          |
+| intern       |        |       |                                          |
+| exit         | x      | no    | not of type Quitter, just a function     |
