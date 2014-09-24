@@ -300,7 +300,7 @@ Each element in ALIST must have for form (a . b)"
 ;;tmp fix (default values for kwonly args are not getting translated)
 (setq None nil)
 
-(defun pyel-mul-num-str (left right)
+(defun pyel-num*str (left right)
   (let ((c 0)
         (ret "")
         num str)

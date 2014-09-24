@@ -9,8 +9,8 @@
                                               (object _)
                                               (_ object)  -> (--mul-- l r)
                                               (_ string)
-                                              (string _)  -> (pyel-mul-num-str l r)))
-                 '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-mul-num-str l r)) ((l string) (pyel-mul-num-str l r))))))
+                                              (string _)  -> (pyel-num*str l r)))
+                 '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-num*str l r)) ((l string) (pyel-num*str l r))))))
 
 (ert-deftest pyel-test-do-splices ()
   (should (equal (pyel-do-splices '(a (@ b (c)))) '(a b (c))))

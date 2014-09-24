@@ -994,7 +994,7 @@ Recognizes keyword args in the form 'arg = value'."
 (pyel-dispatch-func * (l r)
                     (number number) -> (* l r)
                     (string number)
-                    (number string)  -> (pyel-mul-num-str l r)
+                    (number string)  -> (pyel-num*str l r)
                     (object _)  -> (call-method l --mul-- r))
 
 (pyel-dispatch-func + (lhs rhs)

@@ -1951,7 +1951,7 @@ TODO: describe alternative syntax
                     (object _)
                     (_ object)  -> (--mul-- l r)
                     (_ string)
-                    (string _)  -> (pyel-mul-num-str l r))
+                    (string _)  -> (pyel-num*str l r))
 
 *** tests
 auto generated tests
@@ -1966,8 +1966,8 @@ hand written
                                                 (object _)
                                                 (_ object)  -> (--mul-- l r)
                                                 (_ string)
-                                                (string _)  -> (pyel-mul-num-str l r)))
-                   '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-mul-num-str l r)) ((l string) (pyel-mul-num-str l r))))))
+                                                (string _)  -> (pyel-num*str l r)))
+                   '((and ((l number) (r number)) (* l r)) ((l object) (--mul-- l r)) ((r object) (--mul-- l r)) ((r string) (pyel-num*str l r)) ((l string) (pyel-num*str l r))))))
 #+END_SRC
 
 ** translation messages
@@ -4087,7 +4087,7 @@ TODO: tests!
   (pyel-dispatch-func * (l r)
                       (number number) -> (* l r)
                       (string number)
-                      (number string)  -> (pyel-mul-num-str l r)
+                      (number string)  -> (pyel-num*str l r)
                       (object _)  -> (call-method l --mul-- r))
   
   (pyel-dispatch-func + (lhs rhs)
@@ -4157,7 +4157,7 @@ TODO: tests!
 #+END_SRC
 *** python el lib
 #+Begin_SRC emacs-lisp :tangle py-lib.el
-  (defun pyel-mul-num-str (left right)
+  (defun pyel-num*str (left right)
     (let ((c 0)
           (ret "")
           num str)
