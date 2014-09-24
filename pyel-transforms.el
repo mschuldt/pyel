@@ -557,7 +557,7 @@
           (pyel-env-set (transform (car args))
                         (using-context 'get-annotation
                                        (transform (cadr args)))
-                        type-env))
+                        type-env)
           pyel-nothing)
       ;;else: normal function/method call
       (setq known-types
