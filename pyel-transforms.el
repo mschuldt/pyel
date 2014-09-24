@@ -554,7 +554,10 @@
         ;;declare variable type, return nothing
         (progn
           (assert (= (length args) 2) "type declaration function requires 2 args")
-          (pyel-env-set (transform (car args)) (transform (cadr args)) type-env)
+          (pyel-env-set (transform (car args))
+                        (using-context 'get-annotation
+                                       (transform (cadr args)))
+                        type-env))
           pyel-nothing)
       ;;else: normal function/method call
       (setq known-types
