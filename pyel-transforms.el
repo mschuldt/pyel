@@ -51,14 +51,20 @@
     (cond (unpack
            ;;TODO: pyel error unless: (and (> (length targets) 1)  (= (length values) 1)
 
-           (let ((code '(@)))
-             `(let ((__value__ ,(transform (car values))))
-
+           (let* ((code '(@))
+                 (tmp-var '~~value~~)
+                 (name-ast (pyel-make-ast 'name tmp-var 'load))
+                 type)
+             `(let ((,tmp-var ,(prog1 (using-context 'return-type?
+                                                     (transform (car values)))
+                                 (pyel-env-set tmp-var return-type type-env))))
+                
                 ,(dotimes (i (length targets) (reverse code))
                  ;;;TODO: will have to help the transform know what type __value__ is
+                   ;;(setq return-type type)
                    (push (py-assign2 (nth i targets)
 
-                                     (pyel-make-ast 'subscript '__value__ i 'load))
+                                     (pyel-make-ast 'subscript name-ast i 'load))
                          code))
                 )))
 
