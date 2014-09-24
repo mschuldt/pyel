@@ -848,10 +848,10 @@ NOTE: if the name of the function to be created is already in
                                                    `(append ,(cons 'list non-rest)
                                                             ,rest-arg)
                                                  (cons 'list args-just-vars)))
-                                               ',args
+                                             ',args
                                              ',type-switches))
                (_pyel_name (intern (concat ,name-base
-                                     (number-to-string _pyel-type-sig))))
+                                           (number-to-string _pyel-type-sig))))
                ;;(_pyel_name (intern ,name-base ))
                )
            (unless (member _pyel_name pyel-defined-functions)

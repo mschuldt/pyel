@@ -323,7 +323,9 @@ Type declarations are replaced with a call to this function.")
 (mapc (lambda (f)
         (pyel-declare-el-func-fn f 'number))
       ;;return number
-      '(length))
+      '(length
+        point
+        random))
 
 (mapc (lambda (f)
         (pyel-declare-el-func-fn f 'bool))
