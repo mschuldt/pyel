@@ -3,8 +3,6 @@
 
 ;;  PYEL -> translate PYthon to Emacs Lisp
 
-(add-to-list 'load-path "~/programming/pyel/")
-(add-to-list 'load-path "~/programming/code-transformer/")
 (require 'eieio)
 (require 'cl)
 

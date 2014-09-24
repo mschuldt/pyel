@@ -320,8 +320,6 @@ put the following line in your config:
 * main
 ** require
 #+Begin_SRC emacs-lisp :tangle pyel.el
-  (add-to-list 'load-path "~/programming/pyel/")
-  (add-to-list 'load-path "~/programming/code-transformer/")
   (require 'eieio)
   (require 'cl)
   
