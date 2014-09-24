@@ -691,6 +691,10 @@ during interactive emacs-lisp sessions where possible")
 (defvar pyel-last-class-type-env nil
   "reverence to type environment for testing purposes")
 
+(defvar expand-resolved-transforms t
+  "when non-nil, expand transforms that have been resolved
+to one case instead of generating a macro call.")
+
 (defvar pyel-default--init--method
   "(defmethod --init-- ((self %s))
      \"Default initializer\"
@@ -863,7 +867,8 @@ NOTE: if the name of the function to be created is already in
            (setq args ,(if rest-arg
                            `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                          (cons 'list args-just-vars)))
-           (if pyel--transform-resolved
+           (if (and pyel--transform-resolved
+                    expand-resolved-transforms)
                (progn
                  (setq args (pyel-do-splices args))
                  ,(if rest-arg

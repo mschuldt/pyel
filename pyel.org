@@ -1013,6 +1013,10 @@ main
     "reverence to type environment for testing purposes")
   (defvar pyel-last-class-type-env nil
     "reverence to type environment for testing purposes")
+  
+  (defvar expand-resolved-transforms t
+    "when non-nil, expand transforms that have been resolved
+  to one case instead of generating a macro call.")
 #+END_SRC
 ** syntax output variables
 variables that effect the form of the output code
@@ -1196,7 +1200,8 @@ This will have to be removed after the code is generated
              (setq args ,(if rest-arg
                              `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
                            (cons 'list args-just-vars)))
-             (if pyel--transform-resolved
+             (if (and pyel--transform-resolved
+                      expand-resolved-transforms)
                  (progn
                    (setq args (pyel-do-splices args))
                    ,(if rest-arg
