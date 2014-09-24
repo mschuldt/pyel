@@ -30,3 +30,45 @@ M-x pyel-mode
 #+END_SRC
 Displays the translated python side-by-side in a split buffer
  (still buggy, best to avoid for now)
+
+* example
+#+Begin_SRC python
+  @interactive
+  def show_ascii_table ():
+      '''Display basic ASCII table (0 thru 128).'''
+      switch_to_buffer('*ASCII*')
+      local_set_key('q', `bury_buffer)
+      erase_buffer()
+      save_excursion(
+          i = -1
+          insert('ASCII characters 0 thru 127.\n\n')
+          insert(' Hex  Dec  Char|  Hex  Dec  Char|  Hex  Dec  Char|  Hex  Dec  Char\n')
+          while i < 31:
+              for k in range(4):
+                  i += (32 if k else 1)
+                  insert(format('%4x %4d %4s %s', i, i, single_key_description(i), '\n' if k == 3 else '| '))
+              i = i - 96
+              )
+#+END_SRC
+#+Begin_SRC emacs-lisp :tangle mbs-lisp/dotemacs.el
+  (def show-ascii-table nil
+       (interactive)
+       "Display basic ASCII table (0 thru 128)."
+       (let (i)
+         (switch-to-buffer "*ASCII*")
+         (local-set-key "q" 'bury-buffer)
+         (erase-buffer)
+         (save-excursion (setq i (- 1))
+                         (insert "ASCII characters 0 thru 127.\n")
+                         (insert " Hex  Dec  Char|  Hex  Dec  Char|  Hex  Dec  Char|  Hex  Dec  Char\n")
+                         (while (< i 31)
+                           (py-for k in (py-range 4)
+                                   (setq i (+ i (if (py-bool k) 32 1)))
+                                   (insert (format "%4x %4d %4s %s"
+                                                   i i
+                                                   (single-key-description i)
+                                                   (if (py-bool (pyel-==5 k 3))
+                                                       "\n" "| "))))
+                           (setq i (- i 96))))))
+#+END_SRC
+
