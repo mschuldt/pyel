@@ -1128,6 +1128,23 @@ This will have to be removed after the code is generated
                                  (eq x '&rest))))
             args))
   
+  (defun pyel-group-&rest (lst num)
+    "return a list of NUM items from LST with the remainder elements
+  grouped into a list as the last element"
+    (setq _ii lst)
+    (let ((len (length lst))
+          fst rst)
+      (cond ((< len num) ;;?
+             (setq fst lst
+                   rst nil))
+            ((= len num)
+             (setq fst (subseq lst 0 (1- len))
+                   rst (last lst)))
+            (t
+             (setq fst (subseq lst 0 (setq num (1- num)))
+                   rst (subseq lst num))))
+      (setq _rr (append fst (list rst)))))
+  
   (defmacro pyel-dispatch-func (name args &rest type-switches)
     "Define a transform that creates a runtime function that
   dispatches on argument type as defined by TYPE-SWITCHES.
@@ -1135,7 +1152,7 @@ This will have to be removed after the code is generated
   function like `call-transform', it will return a call to
   the function it creates.
   After the resulting transform is called, it adds the name of the
-  created function in `pyel-defined-functions' and adds the function 
+  created function in `pyel-defined-functions' and adds the function
   definition to `pyel-function-definitions'
   
   Use `pyel-func-transform' to define transforms for functions that
@@ -1176,9 +1193,23 @@ This will have to be removed after the code is generated
                      pyel-function-definitions)
                (push _pyel_name pyel-defined-functions)
                (fset _pyel_name (lambda () nil)))
-             (cons _pyel_name ,(if rest-arg
+             (setq args ,(if rest-arg
                              `(append (list ,@(subseq args-just-vars 0 -1)) ,rest-arg)
-                           (cons 'list args-just-vars))))))))
+                           (cons 'list args-just-vars)))
+             (if pyel--transform-resolved
+                 (progn
+                   (setq args (pyel-do-splices args))
+                   ,(if rest-arg
+                        `(setq args
+                               (pyel-group-&rest args ,(length args-just-vars))))
+  
+                   (progv
+                       ',args-just-vars
+                       args
+                     (eval body)))
+               (cons _pyel_name args))
+             )))))
+  
   
   (defmacro pyel-method-transform (name args &rest type-switches)
     (add-to-list 'pyel-method-transforms name)
@@ -1479,6 +1510,11 @@ This will have to be removed after the code is generated
   (in order), a value of 1 indicates that the type switch was included.")
   
   
+  (defvar pyel--transform-resolved nil
+    "used to enform callers of `pyel-do-call-transform' that
+  the transform has been resolved to one case.
+  Passed via dynamic scoping.")
+  
   (defun pyel-do-call-transform (possible~types args type-switch)
     "This is responsible for  producing a call to NAME in the most
         efficient way possible with the known types"
@@ -1595,12 +1631,13 @@ This will have to be removed after the code is generated
       ;;generate code to call NAME
       ;;if there is 2 posible types, use IF. For more use COND
       (setq len~ (length valid~))
-  
+      (setq pyel--transform-resolved nil)
       (cond ((<= len~ 0)
              (error "unable to match dispatch types: %s" pyel-last-transform))
             ((= len~ 1)
              ;;there is only one possibility, so replace the args with their
              ;;quoted counterpart instead of replacing with the let bound vars
+             (setq pyel--transform-resolved t)
              (list 'backquote (pyel-replace-backquoted (if (eq (caar valid~) 'and)
                                                            (caddar valid~)
                                                          (cadar valid~))
