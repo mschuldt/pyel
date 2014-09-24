@@ -537,7 +537,9 @@ during interactive emacs-lisp sessions where possible")
           (setq newlist (cons e newlist))))
     (reverse newlist)))
 
-(defvar pyel-directory ""
+(defvar pyel-directory (file-name-directory (if load-in-progress
+                                                load-file-name
+                                              buffer-file-name))
   "Path to pyel files. must include py-ast.py, pyel.el etc")
 
 (defmacro vfunction-p (f)
